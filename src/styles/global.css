@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600&family=Inter:wght@400;500&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: #1A1D23;
+  background-color: #FAFAF9;
+}
+
+h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 1.2;
+}
+
+.hero {
+  padding: 80px 24px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.hero-subline {
+  font-size: 17px;
+  line-height: 1.6;
+  color: #334155;
+  margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+  .hero {
+    padding: 48px 24px;
+  }
+}
+
+.proof-strip {
+  padding: 0 24px 80px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.proof-strip p {
+  font-size: 17px;
+  line-height: 1.6;
+  color: #1A1D23;
+}
+
+.proof-strip a {
+  color: #2563EB;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .proof-strip {
+    padding: 0 24px 48px;
+  }
+}
+
+.cta {
+  padding: 0 24px 80px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.cta-button {
+  display: inline-block;
+  background-color: #2563EB;
+  color: #FAFAF9;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 17px;
+  padding: 14px 28px;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+@media (max-width: 600px) {
+  .cta {
+    padding: 0 24px 48px;
+  }
+}
