@@ -175,3 +175,23 @@ h1 {
     padding: 48px 24px;
   }
 }
+
+nav {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+nav a {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  color: #334155;
+  text-decoration: none;
+}
+
+nav a:hover {
+  color: #2563EB;
+}

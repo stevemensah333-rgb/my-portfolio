@@ -1,24 +1,20 @@
 ---
-import '../styles/global.css';
+import Layout from '../layouts/Layout.astro';
 ---
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>Stephen Nyarko Mensah</title>
-	</head>
-	<body>
-		<section class="hero">
-			<h1>I close the gap between an AI demo and an AI feature people can actually trust.</h1>
-			<p class="hero-subline">I build AI features that actually hold up in production, not just in a demo.</p>
-		</section>
-		<section class="proof-strip">
-			<p>
-				On Syncareer, an AI career platform I built, I diagnosed why the LLM output was unreliable and fixed it until the AI feature ran stably in production, alongside 80+ sign-ups and steady daily use.
-				<a href="/case-study">Read the full case study →</a>
-			</p>
-		</section>
-		<section class="cta">
-			<a class="cta-button" href="mailto:youremail@example.com">Email me to schedule a call</a>
-		</section>
-	</body>
-</html>
+<Layout title="Stephen Nyarko Mensah">
+	<section class="hero">
+		<h1>I close the gap between an AI demo and an AI feature people can actually trust.</h1>
+		<p class="hero-subline">I build AI features that actually hold up in production, not just in a demo.</p>
+	</section>
+
+	<section class="proof-strip">
+		<p>
+			On Syncareer, an AI career platform I built, I diagnosed why the LLM output was unreliable and fixed it until the AI feature ran stably in production, alongside 80+ sign-ups and steady daily use.
+			<a href="/case-study">Read the full case study →</a>
+		</p>
+	</section>
+
+	<section class="cta">
+		<a class="cta-button" href="mailto:youremail@example.com">Email me to schedule a call</a>
+	</section>
+</Layout>
