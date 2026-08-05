@@ -1,0 +1,121 @@
+---
+import { PUBLIC_EMAIL, PUBLIC_LINKS } from '../config/site';
+
+const secondaryLinks = [
+  { label: 'GitHub', href: PUBLIC_LINKS.github },
+  { label: 'LinkedIn', href: PUBLIC_LINKS.linkedin },
+  { label: 'Resume', href: PUBLIC_LINKS.resume },
+];
+---
+
+<section id="contact" class="contact" aria-labelledby="contact-title">
+  <div class="page-shell contact-inner">
+    <p class="technical-label">Start a conversation</p>
+    <h2 id="contact-title">Have an AI engineering role to discuss?</h2>
+    <p class="contact-copy">
+      I'm looking for entry-level AI engineering opportunities where I can contribute to product work
+      and learn from experienced engineers.
+    </p>
+
+    <div class="contact-actions">
+      <a class="button" href={`mailto:${PUBLIC_EMAIL}`}>Email me</a>
+      <ul class="secondary-links" aria-label="Other ways to find Stephen">
+        {secondaryLinks.map((link) => (
+          <li>
+            {link.href ? (
+              <a href={link.href}>{link.label}</a>
+            ) : (
+              <span><strong>{link.label}</strong> <small>TODO / URL</small></span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact {
+    padding-block: clamp(var(--space-9), 14vw, 10rem);
+    border-top: var(--border-default);
+    scroll-margin-top: 5rem;
+  }
+
+  .contact-inner > p,
+  .contact-inner h2 {
+    margin: 0;
+  }
+
+  .contact-inner h2 {
+    max-width: 19ch;
+    margin-top: var(--space-5);
+    font-size: var(--text-h1);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+  }
+
+  .contact-copy {
+    max-width: var(--width-reading);
+    margin-top: var(--space-6) !important;
+    color: var(--color-text-secondary);
+    font-size: var(--text-body-large);
+    line-height: 1.6;
+  }
+
+  .contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    align-items: center;
+    margin-top: var(--space-7);
+  }
+
+  .secondary-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .secondary-links a,
+  .secondary-links span {
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .secondary-links a {
+    display: inline-flex;
+    min-height: var(--control-height);
+    align-items: center;
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .secondary-links strong {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .secondary-links small {
+    margin-left: var(--space-1);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+  }
+
+  @media (max-width: 30rem) {
+    .contact-inner h2 {
+      font-size: clamp(2.25rem, 11vw, 3rem);
+    }
+
+    .contact-actions {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .secondary-links {
+      display: grid;
+    }
+  }
+</style>

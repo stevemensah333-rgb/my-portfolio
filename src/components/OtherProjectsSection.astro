@@ -1,0 +1,208 @@
+---
+const projectSlots = [
+  { number: '02', slot: '01' },
+  { number: '03', slot: '02' },
+  { number: '04', slot: '03' },
+];
+
+const linkFields = ['Live link', 'GitHub link', 'Case-study link'];
+---
+
+<section id="other-work" class="other-projects" aria-labelledby="other-projects-title">
+  <div class="page-shell">
+    <header class="section-header">
+      <p class="technical-label">Supporting work</p>
+      <h2 id="other-projects-title">Other things I've built</h2>
+      <p>Additional projects will appear here when their evidence is ready.</p>
+    </header>
+
+    <ol class="project-list">
+      {projectSlots.map((project) => (
+        <li class="project-entry">
+          <figure class="project-image">
+            <img
+              src="/placeholders/project-screenshot-placeholder.svg"
+              alt={`Placeholder reserved for a real screenshot of project slot ${project.slot}`}
+              width="1200"
+              height="750"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>TODO / Replace with a real product screenshot</figcaption>
+          </figure>
+
+          <div class="project-details">
+            <p class="project-number">Project {project.number}</p>
+            <h3><span>TODO</span> Project name</h3>
+
+            <dl class="project-evidence">
+              <div>
+                <dt>Problem</dt>
+                <dd>TODO / Add one sentence describing the specific problem.</dd>
+              </div>
+              <div>
+                <dt>What Stephen built</dt>
+                <dd>TODO / Describe Stephen's verified contribution.</dd>
+              </div>
+              <div>
+                <dt>Evidence</dt>
+                <dd>TODO / Add one real outcome, artifact or evidence point.</dd>
+              </div>
+              <div>
+                <dt>Technologies</dt>
+                <dd>TODO / Add only technologies confirmed for this project.</dd>
+              </div>
+            </dl>
+
+            <ul class="project-links" aria-label={`Links for project slot ${project.slot}`}>
+              {linkFields.map((link) => <li><span>{link}</span> TODO / Not supplied</li>)}
+            </ul>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .other-projects {
+    padding-block: clamp(var(--space-9), 12vw, var(--space-10));
+    border-top: var(--border-default);
+    scroll-margin-top: 5rem;
+  }
+
+  .section-header {
+    max-width: var(--width-reading);
+  }
+
+  .section-header p,
+  .section-header h2 {
+    margin: 0;
+  }
+
+  .section-header h2 {
+    margin-block: var(--space-3) var(--space-4);
+    font-size: var(--text-h2);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+  }
+
+  .section-header > p:last-child {
+    color: var(--color-text-secondary);
+  }
+
+  .project-list {
+    margin: var(--space-9) 0 0;
+    padding: 0;
+    border-top: var(--border-default);
+    list-style: none;
+  }
+
+  .project-entry {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-8);
+    border-bottom: var(--border-default);
+  }
+
+  .project-image {
+    margin: 0;
+  }
+
+  .project-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: var(--border-default);
+    background: var(--color-surface);
+  }
+
+  .project-image figcaption,
+  .project-number,
+  .project-links {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+  }
+
+  .project-image figcaption {
+    margin-top: var(--space-3);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+  }
+
+  .project-details {
+    align-self: start;
+  }
+
+  .project-number {
+    margin: 0 0 var(--space-4);
+    color: var(--color-text-secondary);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .project-details h3 {
+    margin-bottom: var(--space-6);
+    font-size: var(--text-h3);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  .project-details h3 span {
+    display: inline-block;
+    margin-right: var(--space-2);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.06em;
+    vertical-align: middle;
+  }
+
+  .project-evidence {
+    margin: 0;
+    border-block: var(--border-default);
+  }
+
+  .project-evidence div {
+    padding-block: var(--space-4);
+  }
+
+  .project-evidence div + div {
+    border-top: var(--border-default);
+  }
+
+  .project-evidence dt {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .project-evidence dd {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .project-links {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    color: var(--color-text-secondary);
+    list-style: none;
+  }
+
+  .project-links span {
+    color: var(--color-text);
+  }
+
+  @media (min-width: 48rem) {
+    .project-entry {
+      grid-template-columns: minmax(0, 1.7fr) minmax(17rem, 0.8fr);
+      gap: clamp(var(--space-7), 6vw, var(--space-9));
+      align-items: start;
+      padding-block: var(--space-9);
+    }
+  }
+</style>

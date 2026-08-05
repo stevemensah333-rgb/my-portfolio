@@ -1,0 +1,149 @@
+---
+import { PUBLIC_EMAIL } from '../config/site';
+import AboutSection from '../components/AboutSection.astro';
+import ApproachSection from '../components/ApproachSection.astro';
+import ContactSection from '../components/ContactSection.astro';
+import EvidenceSection from '../components/EvidenceSection.astro';
+import ExperienceSection from '../components/ExperienceSection.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SyncareerSection from '../components/SyncareerSection.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Stephen Mensah | AI Engineering Portfolio';
+const description = 'Stephen Mensah builds and debugs reliable LLM-powered software.';
+---
+
+<BaseLayout {title} {description}>
+  <section class="hero page-shell" aria-labelledby="hero-title">
+    <div class="hero-inner">
+      <p class="technical-label eyebrow">AI Engineering · Software</p>
+
+      <h1 id="hero-title">I make AI features reliable enough to ship.</h1>
+
+      <div class="hero-details">
+        <p class="supporting-copy">
+          I build and debug LLM-powered software. I pay attention to what happens when model output
+          has to fit an actual product.
+        </p>
+
+        <div class="hero-actions" aria-label="Portfolio actions">
+          <a class="button" href="#syncareer">See the proof</a>
+          <a class="email-link" href={`mailto:${PUBLIC_EMAIL}`}>Email me</a>
+        </div>
+      </div>
+
+      <ul class="hero-meta" aria-label="Current status">
+        <li>Computer Science student</li>
+        <li>Open to AI engineering internships</li>
+      </ul>
+    </div>
+  </section>
+
+  <SyncareerSection />
+  <ApproachSection />
+  <AboutSection />
+  <ExperienceSection />
+  <EvidenceSection />
+  <ContactSection />
+  <SiteFooter slot="footer" />
+</BaseLayout>
+
+<style>
+  .hero {
+    min-height: calc(100svh - 4.5rem);
+  }
+
+  .hero-inner {
+    display: flex;
+    min-height: inherit;
+    flex-direction: column;
+    padding-block: clamp(3.5rem, 9vw, 7rem) var(--space-6);
+  }
+
+  .eyebrow {
+    margin-bottom: clamp(2rem, 5vw, 4rem);
+  }
+
+  h1 {
+    max-width: 12ch;
+    margin-bottom: clamp(2.5rem, 6vw, 5rem);
+    font-size: clamp(2.75rem, 10.5vw, var(--text-display));
+    font-weight: 650;
+    letter-spacing: -0.055em;
+    line-height: var(--leading-display);
+  }
+
+  .hero-details {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .supporting-copy {
+    max-width: 42rem;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .email-link {
+    display: inline-flex;
+    min-height: var(--control-height);
+    align-items: center;
+    color: var(--color-text);
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    margin: auto 0 0;
+    padding: var(--space-6) 0 0;
+    border-top: var(--border-default);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: 1.5;
+    list-style: none;
+  }
+
+  @media (max-width: 30rem) {
+    h1 {
+      max-width: none;
+      font-size: clamp(2.25rem, 11.25vw, 3.25rem);
+      letter-spacing: -0.045em;
+    }
+
+    .hero-meta {
+      flex-direction: column;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .hero {
+      min-height: calc(100svh - 5rem);
+    }
+
+    .hero-details {
+      grid-template-columns: minmax(0, 7fr) minmax(12rem, 3fr);
+      align-items: end;
+    }
+
+    .hero-actions {
+      justify-content: flex-end;
+    }
+
+    .hero-meta {
+      justify-content: space-between;
+    }
+  }
+</style>

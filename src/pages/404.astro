@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Page not found | Stephen Mensah';
+const description = 'The requested page could not be found.';
+---
+
+<BaseLayout {title} {description} noindex canonical={false}>
+  <section class="not-found page-shell" aria-labelledby="not-found-title">
+    <p class="technical-label">404 / Page not found</p>
+    <h1 id="not-found-title">This page does not exist.</h1>
+    <p>The address may be outdated, or the page may have moved.</p>
+    <a class="button" href="/">Return home</a>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    min-height: calc(100svh - 5rem);
+    align-content: center;
+    justify-items: start;
+    padding-block: var(--space-9);
+  }
+
+  .not-found p,
+  .not-found h1 {
+    margin: 0;
+  }
+
+  .not-found h1 {
+    max-width: 14ch;
+    margin-top: var(--space-4);
+    font-size: var(--text-h1);
+    letter-spacing: -0.04em;
+  }
+
+  .not-found > p:not(.technical-label) {
+    max-width: var(--width-reading);
+    margin-top: var(--space-5);
+    color: var(--color-text-secondary);
+  }
+
+  .not-found .button {
+    margin-top: var(--space-7);
+  }
+</style>

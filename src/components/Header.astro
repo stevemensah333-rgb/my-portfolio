@@ -1,0 +1,51 @@
+---
+import { PUBLIC_EMAIL } from '../config/site';
+---
+
+<header id="top" class="site-header">
+  <div class="page-shell header-inner">
+    <a class="site-name" href="/" aria-label="Stephen Mensah, home">Stephen Mensah</a>
+    <a class="header-contact" href={`mailto:${PUBLIC_EMAIL}`}>Email</a>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .header-inner {
+    display: flex;
+    min-height: 4.5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+
+  .site-name,
+  .header-contact {
+    display: inline-flex;
+    min-height: var(--control-height);
+    align-items: center;
+    color: var(--color-text);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration-color: transparent;
+  }
+
+  .site-name:hover,
+  .header-contact:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .header-contact {
+    color: var(--color-text-secondary);
+    font-weight: 500;
+  }
+
+  @media (min-width: 48rem) {
+    .header-inner {
+      min-height: 5rem;
+    }
+  }
+</style>

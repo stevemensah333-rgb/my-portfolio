@@ -1,0 +1,367 @@
+---
+import { PUBLIC_LINKS } from '../config/site';
+import { credentials } from '../data/credentials';
+---
+
+<section class="credentials" aria-labelledby="credentials-title">
+  <div class="page-shell">
+    <header class="section-header">
+      <p class="technical-label">Selected credentials &amp; recognition</p>
+      <h2 id="credentials-title">Evidence</h2>
+      <p>A few things that are easier to show than describe.</p>
+    </header>
+
+    <div class="desktop-evidence" data-credential-evidence>
+      <div class="credential-index">
+        <ol>
+          {credentials.map((credential, index) => (
+            <li>
+              <button
+                type="button"
+                data-credential-trigger={credential.id}
+                aria-controls={`credential-preview-${credential.id}`}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              >
+                <span>{credential.name}</span>
+                <strong>{credential.result}</strong>
+              </button>
+            </li>
+          ))}
+        </ol>
+        <a class="resume-link" href={PUBLIC_LINKS.resume}>View résumé <span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="preview" aria-live="polite">
+        {credentials.map((credential, index) => (
+          <article
+            id={`credential-preview-${credential.id}`}
+            class="preview-panel"
+            data-credential-panel={credential.id}
+            data-active={index === 0 ? 'true' : 'false'}
+            aria-hidden={index === 0 ? 'false' : 'true'}
+          >
+            {credential.asset ? (
+              <img
+                src={credential.asset.src}
+                alt={credential.asset.alt}
+                width={credential.asset.width}
+                height={credential.asset.height}
+                loading="lazy"
+                decoding="async"
+              />
+            ) : (
+              <div class="text-record">
+                <p class="record-label">Evidence record</p>
+                <h3>{credential.name}</h3>
+                <p class="record-result">{credential.result}</p>
+              </div>
+            )}
+            {(credential.issuer || credential.detail) && (
+              <dl class="record-meta">
+                {credential.issuer && <div><dt>Issuer</dt><dd>{credential.issuer}</dd></div>}
+                {credential.detail && <div><dt>Detail</dt><dd>{credential.detail}</dd></div>}
+              </dl>
+            )}
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <div class="mobile-evidence">
+      {credentials.map((credential, index) => (
+        <details name="credentials" open={index === 0}>
+          <summary>
+            <span>{credential.name}</span>
+            <strong>{credential.result}</strong>
+          </summary>
+          <div class="mobile-record">
+            {credential.issuer && <p><span>Issuer</span>{credential.issuer}</p>}
+            {credential.detail && <p><span>Detail</span>{credential.detail}</p>}
+            {!credential.issuer && !credential.detail && <p>Verified recognition</p>}
+          </div>
+        </details>
+      ))}
+      <a class="resume-link" href={PUBLIC_LINKS.resume}>View résumé <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+
+<script>
+  for (const section of document.querySelectorAll<HTMLElement>('[data-credential-evidence]')) {
+    const triggers = section.querySelectorAll<HTMLButtonElement>('[data-credential-trigger]');
+    const panels = section.querySelectorAll<HTMLElement>('[data-credential-panel]');
+
+    const selectCredential = (id: string) => {
+      for (const trigger of triggers) {
+        trigger.setAttribute('aria-pressed', String(trigger.dataset.credentialTrigger === id));
+      }
+
+      for (const panel of panels) {
+        const isActive = panel.dataset.credentialPanel === id;
+        panel.dataset.active = String(isActive);
+        panel.setAttribute('aria-hidden', String(!isActive));
+      }
+    };
+
+    for (const trigger of triggers) {
+      const select = () => selectCredential(trigger.dataset.credentialTrigger ?? '');
+      trigger.addEventListener('mouseenter', select);
+      trigger.addEventListener('focus', select);
+      trigger.addEventListener('click', select);
+    }
+  }
+</script>
+
+<style>
+  .credentials {
+    padding-block: clamp(var(--space-8), 9vw, var(--space-10));
+    border-top: var(--border-default);
+  }
+
+  .section-header {
+    max-width: var(--width-reading);
+    margin-bottom: var(--space-8);
+  }
+
+  .section-header p,
+  .section-header h2 {
+    margin: 0;
+  }
+
+  .section-header h2 {
+    margin-block: var(--space-3) var(--space-4);
+    font-size: var(--text-h2);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+  }
+
+  .section-header > p:last-child {
+    color: var(--color-text-secondary);
+  }
+
+  .desktop-evidence {
+    display: none;
+  }
+
+  .mobile-evidence {
+    border-top: var(--border-default);
+  }
+
+  .mobile-evidence details {
+    border-bottom: var(--border-default);
+  }
+
+  .mobile-evidence summary {
+    display: grid;
+    min-height: var(--control-height);
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-4);
+    align-items: center;
+    padding-block: var(--space-4);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobile-evidence summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-evidence summary::after {
+    grid-column: 2;
+    grid-row: 1;
+    color: var(--color-text-secondary);
+    content: '+';
+    font-family: var(--font-mono);
+  }
+
+  .mobile-evidence details[open] summary::after {
+    content: '−';
+  }
+
+  .mobile-evidence summary > span {
+    min-width: 0;
+    font-weight: 600;
+  }
+
+  .mobile-evidence summary strong {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    font-weight: 500;
+  }
+
+  .mobile-record {
+    display: grid;
+    gap: var(--space-2);
+    padding: 0 0 var(--space-5);
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .mobile-record p {
+    margin: 0;
+  }
+
+  .mobile-record span {
+    display: inline-block;
+    min-width: 4rem;
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    text-transform: uppercase;
+  }
+
+  .resume-link {
+    display: inline-flex;
+    min-height: var(--control-height);
+    align-items: center;
+    margin-top: var(--space-5);
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .resume-link span {
+    margin-left: var(--space-2);
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 64rem) {
+    .mobile-evidence {
+      display: none;
+    }
+
+    .desktop-evidence {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(18rem, 5fr);
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    .credential-index ol {
+      margin: 0;
+      padding: 0;
+      border-top: var(--border-default);
+      list-style: none;
+    }
+
+    .credential-index li {
+      border-bottom: var(--border-default);
+    }
+
+    .credential-index button {
+      display: grid;
+      width: 100%;
+      min-height: 4.5rem;
+      grid-template-columns: minmax(0, 1fr) minmax(10rem, auto);
+      gap: var(--space-5);
+      align-items: center;
+      padding: var(--space-4) 0;
+      border: 0;
+      background: transparent;
+      color: var(--color-text);
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+    }
+
+    .credential-index button strong {
+      color: var(--color-text-secondary);
+      font-size: var(--text-small);
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .credential-index button[aria-pressed='true'] span {
+      font-weight: 650;
+    }
+
+    .credential-index button[aria-pressed='true'] strong {
+      color: var(--color-text);
+    }
+
+    .preview {
+      display: grid;
+      min-height: 20rem;
+      border-block: var(--border-default);
+    }
+
+    .preview-panel {
+      display: grid;
+      grid-area: 1 / 1;
+      align-content: space-between;
+      padding-block: var(--space-7);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(var(--space-2));
+      transition: opacity 140ms ease, transform 140ms ease;
+      visibility: hidden;
+    }
+
+    .preview-panel[data-active='true'] {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      visibility: visible;
+    }
+
+    .preview-panel img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: var(--border-default);
+    }
+
+    .record-label,
+    .text-record h3,
+    .record-result {
+      margin: 0;
+    }
+
+    .record-label,
+    .record-meta dt {
+      color: var(--color-text-secondary);
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .text-record h3 {
+      margin-top: var(--space-5);
+      font-size: var(--text-h3);
+      font-weight: 600;
+    }
+
+    .record-result {
+      margin-top: var(--space-3);
+      color: var(--color-text-secondary);
+      font-size: var(--text-body-large);
+    }
+
+    .record-meta {
+      display: grid;
+      gap: var(--space-3);
+      margin: var(--space-7) 0 0;
+      padding-top: var(--space-4);
+      border-top: var(--border-default);
+    }
+
+    .record-meta div {
+      display: grid;
+      grid-template-columns: 4rem minmax(0, 1fr);
+      gap: var(--space-4);
+    }
+
+    .record-meta dd {
+      margin: 0;
+      font-size: var(--text-small);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .preview-panel {
+      transition: none;
+    }
+  }
+</style>

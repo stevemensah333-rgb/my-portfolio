@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" role="img" aria-labelledby="title description">
+  <title id="title">Project screenshot placeholder</title>
+  <desc id="description">Temporary asset to be replaced with a real product screenshot.</desc>
+  <rect width="1200" height="750" fill="#EFEEE9" />
+  <rect x="40" y="40" width="1120" height="670" fill="#F7F6F2" stroke="#E2E0DA" stroke-width="2" />
+  <line x1="40" y1="100" x2="1160" y2="100" stroke="#E2E0DA" stroke-width="2" />
+  <circle cx="72" cy="70" r="5" fill="#E2E0DA" />
+  <circle cx="94" cy="70" r="5" fill="#E2E0DA" />
+  <circle cx="116" cy="70" r="5" fill="#E2E0DA" />
+  <text x="600" y="352" fill="#62676D" font-family="IBM Plex Mono, monospace" font-size="21" text-anchor="middle">PROJECT SCREENSHOT PLACEHOLDER</text>
+  <text x="600" y="392" fill="#62676D" font-family="Inter, Arial, sans-serif" font-size="19" text-anchor="middle">Replace with real product evidence</text>
+</svg>
+

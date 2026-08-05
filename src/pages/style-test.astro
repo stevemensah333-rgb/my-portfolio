@@ -1,0 +1,270 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Style Test | Stephen Mensah';
+const description = 'A temporary visual test page for the portfolio design system.';
+
+const spacingTokens = [
+  ['1', '4px'],
+  ['2', '8px'],
+  ['3', '12px'],
+  ['4', '16px'],
+  ['5', '24px'],
+  ['6', '32px'],
+  ['7', '48px'],
+  ['8', '64px'],
+  ['9', '96px'],
+  ['10', '128px'],
+];
+---
+
+<BaseLayout {title} {description} noindex>
+  <div class="page-shell specimen">
+    <header class="specimen-intro">
+      <p class="technical-label">Temporary / Style test</p>
+      <h1>Portfolio design system</h1>
+      <p>Typography, spacing, layout and interaction primitives. This page is not part of the portfolio content.</p>
+    </header>
+
+    <section aria-labelledby="type-heading">
+      <p class="technical-label">01 / Typography</p>
+      <h2 id="type-heading">Type scale</h2>
+      <div class="type-list">
+        <div><span class="technical-label">Hero display</span><p class="display">Reliable enough to ship.</p></div>
+        <div><span class="technical-label">H1</span><p class="type-h1">Diagnosing unreliable AI features.</p></div>
+        <div><span class="technical-label">H2</span><p class="type-h2">A clear engineering response.</p></div>
+        <div><span class="technical-label">H3</span><p class="type-h3">Output constraints</p></div>
+        <div><span class="technical-label">Body large</span><p class="body-large">Large supporting copy introduces an important idea without competing with the heading.</p></div>
+        <div><span class="technical-label">Body</span><p class="body-copy">Body copy is sized for comfortable reading. Short sentences and measured line lengths keep technical explanations clear.</p></div>
+        <div><span class="technical-label">Small text</span><p class="small-copy">Secondary notes provide useful context without becoming the main point.</p></div>
+        <div><span class="technical-label">Technical label</span><p class="technical-label">Failure mode / Response variance</p></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="interaction-heading">
+      <p class="technical-label">02 / Interaction</p>
+      <h2 id="interaction-heading">Buttons and links</h2>
+      <div class="actions">
+        <a class="button" href="#interaction-heading">Primary action</a>
+        <a class="button button--secondary" href="#interaction-heading">Secondary action</a>
+        <a class="text-link" href="#interaction-heading">Text link</a>
+      </div>
+    </section>
+
+    <section aria-labelledby="spacing-heading">
+      <p class="technical-label">03 / Rhythm</p>
+      <h2 id="spacing-heading">Spacing scale</h2>
+      <div class="spacing-list">
+        {spacingTokens.map(([token, size]) => (
+          <div class="spacing-row">
+            <span class="technical-label">Space {token}</span>
+            <span class="spacing-bar" style={`--sample-space: var(--space-${token})`}></span>
+            <span class="spacing-value">{size}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section aria-labelledby="layout-heading">
+      <p class="technical-label">04 / Layout</p>
+      <h2 id="layout-heading">Grid and widths</h2>
+      <div class="content-grid grid-demo" aria-label="Responsive grid columns">
+        {Array.from({ length: 12 }, (_, index) => <span>{index + 1}</span>)}
+      </div>
+      <div class="width-demo">
+        <div class="width-sample width-content"><span class="technical-label">Content / 48rem</span></div>
+        <div class="width-sample width-reading"><span class="technical-label">Reading / 40rem</span></div>
+        <div class="width-sample width-narrow"><span class="technical-label">Narrow / 32rem</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="surface-heading">
+      <p class="technical-label">05 / Surface</p>
+      <h2 id="surface-heading">Borders and surfaces</h2>
+      <div class="surface-demo">
+        <p class="technical-label">Subtle surface</p>
+        <p>A quiet background and a single-pixel border separate supporting material without turning it into a decorative card.</p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .specimen {
+    padding-block: var(--space-8) var(--space-10);
+  }
+
+  .specimen-intro,
+  section {
+    max-width: var(--width-content);
+  }
+
+  .specimen-intro {
+    margin-bottom: var(--space-9);
+  }
+
+  .specimen-intro h1 {
+    margin-block: var(--space-3) var(--space-5);
+    font-size: var(--text-h1);
+    letter-spacing: -0.04em;
+  }
+
+  .specimen-intro > p:last-child,
+  .body-large {
+    max-width: var(--width-reading);
+    color: var(--color-text-secondary);
+    font-size: var(--text-body-large);
+  }
+
+  section + section {
+    margin-top: var(--space-10);
+  }
+
+  section > h2 {
+    margin-block: var(--space-3) var(--space-7);
+    font-size: var(--text-h2);
+    letter-spacing: -0.035em;
+  }
+
+  .type-list > div {
+    padding-block: var(--space-5);
+    border-top: var(--border-default);
+  }
+
+  .type-list p {
+    margin-block: var(--space-3) 0;
+  }
+
+  .display {
+    font-size: var(--text-display);
+    font-weight: 650;
+    letter-spacing: -0.055em;
+    line-height: var(--leading-display);
+  }
+
+  .type-h1 {
+    font-size: var(--text-h1);
+    font-weight: 650;
+    letter-spacing: -0.045em;
+    line-height: var(--leading-heading);
+  }
+
+  .type-h2 {
+    font-size: var(--text-h2);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: var(--leading-heading);
+  }
+
+  .type-h3 {
+    font-size: var(--text-h3);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .body-large {
+    line-height: 1.55;
+  }
+
+  .body-copy {
+    max-width: var(--width-reading);
+    font-size: var(--text-body);
+  }
+
+  .small-copy,
+  .spacing-value {
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .spacing-list {
+    border-top: var(--border-default);
+  }
+
+  .spacing-row {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr) 3rem;
+    gap: var(--space-4);
+    align-items: center;
+    min-height: 3.5rem;
+    border-bottom: var(--border-default);
+  }
+
+  .spacing-bar {
+    display: block;
+    width: min(100%, var(--sample-space));
+    height: var(--space-2);
+    background: var(--color-accent);
+  }
+
+  .grid-demo span {
+    display: grid;
+    min-height: 4rem;
+    place-items: center;
+    border: var(--border-default);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+  }
+
+  .grid-demo span:nth-child(n + 5) {
+    display: none;
+  }
+
+  .width-demo {
+    margin-top: var(--space-7);
+  }
+
+  .width-sample {
+    padding: var(--space-3);
+    border-top: var(--border-default);
+  }
+
+  .width-content {
+    max-width: var(--width-content);
+  }
+
+  .width-reading {
+    max-width: var(--width-reading);
+  }
+
+  .width-narrow {
+    max-width: var(--width-narrow);
+  }
+
+  .surface-demo {
+    padding: var(--space-6);
+    border: var(--border-default);
+    border-radius: var(--radius-small);
+    background: var(--color-surface);
+  }
+
+  .surface-demo p:last-child {
+    max-width: var(--width-narrow);
+    margin-block: var(--space-3) 0;
+  }
+
+  @media (min-width: 48rem) {
+    .specimen {
+      padding-block-start: var(--space-9);
+    }
+
+    .grid-demo span:nth-child(-n + 6) {
+      display: grid;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .grid-demo span {
+      display: grid;
+    }
+  }
+</style>

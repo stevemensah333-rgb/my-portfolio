@@ -1,0 +1,186 @@
+<section id="syncareer" class="case-study" aria-labelledby="syncareer-title">
+  <div class="page-shell">
+    <header class="case-header">
+      <p class="technical-label">Case 01 / Syncareer</p>
+      <h2 id="syncareer-title">The AI worked in the demo. Production exposed what the demo didn't.</h2>
+      <p class="case-context">Syncareer is an AI-integrated career platform built by Stephen.</p>
+    </header>
+
+    <div class="evidence" aria-label="Syncareer engineering evidence">
+      <section class="evidence-group" aria-labelledby="observed-title">
+        <p class="evidence-type">Confirmed observations</p>
+        <h3 id="observed-title">What started breaking</h3>
+        <ul>
+          <li>Inconsistent formatting</li>
+          <li>Dropped context</li>
+          <li>Unpredictable response structure</li>
+        </ul>
+      </section>
+
+      <section class="evidence-group" aria-labelledby="changed-title">
+        <p class="evidence-type">Implemented changes</p>
+        <h3 id="changed-title">What Stephen changed</h3>
+        <ul>
+          <li>Restructured prompts</li>
+          <li>Added few-shot examples to anchor the expected structure</li>
+          <li>Managed context explicitly</li>
+          <li>Set clearer constraints around the expected output</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="evidence-status">
+      <p><span>Interpretation</span> Prompt structure, context handling and the expected output needed tighter control.</p>
+      <p><span>Measured result</span> Not yet supplied. No reliability threshold is claimed here.</p>
+    </div>
+
+    <a class="case-link" href="/work/syncareer">Read the case study <span aria-hidden="true">→</span></a>
+  </div>
+</section>
+
+<style>
+  .case-study {
+    padding-block: clamp(var(--space-9), 12vw, var(--space-10));
+    border-top: var(--border-default);
+    scroll-margin-top: 5rem;
+  }
+
+  .case-header {
+    display: grid;
+    gap: var(--space-5);
+    max-width: 62rem;
+  }
+
+  .case-header p,
+  .case-header h2 {
+    margin: 0;
+  }
+
+  .case-header h2 {
+    max-width: 20ch;
+    font-size: var(--text-h2);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+  }
+
+  .case-context {
+    max-width: var(--width-reading);
+    color: var(--color-text-secondary);
+    font-size: var(--text-body-large);
+  }
+
+  .evidence {
+    display: grid;
+    margin-top: var(--space-9);
+    border-block: var(--border-default);
+  }
+
+  .evidence-group {
+    padding-block: var(--space-7);
+  }
+
+  .evidence-group + .evidence-group {
+    border-top: var(--border-default);
+  }
+
+  .evidence-type,
+  .evidence-group h3,
+  .evidence-group ul {
+    margin: 0;
+  }
+
+  .evidence-type,
+  .evidence-status span {
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .evidence-group h3 {
+    margin-top: var(--space-3);
+    font-size: var(--text-h3);
+    font-weight: 600;
+  }
+
+  .evidence-group ul {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  .evidence-group li {
+    position: relative;
+    padding-left: var(--space-5);
+    line-height: 1.55;
+  }
+
+  .evidence-group li::before {
+    position: absolute;
+    left: 0;
+    color: var(--color-text-secondary);
+    content: '—';
+  }
+
+  .evidence-status {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: var(--space-5);
+    border-bottom: var(--border-default);
+  }
+
+  .evidence-status p {
+    max-width: var(--width-reading);
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .evidence-status span {
+    display: inline-block;
+    margin-right: var(--space-3);
+    color: var(--color-text);
+  }
+
+  .case-link {
+    display: inline-flex;
+    min-height: var(--control-height);
+    align-items: center;
+    margin-top: var(--space-7);
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .case-link span {
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 30rem) {
+    .case-header h2 {
+      font-size: 1.875rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .evidence {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .evidence-group {
+      padding: var(--space-8);
+    }
+
+    .evidence-group:first-child {
+      padding-left: 0;
+    }
+
+    .evidence-group + .evidence-group {
+      border-top: 0;
+      border-left: var(--border-default);
+    }
+  }
+</style>

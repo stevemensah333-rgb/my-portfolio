@@ -1,0 +1,139 @@
+---
+import { PUBLIC_LINKS } from '../config/site';
+
+const experiences = [
+  {
+    role: 'DataCamp Donates Program Coordinator',
+    organisation: 'DataCamp',
+    dates: 'Nov 2025 — Present',
+    context: 'Coordinated access to data science and AI learning resources for more than 35 learners.',
+  },
+  {
+    role: 'Student Library Assistant',
+    organisation: 'Ashesi University',
+    dates: 'Feb 2026 — May 2026',
+    context: 'Supported more than 50 students with academic resources and research materials.',
+  },
+];
+---
+
+<section id="experience" class="experience" aria-labelledby="experience-title">
+  <div class="page-shell experience-layout">
+    <header class="experience-header">
+      <p class="technical-label">Experience</p>
+      <h2 id="experience-title">Where I've worked</h2>
+      <a class="resume-link" href={PUBLIC_LINKS.resume}>Full résumé</a>
+    </header>
+
+    <ol class="experience-list">
+      {experiences.map((entry) => (
+        <li>
+          <div class="entry-heading">
+            <h3>{entry.role}</h3>
+            <p>{entry.organisation}</p>
+          </div>
+          <p class="entry-dates">{entry.dates}</p>
+          <p class="entry-context">{entry.context}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .experience {
+    padding-block: clamp(var(--space-8), 9vw, var(--space-10));
+    border-top: var(--border-default);
+    scroll-margin-top: 5rem;
+  }
+
+  .experience-layout {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  .experience-header p,
+  .experience-header h2 {
+    margin: 0;
+  }
+
+  .experience-header h2 {
+    margin-top: var(--space-3);
+    font-size: var(--text-h2);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+  }
+
+  .resume-link {
+    display: inline-flex;
+    min-height: var(--control-height);
+    align-items: center;
+    margin-top: var(--space-4);
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .experience-list {
+    margin: 0;
+    padding: 0;
+    border-top: var(--border-default);
+    list-style: none;
+  }
+
+  .experience-list li {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: var(--space-5);
+    border-bottom: var(--border-default);
+  }
+
+  .entry-heading h3,
+  .entry-heading p,
+  .entry-dates,
+  .entry-context {
+    margin: 0;
+  }
+
+  .entry-heading h3 {
+    font-size: 1.0625rem;
+    font-weight: 600;
+  }
+
+  .entry-heading p,
+  .entry-dates,
+  .entry-context {
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .entry-dates {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+  }
+
+  .entry-context {
+    max-width: 36rem;
+    line-height: 1.55;
+  }
+
+  @media (min-width: 48rem) {
+    .experience-layout {
+      grid-template-columns: minmax(13rem, 4fr) minmax(0, 8fr);
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    .experience-list li {
+      grid-template-columns: minmax(12rem, 1fr) auto;
+      column-gap: var(--space-6);
+    }
+
+    .entry-dates {
+      text-align: right;
+    }
+
+    .entry-context {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

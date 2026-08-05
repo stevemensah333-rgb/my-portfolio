@@ -1,0 +1,168 @@
+---
+import { PUBLIC_EMAIL } from '../../config/site';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = 'Syncareer LLM Reliability Case Study | Stephen Mensah';
+const description = 'How Stephen Mensah identified and responded to formatting, context and response-structure problems in Syncareer.';
+---
+
+<BaseLayout {title} {description}>
+  <article class="case-page">
+    <header class="case-hero page-shell">
+      <a class="back-link" href="/#syncareer">← Back to selected work</a>
+      <p class="technical-label">Case study / Syncareer</p>
+      <h1>Engineering around real LLM failure modes.</h1>
+      <p class="case-summary">
+        Syncareer is an AI-integrated career platform built by Stephen. When its LLM-powered features
+        were used in production, the output did not always behave as the product expected.
+      </p>
+    </header>
+
+    <div class="case-content page-shell">
+      <section aria-labelledby="context-title">
+        <p class="section-label">Context</p>
+        <h2 id="context-title">The demo was not the full test.</h2>
+        <p>Syncareer's AI features worked in the demo. Production use exposed problems that had not been clear earlier.</p>
+      </section>
+
+      <section aria-labelledby="observed-title">
+        <p class="section-label">Confirmed observations</p>
+        <h2 id="observed-title">What started breaking</h2>
+        <ul class="evidence-list">
+          <li>Output formatting was inconsistent.</li>
+          <li>Relevant context was dropped.</li>
+          <li>The response structure was unpredictable.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="changed-title">
+        <p class="section-label">Implemented changes</p>
+        <h2 id="changed-title">What I changed</h2>
+        <ul class="evidence-list">
+          <li>Restructured prompts.</li>
+          <li>Added few-shot examples to anchor the expected structure.</li>
+          <li>Managed context explicitly.</li>
+          <li>Set clearer constraints around the expected output.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="learned-title">
+        <p class="section-label">Interpretation</p>
+        <h2 id="learned-title">What I learned</h2>
+        <p>
+          These were not one general “AI problem.” Formatting, retained context and response structure
+          broke in different ways. Each change needed to address a specific behaviour I had observed.
+        </p>
+      </section>
+
+      <section aria-labelledby="unresolved-title">
+        <p class="section-label">Evidence boundary</p>
+        <h2 id="unresolved-title">What remains unresolved</h2>
+        <p>
+          This case study does not yet include before-and-after outputs, a repeatable evaluation or a
+          measured failure rate. It therefore does not claim that the system reached a quantified reliability threshold.
+        </p>
+        <!-- Add real inputs, outputs, evaluation details, architecture and remaining limitations when supplied. -->
+      </section>
+
+      <section class="contact-section" aria-labelledby="contact-title">
+        <p class="section-label">Contact</p>
+        <h2 id="contact-title">Want to talk through the engineering?</h2>
+        <a class="button" href={`mailto:${PUBLIC_EMAIL}`}>Email Stephen</a>
+      </section>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .case-page {
+    border-bottom: var(--border-default);
+  }
+
+  .case-hero {
+    padding-block: clamp(var(--space-8), 10vw, var(--space-10));
+  }
+
+  .back-link {
+    display: inline-flex;
+    min-height: var(--control-height);
+    align-items: center;
+    margin-bottom: var(--space-8);
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .case-hero h1 {
+    max-width: 15ch;
+    margin-block: var(--space-5);
+    font-size: var(--text-h1);
+    font-weight: 650;
+    letter-spacing: -0.045em;
+  }
+
+  .case-summary {
+    max-width: var(--width-reading);
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
+  }
+
+  .case-content {
+    max-width: calc(var(--width-content) + (2 * var(--page-gutter)));
+    padding-bottom: var(--space-10);
+  }
+
+  .case-content section {
+    padding-block: var(--space-8);
+    border-top: var(--border-default);
+  }
+
+  .section-label {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .case-content h2 {
+    max-width: 20ch;
+    margin-block: var(--space-3) var(--space-5);
+    font-size: var(--text-h2);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+  }
+
+  .case-content section > p:not(.section-label) {
+    max-width: var(--width-reading);
+    color: var(--color-text-secondary);
+  }
+
+  .evidence-list {
+    display: grid;
+    gap: var(--space-4);
+    max-width: var(--width-reading);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .evidence-list li {
+    position: relative;
+    padding-left: var(--space-5);
+  }
+
+  .evidence-list li::before {
+    position: absolute;
+    left: 0;
+    color: var(--color-text-secondary);
+    content: '—';
+  }
+
+  .contact-section .button {
+    margin-top: var(--space-3);
+  }
+</style>
