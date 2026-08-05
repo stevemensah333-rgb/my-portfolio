@@ -1,9 +1,8 @@
 ---
-import { PUBLIC_LINKS } from '../config/site';
 import { credentials } from '../data/credentials';
 ---
 
-<section class="credentials" aria-labelledby="credentials-title">
+<section id="evidence" class="credentials" aria-labelledby="credentials-title">
   <div class="page-shell">
     <header class="section-header">
       <p class="technical-label">Selected credentials &amp; recognition</p>
@@ -28,7 +27,6 @@ import { credentials } from '../data/credentials';
             </li>
           ))}
         </ol>
-        <a class="resume-link" href={PUBLIC_LINKS.resume}>View résumé <span aria-hidden="true">→</span></a>
       </div>
 
       <div class="preview" aria-live="polite">
@@ -40,15 +38,24 @@ import { credentials } from '../data/credentials';
             data-active={index === 0 ? 'true' : 'false'}
             aria-hidden={index === 0 ? 'false' : 'true'}
           >
-            {credential.asset ? (
-              <img
-                src={credential.asset.src}
-                alt={credential.asset.alt}
-                width={credential.asset.width}
-                height={credential.asset.height}
-                loading="lazy"
-                decoding="async"
-              />
+            {credential.evidenceImage && credential.evidenceAlt && credential.evidenceWidth && credential.evidenceHeight ? (
+              <a
+                class="evidence-image-link"
+                href={credential.evidenceImage}
+                target="_blank"
+                rel="noopener"
+                aria-label={`Open full-size evidence for ${credential.name}`}
+              >
+                <img
+                  src={credential.evidenceImage}
+                  alt={credential.evidenceAlt}
+                  width={credential.evidenceWidth}
+                  height={credential.evidenceHeight}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span>Open full-size evidence <span aria-hidden="true">↗</span></span>
+              </a>
             ) : (
               <div class="text-record">
                 <p class="record-label">Evidence record</p>
@@ -61,6 +68,11 @@ import { credentials } from '../data/credentials';
                 {credential.issuer && <div><dt>Issuer</dt><dd>{credential.issuer}</dd></div>}
                 {credential.detail && <div><dt>Detail</dt><dd>{credential.detail}</dd></div>}
               </dl>
+            )}
+            {credential.evidenceDocument && (
+              <a class="document-link" href={credential.evidenceDocument} target="_blank" rel="noopener">
+                View document <span aria-hidden="true">↗</span>
+              </a>
             )}
           </article>
         ))}
@@ -75,13 +87,40 @@ import { credentials } from '../data/credentials';
             <strong>{credential.result}</strong>
           </summary>
           <div class="mobile-record">
+            {credential.evidenceImage && credential.evidenceAlt && credential.evidenceWidth && credential.evidenceHeight ? (
+              <a
+                class="evidence-image-link"
+                href={credential.evidenceImage}
+                target="_blank"
+                rel="noopener"
+                aria-label={`Open full-size evidence for ${credential.name}`}
+              >
+                <img
+                  src={credential.evidenceImage}
+                  alt={credential.evidenceAlt}
+                  width={credential.evidenceWidth}
+                  height={credential.evidenceHeight}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span>Open full-size evidence <span aria-hidden="true">↗</span></span>
+              </a>
+            ) : (
+              <div class="mobile-text-record">
+                <p class="record-label">Evidence record</p>
+                <p class="mobile-result">{credential.result}</p>
+              </div>
+            )}
             {credential.issuer && <p><span>Issuer</span>{credential.issuer}</p>}
             {credential.detail && <p><span>Detail</span>{credential.detail}</p>}
-            {!credential.issuer && !credential.detail && <p>Verified recognition</p>}
+            {credential.evidenceDocument && (
+              <a class="document-link" href={credential.evidenceDocument} target="_blank" rel="noopener">
+                View document <span aria-hidden="true">↗</span>
+              </a>
+            )}
           </div>
         </details>
       ))}
-      <a class="resume-link" href={PUBLIC_LINKS.resume}>View résumé <span aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
@@ -116,6 +155,7 @@ import { credentials } from '../data/credentials';
   .credentials {
     padding-block: clamp(var(--space-8), 9vw, var(--space-10));
     border-top: var(--border-default);
+    scroll-margin-top: 6rem;
   }
 
   .section-header {
@@ -199,11 +239,35 @@ import { credentials } from '../data/credentials';
     font-size: var(--text-small);
   }
 
+  .mobile-text-record {
+    padding-block: var(--space-2) var(--space-3);
+  }
+
+  .mobile-text-record .record-label,
+  .mobile-result {
+    margin: 0;
+  }
+
+  .record-label {
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .mobile-result {
+    margin-top: var(--space-2);
+    color: var(--color-text);
+    font-size: var(--text-body-large);
+    font-weight: 600;
+  }
+
   .mobile-record p {
     margin: 0;
   }
 
-  .mobile-record span {
+  .mobile-record > p > span {
     display: inline-block;
     min-width: 4rem;
     color: var(--color-text);
@@ -212,18 +276,28 @@ import { credentials } from '../data/credentials';
     text-transform: uppercase;
   }
 
-  .resume-link {
-    display: inline-flex;
-    min-height: var(--control-height);
-    align-items: center;
-    margin-top: var(--space-5);
+  .evidence-image-link {
+    display: grid;
+    gap: var(--space-3);
+    color: var(--color-text);
     font-size: var(--text-small);
     font-weight: 600;
   }
 
-  .resume-link span {
-    margin-left: var(--space-2);
-    color: var(--color-accent);
+  .evidence-image-link img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: var(--border-default);
+  }
+
+  .document-link {
+    display: inline-flex;
+    min-height: var(--control-height);
+    align-items: center;
+    justify-self: start;
+    font-size: var(--text-small);
+    font-weight: 600;
   }
 
   @media (min-width: 64rem) {
@@ -303,13 +377,6 @@ import { credentials } from '../data/credentials';
       pointer-events: auto;
       transform: translateY(0);
       visibility: visible;
-    }
-
-    .preview-panel img {
-      display: block;
-      width: 100%;
-      height: auto;
-      border: var(--border-default);
     }
 
     .record-label,

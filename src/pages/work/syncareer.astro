@@ -4,6 +4,61 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const title = 'Syncareer LLM Reliability Case Study | Stephen Mensah';
 const description = 'How Stephen Mensah identified and responded to formatting, context and response-structure problems in Syncareer.';
+
+const investigationStages = [
+  {
+    label: 'Decision record',
+    title: 'Choosing the model strategy',
+    statement: 'Fine-tuning was considered, then rejected.',
+    explanation:
+      'It required data the team did not have. Instead, Claude received custom system instructions and context from the user’s activity on the platform.',
+    annotation: 'Trade-off / higher cost and more backend complexity for tailored guidance',
+  },
+  {
+    label: 'Observed behaviour',
+    title: 'Format drift',
+    statement: 'Output formatting was inconsistent.',
+    explanation:
+      'The feature could respond, but its formatting did not always match what the product expected.',
+    annotation: 'Observed / inconsistent output formatting',
+  },
+  {
+    label: 'Observed behaviour',
+    title: 'Context loss',
+    statement: 'Relevant context was dropped.',
+    explanation:
+      'That mattered because the guidance was intended to use a student’s activity, progress and weaknesses.',
+    annotation: 'Observed / information supplied to the model was not always retained',
+  },
+  {
+    label: 'Observed behaviour',
+    title: 'Response variance',
+    statement: 'The response structure was unpredictable.',
+    explanation:
+      'A useful answer was not enough. The surrounding product also needed a structure it could handle consistently.',
+    annotation: 'Observed / response structure varied',
+  },
+  {
+    label: 'Diagnosis',
+    title: 'Separate the failures',
+    statement: 'These were not one general “AI problem.”',
+    explanation:
+      'Formatting, retained context and response structure were treated as distinct failure modes. That made the next changes more deliberate.',
+    annotation: 'Evidence boundary / behaviours identified; root causes are not documented here',
+  },
+  {
+    label: 'Implemented changes',
+    title: 'Constrain what was breaking',
+    statement: 'The response path was made more explicit.',
+    points: [
+      'Restructured prompts.',
+      'Added few-shot examples to anchor the expected structure.',
+      'Managed context explicitly.',
+      'Set clearer constraints around the expected output.',
+    ],
+    annotation: 'Implemented / no measured before-and-after reliability rate is available',
+  },
+];
 ---
 
 <BaseLayout {title} {description}>
@@ -13,56 +68,69 @@ const description = 'How Stephen Mensah identified and responded to formatting, 
       <p class="technical-label">Case study / Syncareer</p>
       <h1>Engineering around real LLM failure modes.</h1>
       <p class="case-summary">
-        Syncareer is an AI-integrated career platform built by Stephen. When its LLM-powered features
-        were used in production, the output did not always behave as the product expected.
+        Syncareer is an AI-integrated career platform built to give students access to career guidance.
+        Its AI feature worked in the demo. Use beyond the demo exposed behaviour the product could not rely on.
       </p>
     </header>
 
+    <section class="case-context page-shell" aria-labelledby="context-title">
+      <p class="section-label">Context</p>
+      <h2 id="context-title">The model was only one part of the product.</h2>
+      <p>
+        Syncareer combined career guidance, a CV builder and interview preparation. The AI career
+        guidance feature used Claude with custom system instructions and context from a user’s activity.
+      </p>
+    </section>
+
+    <section class="investigation" aria-labelledby="investigation-title" data-investigation>
+      <div class="investigation-sticky">
+        <header class="investigation-header page-shell">
+          <div>
+            <p class="section-label">Reliability investigation</p>
+            <h2 id="investigation-title">From product decision to engineering response.</h2>
+          </div>
+          <p class="progress" aria-hidden="true"><span data-stage-current>01</span> / {String(investigationStages.length).padStart(2, '0')}</p>
+        </header>
+
+        <ol class="investigation-track" data-investigation-track>
+          {investigationStages.map((stage, index) => (
+            <li class="investigation-stage" data-investigation-stage>
+              <div class="stage-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div>
+              <div class="stage-content">
+                <p class="section-label">{stage.label}</p>
+                <h3>{stage.title}</h3>
+                <p class="stage-statement">{stage.statement}</p>
+                {stage.explanation && <p class="stage-explanation">{stage.explanation}</p>}
+                {stage.points && (
+                  <ul>
+                    {stage.points.map((point) => <li>{point}</li>)}
+                  </ul>
+                )}
+                <p class="stage-annotation">{stage.annotation}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
     <div class="case-content page-shell">
-      <section aria-labelledby="context-title">
-        <p class="section-label">Context</p>
-        <h2 id="context-title">The demo was not the full test.</h2>
-        <p>Syncareer's AI features worked in the demo. Production use exposed problems that had not been clear earlier.</p>
-      </section>
-
-      <section aria-labelledby="observed-title">
-        <p class="section-label">Confirmed observations</p>
-        <h2 id="observed-title">What started breaking</h2>
-        <ul class="evidence-list">
-          <li>Output formatting was inconsistent.</li>
-          <li>Relevant context was dropped.</li>
-          <li>The response structure was unpredictable.</li>
-        </ul>
-      </section>
-
-      <section aria-labelledby="changed-title">
-        <p class="section-label">Implemented changes</p>
-        <h2 id="changed-title">What I changed</h2>
-        <ul class="evidence-list">
-          <li>Restructured prompts.</li>
-          <li>Added few-shot examples to anchor the expected structure.</li>
-          <li>Managed context explicitly.</li>
-          <li>Set clearer constraints around the expected output.</li>
-        </ul>
-      </section>
-
-      <section aria-labelledby="learned-title">
-        <p class="section-label">Interpretation</p>
-        <h2 id="learned-title">What I learned</h2>
-        <p>
-          These were not one general “AI problem.” Formatting, retained context and response structure
-          broke in different ways. Each change needed to address a specific behaviour I had observed.
-        </p>
-      </section>
-
-      <section aria-labelledby="unresolved-title">
+      <section aria-labelledby="boundary-title">
         <p class="section-label">Evidence boundary</p>
-        <h2 id="unresolved-title">What remains unresolved</h2>
+        <h2 id="boundary-title">What this does not prove yet</h2>
         <p>
-          This case study does not yet include before-and-after outputs, a repeatable evaluation or a
-          measured failure rate. It therefore does not claim that the system reached a quantified reliability threshold.
+          The case study does not yet include before-and-after outputs, a repeatable evaluation or a
+          measured failure rate. It does not claim that the system reached a quantified reliability threshold.
         </p>
-        <!-- Add real inputs, outputs, evaluation details, architecture and remaining limitations when supplied. -->
+      </section>
+
+      <section aria-labelledby="product-result-title">
+        <p class="section-label">Product context</p>
+        <h2 id="product-result-title">What came of Syncareer</h2>
+        <p>
+          Syncareer reached more than 80 sign-ups and about 50 page visits a day. Those numbers show
+          product use. They are not presented as evidence that the LLM became more reliable.
+        </p>
       </section>
 
       <section class="contact-section" aria-labelledby="contact-title">
@@ -73,6 +141,55 @@ const description = 'How Stephen Mensah identified and responded to formatting, 
     </div>
   </article>
 </BaseLayout>
+
+<script>
+  const investigation = document.querySelector<HTMLElement>('[data-investigation]');
+  const track = investigation?.querySelector<HTMLElement>('[data-investigation-track]');
+  const stages = track ? [...track.querySelectorAll<HTMLElement>('[data-investigation-stage]')] : [];
+  const currentStage = investigation?.querySelector<HTMLElement>('[data-stage-current]');
+  const desktopMotion = window.matchMedia('(min-width: 64rem) and (prefers-reduced-motion: no-preference)');
+
+  if (investigation && track && stages.length > 0) {
+    let frame = 0;
+    let shift = 0;
+
+    const render = () => {
+      frame = 0;
+      if (investigation.dataset.enhanced !== 'true') return;
+
+      const rect = investigation.getBoundingClientRect();
+      const distance = Math.max(investigation.offsetHeight - window.innerHeight, 1);
+      const progress = Math.min(Math.max(-rect.top / distance, 0), 1);
+      track.style.setProperty('--investigation-x', `${-progress * shift}px`);
+
+      const index = Math.min(Math.round(progress * (stages.length - 1)), stages.length - 1);
+      if (currentStage) currentStage.textContent = String(index + 1).padStart(2, '0');
+    };
+
+    const requestRender = () => {
+      if (!frame) frame = window.requestAnimationFrame(render);
+    };
+
+    const configure = () => {
+      const shouldEnhance = desktopMotion.matches;
+      investigation.dataset.enhanced = String(shouldEnhance);
+      track.style.removeProperty('--investigation-x');
+      investigation.style.removeProperty('--investigation-height');
+
+      if (shouldEnhance) {
+        shift = Math.max(track.scrollWidth - window.innerWidth, 0);
+        investigation.style.setProperty('--investigation-height', `${window.innerHeight + shift}px`);
+      }
+
+      requestRender();
+    };
+
+    window.addEventListener('scroll', requestRender, { passive: true });
+    window.addEventListener('resize', configure);
+    desktopMotion.addEventListener('change', configure);
+    configure();
+  }
+</script>
 
 <style>
   .case-page {
@@ -108,27 +225,15 @@ const description = 'How Stephen Mensah identified and responded to formatting, 
     line-height: 1.55;
   }
 
-  .case-content {
-    max-width: calc(var(--width-content) + (2 * var(--page-gutter)));
-    padding-bottom: var(--space-10);
-  }
-
+  .case-context,
   .case-content section {
     padding-block: var(--space-8);
     border-top: var(--border-default);
   }
 
-  .section-label {
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: var(--text-label);
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .case-content h2 {
+  .case-context h2,
+  .case-content h2,
+  .investigation-header h2 {
     max-width: 20ch;
     margin-block: var(--space-3) var(--space-5);
     font-size: var(--text-h2);
@@ -136,33 +241,157 @@ const description = 'How Stephen Mensah identified and responded to formatting, 
     letter-spacing: -0.035em;
   }
 
+  .case-context > p:not(.section-label),
   .case-content section > p:not(.section-label) {
     max-width: var(--width-reading);
     color: var(--color-text-secondary);
   }
 
-  .evidence-list {
-    display: grid;
-    gap: var(--space-4);
-    max-width: var(--width-reading);
+  .section-label,
+  .progress,
+  .stage-number,
+  .stage-annotation {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .section-label {
     margin: 0;
-    padding: 0;
+    color: var(--color-text-secondary);
+  }
+
+  .investigation {
+    border-top: var(--border-default);
+  }
+
+  .investigation-sticky {
+    padding-block: var(--space-8);
+  }
+
+  .investigation-header {
+    display: flex;
+    gap: var(--space-5);
+    align-items: end;
+    justify-content: space-between;
+  }
+
+  .investigation-header h2 {
+    margin-bottom: 0;
+  }
+
+  .progress {
+    display: none;
+    margin: 0;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+  }
+
+  .progress span {
+    color: var(--color-accent);
+  }
+
+  .investigation-track {
+    display: grid;
+    margin: var(--space-8) 0 0;
+    padding: 0 var(--page-gutter);
     list-style: none;
   }
 
-  .evidence-list li {
-    position: relative;
+  .investigation-stage {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-7);
+    border-top: var(--border-default);
+  }
+
+  .stage-number {
+    color: var(--color-accent);
+  }
+
+  .stage-content {
+    max-width: var(--width-reading);
+  }
+
+  .stage-content h3 {
+    margin-block: var(--space-3) var(--space-6);
+    font-size: var(--text-h3);
+    font-weight: 600;
+  }
+
+  .stage-statement {
+    margin-bottom: var(--space-4);
+    font-size: var(--text-body-large);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .stage-explanation,
+  .stage-content ul {
+    max-width: 36rem;
+    color: var(--color-text-secondary);
+  }
+
+  .stage-content ul {
+    display: grid;
+    gap: var(--space-3);
+    margin-block: 0;
     padding-left: var(--space-5);
   }
 
-  .evidence-list li::before {
-    position: absolute;
-    left: 0;
+  .stage-annotation {
+    margin: var(--space-7) 0 0;
+    padding-top: var(--space-3);
+    border-top: var(--border-default);
     color: var(--color-text-secondary);
-    content: '—';
+    line-height: 1.6;
+    text-transform: none;
+  }
+
+  .case-content {
+    max-width: calc(var(--width-content) + (2 * var(--page-gutter)));
+    padding-bottom: var(--space-10);
   }
 
   .contact-section .button {
     margin-top: var(--space-3);
+  }
+
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    .investigation[data-enhanced='true'] {
+      height: var(--investigation-height);
+    }
+
+    .investigation[data-enhanced='true'] .investigation-sticky {
+      position: sticky;
+      top: 5rem;
+      height: calc(100vh - 5rem);
+      min-height: 38rem;
+      overflow: hidden;
+    }
+
+    .investigation[data-enhanced='true'] .progress {
+      display: block;
+    }
+
+    .investigation[data-enhanced='true'] .investigation-track {
+      display: flex;
+      width: max-content;
+      gap: 0;
+      padding-inline: max(var(--page-gutter), calc((100vw - var(--width-page)) / 2 + var(--page-gutter)));
+      transform: translate3d(var(--investigation-x, 0), 0, 0);
+      will-change: transform;
+    }
+
+    .investigation[data-enhanced='true'] .investigation-stage {
+      width: min(76vw, 54rem);
+      min-height: 25rem;
+      flex: 0 0 auto;
+      grid-template-columns: 4rem minmax(0, 1fr);
+      padding: var(--space-7) clamp(var(--space-7), 6vw, var(--space-9)) var(--space-7) 0;
+    }
   }
 </style>

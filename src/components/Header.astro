@@ -1,20 +1,132 @@
 ---
-import { PUBLIC_EMAIL } from '../config/site';
+import { PUBLIC_EMAIL, PUBLIC_LINKS } from '../config/site';
+
+const isHomepage = Astro.url.pathname === '/';
+const homeHref = isHomepage ? '#top' : '/';
+const sectionHref = (id: string) => isHomepage ? `#${id}` : `/#${id}`;
 ---
 
-<header id="top" class="site-header">
+<header id="top" class="site-header" data-site-header>
   <div class="page-shell header-inner">
-    <a class="site-name" href="/" aria-label="Stephen Mensah, home">Stephen Mensah</a>
-    <a class="header-contact" href={`mailto:${PUBLIC_EMAIL}`}>Email</a>
+    <a class="site-name" href={homeHref} aria-label="Stephen Mensah, home">Stephen Mensah</a>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href={sectionHref('syncareer')}>Work</a>
+      <a href={sectionHref('about')}>About</a>
+      <a href={sectionHref('evidence')}>Evidence</a>
+      <a href={PUBLIC_LINKS.resume} target="_blank" rel="noopener">Résumé <span aria-hidden="true">↗</span></a>
+      <a href={`mailto:${PUBLIC_EMAIL}`}>Email</a>
+    </nav>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="mobile-navigation"
+      data-menu-toggle
+    >Menu</button>
+
+    <div id="mobile-navigation" class="mobile-panel" data-mobile-panel hidden>
+      <nav aria-label="Mobile navigation">
+        <a href={sectionHref('syncareer')}>Work</a>
+        <a href={sectionHref('about')}>About</a>
+        <a href={sectionHref('evidence')}>Evidence</a>
+        <a href={PUBLIC_LINKS.resume} target="_blank" rel="noopener">Résumé <span aria-hidden="true">↗</span></a>
+        <a href={`mailto:${PUBLIC_EMAIL}`}>Email me</a>
+      </nav>
+    </div>
   </div>
 </header>
 
+<script>
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const menuButton = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menuPanel = header?.querySelector<HTMLElement>('[data-mobile-panel]');
+
+  if (header && menuButton && menuPanel) {
+    const backgroundElements = [
+      document.querySelector<HTMLElement>('.skip-link'),
+      document.querySelector<HTMLElement>('main'),
+      document.querySelector<HTMLElement>('body > footer'),
+    ].filter((element): element is HTMLElement => element !== null);
+
+    const menuLinks = [...menuPanel.querySelectorAll<HTMLAnchorElement>('a[href]')];
+
+    const closeMenu = (restoreFocus = true) => {
+      menuButton.setAttribute('aria-expanded', 'false');
+      menuButton.textContent = 'Menu';
+      menuPanel.hidden = true;
+      document.documentElement.classList.remove('menu-open');
+      for (const element of backgroundElements) element.inert = false;
+      if (restoreFocus) menuButton.focus();
+    };
+
+    const openMenu = () => {
+      menuButton.setAttribute('aria-expanded', 'true');
+      menuButton.textContent = 'Close';
+      menuPanel.hidden = false;
+      document.documentElement.classList.add('menu-open');
+      for (const element of backgroundElements) element.inert = true;
+      menuLinks[0]?.focus();
+    };
+
+    menuButton.addEventListener('click', () => {
+      menuButton.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();
+    });
+
+    for (const link of menuLinks) {
+      link.addEventListener('click', () => closeMenu(false));
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (menuButton.getAttribute('aria-expanded') !== 'true') return;
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const siteName = header.querySelector<HTMLAnchorElement>('.site-name');
+      const focusable: HTMLElement[] = [
+        ...(siteName ? [siteName] : []),
+        menuButton,
+        ...menuLinks,
+      ];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (!first || !last) return;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    const desktopQuery = window.matchMedia('(min-width: 48rem)');
+    desktopQuery.addEventListener('change', (event) => {
+      if (event.matches && menuButton.getAttribute('aria-expanded') === 'true') closeMenu(false);
+    });
+  }
+</script>
+
 <style>
   .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     border-bottom: 1px solid var(--color-border);
+    background: var(--color-background);
   }
 
   .header-inner {
+    position: relative;
     display: flex;
     min-height: 4.5rem;
     align-items: center;
@@ -23,7 +135,8 @@ import { PUBLIC_EMAIL } from '../config/site';
   }
 
   .site-name,
-  .header-contact {
+  .desktop-nav a,
+  .menu-toggle {
     display: inline-flex;
     min-height: var(--control-height);
     align-items: center;
@@ -34,18 +147,82 @@ import { PUBLIC_EMAIL } from '../config/site';
   }
 
   .site-name:hover,
-  .header-contact:hover {
+  .desktop-nav a:hover {
     text-decoration-color: currentColor;
   }
 
-  .header-contact {
-    color: var(--color-text-secondary);
-    font-weight: 500;
+  .desktop-nav {
+    display: none;
+  }
+
+  .menu-toggle {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .mobile-panel {
+    position: fixed;
+    inset: 4.5rem 0 0;
+    z-index: 49;
+    padding: clamp(var(--space-7), 10vh, var(--space-9)) var(--page-gutter) var(--space-7);
+    overflow-y: auto;
+    background: var(--color-background);
+  }
+
+  .mobile-panel nav {
+    display: grid;
+    max-width: var(--width-page);
+    margin-inline: auto;
+    border-top: var(--border-default);
+  }
+
+  .mobile-panel a {
+    display: flex;
+    min-height: 4.5rem;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: var(--border-default);
+    color: var(--color-text);
+    font-size: var(--text-h3);
+    font-weight: 600;
+    text-decoration: none;
   }
 
   @media (min-width: 48rem) {
     .header-inner {
       min-height: 5rem;
     }
+
+    .desktop-nav {
+      display: flex;
+      align-items: center;
+      gap: clamp(var(--space-4), 2.5vw, var(--space-6));
+    }
+
+    .desktop-nav a {
+      color: var(--color-text-secondary);
+      font-size: var(--text-small);
+      font-weight: 500;
+    }
+
+    .desktop-nav a:last-child {
+      color: var(--color-text);
+      font-weight: 600;
+    }
+
+    .menu-toggle,
+    .mobile-panel {
+      display: none;
+    }
+  }
+</style>
+
+<style is:global>
+  html.menu-open,
+  html.menu-open body {
+    overflow: hidden;
   }
 </style>

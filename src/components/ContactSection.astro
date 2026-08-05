@@ -4,7 +4,7 @@ import { PUBLIC_EMAIL, PUBLIC_LINKS } from '../config/site';
 const secondaryLinks = [
   { label: 'GitHub', href: PUBLIC_LINKS.github },
   { label: 'LinkedIn', href: PUBLIC_LINKS.linkedin },
-  { label: 'Resume', href: PUBLIC_LINKS.resume },
+  { label: 'Résumé', href: PUBLIC_LINKS.resume, opensNewTab: true },
 ];
 ---
 
@@ -23,7 +23,13 @@ const secondaryLinks = [
         {secondaryLinks.map((link) => (
           <li>
             {link.href ? (
-              <a href={link.href}>{link.label}</a>
+              <a
+                href={link.href}
+                target={link.opensNewTab ? '_blank' : undefined}
+                rel={link.opensNewTab ? 'noopener' : undefined}
+              >
+                {link.label}{link.opensNewTab && <span aria-hidden="true"> ↗</span>}
+              </a>
             ) : (
               <span><strong>{link.label}</strong> <small>TODO / URL</small></span>
             )}

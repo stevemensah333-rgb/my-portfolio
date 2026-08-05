@@ -92,6 +92,10 @@ body {
   margin: 0;
 }
 
+section[id] {
+  scroll-margin-top: 6rem;
+}
+
 h1,
 h2,
 h3,
