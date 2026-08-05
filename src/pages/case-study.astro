@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Syncareer Case Study">
+	<section class="case-study">
+		<p class="eyebrow">Case Study</p>
+		<h1>Syncareer: Connecting Students to Career Guidance</h1>
+
+		<h2>The Problem</h2>
+		<p>
+			Youth unemployment in Ghana has been persistent and rising. Through direct interviews, we discovered students had limited to no access to career guidance and professional development platforms. Syncareer was built to solve that: career counsellors, a CV builder, interview preparation, and AI career guidance, all in one place.
+		</p>
+
+		<h2>What I Did and Decided</h2>
+		<p>
+			I designed and built Syncareer's architecture with AI assistance, starting with a prototype, then the frontend, then the backend, AI integrations, and database. We used Claude for its reputation in coding assistance and PostgreSQL for its flexibility.
+		</p>
+		<p>
+			The core decision was how to build the AI career guidance feature. We considered fine-tuning a model, but that would be too complex and would need data we didn't have access to. Instead, we gave Claude custom system instructions to act as a career counsellor within given contexts, with access to the user's activity on the platform so it could see their progress and weaknesses for tailored advice. The tradeoff: higher cost and more complex backend code, in exchange for real personalization.
+		</p>
+		<p>
+			Not everything worked. We built an employer section similar to LinkedIn, but it didn't work, employers had no reason to move from LinkedIn to an MVP since they weren't affected by youth unemployment the way students were. We had to take it out.
+		</p>
+
+		<h2>What Came of It</h2>
+		<p>
+			Syncareer now has 80+ sign-ups with positive feedback so far, and about 50 page visits a day.
+		</p>
+
+		<h2>What I'd Do Differently</h2>
+		<p>
+			Talk to employers first to validate demand, and use a landing page to confirm recruiter and employer interest, instead of building the feature first.
+		</p>
+
+		<a class="cta-button" href="mailto:youremail@example.com">Email me to schedule a call</a>
+	</section>
+</Layout>
