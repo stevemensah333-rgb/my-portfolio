@@ -1,5 +1,6 @@
 ---
 import { PUBLIC_EMAIL } from '../../config/site';
+import ProductFrame from '../../components/ProductFrame.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const title = 'Syncareer LLM Reliability Case Study | Stephen Mensah';
@@ -7,6 +8,7 @@ const description = 'How Stephen Mensah identified and responded to formatting, 
 
 const investigationStages = [
   {
+    kind: 'decision',
     label: 'Decision record',
     title: 'Choosing the model strategy',
     statement: 'Fine-tuning was considered, then rejected.',
@@ -15,30 +17,37 @@ const investigationStages = [
     annotation: 'Trade-off / higher cost and more backend complexity for tailored guidance',
   },
   {
+    kind: 'format',
     label: 'Observed behaviour',
     title: 'Format drift',
     statement: 'Output formatting was inconsistent.',
     explanation:
       'The feature could respond, but its formatting did not always match what the product expected.',
     annotation: 'Observed / inconsistent output formatting',
+    response: 'Related intervention / prompt restructuring and clearer expected-output constraints',
   },
   {
+    kind: 'context',
     label: 'Observed behaviour',
     title: 'Context loss',
     statement: 'Relevant context was dropped.',
     explanation:
       'That mattered because the guidance was intended to use a student’s activity, progress and weaknesses.',
     annotation: 'Observed / information supplied to the model was not always retained',
+    response: 'Related intervention / explicit context management',
   },
   {
+    kind: 'variance',
     label: 'Observed behaviour',
     title: 'Response variance',
     statement: 'The response structure was unpredictable.',
     explanation:
       'A useful answer was not enough. The surrounding product also needed a structure it could handle consistently.',
     annotation: 'Observed / response structure varied',
+    response: 'Related intervention / few-shot examples and clearer expected-output constraints',
   },
   {
+    kind: 'diagnosis',
     label: 'Diagnosis',
     title: 'Separate the failures',
     statement: 'These were not one general “AI problem.”',
@@ -47,6 +56,7 @@ const investigationStages = [
     annotation: 'Evidence boundary / behaviours identified; root causes are not documented here',
   },
   {
+    kind: 'intervention',
     label: 'Implemented changes',
     title: 'Constrain what was breaking',
     statement: 'The response path was made more explicit.',
@@ -65,21 +75,99 @@ const investigationStages = [
   <article class="case-page">
     <header class="case-hero page-shell">
       <a class="back-link" href="/#syncareer">← Back to selected work</a>
-      <p class="technical-label">Case study / Syncareer</p>
-      <h1>Engineering around real LLM failure modes.</h1>
-      <p class="case-summary">
-        Syncareer is an AI-integrated career platform built to give students access to career guidance.
-        Its AI feature worked in the demo. Use beyond the demo exposed behaviour the product could not rely on.
-      </p>
+      <div class="case-opening">
+        <div>
+          <p class="technical-label">Case study / Syncareer</p>
+          <h1>Engineering around real LLM failure modes.</h1>
+          <p class="case-summary">
+            Syncareer is an AI-integrated career platform built to give students access to career guidance.
+            Its AI feature worked in the demo. Use beyond the demo exposed behaviour the product could not rely on.
+          </p>
+        </div>
+
+        <aside class="product-record" aria-label="Syncareer product record">
+          <div class="record-heading">
+            <p>Product record / 01</p>
+            <span>Built product</span>
+          </div>
+          <h2>Syncareer</h2>
+          <dl>
+            <div><dt>Product</dt><dd>AI-integrated career platform</dd></div>
+            <div><dt>AI feature</dt><dd>Career guidance</dd></div>
+            <div><dt>Model</dt><dd>Claude</dd></div>
+            <div><dt>Evidence</dt><dd>Product interface supplied</dd></div>
+            <div><dt>Website</dt><dd><a href="https://syncareer.me/" target="_blank" rel="noopener">Visit Syncareer <span aria-hidden="true">↗</span></a></dd></div>
+          </dl>
+          <div class="record-trace" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        </aside>
+      </div>
+
+      <div class="case-product-hero">
+        <ProductFrame
+          src1440="/images/syncareer/synai-context-1440.png"
+          src2400="/images/syncareer/synai-context-2400.png"
+          width={2400}
+          height={1302}
+          alt="Syncareer SynAI interface showing a personalised introduction using Stephen's degree, interests and profile skills, with career guidance, CV tips, interview preparation and skill-gap actions."
+          label="01 / AI feature and context"
+          caption="SynAI makes the product context visible: degree, interests and profile skills inform the career-guidance interface."
+          priority={true}
+        />
+      </div>
     </header>
 
-    <section class="case-context page-shell" aria-labelledby="context-title">
-      <p class="section-label">Context</p>
-      <h2 id="context-title">The model was only one part of the product.</h2>
-      <p>
-        Syncareer combined career guidance, a CV builder and interview preparation. The AI career
-        guidance feature used Claude with custom system instructions and context from a user’s activity.
-      </p>
+    <section class="case-context" aria-labelledby="context-title">
+      <div class="page-shell context-layout">
+        <div class="context-copy">
+          <p class="section-label">Product and system context</p>
+          <h2 id="context-title">The model was only one part of the product.</h2>
+          <p>
+            Syncareer combined career guidance, a CV builder and interview preparation. The AI career
+            guidance feature used Claude with custom system instructions and context from a user’s activity.
+          </p>
+        </div>
+
+        <figure class="system-path" aria-labelledby="system-path-title">
+          <figcaption id="system-path-title">Documented AI feature path</figcaption>
+          <ol>
+            <li><span>01</span><strong>User activity</strong><small>Activity, progress and weaknesses</small></li>
+            <li><span>02</span><strong>Context + instructions</strong><small>Explicit context and custom system instructions</small></li>
+            <li><span>03</span><strong>Claude</strong><small>Model interaction</small></li>
+            <li class="active"><span>04</span><strong>Career guidance</strong><small>Product-facing response</small></li>
+          </ol>
+        </figure>
+      </div>
+    </section>
+
+    <section class="product-surfaces" aria-labelledby="product-surfaces-title">
+      <div class="page-shell">
+        <header class="surfaces-header">
+          <p class="section-label">Product surfaces</p>
+          <h2 id="product-surfaces-title">The AI feature sits inside a broader workflow.</h2>
+        </header>
+        <div class="surface-grid">
+          <ProductFrame
+            src1440="/images/syncareer/dashboard-1440.png"
+            src2400="/images/syncareer/dashboard-2400.png"
+            width={2400}
+            height={1302}
+            alt="Syncareer dashboard showing career readiness, application, CV strength and interview progress information."
+            label="02 / Product dashboard"
+            caption="The dashboard brings career progress, CV work, interview practice and applications into one product surface."
+            sizes="(min-width: 64rem) 35rem, calc(100vw - 2.5rem)"
+          />
+          <ProductFrame
+            src1440="/images/syncareer/opportunities-1440.png"
+            src2400="/images/syncareer/opportunities-2400.png"
+            width={2400}
+            height={1303}
+            alt="Syncareer opportunities interface showing job search, job details, match score and actions for interview practice and CV tailoring."
+            label="03 / Opportunity workflow"
+            caption="Job discovery connects to interview practice and CV tailoring rather than existing as a separate demo."
+            sizes="(min-width: 64rem) 35rem, calc(100vw - 2.5rem)"
+          />
+        </div>
+      </div>
     </section>
 
     <section class="investigation" aria-labelledby="investigation-title" data-investigation>
@@ -94,10 +182,12 @@ const investigationStages = [
 
         <ol class="investigation-track" data-investigation-track>
           {investigationStages.map((stage, index) => (
-            <li class="investigation-stage" data-investigation-stage>
-              <div class="stage-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div>
+            <li class={`investigation-stage investigation-stage--${stage.kind}`} data-investigation-stage>
               <div class="stage-content">
-                <p class="section-label">{stage.label}</p>
+                <div class="stage-header">
+                  <span class="stage-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <p class="stage-status">{stage.label}</p>
+                </div>
                 <h3>{stage.title}</h3>
                 <p class="stage-statement">{stage.statement}</p>
                 {stage.explanation && <p class="stage-explanation">{stage.explanation}</p>}
@@ -106,7 +196,36 @@ const investigationStages = [
                     {stage.points.map((point) => <li>{point}</li>)}
                   </ul>
                 )}
-                <p class="stage-annotation">{stage.annotation}</p>
+                {stage.kind === 'decision' && (
+                  <div class="decision-map" aria-label="Model strategy decision">
+                    <div><span>Considered</span><strong>Fine-tuning</strong><small>Rejected / required unavailable data</small></div>
+                    <div class="selected"><span>Selected</span><strong>Claude + tailored context</strong><small>Custom instructions and user activity context</small></div>
+                  </div>
+                )}
+                {stage.kind === 'format' && (
+                  <div class="failure-signal" aria-label="Formatting expectation and observed behaviour">
+                    <div><span>Product expected</span><strong>Compatible format</strong></div>
+                    <i aria-hidden="true"></i>
+                    <div class="failure"><span>Observed</span><strong>Formatting varied</strong></div>
+                  </div>
+                )}
+                {stage.kind === 'context' && (
+                  <div class="context-signal" aria-label="Context supplied to the model was not always retained">
+                    <span>Activity</span><span>Progress</span><span>Weaknesses</span><i aria-hidden="true"></i><strong>Context not always retained</strong>
+                  </div>
+                )}
+                {stage.kind === 'variance' && (
+                  <div class="variance-signal" aria-label="Response structure varied">
+                    <span>Expected structure</span><i></i><i></i><i></i><strong>Variable response structure</strong>
+                  </div>
+                )}
+                {stage.kind === 'diagnosis' && (
+                  <div class="diagnosis-map" aria-label="Failure modes separated for diagnosis">
+                    <span>Formatting</span><span>Context</span><span>Structure</span>
+                  </div>
+                )}
+                {stage.response && <p class="stage-response">{stage.response}</p>}
+                <p class="stage-annotation"><span>Record</span>{stage.annotation}</p>
               </div>
             </li>
           ))}
@@ -115,23 +234,32 @@ const investigationStages = [
     </section>
 
     <div class="case-content page-shell">
-      <section aria-labelledby="boundary-title">
-        <p class="section-label">Evidence boundary</p>
-        <h2 id="boundary-title">What this does not prove yet</h2>
-        <p>
-          The case study does not yet include before-and-after outputs, a repeatable evaluation or a
-          measured failure rate. It does not claim that the system reached a quantified reliability threshold.
-        </p>
-      </section>
+      <div class="outcome-grid">
+        <section class="boundary-panel" aria-labelledby="boundary-title">
+          <p class="section-label">Evidence boundary</p>
+          <h2 id="boundary-title">What this does not prove yet</h2>
+          <ul class="boundary-list">
+            <li data-state="known">Observed behaviours identified</li>
+            <li data-state="known">Engineering responses implemented</li>
+            <li data-state="missing">No before-and-after outputs supplied</li>
+            <li data-state="missing">No repeatable evaluation supplied</li>
+            <li data-state="missing">No measured failure rate supplied</li>
+            <li data-state="missing">No quantified reliability threshold established</li>
+          </ul>
+        </section>
 
-      <section aria-labelledby="product-result-title">
-        <p class="section-label">Product context</p>
-        <h2 id="product-result-title">What came of Syncareer</h2>
-        <p>
-          Syncareer reached more than 80 sign-ups and about 50 page visits a day. Those numbers show
-          product use. They are not presented as evidence that the LLM became more reliable.
-        </p>
-      </section>
+        <section class="traction-panel" aria-labelledby="product-result-title">
+          <p class="section-label">Product traction / separate measure</p>
+          <h2 id="product-result-title">What came of Syncareer</h2>
+          <dl class="traction-metrics">
+            <div><dt>Sign-ups</dt><dd>80+</dd></div>
+            <div><dt>Daily page visits</dt><dd>About 50</dd></div>
+          </dl>
+          <p>
+            These numbers show product use. They are not presented as evidence that the LLM became more reliable.
+          </p>
+        </section>
+      </div>
 
       <section class="contact-section" aria-labelledby="contact-title">
         <p class="section-label">Contact</p>
@@ -200,6 +328,11 @@ const investigationStages = [
     padding-block: var(--section-feature);
   }
 
+  .case-opening {
+    display: grid;
+    gap: var(--section-content-gap);
+  }
+
   .back-link {
     display: inline-flex;
     min-height: var(--control-height);
@@ -225,10 +358,116 @@ const investigationStages = [
     line-height: 1.55;
   }
 
+  .product-record {
+    position: relative;
+    align-self: end;
+    padding: var(--card-padding);
+    border: var(--border-default);
+    border-radius: var(--radius-card);
+    background: var(--color-surface-light);
+    overflow: hidden;
+  }
+
+  .record-heading {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .record-heading p,
+  .record-heading span,
+  .product-record dt,
+  .system-path figcaption,
+  .stage-status,
+  .decision-map span,
+  .failure-signal span,
+  .traction-metrics dt {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .record-heading span {
+    color: var(--color-accent);
+  }
+
+  .product-record h2 {
+    margin-block: var(--space-7) var(--space-6);
+    font-size: var(--text-h3);
+  }
+
+  .product-record dl {
+    display: grid;
+    margin: 0;
+    border-top: var(--border-default);
+  }
+
+  .product-record dl div {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-bottom: var(--border-default);
+  }
+
+  .product-record dd {
+    margin: 0;
+    font-size: var(--text-small);
+  }
+
+  .product-record a {
+    font-weight: 600;
+  }
+
+  .case-product-hero {
+    margin-top: var(--section-content-gap);
+  }
+
+  .record-trace {
+    display: flex;
+    margin-top: var(--space-6);
+  }
+
+  .record-trace i {
+    position: relative;
+    width: 25%;
+    height: 0.4375rem;
+    border-left: 1px solid var(--color-border);
+  }
+
+  .record-trace i::before {
+    position: absolute;
+    top: 0.1875rem;
+    right: 0;
+    left: 0;
+    border-top: var(--border-default);
+    content: '';
+  }
+
+  .record-trace i:last-child {
+    border: 1px solid var(--color-accent);
+    background: var(--color-accent);
+  }
+
   .case-context {
     padding-block: var(--section-standard);
     border-top: var(--border-default);
     background: var(--color-surface-light);
+  }
+
+  .context-layout {
+    display: grid;
+    gap: var(--section-content-gap);
+  }
+
+  .context-copy > p:last-child {
+    max-width: var(--width-reading);
+    color: var(--color-text-secondary);
   }
 
   .case-content section {
@@ -246,10 +485,86 @@ const investigationStages = [
     letter-spacing: -0.035em;
   }
 
-  .case-context > p:not(.section-label),
   .case-content section > p:not(.section-label) {
     max-width: var(--width-reading);
     color: var(--color-text-secondary);
+  }
+
+  .system-path {
+    margin: 0;
+    padding: var(--card-padding);
+    border: var(--border-default);
+    border-radius: var(--radius-card);
+    background: var(--color-background);
+  }
+
+  .system-path ol {
+    display: grid;
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .system-path li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0 var(--space-3);
+    padding: 0 0 var(--space-6);
+  }
+
+  .system-path li:not(:last-child)::after {
+    position: absolute;
+    top: 0.65rem;
+    bottom: 0;
+    left: 0.25rem;
+    border-left: 1px solid var(--color-border);
+    content: '';
+  }
+
+  .system-path li > span {
+    z-index: 1;
+    grid-row: 1 / span 2;
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+  }
+
+  .system-path li.active > span,
+  .system-path li.active strong {
+    color: var(--color-accent);
+  }
+
+  .system-path strong {
+    font-size: var(--text-small);
+  }
+
+  .system-path small {
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .product-surfaces {
+    padding-block: var(--section-standard);
+    border-top: var(--border-default);
+  }
+
+  .surfaces-header {
+    max-width: var(--width-content);
+  }
+
+  .surfaces-header h2 {
+    max-width: 18ch;
+    margin-block: var(--space-3) 0;
+    font-size: var(--text-h2);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+  }
+
+  .surface-grid {
+    display: grid;
+    gap: var(--space-7);
+    margin-top: var(--section-content-gap);
   }
 
   .section-label,
@@ -317,11 +632,10 @@ const investigationStages = [
   }
 
   .investigation-stage {
-    display: grid;
-    grid-template-columns: 3rem minmax(0, 1fr);
-    gap: var(--space-4);
-    padding-block: var(--space-6);
-    border-top: var(--border-default);
+    padding: var(--card-padding);
+    border: var(--border-default);
+    border-radius: var(--radius-card);
+    background: var(--color-background);
   }
 
   .stage-number {
@@ -329,11 +643,25 @@ const investigationStages = [
   }
 
   .stage-content {
-    max-width: var(--width-reading);
+    display: grid;
+    max-width: 44rem;
+  }
+
+  .stage-header {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .stage-status {
+    padding: var(--space-1) var(--space-2);
+    border: var(--border-default);
+    color: var(--color-text-secondary);
   }
 
   .stage-content h3 {
-    margin-block: var(--space-3) var(--space-6);
+    margin-block: var(--space-6) var(--space-5);
     font-size: var(--text-h3);
     font-weight: 600;
   }
@@ -349,6 +677,161 @@ const investigationStages = [
   .stage-content ul {
     max-width: 36rem;
     color: var(--color-text-secondary);
+  }
+
+  .decision-map,
+  .failure-signal,
+  .context-signal,
+  .variance-signal,
+  .diagnosis-map {
+    margin-top: var(--space-6);
+    border: var(--border-default);
+    background: var(--color-surface-light);
+  }
+
+  .decision-map {
+    display: grid;
+  }
+
+  .decision-map > div {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+
+  .decision-map > div + div {
+    border-top: var(--border-default);
+  }
+
+  .decision-map strong,
+  .decision-map small {
+    line-height: 1.45;
+  }
+
+  .decision-map small {
+    color: var(--color-text-secondary);
+  }
+
+  .decision-map .selected {
+    border-left: 2px solid var(--color-accent);
+  }
+
+  .decision-map .selected span {
+    color: var(--color-accent);
+  }
+
+  .failure-signal {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 1fr);
+    align-items: center;
+    padding: var(--space-5);
+  }
+
+  .failure-signal div {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .failure-signal i {
+    position: relative;
+    border-top: var(--border-default);
+  }
+
+  .failure-signal i::after {
+    position: absolute;
+    top: -0.25rem;
+    right: 0;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border: 1px solid var(--color-accent);
+    background: var(--color-background);
+    content: '';
+  }
+
+  .failure-signal .failure {
+    padding-left: var(--space-4);
+  }
+
+  .failure-signal .failure span {
+    color: var(--color-accent);
+  }
+
+  .context-signal {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    padding: var(--space-5);
+  }
+
+  .context-signal span,
+  .diagnosis-map span {
+    padding: var(--space-2);
+    border: var(--border-default);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    text-align: center;
+  }
+
+  .context-signal i {
+    grid-column: 1 / -1;
+    height: var(--space-5);
+    border-right: 1px dashed var(--color-accent);
+    border-bottom: 1px dashed var(--color-accent);
+    border-left: 1px dashed var(--color-accent);
+  }
+
+  .context-signal strong {
+    grid-column: 1 / -1;
+    color: var(--color-accent);
+    font-size: var(--text-small);
+    text-align: center;
+  }
+
+  .variance-signal {
+    display: grid;
+    grid-template-columns: minmax(8rem, 1fr) repeat(3, 2rem) minmax(9rem, 1fr);
+    gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-5);
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .variance-signal i {
+    height: 2rem;
+    border: var(--border-default);
+  }
+
+  .variance-signal i:nth-of-type(2) {
+    height: 1.25rem;
+    border-color: var(--color-accent);
+  }
+
+  .variance-signal i:nth-of-type(3) {
+    height: 2.75rem;
+  }
+
+  .diagnosis-map {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+    padding: var(--space-5);
+  }
+
+  .diagnosis-map span {
+    border-color: var(--color-accent);
+  }
+
+  .stage-response {
+    margin: var(--space-5) 0 0;
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-accent);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: 1.6;
+    text-transform: uppercase;
   }
 
   .stage-content ul {
@@ -367,9 +850,84 @@ const investigationStages = [
     text-transform: none;
   }
 
+  .stage-annotation span {
+    display: block;
+    margin-bottom: var(--space-1);
+    color: var(--color-text);
+    text-transform: uppercase;
+  }
+
   .case-content {
-    max-width: calc(var(--width-content) + (2 * var(--page-gutter)));
     padding-bottom: var(--section-standard);
+  }
+
+  .outcome-grid {
+    display: grid;
+  }
+
+  .outcome-grid > section {
+    padding-inline: var(--card-padding);
+  }
+
+  .boundary-panel {
+    background: var(--color-surface-cool);
+  }
+
+  .boundary-list {
+    display: grid;
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    border-top: var(--border-default);
+    list-style: none;
+  }
+
+  .boundary-list li {
+    position: relative;
+    padding: var(--space-3) 0 var(--space-3) var(--space-6);
+    border-bottom: var(--border-default);
+    color: var(--color-text-secondary);
+  }
+
+  .boundary-list li::before {
+    position: absolute;
+    left: 0;
+    color: var(--color-text-secondary);
+    content: '—';
+    font-family: var(--font-mono);
+  }
+
+  .boundary-list li[data-state='known']::before {
+    color: var(--color-accent);
+    content: '✓';
+  }
+
+  .traction-panel {
+    background: var(--color-surface-light);
+  }
+
+  .traction-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: var(--space-6) 0;
+    border-block: var(--border-default);
+  }
+
+  .traction-metrics div {
+    display: flex;
+    min-height: 8rem;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    padding: var(--space-5);
+  }
+
+  .traction-metrics div + div {
+    border-left: var(--border-default);
+  }
+
+  .traction-metrics dd {
+    margin: 0;
+    font-size: var(--text-h3);
+    font-weight: 650;
   }
 
   .contact-section .button {
@@ -396,18 +954,100 @@ const investigationStages = [
     .investigation[data-enhanced='true'] .investigation-track {
       display: flex;
       width: max-content;
-      gap: 0;
+      gap: var(--space-6);
       padding-inline: max(var(--page-gutter), calc((100vw - var(--width-page)) / 2 + var(--page-gutter)));
       transform: translate3d(var(--investigation-x, 0), 0, 0);
       will-change: transform;
     }
 
     .investigation[data-enhanced='true'] .investigation-stage {
-      width: min(76vw, 54rem);
+      width: min(70vw, 48rem);
       min-height: 22rem;
       flex: 0 0 auto;
-      grid-template-columns: 4rem minmax(0, 1fr);
-      padding: var(--space-7) clamp(var(--space-7), 6vw, var(--space-9)) var(--space-7) 0;
+      padding: var(--card-padding);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .decision-map {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .decision-map > div + div {
+      border-top: 0;
+      border-left: var(--border-default);
+    }
+
+    .decision-map .selected {
+      border-left: 2px solid var(--color-accent);
+    }
+
+    .outcome-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .outcome-grid > section {
+      border: var(--border-default);
+    }
+
+    .outcome-grid > section + section {
+      border-left: 0;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .case-opening,
+    .context-layout {
+      grid-template-columns: minmax(0, 7fr) minmax(19rem, 5fr);
+      align-items: end;
+    }
+
+    .surface-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .failure-signal,
+    .variance-signal {
+      grid-template-columns: 1fr;
+    }
+
+    .failure-signal i {
+      width: 1px;
+      height: var(--space-5);
+      margin-left: var(--space-3);
+      border-top: 0;
+      border-left: var(--border-default);
+    }
+
+    .failure-signal i::after {
+      right: auto;
+      bottom: 0;
+      left: -0.25rem;
+    }
+
+    .failure-signal .failure {
+      padding: 0;
+    }
+
+    .context-signal,
+    .diagnosis-map {
+      grid-template-columns: 1fr;
+    }
+
+    .context-signal i,
+    .context-signal strong {
+      grid-column: 1;
+    }
+
+    .traction-metrics {
+      grid-template-columns: 1fr;
+    }
+
+    .traction-metrics div + div {
+      border-top: var(--border-default);
+      border-left: 0;
     }
   }
 </style>

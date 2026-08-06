@@ -1,3 +1,7 @@
+---
+import ProductFrame from './ProductFrame.astro';
+---
+
 <section id="syncareer" class="case-study" aria-labelledby="syncareer-title">
   <div class="page-shell">
     <header class="case-header">
@@ -5,6 +9,18 @@
       <h2 id="syncareer-title">The AI worked in the demo. Production exposed what the demo didn't.</h2>
       <p class="case-context">Syncareer is an AI-integrated career platform built by Stephen.</p>
     </header>
+
+    <div class="product-proof">
+      <ProductFrame
+        src1440="/images/syncareer/synai-context-1440.png"
+        src2400="/images/syncareer/synai-context-2400.png"
+        width={2400}
+        height={1302}
+        alt="Syncareer SynAI interface showing personalised career guidance based on Stephen's profile, quick actions and a message input."
+        label="Product surface / SynAI"
+        caption="The AI feature combines profile context with career-guidance entry points inside the product."
+      />
+    </div>
 
     <div class="evidence" aria-label="Syncareer engineering evidence">
       <section class="evidence-group" aria-labelledby="observed-title">
@@ -34,7 +50,10 @@
       <p><span>Measured result</span> Not yet supplied. No reliability threshold is claimed here.</p>
     </div>
 
-    <a class="case-link" href="/work/syncareer">Read the case study <span aria-hidden="true">→</span></a>
+    <div class="case-actions">
+      <a class="case-link" href="/work/syncareer">Read the case study <span aria-hidden="true">→</span></a>
+      <a class="live-link" href="https://syncareer.me/" target="_blank" rel="noopener">View Syncareer <span aria-hidden="true">↗</span></a>
+    </div>
   </div>
 </section>
 
@@ -77,6 +96,10 @@
     border-radius: var(--radius-card);
     background: var(--color-background);
     overflow: hidden;
+  }
+
+  .product-proof {
+    margin-top: var(--section-content-gap);
   }
 
   .evidence-group {
@@ -153,16 +176,24 @@
     color: var(--color-text);
   }
 
-  .case-link {
+  .case-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    margin-top: var(--space-7);
+  }
+
+  .case-link,
+  .live-link {
     display: inline-flex;
     min-height: var(--control-height);
     align-items: center;
-    margin-top: var(--space-7);
     color: var(--color-text);
     font-weight: 600;
   }
 
-  .case-link span {
+  .case-link span,
+  .live-link span {
     color: var(--color-accent);
   }
 
