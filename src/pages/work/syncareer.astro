@@ -3,8 +3,27 @@ import { GMAIL_COMPOSE_URL } from '../../config/site';
 import ProductFrame from '../../components/ProductFrame.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const title = 'Syncareer LLM Reliability Case Study | Stephen Mensah';
-const description = 'How Stephen Mensah identified and responded to formatting, context and response-structure problems in Syncareer.';
+const title = 'Syncareer — LLM Reliability Case Study | Stephen Mensah';
+const description = 'How Stephen Mensah identified format drift, context loss and response variance in Syncareer, then changed prompts, context handling and output constraints.';
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: 'Syncareer — LLM Reliability Case Study',
+  headline: 'Engineering around real LLM failure modes',
+  description,
+  url: new URL('/work/syncareer/', Astro.site).href,
+  image: new URL('/images/syncareer/synai-context-2400.png', Astro.site).href,
+  author: {
+    '@type': 'Person',
+    name: 'Stephen Mensah',
+    url: new URL('/', Astro.site).href,
+  },
+  about: {
+    '@type': 'SoftwareApplication',
+    name: 'Syncareer',
+    url: 'https://syncareer.me/',
+  },
+};
 
 const investigationStages = [
   {
@@ -71,7 +90,16 @@ const investigationStages = [
 ];
 ---
 
-<BaseLayout {title} {description}>
+<BaseLayout
+  {title}
+  {description}
+  {structuredData}
+  image="/images/syncareer/synai-context-2400.png"
+  imageAlt="Syncareer SynAI career-guidance interface"
+  imageWidth={2400}
+  imageHeight={1302}
+  ogType="article"
+>
   <article class="case-page">
     <header class="case-hero page-shell">
       <a class="back-link" href="/#syncareer">← Back to selected work</a>

@@ -1,5 +1,5 @@
 ---
-import { GMAIL_COMPOSE_URL } from '../config/site';
+import { GMAIL_COMPOSE_URL, PUBLIC_LINKS } from '../config/site';
 import AboutSection from '../components/AboutSection.astro';
 import ApproachSection from '../components/ApproachSection.astro';
 import ContactSection from '../components/ContactSection.astro';
@@ -10,11 +10,23 @@ import SiteFooter from '../components/SiteFooter.astro';
 import SyncareerSection from '../components/SyncareerSection.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const title = 'Stephen Mensah | AI Engineering Portfolio';
-const description = 'Stephen Mensah builds and debugs reliable LLM-powered software.';
+const title = 'Stephen Mensah — AI Engineering & Computer Science';
+const description = 'Stephen Mensah is a Computer Science student building LLM-powered software, with a focus on making AI features more reliable in real products.';
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Stephen Mensah',
+  url: new URL('/', Astro.site).href,
+  image: new URL('/images/stephen-mensah-portrait-880.jpg', Astro.site).href,
+  sameAs: [PUBLIC_LINKS.github, PUBLIC_LINKS.linkedin],
+  affiliation: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Ashesi University',
+  },
+};
 ---
 
-<BaseLayout {title} {description}>
+<BaseLayout {title} {description} {structuredData} ogType="profile">
   <section class="hero page-shell" aria-labelledby="hero-title">
     <div class="hero-inner">
       <p class="technical-label eyebrow">AI Engineering · Software</p>
