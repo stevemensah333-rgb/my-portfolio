@@ -41,13 +41,14 @@ const principles = [
 
 <style>
   .approach {
-    padding-block: clamp(var(--space-8), 9vw, var(--space-10));
+    padding-block: var(--section-compact);
     border-top: var(--border-default);
+    background: var(--color-surface-cool);
   }
 
   .approach-layout {
     display: grid;
-    gap: var(--space-7);
+    gap: var(--section-content-gap);
   }
 
   .approach-header p,
@@ -57,7 +58,7 @@ const principles = [
 
   .approach-header h2 {
     max-width: 12ch;
-    margin-top: var(--space-3);
+    margin-top: var(--section-heading-gap);
     font-size: var(--text-h2);
     font-weight: 600;
     letter-spacing: -0.035em;
@@ -80,7 +81,7 @@ const principles = [
 
   .principle-number {
     padding-top: 0.2rem;
-    color: var(--color-text-secondary);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: var(--text-label);
   }

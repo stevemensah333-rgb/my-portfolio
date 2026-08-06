@@ -5,6 +5,7 @@ import ApproachSection from '../components/ApproachSection.astro';
 import ContactSection from '../components/ContactSection.astro';
 import EvidenceSection from '../components/EvidenceSection.astro';
 import ExperienceSection from '../components/ExperienceSection.astro';
+import ReliabilityTrace from '../components/ReliabilityTrace.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SyncareerSection from '../components/SyncareerSection.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -18,7 +19,10 @@ const description = 'Stephen Mensah builds and debugs reliable LLM-powered softw
     <div class="hero-inner">
       <p class="technical-label eyebrow">AI Engineering · Software</p>
 
-      <h1 id="hero-title">I make AI features reliable enough to ship.</h1>
+      <div class="hero-composition">
+        <h1 id="hero-title">I make AI features reliable enough to ship.</h1>
+        <ReliabilityTrace />
+      </div>
 
       <div class="hero-details">
         <p class="supporting-copy">
@@ -50,27 +54,37 @@ const description = 'Stephen Mensah builds and debugs reliable LLM-powered softw
 
 <style>
   .hero {
-    min-height: calc(100svh - 4.5rem);
+    min-height: min(48rem, calc(100svh - 4.5rem));
   }
 
   .hero-inner {
     display: flex;
     min-height: inherit;
     flex-direction: column;
-    padding-block: clamp(3.5rem, 9vw, 7rem) var(--space-6);
+    padding-block: clamp(3.5rem, 8vw, 6rem) var(--space-6);
   }
 
   .eyebrow {
-    margin-bottom: clamp(2rem, 5vw, 4rem);
+    margin-bottom: clamp(var(--space-6), 4vw, var(--space-8));
   }
 
   h1 {
     max-width: 12ch;
-    margin-bottom: clamp(2.5rem, 6vw, 5rem);
+    margin-bottom: clamp(var(--space-7), 5vw, var(--space-8));
     font-size: clamp(3.25rem, 7vw, 6rem);
     font-weight: 650;
     letter-spacing: -0.055em;
     line-height: var(--leading-display);
+  }
+
+  .hero-composition {
+    display: grid;
+    gap: var(--space-7);
+    margin-bottom: clamp(var(--space-7), 5vw, var(--space-8));
+  }
+
+  .hero-composition h1 {
+    margin-bottom: 0;
   }
 
   .hero-details {
@@ -130,7 +144,7 @@ const description = 'Stephen Mensah builds and debugs reliable LLM-powered softw
 
   @media (min-width: 48rem) {
     .hero {
-      min-height: calc(100svh - 5rem);
+      min-height: min(48rem, calc(100svh - 5rem));
     }
 
     .hero-details {
@@ -144,6 +158,14 @@ const description = 'Stephen Mensah builds and debugs reliable LLM-powered softw
 
     .hero-meta {
       justify-content: space-between;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .hero-composition {
+      grid-template-columns: minmax(0, 7fr) minmax(20rem, 5fr);
+      gap: clamp(var(--space-7), 5vw, var(--space-9));
+      align-items: center;
     }
   }
 </style>

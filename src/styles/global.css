@@ -18,6 +18,8 @@
   /* Colour */
   --color-background: #f7f6f2;
   --color-surface: color-mix(in srgb, #f7f6f2 70%, #e2e0da);
+  --color-surface-light: color-mix(in srgb, #f7f6f2 90%, white);
+  --color-surface-cool: color-mix(in srgb, #f7f6f2 96%, #2f6fed);
   --color-text: #121416;
   --color-text-secondary: #62676d;
   --color-border: #e2e0da;
@@ -50,6 +52,14 @@
   --space-9: 6rem;
   --space-10: 8rem;
 
+  /* Editorial rhythm: supporting, standard and flagship sections */
+  --section-compact: clamp(3.5rem, 6vw, 5rem);
+  --section-standard: clamp(4.5rem, 8vw, 6.5rem);
+  --section-feature: clamp(5.5rem, 10vw, 8rem);
+  --section-heading-gap: var(--space-3);
+  --section-content-gap: clamp(var(--space-6), 4vw, var(--space-8));
+  --card-padding: clamp(var(--space-5), 3vw, var(--space-7));
+
   /* Width and layout */
   --width-page: 72rem;
   --width-content: 48rem;
@@ -63,6 +73,7 @@
   --border-width: 1px;
   --border-default: var(--border-width) solid var(--color-border);
   --radius-small: 0.25rem;
+  --radius-card: 0.375rem;
   --control-height: 2.75rem;
 
   /* Breakpoint reference: 30rem small, 48rem medium, 64rem large */
@@ -173,6 +184,16 @@ a {
   text-transform: uppercase;
 }
 
+.technical-label::before {
+  display: inline-block;
+  width: 0.375rem;
+  height: 0.375rem;
+  margin-right: var(--space-2);
+  border: 1px solid var(--color-accent);
+  content: '';
+  vertical-align: 0.05em;
+}
+
 .button {
   display: inline-flex;
   min-height: var(--control-height);
@@ -218,6 +239,15 @@ a {
 @media (min-width: 64rem) {
   :root {
     --grid-columns: 12;
+  }
+}
+
+@media (max-width: 30rem) {
+  :root {
+    --section-compact: 3rem;
+    --section-standard: 4rem;
+    --section-feature: 4.75rem;
+    --section-content-gap: var(--space-6);
   }
 }
 

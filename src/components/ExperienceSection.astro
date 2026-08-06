@@ -36,14 +36,15 @@ const experiences = [
 
 <style>
   .experience {
-    padding-block: clamp(var(--space-8), 9vw, var(--space-10));
+    padding-block: var(--section-compact);
     border-top: var(--border-default);
+    background: var(--color-surface);
     scroll-margin-top: 5rem;
   }
 
   .experience-layout {
     display: grid;
-    gap: var(--space-7);
+    gap: var(--section-content-gap);
   }
 
   .experience-header p,
@@ -52,7 +53,7 @@ const experiences = [
   }
 
   .experience-header h2 {
-    margin-top: var(--space-3);
+    margin-top: var(--section-heading-gap);
     font-size: var(--text-h2);
     font-weight: 600;
     letter-spacing: -0.035em;
@@ -90,6 +91,7 @@ const experiences = [
   }
 
   .entry-dates {
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: var(--text-label);
   }

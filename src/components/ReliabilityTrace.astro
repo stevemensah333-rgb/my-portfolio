@@ -1,0 +1,222 @@
+---
+interface Props {
+  variant?: 'hero' | 'portrait';
+}
+
+const { variant = 'hero' } = Astro.props;
+---
+
+{variant === 'hero' ? (
+  <figure
+    class="reliability-trace reliability-trace--hero"
+    role="img"
+    aria-label="A reliability path moving from user context through prompting and an LLM to validation, retry or a product-ready output."
+  >
+    <svg viewBox="0 0 520 390" aria-hidden="true">
+      <defs>
+        <pattern id="trace-grid" width="32" height="32" patternUnits="userSpaceOnUse">
+          <path d="M 32 0 L 0 0 0 32" class="trace-grid-line" />
+        </pattern>
+      </defs>
+
+      <rect width="520" height="390" class="trace-grid" />
+      <text x="28" y="34" class="trace-coordinate">RELIABILITY PATH / 01</text>
+      <text x="492" y="34" text-anchor="end" class="trace-coordinate">VALIDATE BEFORE USE</text>
+
+      <path d="M92 88 V137 H260 V178" class="trace-path" />
+      <path d="M260 224 V272" class="trace-path trace-path--active" />
+      <path d="M260 318 V350 H420" class="trace-path trace-path--active" />
+      <path d="M260 318 V350 H100 V305" class="trace-path" />
+
+      <g class="trace-node">
+        <rect x="28" y="64" width="128" height="48" />
+        <text x="92" y="93" text-anchor="middle">USER CONTEXT</text>
+      </g>
+      <g class="trace-node">
+        <rect x="196" y="113" width="128" height="48" />
+        <text x="260" y="142" text-anchor="middle">PROMPT</text>
+      </g>
+      <g class="trace-node">
+        <rect x="196" y="178" width="128" height="48" />
+        <text x="260" y="207" text-anchor="middle">LLM</text>
+      </g>
+      <g class="trace-node trace-node--active">
+        <rect x="180" y="272" width="160" height="48" />
+        <text x="260" y="301" text-anchor="middle">VALIDATION</text>
+      </g>
+      <g class="trace-node trace-node--muted">
+        <rect x="36" y="281" width="128" height="48" />
+        <text x="100" y="310" text-anchor="middle">RETRY</text>
+      </g>
+      <g class="trace-node trace-node--active">
+        <rect x="356" y="326" width="128" height="48" />
+        <text x="420" y="355" text-anchor="middle">PRODUCT</text>
+      </g>
+
+      <circle cx="260" cy="248" r="4" class="trace-point trace-point--active" />
+      <circle cx="260" cy="350" r="4" class="trace-point trace-point--active" />
+      <text x="278" y="254" class="trace-annotation">CHECK</text>
+      <text x="278" y="344" class="trace-annotation trace-annotation--active">PASS</text>
+    </svg>
+
+    <div class="trace-strip" aria-hidden="true">
+      {['context', 'prompt', 'model', 'validate', 'product'].map((label, index) => (
+        <span class:list={{ active: index >= 3 }}><i></i>{label}</span>
+      ))}
+    </div>
+  </figure>
+) : (
+  <div class="reliability-trace reliability-trace--portrait" aria-hidden="true">
+    <svg viewBox="0 0 180 58">
+      <path d="M2 29 H48 V12 H91 V45 H134 V29 H178" class="trace-path" />
+      <rect x="45" y="9" width="6" height="6" class="trace-point" />
+      <rect x="88" y="42" width="6" height="6" class="trace-point trace-point--active" />
+      <rect x="131" y="26" width="6" height="6" class="trace-point" />
+    </svg>
+  </div>
+)}
+
+<style>
+  .reliability-trace {
+    margin: 0;
+  }
+
+  .reliability-trace--hero {
+    align-self: center;
+    width: 100%;
+    max-width: 32.5rem;
+  }
+
+  .reliability-trace--hero > svg {
+    display: none;
+    width: 100%;
+    height: auto;
+  }
+
+  .trace-grid {
+    fill: url('#trace-grid');
+  }
+
+  .trace-grid-line {
+    fill: none;
+    stroke: var(--color-border);
+    stroke-width: 0.65;
+  }
+
+  .trace-path {
+    fill: none;
+    stroke: var(--color-border);
+    stroke-width: 1.25;
+  }
+
+  .trace-path--active {
+    stroke: var(--color-accent);
+  }
+
+  .trace-node rect {
+    fill: var(--color-background);
+    stroke: var(--color-border);
+  }
+
+  .trace-node text,
+  .trace-coordinate,
+  .trace-annotation {
+    fill: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+
+  .trace-coordinate {
+    font-size: 9px;
+  }
+
+  .trace-node--active rect {
+    stroke: var(--color-accent);
+  }
+
+  .trace-node--active text,
+  .trace-annotation--active {
+    fill: var(--color-accent);
+  }
+
+  .trace-node--muted {
+    opacity: 0.62;
+  }
+
+  .trace-point {
+    fill: var(--color-background);
+    stroke: var(--color-border);
+  }
+
+  .trace-point--active {
+    fill: var(--color-accent);
+    stroke: var(--color-accent);
+  }
+
+  .trace-strip {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding-block: var(--space-4);
+    border-block: var(--border-default);
+  }
+
+  .trace-strip span {
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.02em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .trace-strip span:not(:last-child)::after {
+    position: absolute;
+    top: 0.1875rem;
+    right: -50%;
+    left: 50%;
+    border-top: var(--border-default);
+    content: '';
+  }
+
+  .trace-strip i {
+    z-index: 1;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    margin-inline: auto;
+    border: var(--border-default);
+    background: var(--color-background);
+  }
+
+  .trace-strip .active i {
+    border-color: var(--color-accent);
+  }
+
+  .trace-strip .active:last-child i {
+    background: var(--color-accent);
+  }
+
+  .reliability-trace--portrait {
+    width: min(11.25rem, 55%);
+  }
+
+  .reliability-trace--portrait svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @media (min-width: 64rem) {
+    .reliability-trace--hero > svg {
+      display: block;
+    }
+
+    .trace-strip {
+      display: none;
+    }
+  }
+</style>

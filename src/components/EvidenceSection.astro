@@ -153,14 +153,15 @@ import { credentials } from '../data/credentials';
 
 <style>
   .credentials {
-    padding-block: clamp(var(--space-8), 9vw, var(--space-10));
+    padding-block: var(--section-standard);
     border-top: var(--border-default);
+    background: var(--color-surface-light);
     scroll-margin-top: 6rem;
   }
 
   .section-header {
     max-width: var(--width-reading);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--section-content-gap);
   }
 
   .section-header p,
@@ -347,6 +348,7 @@ import { credentials } from '../data/credentials';
     }
 
     .credential-index button[aria-pressed='true'] span {
+      color: var(--color-accent);
       font-weight: 650;
     }
 
