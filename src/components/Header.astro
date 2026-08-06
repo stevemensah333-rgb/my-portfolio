@@ -13,6 +13,7 @@ const sectionHref = (id: string) => isHomepage ? `#${id}` : `/#${id}`;
     <nav class="desktop-nav" aria-label="Primary navigation">
       <a href={sectionHref('syncareer')}>Work</a>
       <a href={sectionHref('about')}>About</a>
+      <a href={sectionHref('experience')}>Experience</a>
       <a href={sectionHref('evidence')}>Evidence</a>
       <a href={PUBLIC_LINKS.resume} target="_blank" rel="noopener noreferrer">Résumé <span aria-hidden="true">↗</span></a>
       <a href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email</a>
@@ -30,6 +31,7 @@ const sectionHref = (id: string) => isHomepage ? `#${id}` : `/#${id}`;
       <nav aria-label="Mobile navigation">
         <a href={sectionHref('syncareer')}>Work</a>
         <a href={sectionHref('about')}>About</a>
+        <a href={sectionHref('experience')}>Experience</a>
         <a href={sectionHref('evidence')}>Evidence</a>
         <a href={PUBLIC_LINKS.resume} target="_blank" rel="noopener noreferrer">Résumé <span aria-hidden="true">↗</span></a>
         <a href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email me</a>
