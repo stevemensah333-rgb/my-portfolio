@@ -361,14 +361,14 @@ const investigationStages = [
 
   .case-opening {
     display: grid;
-    gap: var(--section-content-gap);
+    gap: clamp(var(--space-6), 3vw, var(--space-7));
   }
 
   .back-link {
     display: inline-flex;
     min-height: var(--control-height);
     align-items: center;
-    margin-bottom: var(--section-content-gap);
+    margin-bottom: clamp(var(--space-6), 3vw, var(--space-7));
     color: var(--color-text-secondary);
     font-size: var(--text-small);
   }
@@ -376,9 +376,10 @@ const investigationStages = [
   .case-hero h1 {
     max-width: 15ch;
     margin-block: var(--space-5);
-    font-size: var(--text-h1);
+    font-size: var(--type-case-title);
     font-weight: 650;
     letter-spacing: -0.045em;
+    line-height: 1.04;
   }
 
   .case-summary {
@@ -1039,6 +1040,10 @@ const investigationStages = [
   }
 
   @media (max-width: 30rem) {
+    .case-hero h1 {
+      font-size: 1.75rem;
+    }
+
     .failure-signal,
     .variance-signal {
       grid-template-columns: 1fr;
