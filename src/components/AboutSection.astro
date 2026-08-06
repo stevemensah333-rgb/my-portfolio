@@ -2,15 +2,31 @@
   <div class="page-shell about-layout">
     <header>
       <p class="technical-label">About</p>
-      <h2 id="about-title">Curious about the parts that break.</h2>
+      <h2 id="about-title">A little about me.</h2>
     </header>
 
-    <div class="about-copy">
-      <p>I'm Stephen, a Computer Science student who gets curious when software behaves in ways it shouldn't.</p>
-      <p>
-        AI systems are especially interesting to me because getting a model to respond is usually the easy part.
-        The harder problems start when real inputs arrive, assumptions break and the output has to fit into an actual product.
-      </p>
+    <div class="about-content">
+      <div class="about-copy">
+        <p>
+          I'm a Computer Science student at Ashesi University. I'm curious, analytical and attentive,
+          especially when details are easy to miss.
+        </p>
+      </div>
+
+      <picture class="about-portrait">
+        <source
+          srcset="/images/stephen-mensah-portrait-440.jpg 440w, /images/stephen-mensah-portrait-880.jpg 880w"
+          sizes="(min-width: 64rem) 18rem, (min-width: 48rem) 20rem, calc(100vw - 2.5rem)"
+        />
+        <img
+          src="/images/stephen-mensah-portrait-880.jpg"
+          alt="Stephen Mensah"
+          width="880"
+          height="1100"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
     </div>
   </div>
 </section>
@@ -44,19 +60,31 @@
     max-width: var(--width-reading);
   }
 
+  .about-content {
+    display: grid;
+    gap: var(--space-7);
+  }
+
   .about-copy p {
     margin-bottom: var(--space-5);
-    color: var(--color-text-secondary);
+    color: var(--color-text);
     font-size: var(--text-body-large);
     line-height: 1.6;
   }
 
-  .about-copy p:first-child {
-    color: var(--color-text);
-  }
-
   .about-copy p:last-child {
     margin-bottom: 0;
+  }
+
+  .about-portrait {
+    display: block;
+    width: min(100%, 20rem);
+  }
+
+  .about-portrait img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   @media (min-width: 48rem) {
@@ -64,6 +92,18 @@
       grid-template-columns: minmax(13rem, 4fr) minmax(0, 8fr);
       gap: var(--space-8);
       align-items: start;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .about-content {
+      grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    .about-portrait {
+      width: 100%;
     }
   }
 </style>

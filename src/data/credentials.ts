@@ -4,12 +4,12 @@ export interface Credential {
   result: string;
   issuer?: string;
   detail?: string;
-  /** Path to a permanently redacted, public-safe image only. */
+  /** Path to a public-approved evidence image. */
   evidenceImage?: string;
   evidenceAlt?: string;
   evidenceWidth?: number;
   evidenceHeight?: number;
-  /** Path to a permanently redacted, public-safe document only. */
+  /** Path to a public-approved evidence document. */
   evidenceDocument?: string;
 }
 
@@ -19,10 +19,11 @@ export const credentials: Credential[] = [
     name: 'SAT',
     result: '1520 / 1600',
     issuer: 'College Board',
-    evidenceImage: '/evidence/sat-score-1520-redacted.png',
-    evidenceAlt: 'Cropped SAT score report showing a total score of 1520.',
-    evidenceWidth: 340,
-    evidenceHeight: 220,
+    evidenceImage: '/evidence/sat-score-report-full.jpg',
+    evidenceAlt: 'Full SAT score report for Stephen Mensah showing a total score of 1520.',
+    evidenceWidth: 1236,
+    evidenceHeight: 1600,
+    evidenceDocument: '/evidence/sat-results.pdf',
   },
   {
     id: 'ashesi',
