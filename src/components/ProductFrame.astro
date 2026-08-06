@@ -1,6 +1,7 @@
 ---
 interface Props {
   src1440: string;
+  src1800: string;
   src2400: string;
   width: number;
   height: number;
@@ -13,6 +14,7 @@ interface Props {
 
 const {
   src1440,
+  src1800,
   src2400,
   width,
   height,
@@ -22,6 +24,8 @@ const {
   sizes = '(min-width: 75rem) 72rem, calc(100vw - 2.5rem)',
   priority = false,
 } = Astro.props;
+
+const toWebP = (src: string) => src.replace(/\.png$/i, '.webp');
 ---
 
 <figure class="product-figure">
@@ -32,7 +36,12 @@ const {
       <span class="frame-state">Live product</span>
     </div>
     <picture>
-      <source srcset={`${src1440} 1440w, ${src2400} 2400w`} {sizes} />
+      <source
+        type="image/webp"
+        srcset={`${toWebP(src1440)} 1440w, ${toWebP(src1800)} 1800w, ${toWebP(src2400)} 2400w`}
+        {sizes}
+      />
+      <source type="image/png" srcset={`${src1440} 1440w, ${src1800} 1800w, ${src2400} 2400w`} {sizes} />
       <img
         src={src1440}
         {alt}
