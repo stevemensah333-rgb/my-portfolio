@@ -16,6 +16,10 @@ const toolkit = [
     category: 'Infrastructure & Tools',
     technologies: ['Docker'],
   },
+  {
+    category: 'Data & ML',
+    technologies: ['Data cleaning', 'Supervised machine learning'],
+  },
 ];
 ---
 
@@ -137,8 +141,10 @@ const toolkit = [
       border-right: 0;
     }
 
-    .toolkit-group:nth-last-child(-n + 2) {
+    .toolkit-group:last-child {
+      grid-column: 1 / -1;
       border-bottom: 0;
+      border-right: 0;
     }
 
     .toolkit-group ul {
@@ -148,7 +154,7 @@ const toolkit = [
 
   @media (min-width: 64rem) {
     .toolkit-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 
     .toolkit-group,
@@ -159,6 +165,7 @@ const toolkit = [
     }
 
     .toolkit-group:last-child {
+      grid-column: auto;
       border-right: 0;
     }
   }
