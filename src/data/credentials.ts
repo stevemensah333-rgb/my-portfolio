@@ -20,9 +20,9 @@ export const credentials: Credential[] = [
     result: '1520 / 1600',
     issuer: 'College Board',
     evidenceImage: '/evidence/sat-score-report-full.jpg',
-    evidenceAlt: 'Full SAT score report for Stephen Mensah showing a total score of 1520.',
+    evidenceAlt: 'SAT score report for Stephen Mensah showing a total score of 1520 and the verification banner.',
     evidenceWidth: 1236,
-    evidenceHeight: 1600,
+    evidenceHeight: 1005,
     evidenceDocument: '/evidence/sat-results.pdf',
   },
   {
