@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { PUBLIC_EMAIL } from '../config/site';
+import { GMAIL_COMPOSE_URL } from '../config/site';
 ---
 <Layout title="About">
 	<section class="about">
@@ -14,6 +14,6 @@ import { PUBLIC_EMAIL } from '../config/site';
 			I don't just prompt a model and hope it works. I diagnose specific failure modes, where output breaks, where context gets dropped, where reasoning goes wrong, and engineer around them until the feature is stable for real users, not just in a demo.
 		</p>
 
-		<a class="cta-button" href={`mailto:${PUBLIC_EMAIL}`}>Email me to schedule a call</a>
+		<a class="cta-button" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email me to schedule a call</a>
 	</section>
 </Layout>

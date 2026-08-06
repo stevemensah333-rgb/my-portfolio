@@ -1,10 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { PUBLIC_EMAIL } from '../config/site';
+import { GMAIL_COMPOSE_URL } from '../config/site';
 ---
 <Layout title="Contact">
 	<section class="contact">
 		<h1>I close the gap between an AI demo and an AI feature people can actually trust.</h1>
-		<a class="cta-button" href={`mailto:${PUBLIC_EMAIL}`}>Email me to schedule a call</a>
+		<a class="cta-button" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email me to schedule a call</a>
 	</section>
 </Layout>

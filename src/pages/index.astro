@@ -1,5 +1,5 @@
 ---
-import { PUBLIC_EMAIL } from '../config/site';
+import { GMAIL_COMPOSE_URL } from '../config/site';
 import AboutSection from '../components/AboutSection.astro';
 import ApproachSection from '../components/ApproachSection.astro';
 import ContactSection from '../components/ContactSection.astro';
@@ -32,7 +32,7 @@ const description = 'Stephen Mensah builds and debugs reliable LLM-powered softw
 
         <div class="hero-actions" aria-label="Portfolio actions">
           <a class="button" href="#syncareer">See the proof</a>
-          <a class="email-link" href={`mailto:${PUBLIC_EMAIL}`}>Email me</a>
+          <a class="email-link" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email me</a>
         </div>
       </div>
 

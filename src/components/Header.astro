@@ -1,5 +1,5 @@
 ---
-import { PUBLIC_EMAIL, PUBLIC_LINKS } from '../config/site';
+import { GMAIL_COMPOSE_URL, PUBLIC_LINKS } from '../config/site';
 
 const isHomepage = Astro.url.pathname === '/';
 const homeHref = isHomepage ? '#top' : '/';
@@ -14,8 +14,8 @@ const sectionHref = (id: string) => isHomepage ? `#${id}` : `/#${id}`;
       <a href={sectionHref('syncareer')}>Work</a>
       <a href={sectionHref('about')}>About</a>
       <a href={sectionHref('evidence')}>Evidence</a>
-      <a href={PUBLIC_LINKS.resume} target="_blank" rel="noopener">Résumé <span aria-hidden="true">↗</span></a>
-      <a href={`mailto:${PUBLIC_EMAIL}`}>Email</a>
+      <a href={PUBLIC_LINKS.resume} target="_blank" rel="noopener noreferrer">Résumé <span aria-hidden="true">↗</span></a>
+      <a href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email</a>
     </nav>
 
     <button
@@ -31,8 +31,8 @@ const sectionHref = (id: string) => isHomepage ? `#${id}` : `/#${id}`;
         <a href={sectionHref('syncareer')}>Work</a>
         <a href={sectionHref('about')}>About</a>
         <a href={sectionHref('evidence')}>Evidence</a>
-        <a href={PUBLIC_LINKS.resume} target="_blank" rel="noopener">Résumé <span aria-hidden="true">↗</span></a>
-        <a href={`mailto:${PUBLIC_EMAIL}`}>Email me</a>
+        <a href={PUBLIC_LINKS.resume} target="_blank" rel="noopener noreferrer">Résumé <span aria-hidden="true">↗</span></a>
+        <a href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email me</a>
       </nav>
     </div>
   </div>

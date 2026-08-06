@@ -1,5 +1,5 @@
 ---
-import { PUBLIC_EMAIL } from '../../config/site';
+import { GMAIL_COMPOSE_URL } from '../../config/site';
 import ProductFrame from '../../components/ProductFrame.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
@@ -264,7 +264,7 @@ const investigationStages = [
       <section class="contact-section" aria-labelledby="contact-title">
         <p class="section-label">Contact</p>
         <h2 id="contact-title">Want to talk through the engineering?</h2>
-        <a class="button" href={`mailto:${PUBLIC_EMAIL}`}>Email Stephen</a>
+        <a class="button" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email Stephen</a>
       </section>
     </div>
   </article>
