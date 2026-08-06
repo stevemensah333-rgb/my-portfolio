@@ -1,0 +1,165 @@
+---
+const toolkit = [
+  {
+    category: 'Languages',
+    technologies: ['Python', 'JavaScript', 'HTML', 'CSS'],
+  },
+  {
+    category: 'Backend',
+    technologies: ['FastAPI', 'Node.js', 'Express.js'],
+  },
+  {
+    category: 'Databases',
+    technologies: ['MySQL', 'MongoDB', 'SQLite'],
+  },
+  {
+    category: 'Infrastructure & Tools',
+    technologies: ['Docker'],
+  },
+];
+---
+
+<section id="toolkit" class="toolkit" aria-labelledby="toolkit-title">
+  <div class="page-shell toolkit-layout">
+    <header class="toolkit-header">
+      <p class="technical-label">Technical index</p>
+      <h2 id="toolkit-title">Technical Toolkit</h2>
+    </header>
+
+    <div class="toolkit-grid">
+      {toolkit.map((group, index) => (
+        <section class="toolkit-group" aria-labelledby={`toolkit-group-${index}`}>
+          <h3 id={`toolkit-group-${index}`}>{group.category}</h3>
+          <ul>
+            {group.technologies.map((technology) => <li>{technology}</li>)}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .toolkit {
+    padding-block: var(--section-tight);
+    border-top: var(--border-default);
+    background: var(--color-background);
+  }
+
+  .toolkit-layout {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  .toolkit-header p,
+  .toolkit-header h2,
+  .toolkit-group h3,
+  .toolkit-group ul {
+    margin: 0;
+  }
+
+  .toolkit-header h2 {
+    margin-top: var(--section-heading-gap);
+    font-size: var(--text-h2);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+  }
+
+  .toolkit-grid {
+    border-top: var(--border-default);
+    border-bottom: var(--border-default);
+  }
+
+  .toolkit-group {
+    display: grid;
+    grid-template-columns: minmax(7.75rem, 0.9fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-4);
+    border-bottom: var(--border-default);
+  }
+
+  .toolkit-group:last-child {
+    border-bottom: 0;
+  }
+
+  .toolkit-group h3 {
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .toolkit-group ul {
+    display: grid;
+    gap: var(--space-1);
+    padding: 0;
+    list-style: none;
+  }
+
+  .toolkit-group li {
+    font-size: var(--text-small);
+    font-weight: 550;
+    line-height: 1.6;
+  }
+
+  .toolkit-group li:first-child::before {
+    display: inline-block;
+    width: 0.375rem;
+    height: 0.375rem;
+    margin-right: var(--space-2);
+    background: var(--color-accent);
+    content: '';
+    vertical-align: 0.08em;
+  }
+
+  @media (min-width: 48rem) {
+    .toolkit-layout {
+      grid-template-columns: minmax(13rem, 4fr) minmax(0, 8fr);
+      align-items: start;
+    }
+
+    .toolkit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .toolkit-group {
+      display: block;
+      min-height: 9.5rem;
+      padding: var(--space-4);
+      border-right: var(--border-default);
+    }
+
+    .toolkit-group:nth-child(2n) {
+      border-right: 0;
+    }
+
+    .toolkit-group:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
+
+    .toolkit-group ul {
+      margin-top: var(--space-3);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .toolkit-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .toolkit-group,
+    .toolkit-group:nth-child(2n) {
+      min-height: 10rem;
+      border-right: var(--border-default);
+      border-bottom: 0;
+    }
+
+    .toolkit-group:last-child {
+      border-right: 0;
+    }
+  }
+</style>
