@@ -41,3 +41,13 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+## Contact form delivery
+
+The form posts to the Vercel Function at `api/contact.ts`, which sends through Resend. Configure these server-only environment variables in Vercel:
+
+- `RESEND_API_KEY`: a Resend API key with sending access.
+- `CONTACT_FROM_EMAIL`: a sender on a domain verified in Resend, including an optional display name.
+- `CONTACT_TO_EMAIL`: the inbox that receives enquiries. It defaults to Stephen's verified portfolio email.
+
+Copy `.env.example` to `.env.local` for local function testing. Never expose `RESEND_API_KEY` through an Astro `PUBLIC_` variable.

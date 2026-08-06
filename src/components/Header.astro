@@ -144,6 +144,9 @@ const sectionHref = (id: string) => isHomepage ? `#${id}` : `/#${id}`;
     font-size: 0.9375rem;
     font-weight: 600;
     text-decoration-color: transparent;
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      text-decoration-color var(--duration-fast) var(--ease-standard);
   }
 
   .site-name:hover,

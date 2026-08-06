@@ -21,8 +21,9 @@ const experiences = [
     </header>
 
     <ol class="experience-list">
-      {experiences.map((entry) => (
+      {experiences.map((entry, index) => (
         <li>
+          <span class="entry-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
           <div class="entry-heading">
             <h3>{entry.role}</h3>
             <p>{entry.organisation}</p>
@@ -36,7 +37,7 @@ const experiences = [
 
 <style>
   .experience {
-    padding-block: var(--section-compact);
+    padding-block: var(--section-tight);
     border-top: var(--border-default);
     background: var(--color-surface);
     scroll-margin-top: 5rem;
@@ -44,7 +45,7 @@ const experiences = [
 
   .experience-layout {
     display: grid;
-    gap: var(--section-content-gap);
+    gap: var(--space-7);
   }
 
   .experience-header p,
@@ -68,8 +69,9 @@ const experiences = [
 
   .experience-list li {
     display: grid;
-    gap: var(--space-3);
-    padding-block: var(--space-5);
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: var(--space-2) var(--space-4);
+    padding-block: var(--space-4);
     border-bottom: var(--border-default);
   }
 
@@ -77,6 +79,13 @@ const experiences = [
   .entry-heading p,
   .entry-dates {
     margin: 0;
+  }
+
+  .entry-number {
+    grid-row: 1 / span 2;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
   }
 
   .entry-heading h3 {
@@ -99,13 +108,13 @@ const experiences = [
   @media (min-width: 48rem) {
     .experience-layout {
       grid-template-columns: minmax(13rem, 4fr) minmax(0, 8fr);
-      gap: var(--space-8);
+      gap: var(--space-7);
       align-items: start;
     }
 
     .experience-list li {
-      grid-template-columns: minmax(12rem, 1fr) auto;
-      column-gap: var(--space-6);
+      grid-template-columns: 2rem minmax(12rem, 1fr) auto;
+      column-gap: var(--space-4);
     }
 
     .entry-dates {

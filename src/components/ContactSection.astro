@@ -9,52 +9,191 @@ const secondaryLinks = [
 ---
 
 <section id="contact" class="contact" aria-labelledby="contact-title">
-  <div class="page-shell contact-inner">
-    <p class="technical-label">Start a conversation</p>
-    <h2 id="contact-title">Have an AI engineering role to discuss?</h2>
-    <p class="contact-copy">
-      I'm looking for entry-level AI engineering opportunities where I can contribute to product work
-      and learn from experienced engineers.
-    </p>
+  <div class="page-shell contact-layout">
+    <div class="contact-intro">
+      <p class="technical-label">Start a conversation</p>
+      <h2 id="contact-title">Have an AI engineering role to discuss?</h2>
+      <p class="contact-copy">
+        I'm looking for entry-level AI engineering opportunities where I can contribute to product work
+        and learn from experienced engineers.
+      </p>
 
-    <div class="contact-actions">
-      <a class="button" href={`mailto:${PUBLIC_EMAIL}`}>Email me</a>
+      <a class="button email-button" href={`mailto:${PUBLIC_EMAIL}`}>Email me</a>
+
       <ul class="secondary-links" aria-label="Other ways to find Stephen">
         {secondaryLinks.map((link) => (
           <li>
-            {link.href ? (
-              <a
-                href={link.href}
-                target={link.opensNewTab ? '_blank' : undefined}
-                rel={link.opensNewTab ? 'noopener' : undefined}
-              >
-                {link.label}{link.opensNewTab && <span aria-hidden="true"> ↗</span>}
-              </a>
-            ) : (
-              <span><strong>{link.label}</strong> <small>TODO / URL</small></span>
-            )}
+            <a
+              href={link.href}
+              target={link.opensNewTab ? '_blank' : undefined}
+              rel={link.opensNewTab ? 'noopener' : undefined}
+            >
+              {link.label}{link.opensNewTab && <span aria-hidden="true"> ↗</span>}
+            </a>
           </li>
         ))}
       </ul>
+
+      <div class="contact-trace" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     </div>
+
+    <form class="contact-form" action="/api/contact" method="post" data-contact-form novalidate>
+      <div class="form-heading">
+        <p>Message path / 01</p>
+        <span>Server validated</span>
+      </div>
+
+      <div class="field">
+        <label for="contact-name">Name</label>
+        <input id="contact-name" name="name" type="text" autocomplete="name" minlength="2" maxlength="100" required aria-describedby="contact-name-error" />
+        <small id="contact-name-error" class="field-error" aria-live="polite"></small>
+      </div>
+
+      <div class="field">
+        <label for="contact-email">Email</label>
+        <input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" required aria-describedby="contact-email-error" />
+        <small id="contact-email-error" class="field-error" aria-live="polite"></small>
+      </div>
+
+      <div class="field field--message">
+        <label for="contact-message">Message</label>
+        <textarea id="contact-message" name="message" rows="6" minlength="20" maxlength="5000" required aria-describedby="contact-message-help contact-message-error"></textarea>
+        <small id="contact-message-help" class="field-help">Please include a little context about the role or problem.</small>
+        <small id="contact-message-error" class="field-error" aria-live="polite"></small>
+      </div>
+
+      <div class="form-trap" aria-hidden="true">
+        <label for="contact-company">Company website</label>
+        <input id="contact-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <input type="hidden" name="startedAt" value="" data-form-started />
+
+      <div class="form-submit">
+        <button class="button submit-button" type="submit" data-submit-button>Send message <span aria-hidden="true">→</span></button>
+        <p class="form-status" role="status" aria-live="polite" data-form-status></p>
+      </div>
+    </form>
   </div>
 </section>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+
+  if (form) {
+    const submitButton = form.querySelector<HTMLButtonElement>('[data-submit-button]');
+    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const startedAt = form.querySelector<HTMLInputElement>('[data-form-started]');
+    const fields = [...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]')];
+
+    const resetTimer = () => {
+      if (startedAt) startedAt.value = String(Date.now());
+    };
+
+    const setFieldError = (field: HTMLInputElement | HTMLTextAreaElement, message = '') => {
+      field.setAttribute('aria-invalid', String(Boolean(message)));
+      const error = form.querySelector<HTMLElement>(`#${field.id}-error`);
+      if (error) error.textContent = message;
+    };
+
+    const validateField = (field: HTMLInputElement | HTMLTextAreaElement) => {
+      const value = field.value.trim();
+      let message = '';
+
+      if (!value) message = 'This field is required.';
+      else if (field.name === 'name' && value.length < 2) message = 'Please enter at least two characters.';
+      else if (field.name === 'email' && !field.validity.valid) message = 'Enter a valid email address.';
+      else if (field.name === 'message' && value.length < 20) message = 'Please enter at least 20 characters.';
+
+      setFieldError(field, message);
+      return !message;
+    };
+
+    for (const field of fields) {
+      field.addEventListener('blur', () => validateField(field));
+      field.addEventListener('input', () => {
+        if (field.getAttribute('aria-invalid') === 'true') validateField(field);
+      });
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const valid = fields.map(validateField).every(Boolean);
+
+      if (!valid) {
+        fields.find((field) => field.getAttribute('aria-invalid') === 'true')?.focus();
+        return;
+      }
+
+      if (!submitButton || !status) return;
+      submitButton.disabled = true;
+      submitButton.textContent = 'Sending…';
+      status.textContent = 'Sending your message.';
+      status.dataset.state = 'loading';
+
+      try {
+        const body = Object.fromEntries(new FormData(form));
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const result = await response.json().catch(() => ({ message: 'The form service returned an invalid response.' }));
+
+        if (!response.ok || result.ok !== true) throw new Error(result.message || 'Your message could not be sent.');
+
+        form.reset();
+        resetTimer();
+        status.textContent = 'Message accepted. Stephen will reply by email.';
+        status.dataset.state = 'success';
+        for (const field of fields) setFieldError(field);
+      } catch (error) {
+        status.textContent = error instanceof Error
+          ? `${error.message} You can still use the direct email link.`
+          : 'Your message could not be sent. You can still use the direct email link.';
+        status.dataset.state = 'error';
+      } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Send message <span aria-hidden="true">→</span>';
+      }
+    });
+
+    resetTimer();
+  }
+</script>
 
 <style>
   .contact {
     padding-block: var(--section-standard);
-    border-top: var(--border-default);
-    background: var(--color-surface-cool);
+    border-top: 1px solid rgb(247 246 242 / 18%);
+    background: var(--color-text);
+    color: var(--color-background);
     scroll-margin-top: 5rem;
   }
 
-  .contact-inner > p,
-  .contact-inner h2 {
+  .contact-layout {
+    display: grid;
+    gap: var(--section-content-gap);
+  }
+
+  .contact .technical-label,
+  .contact-copy,
+  .secondary-links a,
+  .field-help,
+  .form-status {
+    color: #adb1b5;
+  }
+
+  .contact .technical-label::before {
+    border-color: var(--color-accent);
+  }
+
+  .contact-intro > p,
+  .contact-intro h2 {
     margin: 0;
   }
 
-  .contact-inner h2 {
-    max-width: 19ch;
+  .contact-intro h2 {
+    max-width: 17ch;
     margin-top: var(--space-4);
     font-size: var(--text-h2);
     font-weight: 600;
@@ -62,67 +201,261 @@ const secondaryLinks = [
   }
 
   .contact-copy {
-    max-width: var(--width-reading);
+    max-width: 34rem;
     margin-top: var(--space-5) !important;
-    color: var(--color-text-secondary);
     font-size: var(--text-body-large);
-    line-height: 1.6;
+    line-height: 1.55;
   }
 
-  .contact-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-6);
-    align-items: center;
+  .email-button {
     margin-top: var(--space-6);
+    border-color: var(--color-background);
+    background: var(--color-background);
+    color: var(--color-text);
+  }
+
+  .email-button:hover {
+    border-color: var(--color-accent);
+    background: transparent;
+    color: var(--color-background);
   }
 
   .secondary-links {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3) var(--space-5);
-    margin: 0;
+    gap: var(--space-2) var(--space-5);
+    margin: var(--space-5) 0 0;
     padding: 0;
     list-style: none;
-  }
-
-  .secondary-links a,
-  .secondary-links span {
-    color: var(--color-text-secondary);
-    font-size: var(--text-small);
   }
 
   .secondary-links a {
     display: inline-flex;
     min-height: var(--control-height);
     align-items: center;
-    color: var(--color-text);
+    font-size: var(--text-small);
     font-weight: 600;
+    text-decoration-color: transparent;
+    transition: color var(--duration-fast) var(--ease-standard), text-decoration-color var(--duration-fast) var(--ease-standard);
   }
 
-  .secondary-links strong {
-    color: var(--color-text);
-    font-weight: 600;
+  .secondary-links a:hover {
+    color: var(--color-background);
+    text-decoration-color: currentColor;
   }
 
-  .secondary-links small {
-    margin-left: var(--space-1);
+  .contact-trace {
+    display: flex;
+    max-width: 22rem;
+    margin-top: var(--space-7);
+  }
+
+  .contact-trace i {
+    position: relative;
+    width: 25%;
+    height: 0.5rem;
+  }
+
+  .contact-trace i::before {
+    position: absolute;
+    top: 0.25rem;
+    right: 0;
+    left: 0;
+    border-top: 1px solid #484d52;
+    content: '';
+  }
+
+  .contact-trace i::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 1px solid #6f7479;
+    background: var(--color-text);
+    content: '';
+  }
+
+  .contact-trace i:last-child::before,
+  .contact-trace i:last-child::after {
+    border-color: var(--color-accent);
+  }
+
+  .contact-trace i:last-child::after {
+    background: var(--color-accent);
+  }
+
+  .contact-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+    padding: var(--card-padding);
+    border: 1px solid #44484c;
+    border-radius: var(--radius-card);
+    background: #191c1f;
+  }
+
+  .form-heading,
+  .field--message,
+  .form-submit {
+    grid-column: 1 / -1;
+  }
+
+  .form-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid #44484c;
+  }
+
+  .form-heading p,
+  .form-heading span {
+    margin: 0;
     font-family: var(--font-mono);
     font-size: var(--text-label);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
-  @media (max-width: 30rem) {
-    .contact-inner h2 {
-      font-size: var(--text-h2);
+  .form-heading p {
+    color: #adb1b5;
+  }
+
+  .form-heading span {
+    color: var(--color-accent-on-dark);
+  }
+
+  .field {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+  }
+
+  .field label {
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .field input,
+  .field textarea {
+    width: 100%;
+    border: 1px solid #6f7479;
+    border-radius: var(--radius-small);
+    background: var(--color-text);
+    color: var(--color-background);
+    font: inherit;
+    transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .field input {
+    min-height: var(--control-height);
+    padding: var(--space-3);
+  }
+
+  .field textarea {
+    min-height: 9rem;
+    padding: var(--space-3);
+    line-height: 1.55;
+    resize: vertical;
+  }
+
+  .field input:hover,
+  .field textarea:hover {
+    border-color: #7a8086;
+  }
+
+  .field input:focus,
+  .field textarea:focus {
+    border-color: var(--color-accent);
+    background: #171a1d;
+  }
+
+  .field input[aria-invalid='true'],
+  .field textarea[aria-invalid='true'] {
+    border-color: #ff8c82;
+  }
+
+  .field-help,
+  .field-error {
+    font-size: var(--text-label);
+    line-height: 1.5;
+  }
+
+  .field-error {
+    min-height: 1.125rem;
+    color: #ffaaa3;
+  }
+
+  .form-trap {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .form-submit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .submit-button {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .submit-button:hover {
+    border-color: #82a9ff;
+    background: #245fd2;
+    color: white;
+  }
+
+  .submit-button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+
+  .form-status {
+    flex: 1 1 15rem;
+    margin: 0;
+    font-size: var(--text-small);
+  }
+
+  .form-status[data-state='success'] {
+    color: var(--color-accent-on-dark);
+  }
+
+  .form-status[data-state='error'] {
+    color: #ffaaa3;
+  }
+
+  @media (min-width: 64rem) {
+    .contact-layout {
+      grid-template-columns: minmax(0, 5fr) minmax(31rem, 7fr);
+      align-items: start;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .contact-form {
+      grid-template-columns: 1fr;
     }
 
-    .contact-actions {
+    .form-heading,
+    .field--message,
+    .form-submit {
+      grid-column: 1;
+    }
+
+    .form-heading {
       align-items: flex-start;
       flex-direction: column;
-    }
-
-    .secondary-links {
-      display: grid;
     }
   }
 </style>

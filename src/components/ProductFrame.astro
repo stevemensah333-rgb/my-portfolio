@@ -58,6 +58,14 @@ const {
     background: var(--color-surface-light);
     box-shadow: 0 1rem 2.75rem rgb(18 20 22 / 5%);
     overflow: hidden;
+    transition:
+      border-color var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-medium) var(--ease-standard);
+  }
+
+  .product-figure:hover .product-frame {
+    border-color: color-mix(in srgb, var(--color-border) 45%, var(--color-accent));
+    box-shadow: 0 1.25rem 3rem rgb(18 20 22 / 8%);
   }
 
   .frame-bar {

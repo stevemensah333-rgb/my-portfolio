@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { PUBLIC_EMAIL } from '../config/site';
 ---
 <Layout title="Syncareer Case Study">
 	<section class="case-study">
@@ -32,6 +33,6 @@ import Layout from '../layouts/Layout.astro';
 			Talk to employers first to validate demand, and use a landing page to confirm recruiter and employer interest, instead of building the feature first.
 		</p>
 
-		<a class="cta-button" href="mailto:youremail@example.com">Email me to schedule a call</a>
+		<a class="cta-button" href={`mailto:${PUBLIC_EMAIL}`}>Email me to schedule a call</a>
 	</section>
 </Layout>

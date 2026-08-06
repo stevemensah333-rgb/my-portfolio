@@ -290,6 +290,8 @@ import { credentials } from '../data/credentials';
     width: 100%;
     height: auto;
     border: var(--border-default);
+    border-radius: calc(var(--radius-card) / 2);
+    background: white;
   }
 
   .document-link {
@@ -309,47 +311,64 @@ import { credentials } from '../data/credentials';
     .desktop-evidence {
       display: grid;
       grid-template-columns: minmax(0, 7fr) minmax(18rem, 5fr);
-      gap: var(--space-8);
+      gap: var(--space-6);
       align-items: start;
     }
 
     .credential-index ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       margin: 0;
       padding: 0;
       border-top: var(--border-default);
+      border-left: var(--border-default);
       list-style: none;
     }
 
     .credential-index li {
+      border-right: var(--border-default);
       border-bottom: var(--border-default);
     }
 
     .credential-index button {
       display: grid;
       width: 100%;
-      min-height: 4.5rem;
-      grid-template-columns: minmax(0, 1fr) minmax(10rem, auto);
+      min-height: 9rem;
+      align-content: space-between;
       gap: var(--space-5);
-      align-items: center;
-      padding: var(--space-4) 0;
+      padding: var(--space-5);
       border: 0;
       background: transparent;
       color: var(--color-text);
       cursor: pointer;
       font: inherit;
       text-align: left;
+      transition:
+        background-color var(--duration-fast) var(--ease-standard),
+        box-shadow var(--duration-fast) var(--ease-standard);
+    }
+
+    .credential-index button:hover,
+    .credential-index button:focus-visible {
+      background: var(--color-surface-cool);
     }
 
     .credential-index button strong {
       color: var(--color-text-secondary);
       font-size: var(--text-small);
       font-weight: 500;
-      text-align: right;
+      font-size: 1rem;
+      text-align: left;
     }
 
     .credential-index button[aria-pressed='true'] span {
       color: var(--color-accent);
       font-weight: 650;
+    }
+
+    .credential-index button[aria-pressed='true'] {
+      background: var(--color-surface-cool);
+      box-shadow: inset 2px 0 0 var(--color-accent);
     }
 
     .credential-index button[aria-pressed='true'] strong {
@@ -359,18 +378,23 @@ import { credentials } from '../data/credentials';
     .preview {
       display: grid;
       min-height: 20rem;
-      border-block: var(--border-default);
+      border: var(--border-default);
+      border-radius: var(--radius-card);
+      background: var(--color-background);
+      overflow: hidden;
     }
 
     .preview-panel {
       display: grid;
       grid-area: 1 / 1;
       align-content: space-between;
-      padding-block: var(--space-7);
+      padding: var(--card-padding);
       opacity: 0;
       pointer-events: none;
       transform: translateY(var(--space-2));
-      transition: opacity 140ms ease, transform 140ms ease;
+      transition:
+        opacity var(--duration-fast) var(--ease-standard),
+        transform var(--duration-fast) var(--ease-standard);
       visibility: hidden;
     }
 
