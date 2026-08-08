@@ -1,13 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title description">
-  <title id="title">Syncareer desktop screenshot placeholder</title>
-  <desc id="description">Temporary asset to be replaced with a real Syncareer product screenshot.</desc>
-  <rect width="1440" height="900" fill="#EFEEE9" />
-  <rect x="48" y="48" width="1344" height="804" fill="#F7F6F2" stroke="#E2E0DA" stroke-width="2" />
-  <line x1="48" y1="112" x2="1392" y2="112" stroke="#E2E0DA" stroke-width="2" />
-  <circle cx="82" cy="80" r="6" fill="#E2E0DA" />
-  <circle cx="106" cy="80" r="6" fill="#E2E0DA" />
-  <circle cx="130" cy="80" r="6" fill="#E2E0DA" />
-  <text x="720" y="422" fill="#62676D" font-family="IBM Plex Mono, monospace" font-size="24" text-anchor="middle">SYNCAREER SCREENSHOT PLACEHOLDER</text>
-  <text x="720" y="466" fill="#62676D" font-family="Inter, Arial, sans-serif" font-size="22" text-anchor="middle">Replace with a real desktop product screenshot</text>
-</svg>
-
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" aria-labelledby="title description" role="img" viewBox="0 0 1440 900"><title id="title">Syncareer desktop screenshot placeholder</title><desc id="description">Temporary asset to be replaced with a real Syncareer product screenshot.</desc><rect width="1440" height="900" fill="#EFEEE9"/><rect width="1344" height="804" x="48" y="48" fill="#F7F6F2" stroke="#E2E0DA" stroke-width="2"/><line x1="48" x2="1392" y1="112" y2="112" stroke="#E2E0DA" stroke-width="2"/><circle cx="82" cy="80" r="6" fill="#E2E0DA"/><circle cx="106" cy="80" r="6" fill="#E2E0DA"/><circle cx="130" cy="80" r="6" fill="#E2E0DA"/><text x="720" y="422" fill="#62676D" font-family="IBM Plex Mono, monospace" font-size="24" text-anchor="middle">SYNCAREER SCREENSHOT PLACEHOLDER</text><text x="720" y="466" fill="#62676D" font-family="Inter, Arial, sans-serif" font-size="22" text-anchor="middle">Replace with a real desktop product screenshot</text></svg>
