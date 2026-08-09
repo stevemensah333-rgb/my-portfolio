@@ -35,20 +35,23 @@ const structuredData = {
       <p class="technical-label eyebrow">AI Engineering · Software</p>
 
       <div class="hero-composition">
-        <h1 id="hero-title">I make AI features reliable enough to ship.</h1>
-        <ReliabilityTrace />
-      </div>
+        <div class="hero-message">
+          <h1 id="hero-title">I make AI features reliable enough to ship.</h1>
 
-      <div class="hero-details">
-        <p class="supporting-copy">
-          I build and debug LLM-powered software. I pay attention to what happens when model output
-          has to fit an actual product.
-        </p>
+          <div class="hero-details">
+            <p class="supporting-copy">
+              I build and debug LLM-powered software. I pay attention to what happens when model output
+              has to fit an actual product.
+            </p>
 
-        <div class="hero-actions" aria-label="Portfolio actions">
-          <a class="button" href="#syncareer">See the proof</a>
-          <a class="email-link" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email me</a>
+            <div class="hero-actions" aria-label="Portfolio actions">
+              <a class="button" href="#syncareer">See the proof</a>
+              <a class="email-link" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email me</a>
+            </div>
+          </div>
         </div>
+
+        <ReliabilityTrace />
       </div>
 
       <ul class="hero-meta" aria-label="Current status">
@@ -71,7 +74,7 @@ const structuredData = {
 <style>
   .hero {
     position: relative;
-    min-height: min(36rem, calc(100svh - 4.5rem));
+    min-height: min(34rem, calc(100svh - 4.5rem));
     overflow: clip;
   }
 
@@ -85,7 +88,7 @@ const structuredData = {
   }
 
   .eyebrow {
-    margin-bottom: clamp(var(--space-6), 3vw, var(--space-7));
+    margin-bottom: clamp(var(--space-5), 2.5vw, var(--space-6));
   }
 
   h1 {
@@ -99,17 +102,22 @@ const structuredData = {
 
   .hero-composition {
     display: grid;
-    gap: var(--space-7);
-    margin-bottom: clamp(var(--space-6), 4vw, var(--space-7));
+    gap: var(--space-6);
+    margin-bottom: clamp(var(--space-5), 3vw, var(--space-6));
   }
 
-  .hero-composition h1 {
+  .hero-message {
+    display: grid;
+    gap: clamp(var(--space-5), 3vw, var(--space-6));
+  }
+
+  .hero-message h1 {
     margin-bottom: 0;
   }
 
   .hero-details {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-5);
   }
 
   .supporting-copy {
@@ -193,7 +201,7 @@ const structuredData = {
 
   @media (min-width: 48rem) {
     .hero {
-      min-height: min(44rem, calc(100svh - 5rem));
+      min-height: min(38rem, calc(100svh - 4.5rem));
     }
 
     .hero-details {

@@ -359,7 +359,7 @@ const { variant = 'hero' } = Astro.props;
     display: flex;
     justify-content: space-between;
     gap: var(--space-4);
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-2) var(--space-3);
     border-bottom: var(--border-default);
     background: var(--color-background);
   }
@@ -377,7 +377,7 @@ const { variant = 'hero' } = Astro.props;
   }
 
   .trace-engine {
-    padding: var(--space-4);
+    padding: var(--space-3);
     background: var(--color-surface-light);
   }
 
@@ -392,8 +392,8 @@ const { variant = 'hero' } = Astro.props;
   .trace-step {
     display: grid;
     grid-template-columns: 1.5rem minmax(0, 1fr);
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-3) var(--space-4);
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-2) var(--space-3);
     border: 1px solid transparent;
     border-radius: var(--radius-small);
     opacity: 0.52;
@@ -415,7 +415,7 @@ const { variant = 'hero' } = Astro.props;
   /* Completed stages remain legible as a sequence, while only the current stage expands. */
   .trace-step[data-active='true'][data-current='false'] {
     grid-template-columns: 1.5rem minmax(0, 1fr);
-    padding-block: var(--space-2);
+    padding-block: var(--space-1);
     background: transparent;
     border-color: transparent;
   }
@@ -479,7 +479,7 @@ const { variant = 'hero' } = Astro.props;
 
   .rail-line {
     width: 1px;
-    height: calc(100% + var(--space-3));
+    height: calc(100% + var(--space-2));
     margin-top: 4px;
     background: var(--color-border);
     opacity: 0.9;
@@ -503,7 +503,7 @@ const { variant = 'hero' } = Astro.props;
     gap: var(--space-2) var(--space-3);
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
   }
 
   .step-label {
@@ -554,21 +554,22 @@ const { variant = 'hero' } = Astro.props;
 
   .step-code {
     margin: 0;
-    padding: var(--space-3);
+    padding: var(--space-2);
     border: var(--border-default);
     background: var(--color-background);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
-    line-height: 1.6;
+    line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
-    min-height: 4.5rem;
+    /* Small reservation only: prevents the code box collapsing to nothing at the
+       start of the typing animation while letting the full text size it naturally. */
+    min-height: 2.5rem;
     position: relative;
     overflow: hidden;
   }
 
   .step-code--valid {
-    min-height: 6.5rem;
     border-color: color-mix(in srgb, var(--color-border) 50%, var(--color-accent));
   }
 
@@ -598,7 +599,7 @@ const { variant = 'hero' } = Astro.props;
   }
 
   .step-note {
-    margin: var(--space-2) 0 0;
+    margin: var(--space-1) 0 0;
     color: var(--color-text-secondary);
     font-size: 0.6875rem;
     line-height: 1.5;
@@ -610,7 +611,7 @@ const { variant = 'hero' } = Astro.props;
     gap: var(--space-2) var(--space-3);
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-3);
+    padding: var(--space-2);
     border: var(--border-default);
     background: var(--color-background);
   }
@@ -658,7 +659,7 @@ const { variant = 'hero' } = Astro.props;
   }
 
   .fail-card {
-    padding: var(--space-3);
+    padding: var(--space-2);
     border: 1px dashed #e2b4b4;
     background: #fdf8f6;
   }
@@ -668,12 +669,12 @@ const { variant = 'hero' } = Astro.props;
     padding: 0;
     list-style: none;
     display: grid;
-    gap: var(--space-2);
+    gap: var(--space-1);
   }
 
   .intervention-list li {
     position: relative;
-    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
     border: var(--border-default);
     background: var(--color-background);
     font-family: var(--font-mono);
@@ -709,8 +710,8 @@ const { variant = 'hero' } = Astro.props;
     gap: var(--space-3) var(--space-4);
     align-items: center;
     justify-content: space-between;
-    margin-top: var(--space-5);
-    padding-top: var(--space-4);
+    margin-top: var(--space-3);
+    padding-top: var(--space-2);
     border-top: var(--border-default);
   }
 
@@ -778,7 +779,7 @@ const { variant = 'hero' } = Astro.props;
   .trace-strip-legacy {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    padding-block: var(--space-3);
+    padding-block: var(--space-2);
     border-top: var(--border-default);
     background: var(--color-background);
   }
@@ -863,12 +864,12 @@ const { variant = 'hero' } = Astro.props;
       text-align: left;
     }
     .trace-engine {
-      padding: var(--space-3);
+      padding: var(--space-2);
     }
     .trace-step {
       grid-template-columns: 1rem minmax(0, 1fr);
       gap: var(--space-2);
-      padding: var(--space-3);
+      padding: var(--space-2);
     }
   }
 

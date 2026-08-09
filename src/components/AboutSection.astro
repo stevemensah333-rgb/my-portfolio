@@ -20,7 +20,7 @@ import ReliabilityTrace from './ReliabilityTrace.astro';
       <picture class="about-portrait">
         <source
           srcset="/images/stephen-mensah-portrait-440.jpg 440w, /images/stephen-mensah-portrait-880.jpg 880w"
-          sizes="(min-width: 64rem) 18rem, (min-width: 48rem) 20rem, calc(100vw - 2.5rem)"
+          sizes="(min-width: 64rem) 16rem, (min-width: 48rem) 20rem, calc(100vw - 2.5rem)"
         />
         <img
           src="/images/stephen-mensah-portrait-880.jpg"
@@ -39,7 +39,7 @@ import ReliabilityTrace from './ReliabilityTrace.astro';
 <style>
   .about {
     position: relative;
-    padding-block: clamp(3.25rem, 5.5vw, 5rem);
+    padding-block: var(--section-tight);
     border-top: var(--border-default);
     scroll-margin-top: 5rem;
   }
@@ -128,7 +128,7 @@ import ReliabilityTrace from './ReliabilityTrace.astro';
 
   @media (min-width: 64rem) {
     .about-layout {
-      grid-template-columns: minmax(13rem, 3fr) minmax(18rem, 5fr) minmax(14rem, 18rem);
+      grid-template-columns: minmax(13rem, 3fr) minmax(18rem, 5fr) minmax(13rem, 16rem);
     }
 
     .about-copy {
