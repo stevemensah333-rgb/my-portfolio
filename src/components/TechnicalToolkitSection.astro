@@ -141,6 +141,7 @@ const toolkit: ToolkitGroup[] = [
     </header>
 
     <div class="toolkit-grid" data-toolkit>
+      <div class="toolkit-skills">
       {toolkit.map((group, gIndex) => (
         <section class="toolkit-group" aria-labelledby={`toolkit-group-${gIndex}`}>
           <h3 id={`toolkit-group-${gIndex}`}>{group.category}</h3>
@@ -186,6 +187,11 @@ const toolkit: ToolkitGroup[] = [
           </ul>
         </section>
       ))}
+      </div>
+      <div class="toolkit-detail" data-toolkit-detail aria-live="polite">
+        <span class="panel-label">Select a skill</span>
+        <p>Choose a skill to inspect its use and evidence.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -196,6 +202,7 @@ const toolkit: ToolkitGroup[] = [
   if (toolkitRoot) {
     const triggers = [...toolkitRoot.querySelectorAll<HTMLButtonElement>('[data-toolkit-trigger]')];
     const panels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-panel]')];
+    const detail = toolkitRoot.querySelector<HTMLElement>('[data-toolkit-detail]');
 
     const closeAll = (except?: string) => {
       triggers.forEach(t => {
@@ -228,6 +235,7 @@ const toolkit: ToolkitGroup[] = [
         trigger.dataset.active = 'true';
         panel.hidden = false;
         panel.dataset.active = 'true';
+        if (detail) detail.replaceChildren(panel);
       }
     };
 
@@ -275,6 +283,10 @@ const toolkit: ToolkitGroup[] = [
       });
     });
 
+    // Start with one honest, useful example rather than an empty inspector.
+    const firstPanel = panels[0];
+    if (firstPanel) open(firstPanel.id);
+
     // Close when clicking outside
     document.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
@@ -319,9 +331,20 @@ const toolkit: ToolkitGroup[] = [
   }
 
   .toolkit-grid {
+    display: grid;
+    gap: var(--space-5);
     border-top: var(--border-default);
     border-bottom: var(--border-default);
   }
+
+  .toolkit-detail {
+    min-height: 10rem;
+    padding: var(--space-5);
+    border: var(--border-default);
+    background: var(--color-surface-light);
+  }
+
+  .toolkit-detail > p { margin: var(--space-2) 0 0; color: var(--color-text-secondary); }
 
   .toolkit-group {
     display: grid;
@@ -510,18 +533,24 @@ const toolkit: ToolkitGroup[] = [
 
   @media (min-width: 48rem) {
     .toolkit-layout {
-      grid-template-columns: minmax(13rem, 4fr) minmax(0, 8fr);
+      grid-template-columns: minmax(13rem, 3fr) minmax(0, 9fr);
       align-items: start;
     }
 
     .toolkit-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.8fr);
+      align-items: start;
+    }
+
+    .toolkit-skills {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-right: var(--border-default);
     }
 
     .toolkit-group {
       display: block;
-      min-height: 9.5rem;
+      min-height: 0;
       padding: var(--space-4);
       border-right: var(--border-default);
       border-bottom: var(--border-default);
@@ -543,21 +572,8 @@ const toolkit: ToolkitGroup[] = [
   }
 
   @media (min-width: 64rem) {
-    .toolkit-grid {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-
-    .toolkit-group,
-    .toolkit-group:nth-child(2n) {
-      min-height: 22rem;
-      border-right: var(--border-default);
-      border-bottom: 0;
-      align-self: stretch;
-    }
-
-    .toolkit-group:last-child {
-      grid-column: auto;
-      border-right: 0;
+    .toolkit-skills {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
