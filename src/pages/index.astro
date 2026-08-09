@@ -2,6 +2,7 @@
 import { GMAIL_COMPOSE_URL, PUBLIC_LINKS } from '../config/site';
 import AboutSection from '../components/AboutSection.astro';
 import ApproachSection from '../components/ApproachSection.astro';
+import AmbientField from '../components/AmbientField.astro';
 import ContactSection from '../components/ContactSection.astro';
 import EvidenceSection from '../components/EvidenceSection.astro';
 import ExperienceSection from '../components/ExperienceSection.astro';
@@ -29,6 +30,7 @@ const structuredData = {
 
 <BaseLayout {title} {description} {structuredData} ogType="profile">
   <section class="hero page-shell" aria-labelledby="hero-title">
+    <AmbientField density={16} variant="hero" />
     <div class="hero-inner">
       <p class="technical-label eyebrow">AI Engineering · Software</p>
 
@@ -68,10 +70,14 @@ const structuredData = {
 
 <style>
   .hero {
+    position: relative;
     min-height: min(44rem, calc(100svh - 4.5rem));
+    overflow: clip;
   }
 
   .hero-inner {
+    position: relative;
+    z-index: 1;
     display: flex;
     min-height: inherit;
     flex-direction: column;
@@ -128,6 +134,35 @@ const structuredData = {
     color: var(--color-text);
     font-size: var(--text-small);
     font-weight: 600;
+    text-decoration: none;
+    position: relative;
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .email-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.55rem;
+    border-top: 1px solid currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-normal) var(--ease-standard);
+  }
+
+  .email-link:hover {
+    transform: translateY(-1px);
+  }
+
+  .email-link:hover::after {
+    transform: scaleX(1);
+  }
+
+  .email-link:active {
+    transform: translateY(0);
   }
 
   .hero-meta {

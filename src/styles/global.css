@@ -83,10 +83,20 @@
   --radius-card: 0.375rem;
   --control-height: 2.75rem;
 
-  /* Interaction */
-  --duration-fast: 160ms;
+  /* Motion system — coherent, restrained, editorial */
+  --duration-fast: 140ms;
+  --duration-normal: 220ms;
   --duration-medium: 240ms;
+  --duration-reveal: 380ms;
+  --duration-slow: 520ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0, 0, 0, 1);
+  --ease-in: cubic-bezier(0.3, 0, 1, 1);
+
+  /* Ambient motion */
+  --ambient-dot-opacity: 0.045;
+  --ambient-dot-size: 2px;
 
   /* Breakpoint reference: 30rem small, 48rem medium, 64rem large */
   --breakpoint-small: 30rem;
@@ -243,6 +253,131 @@ a {
 
 .text-link {
   font-weight: 600;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    text-decoration-thickness var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.text-link:hover {
+  transform: translateX(1px);
+}
+
+/* ---- Polished microinteractions: buttons, links, cards ---- */
+.button {
+  will-change: transform;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-normal) var(--ease-standard);
+}
+
+.button:hover {
+  background: transparent;
+  color: var(--color-text);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+
+.button--secondary:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+  transform: translateY(-1px);
+}
+
+a {
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    text-decoration-color var(--duration-fast) var(--ease-standard),
+    text-decoration-thickness var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
+}
+
+/* subtle ambient field – used in hero / case – very low contrast */
+.ambient-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity var(--duration-reveal) var(--ease-standard);
+}
+
+.ambient-field.is-visible {
+  opacity: 1;
+}
+
+.ambient-field i {
+  position: absolute;
+  width: var(--ambient-dot-size);
+  height: var(--ambient-dot-size);
+  background: var(--color-text);
+  border-radius: 50%;
+  opacity: var(--ambient-dot-opacity);
+  will-change: transform;
+}
+
+/* ambient drift – very slow, low contrast */
+@keyframes ambient-drift-1 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(10px, -14px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes ambient-drift-2 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-12px, 10px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes ambient-drift-3 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(6px, 12px); }
+  100% { transform: translate(0, 0); }
+}
+
+.ambient-field[data-paused='true'] i {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ambient-field i {
+    animation-duration: 18s, 22s;
+    animation-timing-function: var(--ease-standard);
+    animation-iteration-count: infinite;
+  }
+  .ambient-field i:nth-child(3n+1) { animation-name: ambient-drift-1; }
+  .ambient-field i:nth-child(3n+2) { animation-name: ambient-drift-2; }
+  .ambient-field i:nth-child(3n) { animation-name: ambient-drift-3; }
+  .ambient-field i:nth-child(3n+1) { animation-duration: 20s; }
+  .ambient-field i:nth-child(3n+2) { animation-duration: 26s; }
+  .ambient-field i:nth-child(3n) { animation-duration: 32s; }
+}
+
+/* shared focus polish for interactive cards/rows */
+:focus-visible {
+  outline: 0.1875rem solid var(--color-accent);
+  outline-offset: 0.1875rem;
+}
+
+/* remove tap highlight moved above – keep */
+
+/* motion-friendly defaults for interactive elements */
+button,
+[role='button'],
+a,
+input,
+textarea,
+select {
+  transition-timing-function: var(--ease-standard);
 }
 
 @media (min-width: 48rem) {

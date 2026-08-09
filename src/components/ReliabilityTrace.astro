@@ -9,57 +9,109 @@ const { variant = 'hero' } = Astro.props;
 {variant === 'hero' ? (
   <figure
     class="reliability-trace reliability-trace--hero"
-    role="img"
-    aria-label="A reliability path moving from user context through prompting and an LLM to validation, retry or a product-ready output."
+    data-reliability-trace
+    aria-labelledby="reliability-trace-title"
   >
-    <svg viewBox="0 0 520 390" aria-hidden="true">
-      <defs>
-        <pattern id="trace-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-          <path d="M 32 0 L 0 0 0 32" class="trace-grid-line" />
-        </pattern>
-      </defs>
+    <div class="trace-header">
+      <span id="reliability-trace-title" class="trace-coordinate">RELIABILITY PATH / 01 — ILLUSTRATIVE TRACE</span>
+      <span class="trace-coordinate trace-coordinate--right">VALIDATE BEFORE USE</span>
+    </div>
 
-      <rect width="520" height="390" class="trace-grid" />
-      <text x="28" y="34" class="trace-coordinate">RELIABILITY PATH / 01</text>
-      <text x="492" y="34" text-anchor="end" class="trace-coordinate">VALIDATE BEFORE USE</text>
+    <div class="trace-engine" role="region" aria-label="Reliability trace animation" aria-live="polite" aria-atomic="false">
+      <ol class="trace-steps" data-trace-steps>
+        <li class="trace-step" data-stage="raw" data-active="true">
+          <div class="step-rail" aria-hidden="true"><i class="rail-dot"></i><span class="rail-line"></span></div>
+          <div class="step-content">
+            <div class="step-head">
+              <span class="step-label">UNSTRUCTURED OUTPUT</span>
+              <span class="step-badge" data-badge>raw</span>
+            </div>
+            <pre class="step-code"><code data-code-raw></code><span class="cursor" aria-hidden="true"></span></pre>
+            <p class="step-note">Illustrative: model responded with mixed prose + malformed structure.</p>
+          </div>
+        </li>
 
-      <path d="M92 88 V137 H260 V178" class="trace-path" />
-      <path d="M260 224 V272" class="trace-path trace-path--active" />
-      <path d="M260 318 V350 H420" class="trace-path trace-path--active" />
-      <path d="M260 318 V350 H100 V305" class="trace-path" />
+        <li class="trace-step" data-stage="validate">
+          <div class="step-rail" aria-hidden="true"><i class="rail-dot"></i><span class="rail-line"></span></div>
+          <div class="step-content">
+            <div class="step-head">
+              <span class="step-label">SCHEMA VALIDATION</span>
+              <span class="step-badge" data-badge-validate>check</span>
+            </div>
+            <div class="validation-row">
+              <code class="mono-small">required: title, level, years</code>
+              <span class="validation-status" data-validation-status>pending</span>
+            </div>
+            <p class="step-note">Gate: does output match product contract?</p>
+          </div>
+        </li>
 
-      <g class="trace-node">
-        <rect x="28" y="64" width="128" height="48" />
-        <text x="92" y="93" text-anchor="middle">USER CONTEXT</text>
-      </g>
-      <g class="trace-node">
-        <rect x="196" y="113" width="128" height="48" />
-        <text x="260" y="142" text-anchor="middle">PROMPT</text>
-      </g>
-      <g class="trace-node">
-        <rect x="196" y="178" width="128" height="48" />
-        <text x="260" y="207" text-anchor="middle">LLM</text>
-      </g>
-      <g class="trace-node trace-node--active">
-        <rect x="180" y="272" width="160" height="48" />
-        <text x="260" y="301" text-anchor="middle">VALIDATION</text>
-      </g>
-      <g class="trace-node trace-node--muted">
-        <rect x="36" y="281" width="128" height="48" />
-        <text x="100" y="310" text-anchor="middle">RETRY</text>
-      </g>
-      <g class="trace-node trace-node--active">
-        <rect x="356" y="326" width="128" height="48" />
-        <text x="420" y="355" text-anchor="middle">PRODUCT</text>
-      </g>
+        <li class="trace-step" data-stage="failed">
+          <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--fail"></i><span class="rail-line"></span></div>
+          <div class="step-content">
+            <div class="step-head">
+              <span class="step-label">FAILED</span>
+              <span class="step-badge step-badge--fail" data-badge-fail>invalid</span>
+            </div>
+            <div class="fail-card">
+              <p class="mono-small" data-fail-reason>— missing quotes, dropped fields, prose bleed</p>
+            </div>
+          </div>
+        </li>
 
-      <circle cx="260" cy="248" r="4" class="trace-point trace-point--active" />
-      <circle cx="260" cy="350" r="4" class="trace-point trace-point--active" />
-      <text x="278" y="254" class="trace-annotation">CHECK</text>
-      <text x="278" y="344" class="trace-annotation trace-annotation--active">PASS</text>
-    </svg>
+        <li class="trace-step" data-stage="intervene">
+          <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--active"></i><span class="rail-line"></span></div>
+          <div class="step-content">
+            <div class="step-head">
+              <span class="step-label">CONSTRAINT / RETRY / CONTEXT FIX</span>
+              <span class="step-badge step-badge--active" data-badge-intervene>intervention</span>
+            </div>
+            <ul class="intervention-list" data-intervention-list>
+              <li>Explicit JSON schema</li>
+              <li>Few-shot anchor</li>
+              <li>Context re-injection</li>
+            </ul>
+          </div>
+        </li>
 
-    <div class="trace-strip" aria-hidden="true">
+        <li class="trace-step" data-stage="valid">
+          <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--valid"></i></div>
+          <div class="step-content">
+            <div class="step-head">
+              <span class="step-label">VALID OUTPUT</span>
+              <span class="step-badge step-badge--valid" data-badge-valid>pass</span>
+            </div>
+            <pre class="step-code step-code--valid"><code data-code-valid></code><span class="cursor cursor--valid" aria-hidden="true"></span></pre>
+            <p class="step-note">Illustrative: now conforms to product contract.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="trace-controls">
+        <button type="button" class="trace-replay" data-replay aria-label="Replay reliability trace animation">Replay trace</button>
+        <span class="trace-hint" aria-hidden="true">Pauses on hover / focus · Respects reduced motion</span>
+      </div>
+
+      <div class="sr-only" aria-live="polite" data-live></div>
+      <noscript>
+        <div class="noscript-fallback">
+          <p class="mono-small">No-JS fallback: raw output fails validation, then intervention produces valid output.</p>
+          <pre class="step-code"><code>{`To get senior role you should...
+- learn python
+{
+  title: Senior Developer
+  level:`}</code></pre>
+          <pre class="step-code step-code--valid"><code>{`{
+  "title": "Senior Developer",
+  "level": "senior",
+  "years": 5,
+  "next_steps": ["ship one AI feature", "add validation"]
+}`}</code></pre>
+        </div>
+      </noscript>
+    </div>
+
+    <div class="trace-strip-legacy" aria-hidden="true">
       {['context', 'prompt', 'model', 'validate', 'product'].map((label, index) => (
         <span class:list={{ active: index >= 3 }}><i></i>{label}</span>
       ))}
@@ -76,6 +128,217 @@ const { variant = 'hero' } = Astro.props;
   </div>
 )}
 
+<script>
+  const traces = document.querySelectorAll('[data-reliability-trace]');
+
+  const rawText = `To get senior role you should...
+- learn python
+- build things
+
+{
+  title: Senior Developer
+  level:`;
+
+  const validText = `{
+  "title": "Senior Developer",
+  "level": "senior",
+  "years": 5,
+  "next_steps": [
+    "ship one AI feature",
+    "add validation"
+  ]
+}`;
+
+  const failReason = 'missing quotes, dropped fields, prose bleed';
+
+  for (const root of traces) {
+    const stepsEl = root.querySelector('[data-trace-steps]');
+    if (!(stepsEl instanceof HTMLElement)) continue;
+    const steps = [...stepsEl.querySelectorAll<HTMLElement>('[data-stage]')];
+    const codeRaw = root.querySelector<HTMLElement>('[data-code-raw]');
+    const codeValid = root.querySelector<HTMLElement>('[data-code-valid]');
+    const badgeValidate = root.querySelector<HTMLElement>('[data-badge-validate]');
+    const statusEl = root.querySelector<HTMLElement>('[data-validation-status]');
+    const failReasonEl = root.querySelector<HTMLElement>('[data-fail-reason]');
+    const live = root.querySelector<HTMLElement>('[data-live]');
+    const replayBtn = root.querySelector<HTMLButtonElement>('[data-replay]');
+    const interventionList = root.querySelector<HTMLElement>('[data-intervention-list]');
+
+    if (!codeRaw || !codeValid || !statusEl || !live) continue;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let paused = false;
+    let cancelled = false;
+    let hasPlayed = false;
+
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && !hasPlayed) {
+          hasPlayed = true;
+          play();
+        }
+      }
+    }, { threshold: 0.35 });
+
+    io.observe(root);
+
+    root.addEventListener('mouseenter', () => { paused = true; });
+    root.addEventListener('mouseleave', () => { paused = false; });
+    root.addEventListener('focusin', () => { paused = true; });
+    root.addEventListener('focusout', () => { paused = false; });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) paused = true;
+      else paused = false;
+    });
+
+    const wait = (ms: number) => new Promise<void>((resolve) => {
+      let elapsed = 0;
+      const step = 50;
+      const tick = () => {
+        if (cancelled) { resolve(); return; }
+        if (!paused) elapsed += step;
+        if (elapsed >= ms) resolve();
+        else setTimeout(tick, step);
+      };
+      setTimeout(tick, step);
+    });
+
+    const typeInto = async (el: HTMLElement, text: string, speed = 14) => {
+      el.textContent = '';
+      for (let i = 0; i < text.length; i++) {
+        if (cancelled) break;
+        while (paused) { await wait(100); if (cancelled) break; }
+        el.textContent += text[i];
+        // faster for newline heavy typing, with small jitter
+        await wait(speed + Math.random() * 6);
+      }
+    };
+
+    const setActive = (index: number) => {
+      steps.forEach((s, i) => {
+        s.dataset.active = String(i <= index);
+        s.dataset.current = String(i === index);
+        if (i === index) {
+          s.setAttribute('aria-current', 'step');
+        } else {
+          s.removeAttribute('aria-current');
+        }
+      });
+    };
+
+    const resetVisual = () => {
+      codeRaw.textContent = '';
+      codeValid.textContent = '';
+      if (statusEl) statusEl.textContent = 'pending';
+      if (statusEl) statusEl.dataset.state = 'pending';
+      if (badgeValidate) badgeValidate.textContent = 'check';
+      if (failReasonEl) failReasonEl.textContent = '—';
+      if (interventionList) {
+        interventionList.querySelectorAll('li').forEach(li => (li as HTMLElement).dataset.revealed = 'false');
+      }
+      steps.forEach(s => {
+        s.dataset.active = 'false';
+        s.dataset.current = 'false';
+        s.removeAttribute('aria-current');
+      });
+      const first = steps[0];
+      if (first) first.dataset.active = 'true';
+    };
+
+    const play = async () => {
+      if (reduced) {
+        // reduced motion: show final state immediately
+        codeRaw.textContent = rawText;
+        codeValid.textContent = validText;
+        statusEl.textContent = 'FAILED → FIXED';
+        statusEl.dataset.state = 'fail';
+        if (failReasonEl) failReasonEl.textContent = failReason;
+        if (interventionList) interventionList.querySelectorAll('li').forEach(li => (li as HTMLElement).dataset.revealed = 'true');
+        steps.forEach(s => (s.dataset.active = 'true'));
+        live.textContent = 'Reliability trace: raw output failed validation, intervention applied, valid output produced.';
+        if (replayBtn) replayBtn.style.display = 'none';
+        return;
+      }
+
+      cancelled = true;
+      await wait(80);
+      cancelled = false;
+      resetVisual();
+
+      // Stage 0: raw
+      setActive(0);
+      live.textContent = 'Stage 1: unstructured output';
+      root.querySelector<HTMLElement>('[data-stage="raw"]')?.classList.add('is-typing');
+      await typeInto(codeRaw, rawText, 10);
+      root.querySelector<HTMLElement>('[data-stage="raw"]')?.classList.remove('is-typing');
+      await wait(350);
+
+      // Stage 1: validate
+      setActive(1);
+      live.textContent = 'Stage 2: schema validation';
+      statusEl.textContent = 'checking…';
+      statusEl.dataset.state = 'checking';
+      await wait(520);
+
+      // Stage 2: failed
+      setActive(2);
+      live.textContent = 'Stage 3: failed — invalid format';
+      statusEl.textContent = 'FAILED';
+      statusEl.dataset.state = 'failed';
+      if (badgeValidate) badgeValidate.textContent = 'fail';
+      if (failReasonEl) failReasonEl.textContent = failReason;
+      const failStep = root.querySelector<HTMLElement>('[data-stage="failed"]');
+      failStep?.classList.add('is-revealed');
+      await wait(650);
+
+      // Stage 3: intervention
+      setActive(3);
+      live.textContent = 'Stage 4: applying constraint, retry, context fix';
+      if (interventionList) {
+        const items = [...interventionList.querySelectorAll<HTMLElement>('li')];
+        for (const item of items) {
+          await wait(180);
+          item.dataset.revealed = 'true';
+        }
+      }
+      await wait(500);
+
+      // Stage 4: valid
+      setActive(4);
+      live.textContent = 'Stage 5: valid output';
+      const validStep = root.querySelector<HTMLElement>('[data-stage="valid"]');
+      validStep?.classList.add('is-typing');
+      statusEl.textContent = 'PASS';
+      statusEl.dataset.state = 'pass';
+      await typeInto(codeValid, validText, 9);
+      validStep?.classList.remove('is-typing');
+      steps.forEach(s => (s.dataset.active = 'true'));
+      live.textContent = 'Trace complete: raw output failed, intervention produced valid product output.';
+      await wait(6000);
+      // Stay on valid, no loop unless user replays
+    };
+
+    if (replayBtn) {
+      replayBtn.addEventListener('click', () => {
+        hasPlayed = true;
+        play();
+      });
+    }
+
+    // If user hasn't scrolled and already visible early, ensure play happens
+    // For no-JS or reduced motion, fallback handled above; for motion, we already have observer.
+
+    // Initial rendered state for JS-enabled but before play: show placeholder
+    if (!reduced) {
+      resetVisual();
+      root.classList.add('is-enhanced');
+    } else {
+      root.classList.add('is-reduced');
+    }
+  }
+</script>
+
 <style>
   .reliability-trace {
     margin: 0;
@@ -85,64 +348,478 @@ const { variant = 'hero' } = Astro.props;
     align-self: center;
     width: 100%;
     max-width: 32.5rem;
+    position: relative;
+    border: var(--border-default);
+    border-radius: var(--radius-card);
+    background: var(--color-surface-light);
+    overflow: hidden;
   }
 
-  .reliability-trace--hero > svg {
+  .trace-header {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: var(--border-default);
+    background: var(--color-background);
+  }
+
+  .trace-coordinate {
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .trace-coordinate--right {
+    text-align: right;
+  }
+
+  .trace-engine {
+    padding: var(--space-4);
+    background: var(--color-surface-light);
+  }
+
+  .trace-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .trace-step {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-3) var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-small);
+    opacity: 0.52;
+    transform: translateY(2px);
+    transition:
+      opacity var(--duration-normal) var(--ease-standard),
+      transform var(--duration-normal) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      background-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .trace-step[data-active='true'] {
+    opacity: 1;
+    transform: translateY(0);
+    background: var(--color-background);
+    border-color: var(--color-border);
+  }
+
+  .trace-step[data-current='true'] {
+    border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-accent));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 14%, transparent);
+  }
+
+  .step-rail {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    padding-top: 0.2rem;
+  }
+
+  .rail-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border: var(--border-default);
+    background: var(--color-background);
+    border-radius: 50%;
+    transition:
+      background-color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .trace-step[data-active='true'] .rail-dot {
+    border-color: var(--color-accent);
+    background: var(--color-background);
+  }
+
+  .rail-dot--fail {
+    border-style: dashed;
+  }
+
+  .trace-step[data-active='true'] .rail-dot--fail {
+    background: #fff;
+    border-color: #c43d3d;
+  }
+
+  .rail-dot--active,
+  .rail-dot--valid {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .trace-step[data-active='true'] .rail-dot--active,
+  .trace-step[data-active='true'] .rail-dot--valid {
+    background: var(--color-accent);
+  }
+
+  .rail-line {
+    width: 1px;
+    height: calc(100% + var(--space-3));
+    margin-top: 4px;
+    background: var(--color-border);
+    opacity: 0.9;
+  }
+
+  .trace-step:last-child .rail-line {
     display: none;
+  }
+
+  .trace-step[data-active='true'] .rail-line {
+    background: color-mix(in srgb, var(--color-border) 70%, var(--color-accent));
+  }
+
+  .step-content {
+    min-width: 0;
+  }
+
+  .step-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+  }
+
+  .step-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+  }
+
+  .trace-step[data-current='true'] .step-label {
+    color: var(--color-text);
+  }
+
+  .step-badge {
+    padding: 0.15rem 0.4rem;
+    border: var(--border-default);
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    background: var(--color-background);
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      background-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .step-badge--fail {
+    color: #8a2e2e;
+    border-color: #e2b4b4;
+    background: #fdf2f2;
+  }
+
+  .step-badge--active {
+    color: var(--color-accent);
+    border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+    background: var(--color-surface-cool);
+  }
+
+  .step-badge--valid {
+    color: white;
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .step-code {
+    margin: 0;
+    padding: var(--space-3);
+    border: var(--border-default);
+    background: var(--color-background);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 4.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .step-code--valid {
+    min-height: 6.5rem;
+    border-color: color-mix(in srgb, var(--color-border) 50%, var(--color-accent));
+  }
+
+  .step-code code {
+    font-family: inherit;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 0.5ch;
+    height: 1.1em;
+    margin-left: 1px;
+    background: var(--color-accent);
+    vertical-align: -0.15em;
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+
+  .trace-step.is-typing .cursor {
+    opacity: 1;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+  }
+
+  .step-note {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-secondary);
+    font-size: 0.6875rem;
+    line-height: 1.5;
+  }
+
+  .validation-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3);
+    border: var(--border-default);
+    background: var(--color-background);
+  }
+
+  .mono-small {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+
+  .validation-status {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.45rem;
+    border: var(--border-default);
+    background: var(--color-surface-light);
+    color: var(--color-text-secondary);
+    transition:
+      all var(--duration-normal) var(--ease-standard);
+  }
+
+  .validation-status[data-state='checking'] {
+    color: var(--color-text-secondary);
+    background: var(--color-surface-light);
+  }
+
+  .validation-status[data-state='failed'] {
+    color: #8a2e2e;
+    border-color: #e2b4b4;
+    background: #fdf2f2;
+  }
+
+  .validation-status[data-state='pass'] {
+    color: white;
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .validation-status[data-state='fail'] {
+    color: #8a2e2e;
+    background: #fdf2f2;
+  }
+
+  .fail-card {
+    padding: var(--space-3);
+    border: 1px dashed #e2b4b4;
+    background: #fdf8f6;
+  }
+
+  .intervention-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .intervention-list li {
+    position: relative;
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
+    border: var(--border-default);
+    background: var(--color-background);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--color-text-secondary);
+    opacity: 0.42;
+    transform: translateX(-4px);
+    transition:
+      opacity var(--duration-normal) var(--ease-standard),
+      transform var(--duration-normal) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard);
+  }
+
+  .intervention-list li::before {
+    content: '+';
+    position: absolute;
+    left: var(--space-3);
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .intervention-list li[data-revealed='true'] {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--color-text);
+    border-color: color-mix(in srgb, var(--color-border) 50%, var(--color-accent));
+  }
+
+  .trace-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-4);
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+    border-top: var(--border-default);
+  }
+
+  .trace-replay {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0 var(--space-4);
+    border: var(--border-default);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      border-color var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard),
+      background-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .trace-replay:hover {
+    border-color: var(--color-text);
+    transform: translateY(-1px);
+  }
+
+  .trace-replay:active {
+    transform: translateY(0);
+  }
+
+  .trace-replay:focus-visible {
+    outline: 0.1875rem solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .trace-hint {
+    font-family: var(--font-mono);
+    font-size: 0.585rem;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .noscript-fallback {
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: var(--border-default);
+  }
+
+  .trace-strip-legacy {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding-block: var(--space-3);
+    border-top: var(--border-default);
+    background: var(--color-background);
+  }
+
+  .trace-strip-legacy span {
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.02em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .trace-strip-legacy span:not(:last-child)::after {
+    position: absolute;
+    top: 0.1875rem;
+    right: -50%;
+    left: 50%;
+    border-top: var(--border-default);
+    content: '';
+  }
+
+  .trace-strip-legacy i {
+    z-index: 1;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    margin-inline: auto;
+    border: var(--border-default);
+    background: var(--color-background);
+  }
+
+  .trace-strip-legacy .active i {
+    border-color: var(--color-accent);
+  }
+
+  .trace-strip-legacy .active:last-child i {
+    background: var(--color-accent);
+  }
+
+  /* Portrait variant – keep simple editorial mark */
+  .reliability-trace--portrait {
+    width: min(11.25rem, 55%);
+  }
+
+  .reliability-trace--portrait svg {
+    display: block;
     width: 100%;
     height: auto;
-  }
-
-  .trace-grid {
-    fill: url('#trace-grid');
-  }
-
-  .trace-grid-line {
-    fill: none;
-    stroke: var(--color-border);
-    stroke-width: 0.65;
   }
 
   .trace-path {
     fill: none;
     stroke: var(--color-border);
     stroke-width: 1.25;
-  }
-
-  .trace-path--active {
-    stroke: var(--color-accent);
-  }
-
-  .trace-node rect {
-    fill: var(--color-background);
-    stroke: var(--color-border);
-  }
-
-  .trace-node text,
-  .trace-coordinate,
-  .trace-annotation {
-    fill: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-  }
-
-  .trace-coordinate {
-    font-size: 9px;
-  }
-
-  .trace-node--active rect {
-    stroke: var(--color-accent);
-  }
-
-  .trace-node--active text,
-  .trace-annotation--active {
-    fill: var(--color-accent);
-  }
-
-  .trace-node--muted {
-    opacity: 0.62;
   }
 
   .trace-point {
@@ -155,68 +832,36 @@ const { variant = 'hero' } = Astro.props;
     stroke: var(--color-accent);
   }
 
-  .trace-strip {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    padding-block: var(--space-4);
-    border-block: var(--border-default);
-  }
-
-  .trace-strip span {
-    position: relative;
-    display: grid;
-    gap: var(--space-2);
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
-    letter-spacing: 0.02em;
-    text-align: center;
-    text-transform: uppercase;
-  }
-
-  .trace-strip span:not(:last-child)::after {
-    position: absolute;
-    top: 0.1875rem;
-    right: -50%;
-    left: 50%;
-    border-top: var(--border-default);
-    content: '';
-  }
-
-  .trace-strip i {
-    z-index: 1;
-    width: 0.4375rem;
-    height: 0.4375rem;
-    margin-inline: auto;
-    border: var(--border-default);
-    background: var(--color-background);
-  }
-
-  .trace-strip .active i {
-    border-color: var(--color-accent);
-  }
-
-  .trace-strip .active:last-child i {
-    background: var(--color-accent);
-  }
-
-  .reliability-trace--portrait {
-    width: min(11.25rem, 55%);
-  }
-
-  .reliability-trace--portrait svg {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
   @media (min-width: 64rem) {
-    .reliability-trace--hero > svg {
-      display: block;
-    }
-
-    .trace-strip {
+    .trace-strip-legacy {
       display: none;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .trace-header {
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+    .trace-coordinate--right {
+      text-align: left;
+    }
+    .trace-engine {
+      padding: var(--space-3);
+    }
+    .trace-step {
+      grid-template-columns: 1rem minmax(0, 1fr);
+      gap: var(--space-2);
+      padding: var(--space-3);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor { display: none; }
+    .trace-step {
+      transition: none;
+      opacity: 1;
+      transform: none;
     }
   }
 </style>

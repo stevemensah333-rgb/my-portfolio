@@ -139,6 +139,7 @@ const sectionHref = (id: string) => isHomepage ? `#${id}` : `/#${id}`;
   .site-name,
   .desktop-nav a,
   .menu-toggle {
+    position: relative;
     display: inline-flex;
     min-height: var(--control-height);
     align-items: center;
@@ -148,12 +149,50 @@ const sectionHref = (id: string) => isHomepage ? `#${id}` : `/#${id}`;
     text-decoration-color: transparent;
     transition:
       color var(--duration-fast) var(--ease-standard),
-      text-decoration-color var(--duration-fast) var(--ease-standard);
+      text-decoration-color var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard),
+      opacity var(--duration-fast) var(--ease-standard);
+  }
+
+  .site-name::after,
+  .desktop-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.5rem;
+    border-top: 1px solid currentColor;
+    opacity: 0;
+    transform: translateY(2px);
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
   }
 
   .site-name:hover,
   .desktop-nav a:hover {
     text-decoration-color: currentColor;
+    transform: translateY(-1px);
+  }
+
+  .site-name:hover::after,
+  .desktop-nav a:hover::after {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .site-name:active,
+  .desktop-nav a:active,
+  .menu-toggle:active {
+    transform: translateY(0);
+    opacity: 0.85;
+  }
+
+  .desktop-nav a:focus-visible,
+  .site-name:focus-visible,
+  .menu-toggle:focus-visible {
+    background: var(--color-surface-cool);
+    border-radius: var(--radius-small);
   }
 
   .desktop-nav {

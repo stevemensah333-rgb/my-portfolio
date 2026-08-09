@@ -1,0 +1,101 @@
+---
+interface Props {
+  density?: number;
+  variant?: 'hero' | 'case' | 'toolkit';
+}
+const { density = 14, variant = 'hero' } = Astro.props;
+
+// Pre-calc positions – deterministic to avoid layout shift, very low contrast
+const positions = Array.from({ length: density }, (_, i) => {
+  // spread pseudo-random but stable: use prime multipliers
+  const x = ((i * 37) % 100);
+  const y = ((i * 61) % 100);
+  const delay = (i * 0.7) % 6;
+  const size = variant === 'hero' ? 2 : 1.8;
+  return { x, y, delay, size, id: i };
+});
+---
+
+<div class="ambient-field" data-ambient-field data-variant={variant} aria-hidden="true">
+  {positions.map(p => (
+    <i style={`left:${p.x}%; top:${p.y}%; animation-delay:${p.delay}s; width:${p.size}px; height:${p.size}px;`}></i>
+  ))}
+</div>
+
+<script>
+  const fields = document.querySelectorAll('[data-ambient-field]');
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  for (const field of fields) {
+    if (!(field instanceof HTMLElement)) continue;
+    if (reduced) {
+      field.style.display = 'none';
+      continue;
+    }
+    // pause when page hidden
+    const handleVisibility = () => {
+      field.dataset.paused = String(document.hidden);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    // intersection observer – only animate when visible
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          field.classList.add('is-visible');
+          field.dataset.paused = 'false';
+        } else {
+          field.dataset.paused = 'true';
+        }
+      }
+    }, { threshold: 0.05 });
+
+    io.observe(field);
+
+    // initially visible if in viewport
+    requestAnimationFrame(() => field.classList.add('is-visible'));
+  }
+</script>
+
+<style>
+  .ambient-field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity var(--duration-reveal) var(--ease-standard);
+  }
+
+  .ambient-field.is-visible {
+    opacity: 1;
+  }
+
+  .ambient-field i {
+    position: absolute;
+    background: var(--color-text);
+    border-radius: 50%;
+    opacity: var(--ambient-dot-opacity);
+    will-change: transform;
+  }
+
+  /* variant tweaks – hero slightly more visible than case */
+  .ambient-field[data-variant='hero'] {
+    --ambient-dot-opacity: 0.045;
+  }
+  .ambient-field[data-variant='case'] {
+    --ambient-dot-opacity: 0.032;
+  }
+  .ambient-field[data-variant='toolkit'] {
+    --ambient-dot-opacity: 0.028;
+  }
+
+  .ambient-field[data-paused='true'] i {
+    animation-play-state: paused !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ambient-field { display: none; }
+  }
+</style>
