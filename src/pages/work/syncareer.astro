@@ -1,5 +1,6 @@
 ---
 import { GMAIL_COMPOSE_URL } from '../../config/site';
+import FailureTrace from '../../components/FailureTrace.astro';
 import ProductFrame from '../../components/ProductFrame.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
@@ -165,6 +166,12 @@ const investigationStages = [
             <li class="active"><span>04</span><strong>Career guidance</strong><small>Product-facing response</small></li>
           </ol>
         </figure>
+      </div>
+    </section>
+
+    <section class="case-inspector" aria-label="Full failure trace inspector">
+      <div class="page-shell">
+        <FailureTrace />
       </div>
     </section>
 
@@ -490,6 +497,12 @@ const investigationStages = [
     padding-block: var(--section-standard);
     border-top: var(--border-default);
     background: var(--color-surface-light);
+  }
+
+  .case-inspector {
+    padding-block: var(--section-standard);
+    border-top: var(--border-default);
+    background: var(--color-background);
   }
 
   .context-layout {

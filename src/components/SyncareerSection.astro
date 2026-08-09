@@ -2,25 +2,37 @@
 import AmbientField from './AmbientField.astro';
 import ProductFrame from './ProductFrame.astro';
 
-const stages = [
+type CompactStage = {
+  id: string;
+  step: string;
+  label: string;
+  title: string;
+  detail: string;
+  evidence: string;
+  kind: 'input' | 'raw' | 'validate' | 'fail' | 'fix' | 'valid';
+  code?: string;
+  modes?: { name: string; note: string }[];
+  fixes?: string[];
+};
+
+const compactStages: CompactStage[] = [
   {
     id: 'input',
     step: '01',
     label: 'INPUT',
     title: 'User activity + profile context',
-    summary: 'Degree, interests, activity, progress, weaknesses.',
-    detail: 'Syncareer supplies Claude with explicit context from the student profile so guidance can be tailored. Context includes degree, interests, skills, CV progress and interview activity.',
+    detail:
+      'Syncareer supplies Claude with explicit context from the student profile — degree, interests, activity, progress and weaknesses — so guidance can be tailored.',
     evidence: 'Product record — context visible in SynAI surface.',
-    code: null,
     kind: 'input',
   },
   {
-    id: 'model-output',
+    id: 'output',
     step: '02',
-    label: 'MODEL OUTPUT',
+    label: 'OUTPUT',
     title: 'Raw LLM response (illustrative bad output)',
-    summary: 'Mixed prose + inconsistent structure before constraints.',
-    detail: 'ILLUSTRATIVE EXAMPLE — not a historical Syncareer log. Shows the kind of format drift observed in production: malformed fields, prose bleed, missing required keys.',
+    detail:
+      'Mixed prose and inconsistent structure before constraints — the kind of format drift observed in production.',
     evidence: 'Confirmed observation: inconsistent formatting.',
     code: `To become senior, you should...
 - build projects
@@ -32,14 +44,13 @@ const stages = [
     kind: 'raw',
   },
   {
-    id: 'validation',
+    id: 'validate',
     step: '03',
-    label: 'VALIDATION',
+    label: 'VALIDATE',
     title: 'Schema check',
-    summary: 'Does output match product contract?',
-    detail: 'Gate that checks required fields and type expectations before the product uses the response. If validation fails, the path routes to failure diagnosis.',
+    detail:
+      'Gate that checks required fields and types before the product uses the response. If it fails, the path routes to failure diagnosis.',
     evidence: 'Check: title (string), level (enum), years (number), next_steps (array).',
-    code: null,
     kind: 'validate',
   },
   {
@@ -47,59 +58,33 @@ const stages = [
     step: '04',
     label: 'FAILURE',
     title: 'Observed failure modes',
-    summary: 'Formatting, context, structure.',
-    detail: 'Separate failures treated as distinct: inconsistent formatting, dropped context (activity/progress/weaknesses not retained), unpredictable response structure.',
+    detail: 'Formatting, context and structure broke the expected product contract.',
     evidence: 'Confirmed observations from production use.',
-    code: `// failure signals
-- formatting varied
-- context not always retained
-- structure variable
-// no measured failure rate supplied`,
+    modes: [
+      { name: 'Formatting', note: 'Missing schema' },
+      { name: 'Context', note: 'Context dropped' },
+      { name: 'Structure', note: 'Inconsistent output' },
+    ],
     kind: 'fail',
   },
   {
-    id: 'diagnosis',
+    id: 'fix',
     step: '05',
-    label: 'DIAGNOSIS',
-    title: 'Why it failed',
-    summary: 'Prompt lacked explicit constraints; context not explicitly managed.',
-    detail: 'Root cause not reduced to one “AI problem”. Each mode mapped to a specific missing constraint. Interpretation: prompt structure, context handling and expected output needed tighter control.',
-    evidence: 'No invented root cause beyond observed behaviours.',
-    code: null,
-    kind: 'diagnosis',
+    label: 'FIX',
+    title: 'Diagnosis + intervention',
+    detail:
+      'Each failure mode mapped to a missing constraint — then the response path was made more explicit.',
+    evidence: 'Related interventions listed in the case study.',
+    fixes: ['Prompt restructuring', 'Few-shot anchor', 'Explicit context management', 'Tighter output constraints'],
+    kind: 'fix',
   },
   {
-    id: 'intervention',
+    id: 'result',
     step: '06',
-    label: 'INTERVENTION',
-    title: 'What Stephen changed',
-    summary: 'Prompt restructuring + few-shot + explicit context + tighter constraints.',
-    detail: 'Implemented: restructured prompts, added few-shot examples to anchor expected structure, managed context explicitly, set clearer constraints around expected output. ILLUSTRATIVE pattern shown for constraint — not claiming exact historical prompt text.',
-    evidence: 'Related interventions listed in case study.',
-    code: `// illustrative constraint pattern
-{
-  "type": "object",
-  "required": ["title","level","years"],
-  "properties": {
-    "title": {"type": "string"},
-    "level": {"enum": ["junior","mid","senior"]},
-    "years": {"type": "number"}
-  }
-}
-
-// illustrative few-shot anchor
-Example 1:
-Input: CS student, 2yr exp
-Output: {"title":"...","level":"mid"...}`,
-    kind: 'intervene',
-  },
-  {
-    id: 'output',
-    step: '07',
-    label: 'OUTPUT AFTERWARD',
+    label: 'RESULT',
     title: 'Valid product output (illustrative)',
-    summary: 'Now conforms to product contract.',
-    detail: 'ILLUSTRATIVE valid output showing shape after intervention. Not claimed as historical Syncareer log. Measured reliability threshold not yet supplied — evidence boundary preserved.',
+    detail:
+      'After the intervention the output conforms to the product contract. Shape matches product needs — no fabricated metrics.',
     evidence: 'Outcome shape matches product needs; no fabricated metrics.',
     code: `{
   "title": "Senior Developer",
@@ -122,7 +107,7 @@ Output: {"title":"...","level":"mid"...}`,
     <header class="case-header">
       <p class="technical-label">Case 01 / Syncareer</p>
       <h2 id="syncareer-title">The AI worked in the demo. Production exposed what the demo didn't.</h2>
-      <p class="case-context">Syncareer is an AI-integrated career platform built by Stephen. This trace lets you inspect how an output moves from raw model to product-ready.</p>
+      <p class="case-context">Syncareer is an AI-integrated career platform built by Stephen. This trace previews how an output moves from raw model to product-ready.</p>
     </header>
 
     <div class="product-proof">
@@ -138,103 +123,100 @@ Output: {"title":"...","level":"mid"...}`,
       />
     </div>
 
-    <div class="failure-trace" data-failure-trace aria-labelledby="trace-title">
+    <div class="failure-trace" data-trace-compact aria-labelledby="trace-title">
       <div class="trace-intro">
         <div>
-          <p class="technical-label">Interactive failure trace / main artifact</p>
-          <h3 id="trace-title">Inspect the path: input → validation → failure → fix → valid output.</h3>
+          <p class="technical-label">Interactive failure trace</p>
+          <h3 id="trace-title">How an unreliable LLM response became valid product output.</h3>
         </div>
-        <p class="trace-legend">Click / focus a stage to reveal its detail. Keyboard: Tab + Enter, arrows to move. Values marked ILLUSTRATIVE are demo shapes, not historical logs.</p>
+        <p class="trace-legend">Select a stage to see what happened at each step. Keyboard: arrows to move between stages. Values marked ILLUSTRATIVE are demo shapes, not historical logs.</p>
       </div>
 
-      <div class="trace-shell">
-        <div class="trace-rail" aria-hidden="true"><span class="rail-progress" data-rail-progress></span></div>
-
-        <div class="trace-tablist" role="tablist" aria-label="Failure trace stages">
-          {stages.map((stage, idx) => (
+      <div class="trace-strip">
+        <div class="trace-tablist" role="tablist" aria-label="Failure trace stages" aria-orientation="horizontal">
+          {compactStages.map((stage, idx) => (
             <button
+              type="button"
               role="tab"
-              id={`tab-${stage.id}`}
+              id={`ctab-${stage.id}`}
               class="trace-tab"
               data-stage-tab={stage.id}
-              aria-controls={`panel-${stage.id}`}
+              aria-controls={`cpanel-${stage.id}`}
               aria-selected={idx === 0 ? 'true' : 'false'}
               tabindex={idx === 0 ? '0' : '-1'}
               data-step={stage.step}
             >
-              <span class="tab-meta">
-                <span class="tab-step">{stage.step}</span>
-                <span class="tab-label">{stage.label}</span>
-              </span>
-              <span class="tab-title">{stage.title}</span>
-              <span class="tab-summary">{stage.summary}</span>
+              <span class="tab-step">{stage.step}</span>
+              <span class="tab-label">{stage.label}</span>
               <i class="tab-dot" aria-hidden="true"></i>
             </button>
           ))}
         </div>
+      </div>
 
-        <div class="trace-panels">
-          {stages.map((stage, idx) => (
-            <div
-              role="tabpanel"
-              id={`panel-${stage.id}`}
-              aria-labelledby={`tab-${stage.id}`}
-              class="trace-panel"
-              data-stage-panel={stage.id}
-              data-active={idx === 0 ? 'true' : 'false'}
-              tabindex="0"
-            >
-              <header class="panel-header">
-                <p class="panel-kicker">{stage.step} / {stage.label}</p>
-                <h4>{stage.title}</h4>
-                <p class="panel-detail">{stage.detail}</p>
-              </header>
+      <div class="trace-panels">
+        {compactStages.map((stage, idx) => (
+          <div
+            role="tabpanel"
+            id={`cpanel-${stage.id}`}
+            aria-labelledby={`ctab-${stage.id}`}
+            class="trace-panel"
+            data-stage-panel={stage.id}
+            data-active={idx === 0 ? 'true' : 'false'}
+            tabindex="0"
+            hidden={idx !== 0}
+          >
+            <header class="panel-header">
+              <p class="panel-kicker">{stage.step} / {stage.label}</p>
+              <h4>{stage.title}</h4>
+              <p class="panel-detail">{stage.detail}</p>
+            </header>
 
-              {stage.code && (
-                <div class="panel-code">
-                  <div class="code-meta">
-                    <span>{stage.kind === 'raw' ? 'ILLUSTRATIVE BAD OUTPUT' : stage.kind === 'valid' ? 'ILLUSTRATIVE VALID OUTPUT' : stage.kind === 'fail' ? 'Observed failure signals' : 'Illustrative pattern'}</span>
-                    <span class="code-type">{stage.kind}</span>
-                  </div>
-                  <pre><code>{stage.code}</code></pre>
-                  {stage.kind === 'raw' && <p class="code-note">Marked illustrative — not a historical Syncareer log. Used to show format drift type.</p>}
-                  {stage.kind === 'valid' && <p class="code-note">Marked illustrative — shape matches product contract. No fabricated metrics.</p>}
+            {(stage.kind === 'raw' || stage.kind === 'valid') && (
+              <div class="panel-code">
+                <div class="code-meta">
+                  <span>{stage.kind === 'raw' ? 'ILLUSTRATIVE BAD OUTPUT' : 'ILLUSTRATIVE VALID OUTPUT'}</span>
+                  <span class="code-type">{stage.kind}</span>
                 </div>
-              )}
+                <pre><code>{stage.code}</code></pre>
+              </div>
+            )}
 
-              {stage.id === 'validation' && (
-                <div class="panel-diagram">
-                  <div class="validation-card">
-                    <span class="mono-small">Product expects</span>
-                    <strong>title, level, years, next_steps</strong>
-                    <i aria-hidden="true"></i>
-                    <span class="mono-small mono-fail">Observed before fix</span>
-                    <strong class="fail-text">mixed prose + malformed fields</strong>
-                  </div>
+            {stage.kind === 'validate' && (
+              <div class="validate-card">
+                <div class="validate-side">
+                  <span class="mono-small">Product expects</span>
+                  <strong>title, level, years, next_steps</strong>
                 </div>
-              )}
-
-              {stage.id === 'diagnosis' && (
-                <div class="panel-diagram">
-                  <div class="diagnosis-grid">
-                    <div><span>Formatting</span><p>Needed explicit schema</p></div>
-                    <div><span>Context</span><p>Needed explicit re-injection</p></div>
-                    <div><span>Structure</span><p>Needed few-shot anchor</p></div>
-                  </div>
+                <i aria-hidden="true"></i>
+                <div class="validate-side">
+                  <span class="mono-small mono-fail">Observed before fix</span>
+                  <strong class="fail-text">mixed prose + malformed fields</strong>
                 </div>
-              )}
+              </div>
+            )}
 
-              <footer class="panel-evidence">
-                <span>Evidence</span>
-                <p>{stage.evidence}</p>
-              </footer>
+            {stage.kind === 'fail' && (
+              <ul class="failure-modes">
+                {stage.modes?.map((mode) => (
+                  <li><span>{mode.name}</span><p>{mode.note}</p></li>
+                ))}
+              </ul>
+            )}
 
-              {(stage.id === 'failure' || stage.id === 'output') && (
-                <p class="evidence-boundary"><span>Boundary</span> No measured before-and-after failure rate is claimed here. Evidence boundary preserved.</p>
-              )}
-            </div>
-          ))}
-        </div>
+            {stage.kind === 'fix' && (
+              <ul class="fix-list">
+                {stage.fixes?.map((fix) => <li>{fix}</li>)}
+              </ul>
+            )}
+
+            <p class="panel-evidence"><span>Evidence</span>{stage.evidence}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="trace-cta">
+        <a class="case-link" href="/work/syncareer/">Explore the full reliability case study <span aria-hidden="true">→</span></a>
       </div>
     </div>
 
@@ -244,23 +226,21 @@ Output: {"title":"...","level":"mid"...}`,
     </div>
 
     <div class="case-actions">
-      <a class="case-link" href="/work/syncareer/">Read the Syncareer LLM reliability case study <span aria-hidden="true">→</span></a>
       <a class="live-link" href="https://syncareer.me/" target="_blank" rel="noopener">View Syncareer <span aria-hidden="true">↗</span></a>
     </div>
   </div>
 </section>
 
 <script>
-  const traceRoots = document.querySelectorAll('[data-failure-trace]');
+  const traceRoots = document.querySelectorAll('[data-trace-compact]');
 
   for (const root of traceRoots) {
     const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')];
     const panels = [...root.querySelectorAll<HTMLElement>('[data-stage-panel]')];
-    const rail = root.querySelector<HTMLElement>('[data-rail-progress]');
 
     if (tabs.length === 0 || panels.length === 0) continue;
 
-    const select = (id: string, focusPanel = false) => {
+    const select = (id: string) => {
       const idx = tabs.findIndex(t => t.dataset.stageTab === id);
       tabs.forEach((tab, i) => {
         const active = tab.dataset.stageTab === id;
@@ -273,16 +253,7 @@ Output: {"title":"...","level":"mid"...}`,
         const active = panel.dataset.stagePanel === id;
         panel.dataset.active = String(active);
         panel.hidden = !active;
-        if (active && focusPanel) {
-          // Keep focus on tablist for keyboard nav, but make panel reachable
-          panel.focus({ preventScroll: true });
-        }
       });
-      if (rail) {
-        const progress = idx >= 0 ? (idx / Math.max(tabs.length - 1, 1)) * 100 : 0;
-        rail.style.setProperty('--progress', `${progress}%`);
-        rail.dataset.step = String(idx + 1);
-      }
     };
 
     // initial
@@ -318,8 +289,6 @@ Output: {"title":"...","level":"mid"...}`,
         }
       });
     });
-
-    // allow arrow between panels? keep simple
   }
 </script>
 
@@ -361,7 +330,7 @@ Output: {"title":"...","level":"mid"...}`,
     margin-top: var(--section-content-gap);
   }
 
-  /* --- Failure trace --- */
+  /* --- Compact failure trace --- */
   .failure-trace {
     margin-top: var(--section-content-gap);
     border: var(--border-default);
@@ -372,15 +341,15 @@ Output: {"title":"...","level":"mid"...}`,
 
   .trace-intro {
     display: grid;
-    gap: var(--space-4);
-    padding: var(--card-padding);
+    gap: var(--space-2);
+    padding: var(--space-4);
     border-bottom: var(--border-default);
     background: var(--color-surface-light);
   }
 
   .trace-intro h3 {
-    max-width: 22ch;
-    margin: var(--space-3) 0 0;
+    max-width: 26ch;
+    margin: var(--space-1) 0 0;
     font-size: var(--text-h3);
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -388,59 +357,65 @@ Output: {"title":"...","level":"mid"...}`,
   }
 
   .trace-legend {
-    max-width: 38rem;
+    max-width: 42rem;
     margin: 0;
     color: var(--color-text-secondary);
-    font-size: var(--text-small);
-    line-height: 1.6;
+    font-size: 0.8125rem;
+    line-height: 1.55;
   }
 
-  .trace-shell {
-    display: grid;
+  .trace-strip {
     position: relative;
-  }
-
-  .trace-rail {
-    display: none;
-  }
-
-  .trace-tablist {
-    display: grid;
+    display: flex;
     border-bottom: var(--border-default);
     background: var(--color-background);
     overflow-x: auto;
     scrollbar-width: none;
   }
 
-  .trace-tablist::-webkit-scrollbar { display: none; }
+  .trace-strip::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Fade on the right edge signals the tab strip scrolls on narrow screens. */
+  .trace-strip::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1.5rem;
+    background: linear-gradient(to right, transparent, var(--color-background));
+    pointer-events: none;
+  }
+
+  .trace-tablist {
+    display: flex;
+    align-items: stretch;
+    flex: 0 0 auto;
+  }
 
   .trace-tab {
     position: relative;
-    display: grid;
+    display: inline-flex;
+    align-items: center;
     gap: var(--space-2);
-    padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5);
+    min-height: 2.75rem;
+    padding: 0 var(--space-4);
     border: 0;
-    border-bottom: var(--border-default);
+    border-right: var(--border-default);
     background: transparent;
-    text-align: left;
-    cursor: pointer;
-    font: inherit;
     color: var(--color-text-secondary);
+    font: inherit;
+    white-space: nowrap;
+    cursor: pointer;
     transition:
       background-color var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard);
+      color var(--duration-fast) var(--ease-standard);
   }
 
   .trace-tab:last-child {
-    border-bottom: 0;
-  }
-
-  .tab-meta {
-    display: flex;
-    gap: var(--space-2);
-    align-items: center;
+    border-right: 0;
   }
 
   .tab-step {
@@ -453,6 +428,11 @@ Output: {"title":"...","level":"mid"...}`,
     font-family: var(--font-mono);
     font-size: 0.625rem;
     letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      background-color var(--duration-fast) var(--ease-standard);
   }
 
   .tab-label {
@@ -462,40 +442,14 @@ Output: {"title":"...","level":"mid"...}`,
     text-transform: uppercase;
   }
 
-  .tab-title {
-    color: var(--color-text);
-    font-size: 0.95rem;
-    font-weight: 600;
-    line-height: 1.3;
-  }
-
-  .tab-summary {
-    font-size: 0.8125rem;
-    line-height: 1.5;
-  }
-
   .tab-dot {
     position: absolute;
-    left: 0;
-    top: 50%;
-    width: 3px;
-    height: 2.2rem;
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: 0;
+    height: 2px;
     background: transparent;
-    transform: translateY(-50%);
     transition: background-color var(--duration-fast) var(--ease-standard);
-  }
-
-  .trace-tab[data-active='true'] {
-    background: var(--color-surface-cool);
-    color: var(--color-text);
-  }
-
-  .trace-tab[data-active='true'] .tab-dot {
-    background: var(--color-accent);
-  }
-
-  .trace-tab[data-past='true'] .tab-dot {
-    background: var(--color-border);
   }
 
   .trace-tab:hover {
@@ -508,15 +462,32 @@ Output: {"title":"...","level":"mid"...}`,
     background: var(--color-surface-cool);
   }
 
+  .trace-tab[data-active='true'] {
+    color: var(--color-text);
+  }
+
+  .trace-tab[data-active='true'] .tab-step {
+    border-color: var(--color-accent);
+    background: var(--color-surface-cool);
+    color: var(--color-text);
+  }
+
+  .trace-tab[data-active='true'] .tab-dot {
+    background: var(--color-accent);
+  }
+
+  .trace-tab[data-past='true'] .tab-step {
+    border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-accent));
+  }
+
   .trace-panels {
-    padding: var(--card-padding);
+    padding: var(--space-3) var(--space-4) var(--space-4);
     background: var(--color-background);
-    min-height: 20rem;
   }
 
   .trace-panel {
     display: grid;
-    gap: var(--space-5);
+    gap: var(--space-3);
   }
 
   .trace-panel[hidden] {
@@ -527,24 +498,24 @@ Output: {"title":"...","level":"mid"...}`,
     margin: 0;
     color: var(--color-text-secondary);
     font-family: var(--font-mono);
-    font-size: var(--text-label);
+    font-size: 0.6875rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
   .panel-header h4 {
-    margin: var(--space-2) 0 0;
-    font-size: 1.125rem;
+    margin: var(--space-1) 0 0;
+    font-size: 1.0625rem;
     font-weight: 600;
     letter-spacing: -0.015em;
   }
 
   .panel-detail {
-    max-width: 38rem;
-    margin: var(--space-3) 0 0;
+    max-width: 40rem;
+    margin: var(--space-2) 0 0;
     color: var(--color-text-secondary);
-    font-size: var(--text-body);
-    line-height: 1.6;
+    font-size: 0.9375rem;
+    line-height: 1.55;
   }
 
   .panel-code {
@@ -558,7 +529,7 @@ Output: {"title":"...","level":"mid"...}`,
     display: flex;
     justify-content: space-between;
     gap: var(--space-3);
-    padding: var(--space-2) var(--space-3);
+    padding: var(--space-1) var(--space-3);
     border-bottom: var(--border-default);
     background: var(--color-background);
     font-family: var(--font-mono);
@@ -574,48 +545,40 @@ Output: {"title":"...","level":"mid"...}`,
 
   .panel-code pre {
     margin: 0;
-    padding: var(--space-4);
+    padding: var(--space-3);
     overflow-x: auto;
     font-family: var(--font-mono);
-    font-size: 0.78rem;
-    line-height: 1.6;
+    font-size: 0.7rem;
+    line-height: 1.5;
     background: var(--color-background);
   }
 
-  .code-note {
-    margin: 0;
-    padding: var(--space-2) var(--space-3);
-    border-top: var(--border-default);
-    background: var(--color-surface-light);
-    color: var(--color-text-secondary);
-    font-size: 0.75rem;
-    line-height: 1.5;
-  }
-
-  .panel-diagram {
-    border: var(--border-default);
-    background: var(--color-surface-light);
-    padding: var(--space-4);
-  }
-
-  .validation-card {
+  .validate-card {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 2.5rem minmax(0, 1fr);
     gap: var(--space-3);
     align-items: center;
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-default);
+    background: var(--color-surface-light);
   }
 
-  .validation-card strong {
+  .validate-side {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .validate-side strong {
     font-size: var(--text-small);
     line-height: 1.4;
   }
 
-  .validation-card i {
+  .validate-card i {
     border-top: var(--border-default);
     position: relative;
   }
 
-  .validation-card i::after {
+  .validate-card i::after {
     content: '';
     position: absolute;
     right: 0;
@@ -642,69 +605,93 @@ Output: {"title":"...","level":"mid"...}`,
     color: #8a2e2e;
   }
 
-  .diagnosis-grid {
+  .failure-modes {
     display: grid;
     gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .diagnosis-grid div {
+  .failure-modes li {
     display: grid;
     gap: var(--space-1);
     padding: var(--space-3);
     border: var(--border-default);
-    background: var(--color-background);
+    background: var(--color-surface-light);
   }
 
-  .diagnosis-grid span {
+  .failure-modes span {
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
-    text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--color-text-secondary);
+    text-transform: uppercase;
   }
 
-  .diagnosis-grid p {
+  .failure-modes p {
     margin: 0;
     font-size: var(--text-small);
+    line-height: 1.45;
+  }
+
+  .fix-list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fix-list li {
+    position: relative;
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-6);
+    border: var(--border-default);
+    background: var(--color-surface-light);
+    font-size: var(--text-small);
+    line-height: 1.45;
+  }
+
+  .fix-list li::before {
+    content: '+';
+    position: absolute;
+    left: var(--space-3);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-weight: 600;
   }
 
   .panel-evidence {
-    display: grid;
-    gap: var(--space-2);
-    padding-top: var(--space-4);
+    margin: 0;
+    padding-top: var(--space-3);
     border-top: var(--border-default);
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    line-height: 1.5;
   }
 
   .panel-evidence span {
+    display: inline-block;
+    margin-right: var(--space-3);
+    color: var(--color-text);
     font-family: var(--font-mono);
     font-size: var(--text-label);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--color-text-secondary);
   }
 
-  .panel-evidence p {
-    margin: 0;
-    max-width: 36rem;
-    color: var(--color-text-secondary);
+  .trace-cta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-top: var(--border-default);
+    background: var(--color-surface-light);
+  }
+
+  .trace-cta .case-link {
     font-size: var(--text-small);
-  }
-
-  .evidence-boundary {
-    margin: 0;
-    padding-left: var(--space-4);
-    border-left: 2px solid var(--color-accent);
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    line-height: 1.6;
-    text-transform: uppercase;
-  }
-
-  .evidence-boundary span {
-    display: block;
-    margin-bottom: var(--space-1);
-    color: var(--color-text);
   }
 
   .evidence-status {
@@ -786,37 +773,16 @@ Output: {"title":"...","level":"mid"...}`,
   }
 
   @media (min-width: 48rem) {
-    .trace-shell {
-      grid-template-columns: 18rem minmax(0, 1fr);
-      align-items: start;
+    .trace-strip::after {
+      display: none;
     }
 
-    .trace-tablist {
-      border-bottom: 0;
-      border-right: var(--border-default);
-      display: grid;
-      position: sticky;
-      top: 5rem;
+    .failure-modes {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .trace-rail {
-      display: block;
-      position: absolute;
-      left: calc(18rem - 1px);
-      top: 0;
-      bottom: 0;
-      width: 1px;
-      background: var(--color-border);
-    }
-
-    .rail-progress {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: var(--progress, 0%);
-      background: var(--color-accent);
-      transition: height var(--duration-normal) var(--ease-standard);
+    .fix-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
@@ -825,25 +791,27 @@ Output: {"title":"...","level":"mid"...}`,
       grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
       align-items: end;
     }
-
-    .diagnosis-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
   }
 
   @media (max-width: 30rem) {
     .case-header h2 {
       font-size: clamp(1.875rem, 8.5vw, 2.25rem);
     }
-    .validation-card {
+
+    .validate-card {
       grid-template-columns: 1fr;
     }
-    .validation-card i {
+
+    .validate-card i {
       width: 1px;
       height: 1.25rem;
       margin-left: var(--space-3);
       border-top: 0;
       border-left: var(--border-default);
+    }
+
+    .trace-cta {
+      justify-content: flex-start;
     }
   }
 </style>
