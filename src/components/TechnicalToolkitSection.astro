@@ -133,15 +133,14 @@ const toolkit: ToolkitGroup[] = [
 ---
 
 <section id="toolkit" class="toolkit" aria-labelledby="toolkit-title">
-  <div class="page-shell toolkit-layout">
+  <div class="page-shell toolkit-layout" data-toolkit>
     <header class="toolkit-header">
       <p class="technical-label">Technical index — evidence linked</p>
       <h2 id="toolkit-title">Technical Toolkit</h2>
-      <p class="toolkit-note">Hover, focus or select a skill to see where it was used and what responsibility it supported. No hover-only critical info — panels are keyboard reachable.</p>
+      <p class="toolkit-note">Select a skill to see where I used it and what I actually did with it.</p>
     </header>
 
-    <div class="toolkit-grid" data-toolkit>
-      <div class="toolkit-skills">
+    <div class="toolkit-skills">
       {toolkit.map((group, gIndex) => (
         <section class="toolkit-group" aria-labelledby={`toolkit-group-${gIndex}`}>
           <h3 id={`toolkit-group-${gIndex}`}>{group.category}</h3>
@@ -187,11 +186,11 @@ const toolkit: ToolkitGroup[] = [
           </ul>
         </section>
       ))}
-      </div>
-      <div class="toolkit-detail" data-toolkit-detail aria-live="polite">
-        <span class="panel-label">Select a skill</span>
-        <p>Choose a skill to inspect its use and evidence.</p>
-      </div>
+    </div>
+
+    <div class="toolkit-detail" data-toolkit-detail aria-live="polite">
+      <span class="panel-label">Selected skill</span>
+      <p>Choose a skill to inspect its use and evidence.</p>
     </div>
   </div>
 </section>
@@ -203,20 +202,31 @@ const toolkit: ToolkitGroup[] = [
     const triggers = [...toolkitRoot.querySelectorAll<HTMLButtonElement>('[data-toolkit-trigger]')];
     const panels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-panel]')];
     const detail = toolkitRoot.querySelector<HTMLElement>('[data-toolkit-detail]');
+    const placeholderHTML = detail ? detail.innerHTML : '';
+    const panelParents = new Map<string, HTMLElement>();
+    panels.forEach(p => {
+      const parent = p.parentElement as HTMLElement | null;
+      if (parent) panelParents.set(p.id, parent);
+    });
 
-    const closeAll = (except?: string) => {
-      triggers.forEach(t => {
-        if (t.getAttribute('aria-controls') !== except) {
-          t.setAttribute('aria-expanded', 'false');
-          t.dataset.active = 'false';
-        }
-      });
+    const restorePanels = () => {
       panels.forEach(p => {
-        if (p.id !== except) {
-          p.hidden = true;
-          p.dataset.active = 'false';
+        const parent = panelParents.get(p.id);
+        if (parent && p.parentElement !== parent) {
+          parent.appendChild(p);
         }
+        p.hidden = true;
+        p.dataset.active = 'false';
       });
+    };
+
+    const closeAll = () => {
+      triggers.forEach(t => {
+        t.setAttribute('aria-expanded', 'false');
+        t.dataset.active = 'false';
+      });
+      restorePanels();
+      if (detail) detail.innerHTML = placeholderHTML;
     };
 
     const open = (id: string) => {
@@ -227,15 +237,32 @@ const toolkit: ToolkitGroup[] = [
       if (isOpen) {
         trigger.setAttribute('aria-expanded', 'false');
         trigger.dataset.active = 'false';
+        const parent = panelParents.get(panel.id);
+        if (parent) parent.appendChild(panel);
         panel.hidden = true;
         panel.dataset.active = 'false';
+        if (detail) detail.innerHTML = placeholderHTML;
       } else {
         closeAll();
         trigger.setAttribute('aria-expanded', 'true');
         trigger.dataset.active = 'true';
         panel.hidden = false;
         panel.dataset.active = 'true';
-        if (detail) detail.replaceChildren(panel);
+        if (detail) {
+          detail.innerHTML = '';
+          const header = document.createElement('div');
+          header.className = 'detail-header';
+          const label = document.createElement('span');
+          label.className = 'panel-label';
+          label.textContent = 'Selected';
+          const name = document.createElement('strong');
+          name.className = 'detail-name';
+          const triggerName = trigger.querySelector('.trigger-name');
+          name.textContent = triggerName?.textContent?.trim() ?? trigger.textContent?.trim() ?? '';
+          header.append(label, name);
+          detail.append(header, panel);
+          // panel stays with its original id, aria-controls still valid
+        }
       }
     };
 
@@ -247,8 +274,6 @@ const toolkit: ToolkitGroup[] = [
 
       trigger.addEventListener('mouseenter', () => {
         if (window.matchMedia('(hover: hover)').matches) {
-          // On hover, reveal without closing others? Requirement: hover/focus/click reveal compact panel
-          // Use open to keep single active for clarity
           open(panelId);
         }
       });
@@ -283,11 +308,9 @@ const toolkit: ToolkitGroup[] = [
       });
     });
 
-    // Start with one honest, useful example rather than an empty inspector.
     const firstPanel = panels[0];
     if (firstPanel) open(firstPanel.id);
 
-    // Close when clicking outside
     document.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       if (!toolkitRoot.contains(target)) {
@@ -307,7 +330,7 @@ const toolkit: ToolkitGroup[] = [
 
   .toolkit-layout {
     display: grid;
-    gap: var(--space-7);
+    gap: var(--space-6);
   }
 
   .toolkit-header p,
@@ -323,28 +346,60 @@ const toolkit: ToolkitGroup[] = [
   }
 
   .toolkit-note {
-    max-width: 38rem;
+    max-width: 30rem;
     margin: var(--space-4) 0 0;
     color: var(--color-text-secondary);
     font-size: var(--text-small);
     line-height: 1.6;
   }
 
-  .toolkit-grid {
+  .toolkit-detail {
+    padding: var(--space-5);
+    border: var(--border-default);
+    border-radius: var(--radius-small);
+    background: var(--color-surface-light);
+    min-height: 0;
+  }
+
+  .toolkit-detail > p {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .toolkit-detail :global(.detail-header) {
     display: grid;
-    gap: var(--space-5);
-    border-top: var(--border-default);
+    gap: var(--space-1);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-4);
     border-bottom: var(--border-default);
   }
 
-  .toolkit-detail {
-    min-height: 10rem;
-    padding: var(--space-5);
-    border: var(--border-default);
-    background: var(--color-surface-light);
+  .toolkit-detail :global(.detail-name) {
+    font-size: 1rem;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    line-height: 1.35;
+    color: var(--color-text);
   }
 
-  .toolkit-detail > p { margin: var(--space-2) 0 0; color: var(--color-text-secondary); }
+  .toolkit-detail :global(.toolkit-panel) {
+    margin-top: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    display: grid;
+    gap: var(--space-4);
+    animation: none;
+  }
+
+  .toolkit-skills {
+    display: grid;
+    gap: 0;
+    border-top: var(--border-default);
+    border-bottom: var(--border-default);
+  }
 
   .toolkit-group {
     display: grid;
@@ -531,21 +586,37 @@ const toolkit: ToolkitGroup[] = [
     font-style: italic;
   }
 
+  /* Mobile: inspector after skills (default order header -> skills -> detail) already natural */
+  /* Desktop two-zone */
   @media (min-width: 48rem) {
     .toolkit-layout {
-      grid-template-columns: minmax(13rem, 3fr) minmax(0, 9fr);
+      grid-template-columns: minmax(17rem, 22rem) minmax(0, 1fr);
+      grid-template-areas:
+        "header skills"
+        "detail skills";
       align-items: start;
+      column-gap: var(--space-7);
+      row-gap: var(--space-5);
     }
 
-    .toolkit-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.8fr);
-      align-items: start;
+    .toolkit-header {
+      grid-area: header;
+    }
+
+    .toolkit-detail {
+      grid-area: detail;
+      position: sticky;
+      top: 5.5rem;
     }
 
     .toolkit-skills {
+      grid-area: skills;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      border-right: var(--border-default);
+      border: var(--border-default);
+      border-radius: var(--radius-small);
+      overflow: hidden;
+      background: var(--color-background);
     }
 
     .toolkit-group {
@@ -566,14 +637,80 @@ const toolkit: ToolkitGroup[] = [
       border-right: 0;
     }
 
+    /* hide inline panels at desktop – inspector is single source */
+    .toolkit-group .toolkit-panel {
+      display: none !important;
+    }
+
     .toolkit-group ul {
       margin-top: var(--space-3);
+    }
+
+    /* detail clone needs to be visible */
+    .toolkit-detail .toolkit-panel {
+      display: grid !important;
     }
   }
 
   @media (min-width: 64rem) {
+    .toolkit-layout {
+      grid-template-columns: minmax(18rem, 23rem) minmax(0, 1fr);
+      column-gap: var(--space-8);
+    }
+
+    /* Balanced 5-category arrangement – avoid long single tail.
+       Use 6-col base: 3 on top row (Languages, Backend, Databases)
+       and 2 on bottom row (Infrastructure & Tools, Data & ML) equally filled. */
     .toolkit-skills {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .toolkit-group {
+      grid-column: span 2;
+      border-right: var(--border-default);
+      border-bottom: var(--border-default);
+    }
+
+    .toolkit-group:nth-child(1) {
+      grid-column: span 2;
+      border-right: var(--border-default);
+      border-bottom: var(--border-default);
+    }
+    .toolkit-group:nth-child(2) {
+      grid-column: span 2;
+      border-right: var(--border-default);
+      border-bottom: var(--border-default);
+    }
+    .toolkit-group:nth-child(3) {
+      grid-column: span 2;
+      border-right: 0;
+      border-bottom: var(--border-default);
+    }
+    .toolkit-group:nth-child(4) {
+      grid-column: span 3;
+      border-right: var(--border-default);
+      border-bottom: 0;
+    }
+    .toolkit-group:nth-child(5) {
+      grid-column: span 3;
+      border-right: 0;
+      border-bottom: 0;
+    }
+  }
+
+  @media (max-width: 47.98rem) {
+    /* Keep inline panels usable at narrow widths – hide inspector clone distinction */
+    .toolkit-detail {
+      order: 3;
+    }
+    .toolkit-skills {
+      order: 2;
+    }
+    /* At mobile, inline panels are the visible ones; inspector clone hidden? 
+       Instead, keep panel inline visible when active, inspector below matrix shows duplicate?
+       With new JS, inline panels stay hidden and detail shows clone. Ensure detail clone still visible. */
+    .toolkit-group .toolkit-panel[hidden] {
+      display: none !important;
     }
   }
 
