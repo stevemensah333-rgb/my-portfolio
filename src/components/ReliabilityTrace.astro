@@ -412,6 +412,22 @@ const { variant = 'hero' } = Astro.props;
     border-color: var(--color-border);
   }
 
+  /* Completed stages remain legible as a sequence, while only the current stage expands. */
+  .trace-step[data-active='true'][data-current='false'] {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    padding-block: var(--space-2);
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .trace-step[data-active='true'][data-current='false'] .step-note,
+  .trace-step[data-active='true'][data-current='false'] .step-code,
+  .trace-step[data-active='true'][data-current='false'] .validation-row,
+  .trace-step[data-active='true'][data-current='false'] .fail-card,
+  .trace-step[data-active='true'][data-current='false'] .intervention-list {
+    display: none;
+  }
+
   .trace-step[data-current='true'] {
     border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-accent));
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 14%, transparent);

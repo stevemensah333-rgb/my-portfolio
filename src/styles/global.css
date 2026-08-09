@@ -61,8 +61,8 @@
   /* Editorial rhythm: supporting, standard and flagship sections */
   --section-compact: clamp(3.5rem, 6vw, 5rem);
   --section-tight: clamp(2.75rem, 4.5vw, 3.75rem);
-  --section-standard: clamp(4rem, 7vw, 6rem);
-  --section-feature: clamp(5rem, 8vw, 7rem);
+  --section-standard: clamp(3.5rem, 5.5vw, 5rem);
+  --section-feature: clamp(4rem, 6.5vw, 5.75rem);
   --section-heading-gap: var(--space-3);
   --section-content-gap: clamp(var(--space-6), 3vw, var(--space-7));
   --card-padding: clamp(var(--space-5), 3vw, var(--space-7));
