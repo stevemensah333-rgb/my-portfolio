@@ -119,12 +119,23 @@ const secondaryLinks = [
     border-color: var(--color-accent);
     background: var(--color-accent);
     color: white;
+    transition:
+      background-color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-normal) var(--ease-standard);
   }
 
   .email-button:hover {
     border-color: #82a9ff;
     background: #245fd2;
     color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 0.5rem 1.25rem rgb(47 111 237 / 28%);
+  }
+
+  .email-button:active {
+    transform: translateY(0);
   }
 
   .secondary-links {
@@ -138,18 +149,46 @@ const secondaryLinks = [
   }
 
   .secondary-links a {
+    position: relative;
     display: inline-flex;
     min-height: var(--control-height);
     align-items: center;
     font-size: var(--text-small);
     font-weight: 600;
     text-decoration-color: transparent;
-    transition: color var(--duration-fast) var(--ease-standard), text-decoration-color var(--duration-fast) var(--ease-standard);
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      text-decoration-color var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .secondary-links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.6rem;
+    border-top: 1px solid currentColor;
+    opacity: 0;
+    transform: translateY(2px);
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
   }
 
   .secondary-links a:hover {
     color: var(--color-background);
     text-decoration-color: currentColor;
+    transform: translateY(-1px);
+  }
+
+  .secondary-links a:hover::after {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .secondary-links a:active {
+    transform: translateY(0);
   }
 
   .contact-trace {

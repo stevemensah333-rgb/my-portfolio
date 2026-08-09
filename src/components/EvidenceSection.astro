@@ -345,12 +345,22 @@ import { credentials } from '../data/credentials';
       text-align: left;
       transition:
         background-color var(--duration-fast) var(--ease-standard),
-        box-shadow var(--duration-fast) var(--ease-standard);
+        box-shadow var(--duration-fast) var(--ease-standard),
+        transform var(--duration-fast) var(--ease-standard);
     }
 
     .credential-index button:hover,
     .credential-index button:focus-visible {
       background: var(--color-surface-cool);
+      transform: translateY(-1px);
+    }
+
+    .credential-index button:active {
+      transform: translateY(0);
+    }
+
+    .credential-index button:focus-visible {
+      box-shadow: inset 2px 0 0 var(--color-accent), 0 0 0 2px color-mix(in srgb, var(--color-accent) 18%, transparent);
     }
 
     .credential-index button strong {

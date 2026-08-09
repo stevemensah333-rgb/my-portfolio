@@ -1,24 +1,133 @@
 ---
-const toolkit = [
+type ToolkitItem = {
+  name: string;
+  usedIn: { project: string; href?: string }[];
+  evidence: string[];
+  note?: string;
+};
+
+type ToolkitGroup = {
+  category: string;
+  items: ToolkitItem[];
+};
+
+const toolkit: ToolkitGroup[] = [
   {
     category: 'Languages',
-    technologies: ['Python', 'JavaScript', 'HTML', 'CSS'],
+    items: [
+      {
+        name: 'Python',
+        usedIn: [{ project: 'Coursework / Data cleaning' }, { project: 'Supervised ML (DataCamp)' }],
+        evidence: ['data cleaning', 'validation patterns', 'scripting for evaluation'],
+        note: 'Used for data work and API validation patterns, not claimed as Syncareer prod stack.',
+      },
+      {
+        name: 'JavaScript',
+        usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }, { project: 'Portfolio (this site)' }],
+        evidence: ['product surface logic', 'failure trace interactivity', 'editorial UI states'],
+      },
+      {
+        name: 'HTML',
+        usedIn: [{ project: 'Syncareer', href: 'https://syncareer.me/' }, { project: 'Portfolio' }],
+        evidence: ['semantic product surfaces', 'accessible trace markup', 'evidence-first layout'],
+      },
+      {
+        name: 'CSS',
+        usedIn: [{ project: 'Syncareer' }, { project: 'Portfolio' }],
+        evidence: ['restrained design tokens', 'responsive editorial grid', 'motion system (140/220/380ms)'],
+      },
+    ],
   },
   {
-    category: 'Backend',
-    technologies: ['FastAPI', 'Node.js', 'Express.js'],
+    category: 'Backend & AI Integration',
+    items: [
+      {
+        name: 'Claude API / Prompt engineering',
+        usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }],
+        evidence: ['custom system instructions', 'explicit context management', 'output constraint design'],
+      },
+      {
+        name: 'FastAPI',
+        usedIn: [{ project: 'Learning / API design' }],
+        evidence: ['schema validation patterns', 'transfer to LLM output validation'],
+        note: 'Learning – pattern reference, not Syncareer prod claim.',
+      },
+      {
+        name: 'Node.js',
+        usedIn: [{ project: 'Portfolio tooling' }, { project: 'Personal projects' }],
+        evidence: ['Astro build', 'static + hydrated islands'],
+      },
+      {
+        name: 'Express.js',
+        usedIn: [{ project: 'Personal projects (learning)' }],
+        evidence: ['routing patterns', 'middleware layering'],
+      },
+    ],
   },
   {
     category: 'Databases',
-    technologies: ['MySQL', 'MongoDB', 'SQLite'],
+    items: [
+      {
+        name: 'PostgreSQL',
+        usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }],
+        evidence: ['flexible schema for activity / progress / weaknesses', 'career data storage'],
+      },
+      {
+        name: 'MySQL',
+        usedIn: [{ project: 'Coursework (learning)' }],
+        evidence: ['relational modeling', 'query patterns'],
+      },
+      {
+        name: 'MongoDB',
+        usedIn: [{ project: 'Learning / document model' }],
+        evidence: ['document modeling exploration'],
+      },
+      {
+        name: 'SQLite',
+        usedIn: [{ project: 'Local prototypes' }],
+        evidence: ['local persistence', 'rapid iteration'],
+      },
+    ],
   },
   {
     category: 'Infrastructure & Tools',
-    technologies: ['Docker'],
+    items: [
+      {
+        name: 'Docker',
+        usedIn: [{ project: 'Learning / reproducible env' }],
+        evidence: ['reproducible deployment exploration'],
+      },
+      {
+        name: 'Vercel',
+        usedIn: [{ project: 'Portfolio deployment' }],
+        evidence: ['static deployment', 'analytics integration'],
+      },
+      {
+        name: 'Git / GitHub',
+        usedIn: [{ project: 'Syncareer' }, { project: 'Portfolio' }],
+        evidence: ['evidence branch workflow', 'documentation history'],
+      },
+    ],
   },
   {
     category: 'Data & ML',
-    technologies: ['Data cleaning', 'Supervised machine learning'],
+    items: [
+      {
+        name: 'Data cleaning',
+        usedIn: [{ project: 'DataCamp / Coursework' }],
+        evidence: ['handling inconsistent data', 'prep for validation'],
+      },
+      {
+        name: 'Supervised machine learning',
+        usedIn: [{ project: 'Coursework' }],
+        evidence: ['evaluation beyond happy path', 'testing variance'],
+      },
+      {
+        name: 'Output validation / Few-shot anchoring',
+        usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }],
+        evidence: ['schema checks before product use', 'few-shot examples for structure', 'failure mode separation'],
+      },
+    ],
   },
 ];
 ---
@@ -26,16 +135,54 @@ const toolkit = [
 <section id="toolkit" class="toolkit" aria-labelledby="toolkit-title">
   <div class="page-shell toolkit-layout">
     <header class="toolkit-header">
-      <p class="technical-label">Technical index</p>
+      <p class="technical-label">Technical index — evidence linked</p>
       <h2 id="toolkit-title">Technical Toolkit</h2>
+      <p class="toolkit-note">Hover, focus or select a skill to see where it was used and what responsibility it supported. No hover-only critical info — panels are keyboard reachable.</p>
     </header>
 
-    <div class="toolkit-grid">
-      {toolkit.map((group, index) => (
-        <section class="toolkit-group" aria-labelledby={`toolkit-group-${index}`}>
-          <h3 id={`toolkit-group-${index}`}>{group.category}</h3>
-          <ul>
-            {group.technologies.map((technology) => <li>{technology}</li>)}
+    <div class="toolkit-grid" data-toolkit>
+      {toolkit.map((group, gIndex) => (
+        <section class="toolkit-group" aria-labelledby={`toolkit-group-${gIndex}`}>
+          <h3 id={`toolkit-group-${gIndex}`}>{group.category}</h3>
+          <ul role="list">
+            {group.items.map((item, iIndex) => {
+              const panelId = `toolkit-panel-${gIndex}-${iIndex}`;
+              const btnId = `toolkit-btn-${gIndex}-${iIndex}`;
+              return (
+                <li class="toolkit-item" data-toolkit-item>
+                  <button
+                    id={btnId}
+                    type="button"
+                    class="toolkit-trigger"
+                    aria-expanded="false"
+                    aria-controls={panelId}
+                    data-toolkit-trigger
+                  >
+                    <span class="trigger-name">{item.name}</span>
+                    <span class="trigger-meta" aria-hidden="true"><i></i></span>
+                  </button>
+                  <div id={panelId} class="toolkit-panel" data-toolkit-panel hidden>
+                    <div class="panel-section">
+                      <span class="panel-label">Used in</span>
+                      <ul class="panel-list">
+                        {item.usedIn.map(u => (
+                          <li>
+                            {u.href ? <a href={u.href} target={u.href.startsWith('http') ? '_blank' : undefined} rel={u.href.startsWith('http') ? 'noopener' : undefined}>{u.project}</a> : <span>{u.project}</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div class="panel-section">
+                      <span class="panel-label">Evidence</span>
+                      <ul class="panel-list">
+                        {item.evidence.map(e => <li>{e}</li>)}
+                      </ul>
+                    </div>
+                    {item.note && <p class="panel-note">{item.note}</p>}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
       ))}
@@ -43,11 +190,107 @@ const toolkit = [
   </div>
 </section>
 
+<script>
+  const toolkitRoot = document.querySelector('[data-toolkit]');
+
+  if (toolkitRoot) {
+    const triggers = [...toolkitRoot.querySelectorAll<HTMLButtonElement>('[data-toolkit-trigger]')];
+    const panels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-panel]')];
+
+    const closeAll = (except?: string) => {
+      triggers.forEach(t => {
+        if (t.getAttribute('aria-controls') !== except) {
+          t.setAttribute('aria-expanded', 'false');
+          t.dataset.active = 'false';
+        }
+      });
+      panels.forEach(p => {
+        if (p.id !== except) {
+          p.hidden = true;
+          p.dataset.active = 'false';
+        }
+      });
+    };
+
+    const open = (id: string) => {
+      const trigger = triggers.find(t => t.getAttribute('aria-controls') === id);
+      const panel = panels.find(p => p.id === id);
+      if (!trigger || !panel) return;
+      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+      if (isOpen) {
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.dataset.active = 'false';
+        panel.hidden = true;
+        panel.dataset.active = 'false';
+      } else {
+        closeAll();
+        trigger.setAttribute('aria-expanded', 'true');
+        trigger.dataset.active = 'true';
+        panel.hidden = false;
+        panel.dataset.active = 'true';
+      }
+    };
+
+    triggers.forEach(trigger => {
+      const panelId = trigger.getAttribute('aria-controls');
+      if (!panelId) return;
+
+      trigger.addEventListener('click', () => open(panelId));
+
+      trigger.addEventListener('mouseenter', () => {
+        if (window.matchMedia('(hover: hover)').matches) {
+          // On hover, reveal without closing others? Requirement: hover/focus/click reveal compact panel
+          // Use open to keep single active for clarity
+          open(panelId);
+        }
+      });
+
+      trigger.addEventListener('focus', () => {
+        open(panelId);
+      });
+
+      trigger.addEventListener('keydown', (e) => {
+        const idx = triggers.indexOf(trigger);
+        let next: number | null = null;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          next = (idx + 1) % triggers.length;
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          next = (idx - 1 + triggers.length) % triggers.length;
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          next = 0;
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          next = triggers.length - 1;
+        } else if (e.key === 'Escape') {
+          closeAll();
+          trigger.focus();
+        }
+        if (next !== null) {
+          const t = triggers[next];
+          t?.focus();
+        }
+      });
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (!toolkitRoot.contains(target)) {
+        closeAll();
+      }
+    });
+  }
+</script>
+
 <style>
   .toolkit {
     padding-block: var(--section-tight);
     border-top: var(--border-default);
     background: var(--color-background);
+    position: relative;
   }
 
   .toolkit-layout {
@@ -56,9 +299,7 @@ const toolkit = [
   }
 
   .toolkit-header p,
-  .toolkit-header h2,
-  .toolkit-group h3,
-  .toolkit-group ul {
+  .toolkit-header h2 {
     margin: 0;
   }
 
@@ -67,6 +308,14 @@ const toolkit = [
     font-size: var(--text-h2);
     font-weight: 600;
     letter-spacing: -0.035em;
+  }
+
+  .toolkit-note {
+    max-width: 38rem;
+    margin: var(--space-4) 0 0;
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    line-height: 1.6;
   }
 
   .toolkit-grid {
@@ -99,24 +348,164 @@ const toolkit = [
   .toolkit-group ul {
     display: grid;
     gap: var(--space-1);
+    margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .toolkit-group li {
-    font-size: var(--text-small);
-    font-weight: 550;
-    line-height: 1.6;
+  .toolkit-item {
+    position: relative;
   }
 
-  .toolkit-group li:first-child::before {
-    display: inline-block;
+  .toolkit-trigger {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid transparent;
+    border-radius: var(--radius-small);
+    background: transparent;
+    color: var(--color-text);
+    font: 550 var(--text-small) / 1.5 var(--font-sans);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .trigger-name {
+    min-width: 0;
+  }
+
+  .trigger-meta {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .trigger-meta i {
     width: 0.375rem;
     height: 0.375rem;
-    margin-right: var(--space-2);
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    transition:
+      background-color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .toolkit-trigger:hover {
+    background: var(--color-surface-light);
+    border-color: var(--color-border);
+    transform: translateX(1px);
+  }
+
+  .toolkit-trigger:hover .trigger-meta i {
     background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .toolkit-trigger:focus-visible {
+    outline: 0.1875rem solid var(--color-accent);
+    outline-offset: -1px;
+    background: var(--color-surface-cool);
+  }
+
+  .toolkit-trigger[aria-expanded='true'] {
+    background: var(--color-surface-cool);
+    border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-accent));
+    color: var(--color-text);
+  }
+
+  .toolkit-trigger[aria-expanded='true'] .trigger-meta i {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    transform: scale(1.2);
+  }
+
+  .toolkit-trigger[data-active='true'] {
+    font-weight: 650;
+  }
+
+  .toolkit-panel {
+    margin-top: var(--space-2);
+    padding: var(--space-4);
+    border: var(--border-default);
+    border-radius: var(--radius-small);
+    background: var(--color-surface-light);
+    display: grid;
+    gap: var(--space-4);
+    animation: panel-in var(--duration-normal) var(--ease-standard);
+  }
+
+  @keyframes panel-in {
+    from { opacity: 0; transform: translateY(2px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-section {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .panel-label {
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .panel-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .panel-list li {
+    position: relative;
+    padding-left: var(--space-4);
+    font-size: 0.825rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+
+  .panel-list li::before {
     content: '';
-    vertical-align: 0.08em;
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 0.35rem;
+    height: 0.35rem;
+    border: 1px solid var(--color-accent);
+    background: var(--color-background);
+  }
+
+  .panel-list a {
+    color: var(--color-text);
+    font-weight: 600;
+    text-decoration-color: var(--color-border);
+  }
+
+  .panel-list a:hover {
+    text-decoration-color: var(--color-accent);
+  }
+
+  .panel-note {
+    margin: 0;
+    padding-top: var(--space-3);
+    border-top: var(--border-default);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    font-style: italic;
   }
 
   @media (min-width: 48rem) {
@@ -135,6 +524,7 @@ const toolkit = [
       min-height: 9.5rem;
       padding: var(--space-4);
       border-right: var(--border-default);
+      border-bottom: var(--border-default);
     }
 
     .toolkit-group:nth-child(2n) {
@@ -159,14 +549,24 @@ const toolkit = [
 
     .toolkit-group,
     .toolkit-group:nth-child(2n) {
-      min-height: 10rem;
+      min-height: 22rem;
       border-right: var(--border-default);
       border-bottom: 0;
+      align-self: stretch;
     }
 
     .toolkit-group:last-child {
       grid-column: auto;
       border-right: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toolkit-panel {
+      animation: none;
+    }
+    .toolkit-trigger {
+      transition: none;
     }
   }
 </style>

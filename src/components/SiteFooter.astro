@@ -32,16 +32,40 @@
   }
 
   .footer-inner a {
-    transition: color var(--duration-fast) var(--ease-standard);
+    display: inline-flex;
+    min-height: var(--control-height);
+    align-items: center;
+    position: relative;
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .footer-inner a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.7rem;
+    border-top: 1px solid currentColor;
+    opacity: 0;
+    transform: translateY(2px);
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
   }
 
   .footer-inner a:hover {
     color: var(--color-background);
+    transform: translateY(-1px);
   }
 
-  .footer-inner a {
-    display: inline-flex;
-    min-height: var(--control-height);
-    align-items: center;
+  .footer-inner a:hover::after {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .footer-inner a:active {
+    transform: translateY(0);
   }
 </style>

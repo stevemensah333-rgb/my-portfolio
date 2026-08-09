@@ -61,6 +61,10 @@ const toWebP = (src: string) => src.replace(/\.png$/i, '.webp');
     margin: 0;
   }
 
+  .product-figure {
+    transition: transform var(--duration-normal) var(--ease-standard);
+  }
+
   .product-frame {
     border: var(--border-default);
     border-radius: var(--radius-card);
@@ -69,12 +73,20 @@ const toWebP = (src: string) => src.replace(/\.png$/i, '.webp');
     overflow: hidden;
     transition:
       border-color var(--duration-fast) var(--ease-standard),
-      box-shadow var(--duration-medium) var(--ease-standard);
+      box-shadow var(--duration-normal) var(--ease-standard),
+      transform var(--duration-normal) var(--ease-emphasized);
+    will-change: transform;
   }
 
-  .product-figure:hover .product-frame {
+  .product-figure:hover .product-frame,
+  .product-figure:focus-within .product-frame {
     border-color: color-mix(in srgb, var(--color-border) 45%, var(--color-accent));
     box-shadow: 0 1.25rem 3rem rgb(18 20 22 / 8%);
+    transform: translateY(-2px);
+  }
+
+  .product-figure:active .product-frame {
+    transform: translateY(0);
   }
 
   .frame-bar {
