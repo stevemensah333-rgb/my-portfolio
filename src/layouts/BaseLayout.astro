@@ -1,5 +1,6 @@
 ---
 import Analytics from '@vercel/analytics/astro';
+import { default as SpeedInsights } from '@vercel/speed-insights/astro';
 import Header from '../components/Header.astro';
 import '../styles/global.css';
 import interFontURL from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
@@ -75,6 +76,7 @@ const socialImageURL = new URL(image, Astro.site);
       <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
     )}
     <Analytics />
+    <SpeedInsights />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
