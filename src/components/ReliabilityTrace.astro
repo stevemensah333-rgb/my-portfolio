@@ -20,72 +20,79 @@ const { variant = 'hero' } = Astro.props;
     <div class="trace-engine" role="region" aria-label="Reliability trace animation" aria-live="polite" aria-atomic="false">
       <ol class="trace-steps" data-trace-steps>
         <li class="trace-step" data-stage="raw" data-active="true">
-          <div class="step-rail" aria-hidden="true"><i class="rail-dot"></i><span class="rail-line"></span></div>
-          <div class="step-content">
-            <div class="step-head">
-              <span class="step-label">UNSTRUCTURED OUTPUT</span>
-              <span class="step-badge" data-badge>raw</span>
-            </div>
-            <pre class="step-code"><code data-code-raw></code><span class="cursor" aria-hidden="true"></span></pre>
-            <p class="step-note">Illustrative: model responded with mixed prose + malformed structure.</p>
+          <div class="step-rail" aria-hidden="true"><i class="rail-dot"></i></div>
+          <div class="step-head">
+            <span class="step-label">UNSTRUCTURED OUTPUT</span>
+            <span class="step-badge" data-badge>raw</span>
           </div>
         </li>
 
         <li class="trace-step" data-stage="validate">
-          <div class="step-rail" aria-hidden="true"><i class="rail-dot"></i><span class="rail-line"></span></div>
-          <div class="step-content">
-            <div class="step-head">
-              <span class="step-label">SCHEMA VALIDATION</span>
-              <span class="step-badge" data-badge-validate>check</span>
-            </div>
-            <div class="validation-row">
-              <code class="mono-small">required: title, level, years</code>
-              <span class="validation-status" data-validation-status>pending</span>
-            </div>
-            <p class="step-note">Gate: does output match product contract?</p>
+          <div class="step-rail" aria-hidden="true"><i class="rail-dot"></i></div>
+          <div class="step-head">
+            <span class="step-label">SCHEMA VALIDATION</span>
+            <span class="step-badge" data-badge-validate>check</span>
           </div>
         </li>
 
         <li class="trace-step" data-stage="failed">
-          <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--fail"></i><span class="rail-line"></span></div>
-          <div class="step-content">
-            <div class="step-head">
-              <span class="step-label">FAILED</span>
-              <span class="step-badge step-badge--fail" data-badge-fail>invalid</span>
-            </div>
-            <div class="fail-card">
-              <p class="mono-small" data-fail-reason>— missing quotes, dropped fields, prose bleed</p>
-            </div>
+          <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--fail"></i></div>
+          <div class="step-head">
+            <span class="step-label">FAILED</span>
+            <span class="step-badge step-badge--fail" data-badge-fail>invalid</span>
           </div>
         </li>
 
         <li class="trace-step" data-stage="intervene">
-          <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--active"></i><span class="rail-line"></span></div>
-          <div class="step-content">
-            <div class="step-head">
-              <span class="step-label">CONSTRAINT / RETRY / CONTEXT FIX</span>
-              <span class="step-badge step-badge--active" data-badge-intervene>intervention</span>
-            </div>
-            <ul class="intervention-list" data-intervention-list>
-              <li>Explicit JSON schema</li>
-              <li>Few-shot anchor</li>
-              <li>Context re-injection</li>
-            </ul>
+          <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--active"></i></div>
+          <div class="step-head">
+            <span class="step-label">CONSTRAINT / RETRY / CONTEXT FIX</span>
+            <span class="step-badge step-badge--active" data-badge-intervene>intervention</span>
           </div>
         </li>
 
         <li class="trace-step" data-stage="valid">
           <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--valid"></i></div>
-          <div class="step-content">
-            <div class="step-head">
-              <span class="step-label">VALID OUTPUT</span>
-              <span class="step-badge step-badge--valid" data-badge-valid>pass</span>
-            </div>
-            <pre class="step-code step-code--valid"><code data-code-valid></code><span class="cursor cursor--valid" aria-hidden="true"></span></pre>
-            <p class="step-note">Illustrative: now conforms to product contract.</p>
+          <div class="step-head">
+            <span class="step-label">VALID OUTPUT</span>
+            <span class="step-badge step-badge--valid" data-badge-valid>pass</span>
           </div>
         </li>
       </ol>
+
+      <div class="trace-stage">
+        <div class="stage-panel" data-panel="raw" data-panel-active="true">
+          <pre class="step-code"><code data-code-raw></code><span class="cursor" aria-hidden="true"></span></pre>
+          <p class="step-note">Illustrative: model responded with mixed prose + malformed structure.</p>
+        </div>
+
+        <div class="stage-panel" data-panel="validate">
+          <div class="validation-row">
+            <code class="mono-small">required: title, level, years</code>
+            <span class="validation-status" data-validation-status>pending</span>
+          </div>
+          <p class="step-note">Gate: does output match product contract?</p>
+        </div>
+
+        <div class="stage-panel" data-panel="failed">
+          <div class="fail-card">
+            <p class="mono-small" data-fail-reason>— missing quotes, dropped fields, prose bleed</p>
+          </div>
+        </div>
+
+        <div class="stage-panel" data-panel="intervene">
+          <ul class="intervention-list" data-intervention-list>
+            <li>Explicit JSON schema</li>
+            <li>Few-shot anchor</li>
+            <li>Context re-injection</li>
+          </ul>
+        </div>
+
+        <div class="stage-panel" data-panel="valid">
+          <pre class="step-code step-code--valid"><code data-code-valid></code><span class="cursor cursor--valid" aria-hidden="true"></span></pre>
+          <p class="step-note">Illustrative: now conforms to product contract.</p>
+        </div>
+      </div>
 
       <div class="trace-controls">
         <button type="button" class="trace-replay" data-replay aria-label="Replay reliability trace animation">Replay trace</button>
@@ -155,6 +162,7 @@ const { variant = 'hero' } = Astro.props;
     const stepsEl = root.querySelector('[data-trace-steps]');
     if (!(stepsEl instanceof HTMLElement)) continue;
     const steps = [...stepsEl.querySelectorAll<HTMLElement>('[data-stage]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-panel]')];
     const codeRaw = root.querySelector<HTMLElement>('[data-code-raw]');
     const codeValid = root.querySelector<HTMLElement>('[data-code-valid]');
     const badgeValidate = root.querySelector<HTMLElement>('[data-badge-validate]');
@@ -225,6 +233,9 @@ const { variant = 'hero' } = Astro.props;
           s.removeAttribute('aria-current');
         }
       });
+      panels.forEach((p, i) => {
+        p.dataset.panelActive = String(i === index);
+      });
     };
 
     const resetVisual = () => {
@@ -242,6 +253,9 @@ const { variant = 'hero' } = Astro.props;
         s.dataset.current = 'false';
         s.removeAttribute('aria-current');
       });
+      panels.forEach((p, i) => {
+        p.dataset.panelActive = String(i === 0);
+      });
       const first = steps[0];
       if (first) first.dataset.active = 'true';
     };
@@ -255,7 +269,7 @@ const { variant = 'hero' } = Astro.props;
         statusEl.dataset.state = 'fail';
         if (failReasonEl) failReasonEl.textContent = failReason;
         if (interventionList) interventionList.querySelectorAll('li').forEach(li => (li as HTMLElement).dataset.revealed = 'true');
-        steps.forEach(s => (s.dataset.active = 'true'));
+        setActive(steps.length - 1);
         live.textContent = 'Reliability trace: raw output failed validation, intervention applied, valid output produced.';
         if (replayBtn) replayBtn.style.display = 'none';
         return;
@@ -269,9 +283,9 @@ const { variant = 'hero' } = Astro.props;
       // Stage 0: raw
       setActive(0);
       live.textContent = 'Stage 1: unstructured output';
-      root.querySelector<HTMLElement>('[data-stage="raw"]')?.classList.add('is-typing');
+      root.querySelector<HTMLElement>('[data-panel="raw"]')?.classList.add('is-typing');
       await typeInto(codeRaw, rawText, 10);
-      root.querySelector<HTMLElement>('[data-stage="raw"]')?.classList.remove('is-typing');
+      root.querySelector<HTMLElement>('[data-panel="raw"]')?.classList.remove('is-typing');
       await wait(350);
 
       // Stage 1: validate
@@ -288,7 +302,7 @@ const { variant = 'hero' } = Astro.props;
       statusEl.dataset.state = 'failed';
       if (badgeValidate) badgeValidate.textContent = 'fail';
       if (failReasonEl) failReasonEl.textContent = failReason;
-      const failStep = root.querySelector<HTMLElement>('[data-stage="failed"]');
+      const failStep = root.querySelector<HTMLElement>('[data-panel="failed"]');
       failStep?.classList.add('is-revealed');
       await wait(650);
 
@@ -307,13 +321,13 @@ const { variant = 'hero' } = Astro.props;
       // Stage 4: valid
       setActive(4);
       live.textContent = 'Stage 5: valid output';
-      const validStep = root.querySelector<HTMLElement>('[data-stage="valid"]');
+      const validStep = root.querySelector<HTMLElement>('[data-panel="valid"]');
       validStep?.classList.add('is-typing');
       statusEl.textContent = 'PASS';
       statusEl.dataset.state = 'pass';
       await typeInto(codeValid, validText, 9);
       validStep?.classList.remove('is-typing');
-      steps.forEach(s => (s.dataset.active = 'true'));
+      setActive(4);
       live.textContent = 'Trace complete: raw output failed, intervention produced valid product output.';
       await wait(6000);
       // Stay on valid, no loop unless user replays
@@ -381,6 +395,7 @@ const { variant = 'hero' } = Astro.props;
     background: var(--color-surface-light);
   }
 
+  /* ——— The path: a compact, stable milestone list ——— */
   .trace-steps {
     list-style: none;
     margin: 0;
@@ -393,7 +408,9 @@ const { variant = 'hero' } = Astro.props;
     display: grid;
     grid-template-columns: 1.5rem minmax(0, 1fr);
     gap: var(--space-2);
-    padding: var(--space-2) var(--space-2) var(--space-3);
+    align-items: start;
+    min-height: 2rem;
+    padding: var(--space-2);
     border: 1px solid transparent;
     border-radius: var(--radius-small);
     opacity: 0.52;
@@ -408,41 +425,42 @@ const { variant = 'hero' } = Astro.props;
   .trace-step[data-active='true'] {
     opacity: 1;
     transform: translateY(0);
-    background: var(--color-background);
-    border-color: var(--color-border);
   }
 
-  /* Completed stages remain legible as a sequence, while only the current stage expands. */
-  .trace-step[data-active='true'][data-current='false'] {
-    grid-template-columns: 1.5rem minmax(0, 1fr);
-    padding-block: var(--space-1);
-    background: transparent;
-    border-color: transparent;
-  }
-
-  .trace-step[data-active='true'][data-current='false'] .step-note,
-  .trace-step[data-active='true'][data-current='false'] .step-code,
-  .trace-step[data-active='true'][data-current='false'] .validation-row,
-  .trace-step[data-active='true'][data-current='false'] .fail-card,
-  .trace-step[data-active='true'][data-current='false'] .intervention-list {
-    display: none;
-  }
-
+  /* Only the current milestone is emphasized; the list itself never grows. */
   .trace-step[data-current='true'] {
+    background: var(--color-background);
     border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-accent));
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 14%, transparent);
   }
 
   .step-rail {
     position: relative;
+    align-self: stretch;
     display: grid;
     justify-items: center;
-    padding-top: 0.2rem;
+  }
+
+  .step-rail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: calc(-1 * var(--space-1));
+    left: 50%;
+    width: 1px;
+    background: var(--color-border);
+  }
+
+  .trace-step:last-child .step-rail::before {
+    display: none;
   }
 
   .rail-dot {
+    position: relative;
+    z-index: 1;
     width: 0.5rem;
     height: 0.5rem;
+    margin-top: 0.25rem;
     border: var(--border-default);
     background: var(--color-background);
     border-radius: 50%;
@@ -477,24 +495,8 @@ const { variant = 'hero' } = Astro.props;
     background: var(--color-accent);
   }
 
-  .rail-line {
-    width: 1px;
-    height: calc(100% + var(--space-2));
-    margin-top: 4px;
-    background: var(--color-border);
-    opacity: 0.9;
-  }
-
-  .trace-step:last-child .rail-line {
-    display: none;
-  }
-
-  .trace-step[data-active='true'] .rail-line {
+  .trace-step[data-active='true'] .step-rail::before {
     background: color-mix(in srgb, var(--color-border) 70%, var(--color-accent));
-  }
-
-  .step-content {
-    min-width: 0;
   }
 
   .step-head {
@@ -503,7 +505,7 @@ const { variant = 'hero' } = Astro.props;
     gap: var(--space-2) var(--space-3);
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--space-2);
+    min-width: 0;
   }
 
   .step-label {
@@ -513,6 +515,7 @@ const { variant = 'hero' } = Astro.props;
     text-transform: uppercase;
     color: var(--color-text-secondary);
     font-weight: 500;
+    line-height: 1.5;
   }
 
   .trace-step[data-current='true'] .step-label {
@@ -552,6 +555,35 @@ const { variant = 'hero' } = Astro.props;
     border-color: var(--color-accent);
   }
 
+  /* ——— The detail stage: stacked panels in a stable-height grid ———
+     Every panel sits in the same grid cell, so the stage is always as tall
+     as the largest panel. Crossfading between panels never changes the
+     trace's outer height. */
+  .trace-stage {
+    display: grid;
+    margin-top: var(--space-3);
+  }
+
+  .stage-panel {
+    grid-area: 1 / 1;
+    display: grid;
+    gap: var(--space-2);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(var(--space-2));
+    visibility: hidden;
+    transition:
+      opacity var(--duration-normal) var(--ease-standard),
+      transform var(--duration-normal) var(--ease-standard);
+  }
+
+  .stage-panel[data-panel-active='true'] {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+  }
+
   .step-code {
     margin: 0;
     padding: var(--space-2);
@@ -571,6 +603,10 @@ const { variant = 'hero' } = Astro.props;
 
   .step-code--valid {
     border-color: color-mix(in srgb, var(--color-border) 50%, var(--color-accent));
+    /* Reserve the full 8-line valid payload (0.6875rem font, 1.5 line-height)
+       plus vertical padding and border, so the detail stage keeps a stable
+       height while the valid output types in. */
+    min-height: calc(8 * 0.6875rem * 1.5 + 2 * var(--space-2) + 2 * var(--border-width));
   }
 
   .step-code code {
@@ -588,7 +624,7 @@ const { variant = 'hero' } = Astro.props;
     transition: opacity var(--duration-fast) var(--ease-standard);
   }
 
-  .trace-step.is-typing .cursor {
+  .stage-panel.is-typing .cursor {
     opacity: 1;
     animation: blink 1s step-end infinite;
   }
@@ -599,7 +635,7 @@ const { variant = 'hero' } = Astro.props;
   }
 
   .step-note {
-    margin: var(--space-1) 0 0;
+    margin: 0;
     color: var(--color-text-secondary);
     font-size: 0.6875rem;
     line-height: 1.5;
@@ -662,6 +698,10 @@ const { variant = 'hero' } = Astro.props;
     padding: var(--space-2);
     border: 1px dashed #e2b4b4;
     background: #fdf8f6;
+  }
+
+  .fail-card .mono-small {
+    margin: 0;
   }
 
   .intervention-list {
@@ -774,6 +814,8 @@ const { variant = 'hero' } = Astro.props;
     margin-top: var(--space-4);
     padding-top: var(--space-4);
     border-top: var(--border-default);
+    display: grid;
+    gap: var(--space-3);
   }
 
   .trace-strip-legacy {
@@ -879,6 +921,9 @@ const { variant = 'hero' } = Astro.props;
       transition: none;
       opacity: 1;
       transform: none;
+    }
+    .stage-panel {
+      transition: none;
     }
   }
 </style>

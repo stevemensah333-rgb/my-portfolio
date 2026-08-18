@@ -28,7 +28,7 @@ export const credentials: Credential[] = [
   {
     id: 'ashesi',
     name: 'Ashesi University',
-    result: "Dean's List · 3.56 / 4.00",
+    result: "Dean's List",
     detail: 'B.Sc. Computer Science',
     evidenceImage: '/evidence/ashesi-deans-list-redacted.png',
     evidenceAlt: "Cropped Ashesi letter addressed to Stephen confirming his Dean's List recognition.",
