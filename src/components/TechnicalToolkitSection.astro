@@ -146,22 +146,32 @@ const toolkit: ToolkitGroup[] = [
           <h3 id={`toolkit-group-${gIndex}`}>{group.category}</h3>
           <ul role="list">
             {group.items.map((item, iIndex) => {
-              const panelId = `toolkit-panel-${gIndex}-${iIndex}`;
+              const itemId = `${gIndex}-${iIndex}`;
+              const panelId = `toolkit-panel-${itemId}`;
               const btnId = `toolkit-btn-${gIndex}-${iIndex}`;
+              const isInitial = gIndex === 0 && iIndex === 0;
               return (
                 <li class="toolkit-item" data-toolkit-item>
                   <button
                     id={btnId}
                     type="button"
                     class="toolkit-trigger"
-                    aria-expanded="false"
-                    aria-controls={panelId}
-                    data-toolkit-trigger
+                    aria-pressed={isInitial ? 'true' : 'false'}
+                    data-active={String(isInitial)}
+                    data-toolkit-trigger={itemId}
                   >
                     <span class="trigger-name">{item.name}</span>
                     <span class="trigger-meta" aria-hidden="true"><i></i></span>
                   </button>
-                  <div id={panelId} class="toolkit-panel" data-toolkit-panel hidden>
+                  <div
+                    id={panelId}
+                    class="toolkit-panel toolkit-panel--inline"
+                    role="region"
+                    aria-labelledby={btnId}
+                    data-toolkit-panel={itemId}
+                    data-active={String(isInitial)}
+                    hidden={!isInitial}
+                  >
                     <div class="panel-section">
                       <span class="panel-label">Used in</span>
                       <ul class="panel-list">
@@ -188,9 +198,44 @@ const toolkit: ToolkitGroup[] = [
       ))}
     </div>
 
-    <div class="toolkit-detail" data-toolkit-detail aria-live="polite">
-      <span class="panel-label">Selected skill</span>
-      <p>Choose a skill to inspect its use and evidence.</p>
+    <div class="toolkit-detail" data-toolkit-detail>
+      {toolkit.flatMap((group, gIndex) => group.items.map((item, iIndex) => {
+        const itemId = `${gIndex}-${iIndex}`;
+        const btnId = `toolkit-btn-${itemId}`;
+        const isInitial = gIndex === 0 && iIndex === 0;
+        return (
+          <div
+            class="toolkit-panel toolkit-panel--detail"
+            role="region"
+            aria-labelledby={btnId}
+            data-toolkit-detail-panel={itemId}
+            data-active={String(isInitial)}
+            hidden={!isInitial}
+          >
+            <div class="detail-header">
+              <span class="panel-label">Selected</span>
+              <strong class="detail-name">{item.name}</strong>
+            </div>
+            <div class="panel-section">
+              <span class="panel-label">Used in</span>
+              <ul class="panel-list">
+                {item.usedIn.map(u => (
+                  <li>
+                    {u.href ? <a href={u.href} target={u.href.startsWith('http') ? '_blank' : undefined} rel={u.href.startsWith('http') ? 'noopener' : undefined}>{u.project}</a> : <span>{u.project}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="panel-section">
+              <span class="panel-label">Evidence</span>
+              <ul class="panel-list">
+                {item.evidence.map(e => <li>{e}</li>)}
+              </ul>
+            </div>
+            {item.note && <p class="panel-note">{item.note}</p>}
+          </div>
+        );
+      }))}
     </div>
   </div>
 </section>
@@ -201,85 +246,42 @@ const toolkit: ToolkitGroup[] = [
   if (toolkitRoot) {
     const triggers = [...toolkitRoot.querySelectorAll<HTMLButtonElement>('[data-toolkit-trigger]')];
     const panels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-panel]')];
-    const detail = toolkitRoot.querySelector<HTMLElement>('[data-toolkit-detail]');
-    const placeholderHTML = detail ? detail.innerHTML : '';
-    const panelParents = new Map<string, HTMLElement>();
-    panels.forEach(p => {
-      const parent = p.parentElement as HTMLElement | null;
-      if (parent) panelParents.set(p.id, parent);
-    });
+    const detailPanels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-detail-panel]')];
 
-    const restorePanels = () => {
-      panels.forEach(p => {
-        const parent = panelParents.get(p.id);
-        if (parent && p.parentElement !== parent) {
-          parent.appendChild(p);
-        }
-        p.hidden = true;
-        p.dataset.active = 'false';
+    const select = (id: string) => {
+      if (!triggers.some(trigger => trigger.dataset.toolkitTrigger === id)) return;
+
+      triggers.forEach(trigger => {
+        const active = trigger.dataset.toolkitTrigger === id;
+        trigger.setAttribute('aria-pressed', String(active));
+        trigger.dataset.active = String(active);
       });
-    };
-
-    const closeAll = () => {
-      triggers.forEach(t => {
-        t.setAttribute('aria-expanded', 'false');
-        t.dataset.active = 'false';
+      panels.forEach(panel => {
+        const active = panel.dataset.toolkitPanel === id;
+        panel.hidden = !active;
+        panel.dataset.active = String(active);
       });
-      restorePanels();
-      if (detail) detail.innerHTML = placeholderHTML;
-    };
-
-    const open = (id: string) => {
-      const trigger = triggers.find(t => t.getAttribute('aria-controls') === id);
-      const panel = panels.find(p => p.id === id);
-      if (!trigger || !panel) return;
-      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
-      if (isOpen) {
-        trigger.setAttribute('aria-expanded', 'false');
-        trigger.dataset.active = 'false';
-        const parent = panelParents.get(panel.id);
-        if (parent) parent.appendChild(panel);
-        panel.hidden = true;
-        panel.dataset.active = 'false';
-        if (detail) detail.innerHTML = placeholderHTML;
-      } else {
-        closeAll();
-        trigger.setAttribute('aria-expanded', 'true');
-        trigger.dataset.active = 'true';
-        panel.hidden = false;
-        panel.dataset.active = 'true';
-        if (detail) {
-          detail.innerHTML = '';
-          const header = document.createElement('div');
-          header.className = 'detail-header';
-          const label = document.createElement('span');
-          label.className = 'panel-label';
-          label.textContent = 'Selected';
-          const name = document.createElement('strong');
-          name.className = 'detail-name';
-          const triggerName = trigger.querySelector('.trigger-name');
-          name.textContent = triggerName?.textContent?.trim() ?? trigger.textContent?.trim() ?? '';
-          header.append(label, name);
-          detail.append(header, panel);
-          // panel stays with its original id, aria-controls still valid
-        }
-      }
+      detailPanels.forEach(panel => {
+        const active = panel.dataset.toolkitDetailPanel === id;
+        panel.hidden = !active;
+        panel.dataset.active = String(active);
+      });
     };
 
     triggers.forEach(trigger => {
-      const panelId = trigger.getAttribute('aria-controls');
-      if (!panelId) return;
+      const itemId = trigger.dataset.toolkitTrigger;
+      if (!itemId) return;
 
-      trigger.addEventListener('click', () => open(panelId));
+      trigger.addEventListener('click', () => select(itemId));
 
       trigger.addEventListener('mouseenter', () => {
         if (window.matchMedia('(hover: hover)').matches) {
-          open(panelId);
+          select(itemId);
         }
       });
 
       trigger.addEventListener('focus', () => {
-        open(panelId);
+        select(itemId);
       });
 
       trigger.addEventListener('keydown', (e) => {
@@ -297,9 +299,6 @@ const toolkit: ToolkitGroup[] = [
         } else if (e.key === 'End') {
           e.preventDefault();
           next = triggers.length - 1;
-        } else if (e.key === 'Escape') {
-          closeAll();
-          trigger.focus();
         }
         if (next !== null) {
           const t = triggers[next];
@@ -308,15 +307,8 @@ const toolkit: ToolkitGroup[] = [
       });
     });
 
-    const firstPanel = panels[0];
-    if (firstPanel) open(firstPanel.id);
-
-    document.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      if (!toolkitRoot.contains(target)) {
-        closeAll();
-      }
-    });
+    const initial = triggers.find(trigger => trigger.getAttribute('aria-pressed') === 'true')?.dataset.toolkitTrigger;
+    if (initial) select(initial);
   }
 </script>
 
@@ -354,6 +346,7 @@ const toolkit: ToolkitGroup[] = [
   }
 
   .toolkit-detail {
+    display: none;
     padding: var(--space-5);
     border: var(--border-default);
     border-radius: var(--radius-small);
@@ -361,14 +354,7 @@ const toolkit: ToolkitGroup[] = [
     min-height: 0;
   }
 
-  .toolkit-detail > p {
-    margin: var(--space-2) 0 0;
-    color: var(--color-text-secondary);
-    font-size: var(--text-small);
-    line-height: 1.55;
-  }
-
-  .toolkit-detail :global(.detail-header) {
+  .detail-header {
     display: grid;
     gap: var(--space-1);
     margin-bottom: var(--space-4);
@@ -376,7 +362,7 @@ const toolkit: ToolkitGroup[] = [
     border-bottom: var(--border-default);
   }
 
-  .toolkit-detail :global(.detail-name) {
+  .detail-name {
     font-size: 1rem;
     font-weight: 650;
     letter-spacing: -0.015em;
@@ -384,12 +370,11 @@ const toolkit: ToolkitGroup[] = [
     color: var(--color-text);
   }
 
-  .toolkit-detail :global(.toolkit-panel) {
+  .toolkit-detail .toolkit-panel {
     margin-top: 0;
     padding: 0;
     border: 0;
     background: transparent;
-    display: grid;
     gap: var(--space-4);
     animation: none;
   }
@@ -494,13 +479,13 @@ const toolkit: ToolkitGroup[] = [
     background: var(--color-surface-cool);
   }
 
-  .toolkit-trigger[aria-expanded='true'] {
+  .toolkit-trigger[aria-pressed='true'] {
     background: var(--color-surface-cool);
     border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-accent));
     color: var(--color-text);
   }
 
-  .toolkit-trigger[aria-expanded='true'] .trigger-meta i {
+  .toolkit-trigger[aria-pressed='true'] .trigger-meta i {
     background: var(--color-accent);
     border-color: var(--color-accent);
     transform: scale(1.2);
@@ -519,6 +504,10 @@ const toolkit: ToolkitGroup[] = [
     display: grid;
     gap: var(--space-4);
     animation: panel-in var(--duration-normal) var(--ease-standard);
+  }
+
+  .toolkit-panel[hidden] {
+    display: none;
   }
 
   @keyframes panel-in {
@@ -604,6 +593,7 @@ const toolkit: ToolkitGroup[] = [
     }
 
     .toolkit-detail {
+      display: block;
       grid-area: detail;
       position: sticky;
       top: 5.5rem;
@@ -637,8 +627,7 @@ const toolkit: ToolkitGroup[] = [
       border-right: 0;
     }
 
-    /* hide inline panels at desktop – inspector is single source */
-    .toolkit-group .toolkit-panel {
+    .toolkit-group .toolkit-panel--inline {
       display: none !important;
     }
 
@@ -646,8 +635,7 @@ const toolkit: ToolkitGroup[] = [
       margin-top: var(--space-3);
     }
 
-    /* detail clone needs to be visible */
-    .toolkit-detail .toolkit-panel {
+    .toolkit-detail .toolkit-panel:not([hidden]) {
       display: grid !important;
     }
   }
@@ -699,16 +687,9 @@ const toolkit: ToolkitGroup[] = [
   }
 
   @media (max-width: 47.98rem) {
-    /* Keep inline panels usable at narrow widths – hide inspector clone distinction */
-    .toolkit-detail {
-      order: 3;
-    }
     .toolkit-skills {
       order: 2;
     }
-    /* At mobile, inline panels are the visible ones; inspector clone hidden? 
-       Instead, keep panel inline visible when active, inspector below matrix shows duplicate?
-       With new JS, inline panels stay hidden and detail shows clone. Ensure detail clone still visible. */
     .toolkit-group .toolkit-panel[hidden] {
       display: none !important;
     }

@@ -392,7 +392,7 @@ const investigationStages = [
           navLinks.forEach(a => {
             const href = a.getAttribute('href');
             if (href === `#${id}`) {
-              a.setAttribute('aria-current', 'page');
+              a.setAttribute('aria-current', 'location');
             } else {
               a.removeAttribute('aria-current');
             }
@@ -412,7 +412,7 @@ const investigationStages = [
         const link = navLinks.find(a => a.getAttribute('href') === hash);
         if (link) {
           navLinks.forEach(a => a.removeAttribute('aria-current'));
-          link.setAttribute('aria-current', 'page');
+          link.setAttribute('aria-current', 'location');
         }
       }
     };
@@ -1096,7 +1096,7 @@ const investigationStages = [
     color: var(--color-text);
   }
 
-  .case-nav a[aria-current="page"] {
+  .case-nav a[aria-current="location"] {
     color: var(--color-text);
     border-bottom-color: var(--color-accent);
     font-weight: 600;

@@ -17,7 +17,7 @@ const { variant = 'hero' } = Astro.props;
       <span class="trace-coordinate trace-coordinate--right">VALIDATE BEFORE USE</span>
     </div>
 
-    <div class="trace-engine" role="region" aria-label="Reliability trace animation" aria-live="polite" aria-atomic="false">
+    <div class="trace-engine" role="region" aria-label="Reliability trace animation">
       <ol class="trace-steps" data-trace-steps>
         <li class="trace-step" data-stage="raw" data-active="true">
           <div class="step-rail" aria-hidden="true"><i class="rail-dot"></i></div>
@@ -99,7 +99,7 @@ const { variant = 'hero' } = Astro.props;
         <span class="trace-hint" aria-hidden="true">Pauses on hover / focus · Respects reduced motion</span>
       </div>
 
-      <div class="sr-only" aria-live="polite" data-live></div>
+      <div class="sr-only" role="status" aria-live="polite" aria-atomic="true" data-live></div>
       <noscript>
         <div class="noscript-fallback">
           <p class="mono-small">No-JS fallback: raw output fails validation, then intervention produces valid output.</p>
@@ -176,8 +176,8 @@ const { variant = 'hero' } = Astro.props;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let paused = false;
-    let cancelled = false;
     let hasPlayed = false;
+    let activeRun = 0;
 
     const io = new IntersectionObserver((entries) => {
       for (const entry of entries) {
@@ -200,27 +200,31 @@ const { variant = 'hero' } = Astro.props;
       else paused = false;
     });
 
-    const wait = (ms: number) => new Promise<void>((resolve) => {
+    const wait = (ms: number, runId: number) => new Promise<boolean>((resolve) => {
       let elapsed = 0;
       const step = 50;
       const tick = () => {
-        if (cancelled) { resolve(); return; }
+        if (runId !== activeRun) { resolve(false); return; }
         if (!paused) elapsed += step;
-        if (elapsed >= ms) resolve();
+        if (elapsed >= ms) resolve(true);
         else setTimeout(tick, step);
       };
       setTimeout(tick, step);
     });
 
-    const typeInto = async (el: HTMLElement, text: string, speed = 14) => {
+    const typeInto = async (el: HTMLElement, text: string, runId: number, speed = 14) => {
       el.textContent = '';
       for (let i = 0; i < text.length; i++) {
-        if (cancelled) break;
-        while (paused) { await wait(100); if (cancelled) break; }
+        if (runId !== activeRun) return false;
+        while (paused) {
+          if (!(await wait(100, runId))) return false;
+        }
+        if (runId !== activeRun) return false;
         el.textContent += text[i];
         // faster for newline heavy typing, with small jitter
-        await wait(speed + Math.random() * 6);
+        if (!(await wait(speed + Math.random() * 6, runId))) return false;
       }
+      return true;
     };
 
     const setActive = (index: number) => {
@@ -255,12 +259,15 @@ const { variant = 'hero' } = Astro.props;
       });
       panels.forEach((p, i) => {
         p.dataset.panelActive = String(i === 0);
+        p.classList.remove('is-typing', 'is-revealed');
       });
       const first = steps[0];
       if (first) first.dataset.active = 'true';
     };
 
     const play = async () => {
+      const runId = ++activeRun;
+
       if (reduced) {
         // reduced motion: show final state immediately
         codeRaw.textContent = rawText;
@@ -275,25 +282,22 @@ const { variant = 'hero' } = Astro.props;
         return;
       }
 
-      cancelled = true;
-      await wait(80);
-      cancelled = false;
       resetVisual();
 
       // Stage 0: raw
       setActive(0);
       live.textContent = 'Stage 1: unstructured output';
       root.querySelector<HTMLElement>('[data-panel="raw"]')?.classList.add('is-typing');
-      await typeInto(codeRaw, rawText, 10);
+      if (!(await typeInto(codeRaw, rawText, runId, 10))) return;
       root.querySelector<HTMLElement>('[data-panel="raw"]')?.classList.remove('is-typing');
-      await wait(350);
+      if (!(await wait(350, runId))) return;
 
       // Stage 1: validate
       setActive(1);
       live.textContent = 'Stage 2: schema validation';
       statusEl.textContent = 'checking…';
       statusEl.dataset.state = 'checking';
-      await wait(520);
+      if (!(await wait(520, runId))) return;
 
       // Stage 2: failed
       setActive(2);
@@ -304,7 +308,7 @@ const { variant = 'hero' } = Astro.props;
       if (failReasonEl) failReasonEl.textContent = failReason;
       const failStep = root.querySelector<HTMLElement>('[data-panel="failed"]');
       failStep?.classList.add('is-revealed');
-      await wait(650);
+      if (!(await wait(650, runId))) return;
 
       // Stage 3: intervention
       setActive(3);
@@ -312,11 +316,11 @@ const { variant = 'hero' } = Astro.props;
       if (interventionList) {
         const items = [...interventionList.querySelectorAll<HTMLElement>('li')];
         for (const item of items) {
-          await wait(180);
+          if (!(await wait(180, runId))) return;
           item.dataset.revealed = 'true';
         }
       }
-      await wait(500);
+      if (!(await wait(500, runId))) return;
 
       // Stage 4: valid
       setActive(4);
@@ -325,12 +329,10 @@ const { variant = 'hero' } = Astro.props;
       validStep?.classList.add('is-typing');
       statusEl.textContent = 'PASS';
       statusEl.dataset.state = 'pass';
-      await typeInto(codeValid, validText, 9);
+      if (!(await typeInto(codeValid, validText, runId, 9))) return;
       validStep?.classList.remove('is-typing');
       setActive(4);
       live.textContent = 'Trace complete: raw output failed, intervention produced valid product output.';
-      await wait(6000);
-      // Stay on valid, no loop unless user replays
     };
 
     if (replayBtn) {
@@ -538,9 +540,9 @@ const { variant = 'hero' } = Astro.props;
   }
 
   .step-badge--fail {
-    color: #8a2e2e;
-    border-color: #e2b4b4;
-    background: #fdf2f2;
+    color: var(--color-failure-text);
+    border-color: var(--color-failure-border);
+    background: var(--color-failure-surface);
   }
 
   .step-badge--active {
@@ -678,9 +680,9 @@ const { variant = 'hero' } = Astro.props;
   }
 
   .validation-status[data-state='failed'] {
-    color: #8a2e2e;
-    border-color: #e2b4b4;
-    background: #fdf2f2;
+    color: var(--color-failure-text);
+    border-color: var(--color-failure-border);
+    background: var(--color-failure-surface);
   }
 
   .validation-status[data-state='pass'] {
@@ -690,13 +692,13 @@ const { variant = 'hero' } = Astro.props;
   }
 
   .validation-status[data-state='fail'] {
-    color: #8a2e2e;
-    background: #fdf2f2;
+    color: var(--color-failure-text);
+    background: var(--color-failure-surface);
   }
 
   .fail-card {
     padding: var(--space-2);
-    border: 1px dashed #e2b4b4;
+    border: 1px dashed var(--color-failure-border);
     background: #fdf8f6;
   }
 

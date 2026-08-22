@@ -16,47 +16,11 @@ const positions = Array.from({ length: density }, (_, i) => {
 });
 ---
 
-<div class="ambient-field" data-ambient-field data-variant={variant} aria-hidden="true">
+<div class="ambient-field" data-variant={variant} aria-hidden="true">
   {positions.map(p => (
     <i style={`left:${p.x}%; top:${p.y}%; animation-delay:${p.delay}s; width:${p.size}px; height:${p.size}px;`}></i>
   ))}
 </div>
-
-<script>
-  const fields = document.querySelectorAll('[data-ambient-field]');
-
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  for (const field of fields) {
-    if (!(field instanceof HTMLElement)) continue;
-    if (reduced) {
-      field.style.display = 'none';
-      continue;
-    }
-    // pause when page hidden
-    const handleVisibility = () => {
-      field.dataset.paused = String(document.hidden);
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-
-    // intersection observer – only animate when visible
-    const io = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          field.classList.add('is-visible');
-          field.dataset.paused = 'false';
-        } else {
-          field.dataset.paused = 'true';
-        }
-      }
-    }, { threshold: 0.05 });
-
-    io.observe(field);
-
-    // initially visible if in viewport
-    requestAnimationFrame(() => field.classList.add('is-visible'));
-  }
-</script>
 
 <style>
   .ambient-field {
@@ -64,12 +28,8 @@ const positions = Array.from({ length: density }, (_, i) => {
     inset: 0;
     pointer-events: none;
     overflow: hidden;
-    opacity: 0;
-    transition: opacity var(--duration-reveal) var(--ease-standard);
-  }
-
-  .ambient-field.is-visible {
     opacity: 1;
+    animation: ambient-appear var(--duration-reveal) var(--ease-standard);
   }
 
   .ambient-field i {
@@ -91,8 +51,34 @@ const positions = Array.from({ length: density }, (_, i) => {
     --ambient-dot-opacity: 0.028;
   }
 
-  .ambient-field[data-paused='true'] i {
-    animation-play-state: paused !important;
+  @keyframes ambient-appear {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes ambient-drift-1 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(10px, -14px); }
+  }
+
+  @keyframes ambient-drift-2 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-12px, 10px); }
+  }
+
+  @keyframes ambient-drift-3 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(6px, 12px); }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ambient-field i {
+      animation-timing-function: var(--ease-standard);
+      animation-iteration-count: infinite;
+    }
+    .ambient-field i:nth-child(3n+1) { animation-name: ambient-drift-1; animation-duration: 20s; }
+    .ambient-field i:nth-child(3n+2) { animation-name: ambient-drift-2; animation-duration: 26s; }
+    .ambient-field i:nth-child(3n) { animation-name: ambient-drift-3; animation-duration: 32s; }
   }
 
   @media (prefers-reduced-motion: reduce) {
