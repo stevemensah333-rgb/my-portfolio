@@ -1,12 +1,16 @@
 type TraceTabOptions = {
-  onSelect?: (id: string, index: number, count: number) => void;
+  onSelect?: (id: string, index: number, count: number, tab: HTMLButtonElement) => void;
 };
 
-export function initTraceTabs(root: Element, options: TraceTabOptions = {}) {
+export type TraceTabController = {
+  select: (id: string) => void;
+};
+
+export function initTraceTabs(root: Element, options: TraceTabOptions = {}): TraceTabController | null {
   const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')];
   const panels = [...root.querySelectorAll<HTMLElement>('[data-stage-panel]')];
 
-  if (tabs.length === 0 || panels.length === 0) return;
+  if (tabs.length === 0 || panels.length === 0) return null;
 
   const select = (id: string) => {
     const index = tabs.findIndex(tab => tab.dataset.stageTab === id);
@@ -24,7 +28,8 @@ export function initTraceTabs(root: Element, options: TraceTabOptions = {}) {
       panel.dataset.active = String(active);
       panel.hidden = !active;
     });
-    options.onSelect?.(id, index, tabs.length);
+    const selectedTab = tabs[index];
+    if (selectedTab) options.onSelect?.(id, index, tabs.length, selectedTab);
   };
 
   const initial = tabs.find(tab => tab.getAttribute('aria-selected') === 'true')?.dataset.stageTab
@@ -56,4 +61,6 @@ export function initTraceTabs(root: Element, options: TraceTabOptions = {}) {
       if (id) select(id);
     });
   });
+
+  return { select };
 }

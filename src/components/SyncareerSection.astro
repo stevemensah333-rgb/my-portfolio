@@ -6,6 +6,8 @@ import {
   illustrativeValidOutput,
   sharedSyncareerStages,
   syncareerFailureModes,
+  syncareerHomepageNarrativeStates,
+  syncareerHomepageNarrativeStateByStage,
   syncareerInterventions,
   type SyncareerTraceStageId,
   type SyncareerTraceStageKind,
@@ -91,11 +93,133 @@ const compactStages: CompactStage[] = [
       />
     </div>
 
+    <section
+      class="engineering-narrative"
+      data-syncareer-narrative
+      data-active-narrative-state="observed-failure"
+      aria-labelledby="narrative-title"
+    >
+      <header class="narrative-intro">
+        <p class="technical-label">Reliability narrative</p>
+        <h3 id="narrative-title">Failure, engineering response, then a product contract.</h3>
+        <p>Scroll the three states or use the state controls. The detailed trace remains directly selectable below.</p>
+      </header>
+
+      <nav class="narrative-rail" aria-label="Syncareer narrative states">
+        <p><span data-narrative-position>01 / 03</span> Current state</p>
+        <ol>
+          {syncareerHomepageNarrativeStates.map((state, index) => (
+            <li>
+              <button
+                type="button"
+                data-narrative-control={state.id}
+                aria-controls={`narrative-${state.id}`}
+                aria-current={index === 0 ? 'step' : undefined}
+              >
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                {state.label}
+              </button>
+            </li>
+          ))}
+        </ol>
+        <p class="sr-only" aria-live="polite" aria-atomic="true" data-narrative-announcement>
+          Current state: Observed failure
+        </p>
+      </nav>
+
+      <div class="narrative-sequence">
+        {syncareerHomepageNarrativeStates.map((state, index) => (
+          <article
+            id={`narrative-${state.id}`}
+            class="narrative-state"
+            data-narrative-step={state.id}
+            data-tone={state.tone}
+            data-active={index === 0 ? 'true' : 'false'}
+            style={`--state-row: ${index + 1}`}
+          >
+            <div class="narrative-copy">
+              <p class="narrative-kicker">State {String(index + 1).padStart(2, '0')} / {state.label}</p>
+              <h4>{state.title}</h4>
+              <p class="narrative-summary">{state.summary}</p>
+              <button
+                type="button"
+                class="narrative-stage-link"
+                data-select-trace-stage={state.primaryStageId}
+              >
+                Inspect this state in the trace <span aria-hidden="true">↓</span>
+              </button>
+            </div>
+
+            <div class="narrative-evidence" aria-label={`${state.label} evidence`}>
+              <div class="narrative-evidence-meta">
+                <span>Evidence state</span>
+                <span>{String(index + 1).padStart(2, '0')} / 03</span>
+              </div>
+
+              {state.id === 'observed-failure' && (
+                <>
+                  <div class="panel-code narrative-code">
+                    <div class="code-meta">
+                      <span>Illustrative bad output</span>
+                      <span class="code-type code-type-failure">Raw</span>
+                    </div>
+                    <pre><code>{illustrativeBadOutput}</code></pre>
+                  </div>
+                  <ul class="failure-modes narrative-modes">
+                    {syncareerFailureModes.map((mode) => (
+                      <li><span>{mode.name}</span><p>{mode.note}</p></li>
+                    ))}
+                  </ul>
+                  <p class="narrative-evidence-line"><span>Evidence</span> Confirmed observations from production use.</p>
+                </>
+              )}
+
+              {state.id === 'engineering-response' && (
+                <>
+                  <ul class="fix-list narrative-fixes">
+                    {syncareerInterventions.map((fix) => <li>{fix}</li>)}
+                  </ul>
+                  <p class="narrative-evidence-line"><span>Evidence</span> Related interventions listed in the case study.</p>
+                </>
+              )}
+
+              {state.id === 'product-contract' && (
+                <>
+                  <div class="validate-card narrative-validation">
+                    <div class="validate-side">
+                      <span class="mono-small">Product expects</span>
+                      <strong>title, level, years, next_steps</strong>
+                    </div>
+                    <i aria-hidden="true"></i>
+                    <div class="validate-side">
+                      <span class="mono-small">Validation</span>
+                      <strong>required fields + types</strong>
+                    </div>
+                  </div>
+                  <div class="panel-code narrative-code">
+                    <div class="code-meta">
+                      <span>Illustrative valid output</span>
+                      <span class="code-type">Valid</span>
+                    </div>
+                    <pre><code>{illustrativeValidOutput}</code></pre>
+                  </div>
+                  <div class="narrative-boundary">
+                    <p><span>Interpretation</span> Prompt structure, context handling and the expected output needed tighter control.</p>
+                    <p><span>Measured result</span> Not yet supplied. No reliability threshold is claimed here.</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
     <div class="failure-trace" data-trace-compact aria-labelledby="trace-title">
       <div class="trace-intro">
         <div>
-          <p class="technical-label">Interactive failure trace</p>
-          <h3 id="trace-title">How an unreliable LLM response became valid product output.</h3>
+          <p class="technical-label">Direct stage inspector</p>
+          <h3 id="trace-title">Inspect the six underlying stages.</h3>
         </div>
         <p class="trace-legend">Select a stage to see what happened at each step. Keyboard: arrows to move between stages. Values marked ILLUSTRATIVE are demo shapes, not historical logs.</p>
       </div>
@@ -109,6 +233,7 @@ const compactStages: CompactStage[] = [
               id={`ctab-${stage.id}`}
               class="trace-tab"
               data-stage-tab={stage.id}
+              data-narrative-state={syncareerHomepageNarrativeStateByStage[stage.id]}
               aria-controls={`cpanel-${stage.id}`}
               aria-selected={idx === 0 ? 'true' : 'false'}
               tabindex={idx === 0 ? '0' : '-1'}
@@ -130,6 +255,7 @@ const compactStages: CompactStage[] = [
             aria-labelledby={`ctab-${stage.id}`}
             class="trace-panel"
             data-stage-panel={stage.id}
+            data-narrative-state={syncareerHomepageNarrativeStateByStage[stage.id]}
             data-active={idx === 0 ? 'true' : 'false'}
             tabindex="0"
             hidden={idx !== 0}
@@ -188,11 +314,6 @@ const compactStages: CompactStage[] = [
       </div>
     </div>
 
-    <div class="evidence-status">
-      <p><span>Interpretation</span> Prompt structure, context handling and the expected output needed tighter control.</p>
-      <p><span>Measured result</span> Not yet supplied. No reliability threshold is claimed here.</p>
-    </div>
-
     <div class="case-actions">
       <a class="live-link" href="https://syncareer.me/" target="_blank" rel="noopener">View Syncareer <span aria-hidden="true">↗</span></a>
     </div>
@@ -202,10 +323,97 @@ const compactStages: CompactStage[] = [
 <script>
   import { initTraceTabs } from '../scripts/initTraceTabs';
 
-  const traceRoots = document.querySelectorAll('[data-trace-compact]');
+  const narrativeRoots = document.querySelectorAll<HTMLElement>('[data-syncareer-narrative]');
 
-  for (const root of traceRoots) {
-    initTraceTabs(root);
+  for (const narrativeRoot of narrativeRoots) {
+    const section = narrativeRoot.closest('.case-study');
+    const traceRoot = section?.querySelector<HTMLElement>('[data-trace-compact]');
+    const steps = [...narrativeRoot.querySelectorAll<HTMLElement>('[data-narrative-step]')];
+    const controls = [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-narrative-control]')];
+    const stageLinks = [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-select-trace-stage]')];
+    const position = narrativeRoot.querySelector<HTMLElement>('[data-narrative-position]');
+    const announcement = narrativeRoot.querySelector<HTMLElement>('[data-narrative-announcement]');
+    let syncingTrace = false;
+
+    const traceController = traceRoot
+      ? initTraceTabs(traceRoot, {
+          onSelect: (_id, _index, _count, tab) => {
+            const narrativeState = tab.dataset.narrativeState;
+            if (!narrativeState || syncingTrace) return;
+            setActiveState(narrativeState, { syncTrace: false, announce: true });
+          },
+        })
+      : null;
+
+    function setActiveState(
+      stateId: string,
+      options: { syncTrace?: boolean; announce?: boolean } = {},
+    ) {
+      const activeIndex = steps.findIndex(step => step.dataset.narrativeStep === stateId);
+      if (activeIndex < 0) return;
+
+      narrativeRoot.dataset.activeNarrativeState = stateId;
+      steps.forEach(step => {
+        step.dataset.active = String(step.dataset.narrativeStep === stateId);
+      });
+      controls.forEach(control => {
+        const active = control.dataset.narrativeControl === stateId;
+        if (active) control.setAttribute('aria-current', 'step');
+        else control.removeAttribute('aria-current');
+      });
+
+      if (position) position.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(steps.length).padStart(2, '0')}`;
+      if (options.announce && announcement) {
+        const activeLabel = controls[activeIndex]?.textContent?.trim() ?? stateId;
+        announcement.textContent = `Current state: ${activeLabel}`;
+      }
+
+      if (options.syncTrace && traceController) {
+        const stageId = steps[activeIndex]?.querySelector<HTMLButtonElement>('[data-select-trace-stage]')?.dataset.selectTraceStage;
+        if (stageId) {
+          syncingTrace = true;
+          traceController.select(stageId);
+          syncingTrace = false;
+        }
+      }
+    }
+
+    controls.forEach(control => {
+      control.addEventListener('click', () => {
+        const stateId = control.dataset.narrativeControl;
+        const step = steps.find(candidate => candidate.dataset.narrativeStep === stateId);
+        if (!stateId || !step) return;
+        setActiveState(stateId, { syncTrace: true, announce: true });
+        step.scrollIntoView({ block: 'center' });
+      });
+    });
+
+    stageLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        const stageId = link.dataset.selectTraceStage;
+        if (!stageId || !traceRoot || !traceController) return;
+        traceController.select(stageId);
+        traceRoot.scrollIntoView({ block: 'center' });
+        traceRoot.querySelector<HTMLButtonElement>(`[data-stage-tab="${stageId}"]`)?.focus({ preventScroll: true });
+      });
+    });
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const activeEntry = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        const stateId = (activeEntry?.target as HTMLElement | undefined)?.dataset.narrativeStep;
+        if (stateId) setActiveState(stateId, { syncTrace: true });
+      },
+      {
+        rootMargin: '-30% 0px -45% 0px',
+        threshold: [0, 0.2, 0.5, 0.8],
+      },
+    );
+
+    steps.forEach(step => observer.observe(step));
+    setActiveState('observed-failure');
   }
 </script>
 
@@ -245,6 +453,295 @@ const compactStages: CompactStage[] = [
 
   .product-proof {
     margin-top: var(--section-content-gap);
+  }
+
+  /* --- Three-state engineering narrative --- */
+  .engineering-narrative {
+    margin-top: var(--section-content-gap);
+  }
+
+  .narrative-intro {
+    display: grid;
+    gap: var(--space-2);
+    max-width: 48rem;
+  }
+
+  .narrative-intro p,
+  .narrative-intro h3 {
+    margin: 0;
+  }
+
+  .narrative-intro h3 {
+    max-width: 24ch;
+    font-size: var(--text-h2);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+  }
+
+  .narrative-intro > p:last-child {
+    max-width: var(--width-reading);
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .narrative-rail {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding-block: var(--space-3);
+    border-block: var(--border-default);
+    background: var(--color-surface-light);
+  }
+
+  .narrative-rail > p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .narrative-rail > p span {
+    margin-right: var(--space-2);
+    color: var(--color-text);
+  }
+
+  .narrative-rail ol {
+    display: grid;
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    border: var(--border-default);
+    background: var(--color-border);
+    list-style: none;
+  }
+
+  .narrative-rail li {
+    min-width: 0;
+  }
+
+  .narrative-rail button {
+    position: relative;
+    display: grid;
+    width: 100%;
+    min-height: var(--control-height);
+    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    align-items: center;
+    padding: var(--space-2) var(--space-3);
+    border: 0;
+    background: var(--color-background);
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: var(--text-small);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard);
+  }
+
+  .narrative-rail button > span {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+  }
+
+  .narrative-rail button[aria-current='step'] {
+    background: var(--color-surface-cool);
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .narrative-rail button[aria-current='step']::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 2px;
+    background: var(--color-accent);
+  }
+
+  .narrative-rail button[aria-current='step']::after {
+    content: 'Current';
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .narrative-rail button:hover {
+    color: var(--color-text);
+  }
+
+  .narrative-rail button:focus-visible {
+    z-index: 1;
+    outline-offset: -3px;
+  }
+
+  .narrative-sequence {
+    display: grid;
+    margin-top: var(--space-4);
+  }
+
+  .narrative-state {
+    display: grid;
+    gap: var(--space-4);
+    padding-block: var(--space-7);
+    border-bottom: var(--border-default);
+    scroll-margin-top: 7rem;
+  }
+
+  .narrative-state:first-child {
+    border-top: var(--border-default);
+  }
+
+  .narrative-copy {
+    display: grid;
+    gap: var(--space-3);
+    align-content: center;
+  }
+
+  .narrative-kicker {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .narrative-copy h4 {
+    max-width: 19ch;
+    margin: 0;
+    font-size: var(--text-h2);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+  }
+
+  .narrative-summary {
+    max-width: 34rem;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
+  }
+
+  .narrative-stage-link {
+    justify-self: start;
+    min-height: var(--control-height);
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid currentColor;
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--text-small);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .narrative-stage-link span {
+    margin-left: 0.2rem;
+    color: var(--color-accent);
+  }
+
+  .narrative-evidence {
+    min-width: 0;
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: var(--border-default);
+    border-radius: var(--radius-card);
+    background: var(--color-background);
+    transition:
+      opacity var(--duration-reveal) var(--ease-standard),
+      transform var(--duration-reveal) var(--ease-standard),
+      border-color var(--duration-normal) var(--ease-standard),
+      background-color var(--duration-normal) var(--ease-standard);
+  }
+
+  .narrative-state[data-tone='failure'] .narrative-evidence {
+    border-color: var(--color-failure-border);
+    background: var(--color-failure-surface);
+  }
+
+  .narrative-state[data-tone='valid'] .narrative-evidence {
+    border-color: color-mix(in srgb, var(--color-border) 45%, var(--color-accent));
+  }
+
+  .narrative-evidence-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: var(--border-default);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .narrative-code pre {
+    max-height: 12.5rem;
+  }
+
+  .code-type-failure {
+    color: var(--color-failure-text);
+  }
+
+  .narrative-modes {
+    gap: var(--space-2);
+  }
+
+  .narrative-modes li {
+    background: color-mix(in srgb, var(--color-background) 80%, var(--color-failure-surface));
+  }
+
+  .narrative-modes span {
+    color: var(--color-failure-text);
+  }
+
+  .narrative-fixes li {
+    background: var(--color-surface-light);
+  }
+
+  .narrative-evidence-line,
+  .narrative-boundary p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .narrative-evidence-line {
+    padding-top: var(--space-3);
+    border-top: var(--border-default);
+  }
+
+  .narrative-evidence-line span,
+  .narrative-boundary span {
+    display: inline-block;
+    margin-right: var(--space-2);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .narrative-boundary {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-left: 2px solid var(--color-accent);
+    background: var(--color-surface-cool);
   }
 
   /* --- Compact failure trace --- */
@@ -611,31 +1108,6 @@ const compactStages: CompactStage[] = [
     font-size: var(--text-small);
   }
 
-  .evidence-status {
-    display: grid;
-    gap: var(--space-2);
-    padding-block: var(--space-4);
-    border-bottom: var(--border-default);
-    margin-top: var(--space-5);
-  }
-
-  .evidence-status p {
-    max-width: var(--width-reading);
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-size: var(--text-small);
-  }
-
-  .evidence-status span {
-    display: inline-block;
-    margin-right: var(--space-3);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: var(--text-label);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
   .case-actions {
     display: flex;
     flex-wrap: wrap;
@@ -694,6 +1166,10 @@ const compactStages: CompactStage[] = [
       display: none;
     }
 
+    .narrative-rail ol {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .failure-modes {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -704,9 +1180,177 @@ const compactStages: CompactStage[] = [
   }
 
   @media (min-width: 64rem) {
+    .narrative-rail {
+      position: sticky;
+      top: 4.75rem;
+      z-index: 4;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      padding-inline: var(--space-3);
+    }
+
+    .narrative-rail > p {
+      white-space: nowrap;
+    }
+
+    .narrative-sequence {
+      display: block;
+    }
+
+    .narrative-state {
+      grid-template-columns: minmax(0, 1.08fr) minmax(20rem, 0.82fr);
+      column-gap: clamp(var(--space-6), 5vw, var(--space-8));
+      padding-block: 0;
+    }
+
+    .narrative-copy {
+      grid-column: 2;
+      grid-row: 1;
+      min-height: clamp(28rem, 68vh, 36rem);
+      padding-block: var(--space-8);
+    }
+
+    .narrative-evidence {
+      position: sticky;
+      top: 10rem;
+      grid-column: 1;
+      grid-row: 1;
+      align-self: start;
+      margin-block: var(--space-8);
+    }
+
+    .narrative-state[data-active='false'] .narrative-evidence {
+      opacity: 0.58;
+      transform: translateY(16px);
+    }
+
+    .narrative-state[data-active='true'] .narrative-evidence {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     .trace-intro {
       grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
       align-items: end;
+    }
+  }
+
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    .narrative-kicker,
+    .narrative-copy h4,
+    .narrative-summary,
+    .narrative-stage-link {
+      transition:
+        opacity var(--duration-reveal) var(--ease-standard),
+        transform var(--duration-reveal) var(--ease-standard);
+    }
+
+    .narrative-state[data-active='false'] .narrative-copy > * {
+      opacity: 0.52;
+      transform: translateY(16px);
+    }
+
+    .narrative-state[data-active='true'] .narrative-copy > * {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .narrative-state[data-active='true'] .narrative-copy h4 {
+      transition-delay: 50ms;
+    }
+
+    .narrative-state[data-active='true'] .narrative-summary {
+      transition-delay: 100ms;
+    }
+
+    .narrative-state[data-active='true'] .narrative-stage-link {
+      transition-delay: 150ms;
+    }
+  }
+
+  @media (max-width: 63.999rem) {
+    .trace-strip {
+      overflow-x: visible;
+    }
+
+    .trace-strip::after {
+      display: none;
+    }
+
+    .trace-tablist {
+      display: grid;
+      width: 100%;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .trace-tab {
+      min-width: 0;
+      justify-content: flex-start;
+      padding: var(--space-2) var(--space-3);
+      border-bottom: var(--border-default);
+      white-space: normal;
+    }
+
+    .trace-tab:nth-child(2n) {
+      border-right: 0;
+    }
+
+    .tab-label {
+      overflow-wrap: anywhere;
+    }
+  }
+
+  @media (min-width: 48rem) and (max-width: 63.999rem) {
+    .trace-tablist {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .trace-tab:nth-child(2n) {
+      border-right: var(--border-default);
+    }
+
+    .trace-tab:nth-child(3n) {
+      border-right: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .narrative-evidence,
+    .narrative-copy > * {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+  }
+
+  @media (min-width: 64rem) and (prefers-reduced-motion: reduce) {
+    .narrative-rail {
+      position: static;
+    }
+
+    .narrative-sequence {
+      display: block;
+    }
+
+    .narrative-state {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(20rem, 1.05fr);
+      gap: var(--space-7);
+    }
+
+    .narrative-copy,
+    .narrative-evidence {
+      position: static;
+      grid-column: auto;
+      grid-row: auto;
+      min-height: 0;
+      margin: 0;
+      padding-block: var(--space-7);
+    }
+
+    .narrative-evidence {
+      align-self: center;
+      padding-inline: var(--space-4);
     }
   }
 

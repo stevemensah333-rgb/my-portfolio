@@ -11,6 +11,24 @@ export const syncareerTraceStageIds = [
 export type SyncareerTraceStageId = (typeof syncareerTraceStageIds)[number];
 export type SyncareerTraceStageKind = 'input' | 'raw' | 'validate' | 'fail' | 'diagnosis' | 'intervene' | 'valid';
 
+export const syncareerHomepageNarrativeStateIds = [
+  'observed-failure',
+  'engineering-response',
+  'product-contract',
+] as const;
+
+export type SyncareerHomepageNarrativeStateId = (typeof syncareerHomepageNarrativeStateIds)[number];
+
+type SyncareerHomepageNarrativeState = {
+  id: SyncareerHomepageNarrativeStateId;
+  label: string;
+  title: string;
+  summary: string;
+  tone: 'failure' | 'technical' | 'valid';
+  primaryStageId: SyncareerTraceStageId;
+  stageIds: readonly SyncareerTraceStageId[];
+};
+
 type SharedStage = {
   id: Exclude<SyncareerTraceStageId, 'diagnosis'>;
   label: string;
@@ -48,7 +66,7 @@ export const syncareerInterventions = [
 export const syncareerFailureModes = [
   { name: 'Formatting', note: 'Missing schema' },
   { name: 'Context', note: 'Context dropped' },
-  { name: 'Structure', note: 'Inconsistent output' },
+  { name: 'Response variance', note: 'Inconsistent output' },
 ] as const;
 
 export const sharedSyncareerStages = {
@@ -95,3 +113,43 @@ export const sharedSyncareerStages = {
     kind: 'valid',
   },
 } satisfies Record<string, SharedStage>;
+
+export const syncareerHomepageNarrativeStates = [
+  {
+    id: 'observed-failure',
+    label: 'Observed failure',
+    title: 'Production exposed three failure modes.',
+    summary: 'Inconsistent formatting, dropped context and response variance broke the expected product contract.',
+    tone: 'failure',
+    primaryStageId: 'failure',
+    stageIds: ['model-output', 'failure'],
+  },
+  {
+    id: 'engineering-response',
+    label: 'Engineering response',
+    title: 'Each failure mapped to a tighter response path.',
+    summary: 'The prompt, examples, context and output constraints were made more explicit.',
+    tone: 'technical',
+    primaryStageId: 'intervention',
+    stageIds: ['intervention'],
+  },
+  {
+    id: 'product-contract',
+    label: 'Product contract / evidence boundary',
+    title: 'Valid output is a contract, not a reliability metric.',
+    summary: 'The output shape can match product needs while the evidence boundary remains explicit.',
+    tone: 'valid',
+    primaryStageId: 'output',
+    stageIds: ['validation', 'output'],
+  },
+] as const satisfies readonly SyncareerHomepageNarrativeState[];
+
+export const syncareerHomepageNarrativeStateByStage: Partial<
+  Record<SyncareerTraceStageId, SyncareerHomepageNarrativeStateId>
+> = {
+  'model-output': 'observed-failure',
+  failure: 'observed-failure',
+  intervention: 'engineering-response',
+  validation: 'product-contract',
+  output: 'product-contract',
+};
