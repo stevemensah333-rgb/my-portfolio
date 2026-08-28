@@ -1,6 +1,8 @@
 ---
 type ToolkitItem = {
+  id: string;
   name: string;
+  featuredOrder: number | null;
   usedIn: { project: string; href?: string }[];
   evidence: string[];
   note?: string;
@@ -16,23 +18,31 @@ const toolkit: ToolkitGroup[] = [
     category: 'Languages',
     items: [
       {
+        id: 'python',
         name: 'Python',
+        featuredOrder: null,
         usedIn: [{ project: 'Coursework / Data cleaning' }, { project: 'Supervised ML (DataCamp)' }],
         evidence: ['data cleaning', 'validation patterns', 'scripting for evaluation'],
         note: 'Used for data work and API validation patterns, not claimed as Syncareer prod stack.',
       },
       {
+        id: 'javascript',
         name: 'JavaScript',
+        featuredOrder: 3,
         usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }, { project: 'Portfolio (this site)' }],
         evidence: ['product surface logic', 'failure trace interactivity', 'editorial UI states'],
       },
       {
+        id: 'html',
         name: 'HTML',
+        featuredOrder: null,
         usedIn: [{ project: 'Syncareer', href: 'https://syncareer.me/' }, { project: 'Portfolio' }],
         evidence: ['semantic product surfaces', 'accessible trace markup', 'evidence-first layout'],
       },
       {
+        id: 'css',
         name: 'CSS',
+        featuredOrder: null,
         usedIn: [{ project: 'Syncareer' }, { project: 'Portfolio' }],
         evidence: ['restrained design tokens', 'responsive editorial grid'],
       },
@@ -42,12 +52,16 @@ const toolkit: ToolkitGroup[] = [
     category: 'Backend & AI Integration',
     items: [
       {
+        id: 'prompt-engineering',
         name: 'Prompt engineering',
+        featuredOrder: 1,
         usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }],
         evidence: ['custom system instructions', 'explicit context management', 'output constraint design'],
       },
       {
+        id: 'fastapi',
         name: 'FastAPI',
+        featuredOrder: null,
         usedIn: [{ project: 'Learning / API design' }],
         evidence: ['schema validation patterns', 'transfer to LLM output validation'],
         note: 'Learning – pattern reference, not Syncareer prod claim.',
@@ -58,22 +72,30 @@ const toolkit: ToolkitGroup[] = [
     category: 'Databases',
     items: [
       {
+        id: 'postgresql',
         name: 'PostgreSQL',
+        featuredOrder: 4,
         usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }],
         evidence: ['flexible schema for activity / progress / weaknesses', 'career data storage'],
       },
       {
+        id: 'mysql',
         name: 'MySQL',
+        featuredOrder: null,
         usedIn: [{ project: 'Coursework (learning)' }],
         evidence: ['relational modeling', 'query patterns'],
       },
       {
+        id: 'mongodb',
         name: 'MongoDB',
+        featuredOrder: null,
         usedIn: [{ project: 'Learning / document model' }],
         evidence: ['document modeling exploration'],
       },
       {
+        id: 'sqlite',
         name: 'SQLite',
+        featuredOrder: null,
         usedIn: [{ project: 'Local prototypes' }],
         evidence: ['local persistence', 'rapid iteration'],
       },
@@ -83,17 +105,23 @@ const toolkit: ToolkitGroup[] = [
     category: 'Infrastructure & Tools',
     items: [
       {
+        id: 'docker',
         name: 'Docker',
+        featuredOrder: null,
         usedIn: [{ project: 'Learning / reproducible env' }],
         evidence: ['reproducible deployment exploration'],
       },
       {
+        id: 'vercel',
         name: 'Vercel',
+        featuredOrder: null,
         usedIn: [{ project: 'Portfolio deployment' }],
         evidence: ['static deployment', 'analytics integration'],
       },
       {
+        id: 'git-github',
         name: 'Git / GitHub',
+        featuredOrder: null,
         usedIn: [{ project: 'Syncareer' }, { project: 'Portfolio' }],
         evidence: ['evidence branch workflow', 'documentation history'],
       },
@@ -103,17 +131,23 @@ const toolkit: ToolkitGroup[] = [
     category: 'Data & ML',
     items: [
       {
+        id: 'data-cleaning',
         name: 'Data cleaning',
+        featuredOrder: null,
         usedIn: [{ project: 'DataCamp / Coursework' }],
         evidence: ['handling inconsistent data', 'prep for validation'],
       },
       {
+        id: 'supervised-machine-learning',
         name: 'Supervised machine learning',
+        featuredOrder: null,
         usedIn: [{ project: 'Coursework' }],
         evidence: ['evaluation beyond happy path', 'testing variance'],
       },
       {
+        id: 'output-validation-few-shot',
         name: 'Output validation / Few-shot anchoring',
+        featuredOrder: 2,
         usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }],
         evidence: ['schema checks before product use', 'few-shot examples for structure', 'failure mode separation'],
       },
@@ -121,32 +155,18 @@ const toolkit: ToolkitGroup[] = [
   },
 ];
 
-const itemIds = new Map<ToolkitItem, string>();
-toolkit.forEach((group, groupIndex) => {
-  group.items.forEach((item, itemIndex) => itemIds.set(item, `${groupIndex}-${itemIndex}`));
-});
-
-const primarySkillNames = [
-  'Prompt engineering',
-  'Output validation / Few-shot anchoring',
-  'JavaScript',
-  'PostgreSQL',
-] as const;
-
 const allToolkitItems = toolkit.flatMap(group => group.items);
-const primaryToolkitItems = primarySkillNames.flatMap(name => {
-  const item = allToolkitItems.find(candidate => candidate.name === name);
-  return item ? [item] : [];
-});
-const primaryToolkitItemSet = new Set(primaryToolkitItems);
+const primaryToolkitItems = allToolkitItems
+  .filter(item => item.featuredOrder !== null)
+  .sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0));
 const additionalToolkit = toolkit
   .map(group => ({
     ...group,
-    items: group.items.filter(item => !primaryToolkitItemSet.has(item)),
+    items: group.items.filter(item => item.featuredOrder === null),
   }))
   .filter(group => group.items.length > 0);
 const additionalToolCount = additionalToolkit.reduce((count, group) => count + group.items.length, 0);
-const initialItemId = primaryToolkitItems[0] ? itemIds.get(primaryToolkitItems[0]) : undefined;
+const initialItemId = primaryToolkitItems[0]?.id;
 ---
 
 <section id="toolkit" class="toolkit" aria-labelledby="toolkit-title">
@@ -162,7 +182,7 @@ const initialItemId = primaryToolkitItems[0] ? itemIds.get(primaryToolkitItems[0
         <h3 id="toolkit-primary-title">Project capabilities</h3>
         <ul class="toolkit-primary-list" role="list">
           {primaryToolkitItems.map(item => {
-              const itemId = itemIds.get(item)!;
+              const itemId = item.id;
               const panelId = `toolkit-panel-${itemId}`;
               const btnId = `toolkit-btn-${itemId}`;
               const isInitial = itemId === initialItemId;
@@ -223,7 +243,7 @@ const initialItemId = primaryToolkitItems[0] ? itemIds.get(primaryToolkitItems[0
               <h3 id={`toolkit-more-group-${groupIndex}`}>{group.category}</h3>
               <ul role="list">
                 {group.items.map(item => {
-                  const itemId = itemIds.get(item)!;
+                  const itemId = item.id;
                   const panelId = `toolkit-panel-${itemId}`;
                   const btnId = `toolkit-btn-${itemId}`;
                   return (
@@ -278,7 +298,7 @@ const initialItemId = primaryToolkitItems[0] ? itemIds.get(primaryToolkitItems[0
 
     <div class="toolkit-detail" data-toolkit-detail>
       {toolkit.flatMap(group => group.items.map(item => {
-        const itemId = itemIds.get(item)!;
+        const itemId = item.id;
         const btnId = `toolkit-btn-${itemId}`;
         const isInitial = itemId === initialItemId;
         return (

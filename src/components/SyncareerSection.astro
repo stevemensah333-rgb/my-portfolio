@@ -331,6 +331,9 @@ const compactStages: CompactStage[] = [
     const stageLinks = [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-select-trace-stage]')];
     const position = narrativeRoot.querySelector<HTMLElement>('[data-narrative-position]');
     const announcement = narrativeRoot.querySelector<HTMLElement>('[data-narrative-announcement]');
+
+    if (steps.length === 0 || controls.length === 0) continue;
+
     const desktopNarrativeQuery = window.matchMedia('(min-width: 64rem)');
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const activationLineRatio = 0.425;
@@ -437,6 +440,7 @@ const compactStages: CompactStage[] = [
       });
     });
 
+    narrativeRoot.dataset.narrativeEnhanced = 'true';
     setActiveState('observed-failure');
     configureAutomaticNarrativeSync();
     desktopNarrativeQuery.addEventListener('change', configureAutomaticNarrativeSync);
@@ -589,13 +593,13 @@ const compactStages: CompactStage[] = [
     letter-spacing: 0.05em;
   }
 
-  .narrative-rail button[aria-current='step'] {
+  .engineering-narrative[data-narrative-enhanced='true'] .narrative-rail button[aria-current='step'] {
     background: var(--color-surface-cool);
     color: var(--color-text);
     font-weight: 600;
   }
 
-  .narrative-rail button[aria-current='step']::before {
+  .engineering-narrative[data-narrative-enhanced='true'] .narrative-rail button[aria-current='step']::before {
     content: '';
     position: absolute;
     inset: 0 auto 0 0;
@@ -603,7 +607,7 @@ const compactStages: CompactStage[] = [
     background: var(--color-accent);
   }
 
-  .narrative-rail button[aria-current='step']::after {
+  .engineering-narrative[data-narrative-enhanced='true'] .narrative-rail button[aria-current='step']::after {
     content: 'Current';
     color: var(--color-text-secondary);
     font-family: var(--font-mono);
@@ -698,6 +702,9 @@ const compactStages: CompactStage[] = [
     border: var(--border-default);
     border-radius: var(--radius-card);
     background: var(--color-background);
+  }
+
+  .engineering-narrative[data-narrative-enhanced='true'] .narrative-evidence {
     transition:
       opacity var(--duration-reveal) var(--ease-standard),
       transform var(--duration-reveal) var(--ease-standard),
@@ -1262,13 +1269,13 @@ const compactStages: CompactStage[] = [
       margin-block: var(--space-8);
     }
 
-    .narrative-state[data-active='false'] .narrative-evidence {
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='false'] .narrative-evidence {
       opacity: 0;
       transform: translateY(16px);
       pointer-events: none;
     }
 
-    .narrative-state[data-active='true'] .narrative-evidence {
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='true'] .narrative-evidence {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
@@ -1281,34 +1288,34 @@ const compactStages: CompactStage[] = [
   }
 
   @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
-    .narrative-kicker,
-    .narrative-copy h4,
-    .narrative-summary,
-    .narrative-stage-link {
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-kicker,
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-copy h4,
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-summary,
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-stage-link {
       transition:
         opacity var(--duration-reveal) var(--ease-standard),
         transform var(--duration-reveal) var(--ease-standard);
     }
 
-    .narrative-state[data-active='false'] .narrative-copy > * {
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='false'] .narrative-copy > * {
       opacity: 0.52;
       transform: translateY(16px);
     }
 
-    .narrative-state[data-active='true'] .narrative-copy > * {
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='true'] .narrative-copy > * {
       opacity: 1;
       transform: translateY(0);
     }
 
-    .narrative-state[data-active='true'] .narrative-copy h4 {
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='true'] .narrative-copy h4 {
       transition-delay: 50ms;
     }
 
-    .narrative-state[data-active='true'] .narrative-summary {
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='true'] .narrative-summary {
       transition-delay: 100ms;
     }
 
-    .narrative-state[data-active='true'] .narrative-stage-link {
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='true'] .narrative-stage-link {
       transition-delay: 150ms;
     }
   }

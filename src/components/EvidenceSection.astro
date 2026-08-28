@@ -80,8 +80,8 @@ import { credentials } from '../data/credentials';
     </div>
 
     <div class="mobile-evidence">
-      {credentials.map((credential, index) => (
-        <details name="credentials" open={index === 0}>
+      {credentials.map((credential) => (
+        <details name="credentials">
           <summary>
             <span>{credential.name}</span>
             <strong>{credential.result}</strong>
