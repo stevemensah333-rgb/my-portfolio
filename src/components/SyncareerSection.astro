@@ -1,5 +1,4 @@
 ---
-import AmbientField from './AmbientField.astro';
 import ProductFrame from './ProductFrame.astro';
 import {
   illustrativeBadOutput,
@@ -72,7 +71,6 @@ const compactStages: CompactStage[] = [
 ---
 
 <section id="syncareer" class="case-study" aria-labelledby="syncareer-title">
-  <AmbientField density={12} variant="case" />
   <div class="page-shell">
     <header class="case-header">
       <p class="technical-label">Case 01 / Syncareer</p>
@@ -333,7 +331,11 @@ const compactStages: CompactStage[] = [
     const stageLinks = [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-select-trace-stage]')];
     const position = narrativeRoot.querySelector<HTMLElement>('[data-narrative-position]');
     const announcement = narrativeRoot.querySelector<HTMLElement>('[data-narrative-announcement]');
+    const desktopNarrativeQuery = window.matchMedia('(min-width: 64rem)');
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const activationLineRatio = 0.425;
     let syncingTrace = false;
+    let narrativeObserver: IntersectionObserver | null = null;
 
     const traceController = traceRoot
       ? initTraceTabs(traceRoot, {
@@ -378,13 +380,50 @@ const compactStages: CompactStage[] = [
       }
     }
 
+    function getNarrativeStateAtActivationLine() {
+      const activationLine = window.innerHeight * activationLineRatio;
+      const stepPositions = steps.map(step => ({
+        step,
+        bounds: step.getBoundingClientRect(),
+      }));
+      const activeStep = stepPositions.find(({ bounds }) => (
+        bounds.top <= activationLine && bounds.bottom > activationLine
+      ));
+
+      return activeStep?.step.dataset.narrativeStep;
+    }
+
+    function syncNarrativeToScrollPosition() {
+      const stateId = getNarrativeStateAtActivationLine();
+      if (stateId) setActiveState(stateId, { syncTrace: true });
+    }
+
+    function configureAutomaticNarrativeSync() {
+      narrativeObserver?.disconnect();
+      narrativeObserver = null;
+
+      if (!desktopNarrativeQuery.matches || reducedMotionQuery.matches) return;
+
+      narrativeObserver = new IntersectionObserver(
+        () => syncNarrativeToScrollPosition(),
+        {
+          // A 1% observer band surrounds the explicit 42.5% activation line.
+          rootMargin: '-42% 0px -57% 0px',
+          threshold: 0,
+        },
+      );
+
+      steps.forEach(step => narrativeObserver?.observe(step));
+      syncNarrativeToScrollPosition();
+    }
+
     controls.forEach(control => {
       control.addEventListener('click', () => {
         const stateId = control.dataset.narrativeControl;
         const step = steps.find(candidate => candidate.dataset.narrativeStep === stateId);
         if (!stateId || !step) return;
+        step.scrollIntoView({ block: 'center', behavior: 'instant' });
         setActiveState(stateId, { syncTrace: true, announce: true });
-        step.scrollIntoView({ block: 'center' });
       });
     });
 
@@ -392,28 +431,16 @@ const compactStages: CompactStage[] = [
       link.addEventListener('click', () => {
         const stageId = link.dataset.selectTraceStage;
         if (!stageId || !traceRoot || !traceController) return;
+        traceRoot.scrollIntoView({ block: 'center', behavior: 'instant' });
         traceController.select(stageId);
-        traceRoot.scrollIntoView({ block: 'center' });
         traceRoot.querySelector<HTMLButtonElement>(`[data-stage-tab="${stageId}"]`)?.focus({ preventScroll: true });
       });
     });
 
-    const observer = new IntersectionObserver(
-      entries => {
-        const activeEntry = entries
-          .filter(entry => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        const stateId = (activeEntry?.target as HTMLElement | undefined)?.dataset.narrativeStep;
-        if (stateId) setActiveState(stateId, { syncTrace: true });
-      },
-      {
-        rootMargin: '-30% 0px -45% 0px',
-        threshold: [0, 0.2, 0.5, 0.8],
-      },
-    );
-
-    steps.forEach(step => observer.observe(step));
     setActiveState('observed-failure');
+    configureAutomaticNarrativeSync();
+    desktopNarrativeQuery.addEventListener('change', configureAutomaticNarrativeSync);
+    reducedMotionQuery.addEventListener('change', configureAutomaticNarrativeSync);
   }
 </script>
 
@@ -507,6 +534,18 @@ const compactStages: CompactStage[] = [
   .narrative-rail > p span {
     margin-right: var(--space-2);
     color: var(--color-text);
+  }
+
+  .narrative-rail .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .narrative-rail ol {
@@ -957,6 +996,10 @@ const compactStages: CompactStage[] = [
     color: var(--color-accent);
   }
 
+  .narrative-state[data-tone='failure'] .code-type-failure {
+    color: var(--color-failure-text);
+  }
+
   .panel-code pre {
     margin: 0;
     padding: var(--space-3);
@@ -1220,13 +1263,15 @@ const compactStages: CompactStage[] = [
     }
 
     .narrative-state[data-active='false'] .narrative-evidence {
-      opacity: 0.58;
+      opacity: 0;
       transform: translateY(16px);
+      pointer-events: none;
     }
 
     .narrative-state[data-active='true'] .narrative-evidence {
       opacity: 1;
       transform: translateY(0);
+      pointer-events: auto;
     }
 
     .trace-intro {
@@ -1320,6 +1365,10 @@ const compactStages: CompactStage[] = [
       opacity: 1 !important;
       transform: none !important;
       transition: none !important;
+    }
+
+    .narrative-evidence {
+      pointer-events: auto !important;
     }
   }
 

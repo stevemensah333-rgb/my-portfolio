@@ -120,6 +120,33 @@ const toolkit: ToolkitGroup[] = [
     ],
   },
 ];
+
+const itemIds = new Map<ToolkitItem, string>();
+toolkit.forEach((group, groupIndex) => {
+  group.items.forEach((item, itemIndex) => itemIds.set(item, `${groupIndex}-${itemIndex}`));
+});
+
+const primarySkillNames = [
+  'Prompt engineering',
+  'Output validation / Few-shot anchoring',
+  'JavaScript',
+  'PostgreSQL',
+] as const;
+
+const allToolkitItems = toolkit.flatMap(group => group.items);
+const primaryToolkitItems = primarySkillNames.flatMap(name => {
+  const item = allToolkitItems.find(candidate => candidate.name === name);
+  return item ? [item] : [];
+});
+const primaryToolkitItemSet = new Set(primaryToolkitItems);
+const additionalToolkit = toolkit
+  .map(group => ({
+    ...group,
+    items: group.items.filter(item => !primaryToolkitItemSet.has(item)),
+  }))
+  .filter(group => group.items.length > 0);
+const additionalToolCount = additionalToolkit.reduce((count, group) => count + group.items.length, 0);
+const initialItemId = primaryToolkitItems[0] ? itemIds.get(primaryToolkitItems[0]) : undefined;
 ---
 
 <section id="toolkit" class="toolkit" aria-labelledby="toolkit-title">
@@ -127,19 +154,18 @@ const toolkit: ToolkitGroup[] = [
     <header class="toolkit-header">
       <p class="technical-label">Technical index — evidence linked</p>
       <h2 id="toolkit-title">Technical Toolkit</h2>
-      <p class="toolkit-note">Select a skill to see where I used it and what I actually did with it.</p>
+      <p class="toolkit-note">Project-relevant capabilities stay visible. Select one to see where I used it and what I actually did with it.</p>
     </header>
 
     <div class="toolkit-skills">
-      {toolkit.map((group, gIndex) => (
-        <section class="toolkit-group" aria-labelledby={`toolkit-group-${gIndex}`}>
-          <h3 id={`toolkit-group-${gIndex}`}>{group.category}</h3>
-          <ul role="list">
-            {group.items.map((item, iIndex) => {
-              const itemId = `${gIndex}-${iIndex}`;
+      <section class="toolkit-primary" aria-labelledby="toolkit-primary-title">
+        <h3 id="toolkit-primary-title">Project capabilities</h3>
+        <ul class="toolkit-primary-list" role="list">
+          {primaryToolkitItems.map(item => {
+              const itemId = itemIds.get(item)!;
               const panelId = `toolkit-panel-${itemId}`;
-              const btnId = `toolkit-btn-${gIndex}-${iIndex}`;
-              const isInitial = gIndex === 0 && iIndex === 0;
+              const btnId = `toolkit-btn-${itemId}`;
+              const isInitial = itemId === initialItemId;
               return (
                 <li class="toolkit-item" data-toolkit-item>
                   <button
@@ -183,16 +209,78 @@ const toolkit: ToolkitGroup[] = [
                 </li>
               );
             })}
-          </ul>
-        </section>
-      ))}
+        </ul>
+      </section>
+
+      <details class="toolkit-more" data-toolkit-more>
+        <summary>
+          <span>More technical tools</span>
+          <span class="more-count">{additionalToolCount} tools</span>
+        </summary>
+        <div class="toolkit-more-groups">
+          {additionalToolkit.map((group, groupIndex) => (
+            <section class="toolkit-group" aria-labelledby={`toolkit-more-group-${groupIndex}`}>
+              <h3 id={`toolkit-more-group-${groupIndex}`}>{group.category}</h3>
+              <ul role="list">
+                {group.items.map(item => {
+                  const itemId = itemIds.get(item)!;
+                  const panelId = `toolkit-panel-${itemId}`;
+                  const btnId = `toolkit-btn-${itemId}`;
+                  return (
+                    <li class="toolkit-item" data-toolkit-item>
+                      <button
+                        id={btnId}
+                        type="button"
+                        class="toolkit-trigger"
+                        aria-pressed="false"
+                        data-active="false"
+                        data-toolkit-trigger={itemId}
+                      >
+                        <span class="trigger-name">{item.name}</span>
+                        <span class="trigger-meta" aria-hidden="true"><i></i></span>
+                      </button>
+                      <div
+                        id={panelId}
+                        class="toolkit-panel toolkit-panel--inline"
+                        role="region"
+                        aria-labelledby={btnId}
+                        data-toolkit-panel={itemId}
+                        data-active="false"
+                        hidden
+                      >
+                        <div class="panel-section">
+                          <span class="panel-label">Used in</span>
+                          <ul class="panel-list">
+                            {item.usedIn.map(u => (
+                              <li>
+                                {u.href ? <a href={u.href} target={u.href.startsWith('http') ? '_blank' : undefined} rel={u.href.startsWith('http') ? 'noopener' : undefined}>{u.project}</a> : <span>{u.project}</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div class="panel-section">
+                          <span class="panel-label">Evidence</span>
+                          <ul class="panel-list">
+                            {item.evidence.map(e => <li>{e}</li>)}
+                          </ul>
+                        </div>
+                        {item.note && <p class="panel-note">{item.note}</p>}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))}
+        </div>
+      </details>
     </div>
 
     <div class="toolkit-detail" data-toolkit-detail>
-      {toolkit.flatMap((group, gIndex) => group.items.map((item, iIndex) => {
-        const itemId = `${gIndex}-${iIndex}`;
+      {toolkit.flatMap(group => group.items.map(item => {
+        const itemId = itemIds.get(item)!;
         const btnId = `toolkit-btn-${itemId}`;
-        const isInitial = gIndex === 0 && iIndex === 0;
+        const isInitial = itemId === initialItemId;
         return (
           <div
             class="toolkit-panel toolkit-panel--detail"
@@ -237,6 +325,7 @@ const toolkit: ToolkitGroup[] = [
     const triggers = [...toolkitRoot.querySelectorAll<HTMLButtonElement>('[data-toolkit-trigger]')];
     const panels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-panel]')];
     const detailPanels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-detail-panel]')];
+    const moreDisclosure = toolkitRoot.querySelector<HTMLDetailsElement>('[data-toolkit-more]');
 
     const select = (id: string) => {
       if (!triggers.some(trigger => trigger.dataset.toolkitTrigger === id)) return;
@@ -258,6 +347,9 @@ const toolkit: ToolkitGroup[] = [
       });
     };
 
+    const initial = triggers.find(trigger => trigger.getAttribute('aria-pressed') === 'true')?.dataset.toolkitTrigger;
+    const getVisibleTriggers = () => triggers.filter(trigger => !trigger.closest('details:not([open])'));
+
     triggers.forEach(trigger => {
       const itemId = trigger.dataset.toolkitTrigger;
       if (!itemId) return;
@@ -275,29 +367,36 @@ const toolkit: ToolkitGroup[] = [
       });
 
       trigger.addEventListener('keydown', (e) => {
-        const idx = triggers.indexOf(trigger);
+        const visibleTriggers = getVisibleTriggers();
+        const idx = visibleTriggers.indexOf(trigger);
+        if (idx < 0) return;
         let next: number | null = null;
         if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
           e.preventDefault();
-          next = (idx + 1) % triggers.length;
+          next = (idx + 1) % visibleTriggers.length;
         } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
           e.preventDefault();
-          next = (idx - 1 + triggers.length) % triggers.length;
+          next = (idx - 1 + visibleTriggers.length) % visibleTriggers.length;
         } else if (e.key === 'Home') {
           e.preventDefault();
           next = 0;
         } else if (e.key === 'End') {
           e.preventDefault();
-          next = triggers.length - 1;
+          next = visibleTriggers.length - 1;
         }
         if (next !== null) {
-          const t = triggers[next];
+          const t = visibleTriggers[next];
           t?.focus();
         }
       });
     });
 
-    const initial = triggers.find(trigger => trigger.getAttribute('aria-pressed') === 'true')?.dataset.toolkitTrigger;
+    moreDisclosure?.addEventListener('toggle', () => {
+      if (moreDisclosure.open || !initial) return;
+      const activeTrigger = triggers.find(trigger => trigger.getAttribute('aria-pressed') === 'true');
+      if (activeTrigger && moreDisclosure.contains(activeTrigger)) select(initial);
+    });
+
     if (initial) select(initial);
   }
 </script>
@@ -376,6 +475,13 @@ const toolkit: ToolkitGroup[] = [
     border-bottom: var(--border-default);
   }
 
+  .toolkit-primary {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: var(--space-4);
+    border-bottom: var(--border-default);
+  }
+
   .toolkit-group {
     display: grid;
     grid-template-columns: minmax(7.75rem, 0.9fr) minmax(0, 1fr);
@@ -388,7 +494,9 @@ const toolkit: ToolkitGroup[] = [
     border-bottom: 0;
   }
 
+  .toolkit-primary h3,
   .toolkit-group h3 {
+    margin: 0;
     color: var(--color-text-secondary);
     font-family: var(--font-mono);
     font-size: var(--text-label);
@@ -398,12 +506,61 @@ const toolkit: ToolkitGroup[] = [
     text-transform: uppercase;
   }
 
+  .toolkit-primary-list,
   .toolkit-group ul {
     display: grid;
     gap: var(--space-1);
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .toolkit-more summary {
+    display: grid;
+    min-height: var(--control-height);
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-3) 0;
+    color: var(--color-text);
+    font-size: var(--text-small);
+    font-weight: 650;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .toolkit-more summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .toolkit-more summary::after {
+    content: '+';
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .toolkit-more[open] summary::after {
+    content: '−';
+  }
+
+  .toolkit-more summary:focus-visible {
+    outline-offset: -2px;
+    background: var(--color-surface-cool);
+  }
+
+  .more-count {
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .toolkit-more-groups {
+    border-top: var(--border-default);
   }
 
   .toolkit-item {
@@ -591,12 +748,28 @@ const toolkit: ToolkitGroup[] = [
 
     .toolkit-skills {
       grid-area: skills;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      display: block;
       border: var(--border-default);
       border-radius: var(--radius-small);
       overflow: hidden;
       background: var(--color-background);
+    }
+
+    .toolkit-primary {
+      padding: var(--space-4);
+    }
+
+    .toolkit-primary-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .toolkit-more summary {
+      padding-inline: var(--space-4);
+    }
+
+    .toolkit-more-groups {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .toolkit-group {
@@ -617,6 +790,7 @@ const toolkit: ToolkitGroup[] = [
       border-right: 0;
     }
 
+    .toolkit-primary .toolkit-panel--inline,
     .toolkit-group .toolkit-panel--inline {
       display: none !important;
     }
@@ -636,10 +810,7 @@ const toolkit: ToolkitGroup[] = [
       column-gap: var(--space-8);
     }
 
-    /* Balanced 5-category arrangement – avoid long single tail.
-       Use 6-col base: 3 on top row (Languages, Backend, Databases)
-       and 2 on bottom row (Infrastructure & Tools, Data & ML) equally filled. */
-    .toolkit-skills {
+    .toolkit-more-groups {
       grid-template-columns: repeat(6, minmax(0, 1fr));
     }
 
