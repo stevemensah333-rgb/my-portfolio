@@ -13,8 +13,10 @@
 
 export type ProjectStatus =
   | 'live'
-  | 'in-progress'
-  | 'built-for-learning';
+  | 'mvp'
+  | 'in-development'
+  | 'coursework'
+  | 'experiment';
 
 export type ProjectEvidence =
   | { kind: 'product'; label: string; href: string }
@@ -49,6 +51,9 @@ export type ProjectStage = {
     | 'valid';
   /** Optional illustrative code body for code-style stages. */
   code?: string;
+  /** Optional label for the code panel header. Defaults to an ILLUSTRATIVE label.
+   *  Set this when the code is a real implementation excerpt so it is not mislabelled. */
+  codeLabel?: string;
   /** Failure modes for `fail` stages. */
   modes?: { name: string; note: string }[];
   /** Fix list for `intervene` stages. */

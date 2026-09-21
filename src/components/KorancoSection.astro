@@ -1,0 +1,213 @@
+---
+/**
+ * KorancoSection — ongoing Ashesi Innovation Lab engagement with Koranco Farms.
+ *
+ * Deliberately NOT a ProjectSection: there is no public repo, no deployment,
+ * and no verified outcome to inspect, so the stage-inspector shape would be
+ * dishonest here. Instead: current work, planned work, and verified outcomes
+ * are kept explicitly separate.
+ */
+import SectionFrame from './SectionFrame.astro';
+---
+
+<section id="koranco" class="koranco" aria-labelledby="koranco-title" data-workspace-section="koranco">
+  <SectionFrame coordinate="03 / Work · Koranco" surface="paper">
+    <div class="page-shell koranco__layout">
+      <header class="koranco__header">
+        <div class="koranco__head-row">
+          <p class="mono-label">Project · 03 · Ongoing engagement</p>
+          <p class="mono-label koranco__status">
+            <span class="koranco__status-dot" aria-hidden="true"></span>
+            In development
+          </p>
+        </div>
+        <h2 id="koranco-title" class="koranco__title">Koranco Farms</h2>
+        <p class="koranco__short">An Ashesi Innovation Lab engagement around farm operational data.</p>
+        <p class="koranco__claim">
+          I was selected for an Innovation Lab project with Koranco Farms. The work is about
+          how production data is captured, organized and used — record-keeping, production
+          visibility and operational decision-making — toward a production-oriented digital system.
+        </p>
+      </header>
+
+      <div class="koranco__columns">
+        <section class="koranco__panel" aria-labelledby="koranco-current-title">
+          <p class="mono-label">Current work</p>
+          <h3 id="koranco-current-title">What is happening now</h3>
+          <ul class="koranco__list">
+            <li>Assessing how production data is captured, organized and used across the farm.</li>
+            <li>Contributing to a data-driven solution for record-keeping, production visibility and operational decisions.</li>
+            <li>Farm management modules in progress: attendance checking, farm produce management, employee management.</li>
+          </ul>
+        </section>
+
+        <section class="koranco__panel" aria-labelledby="koranco-planned-title">
+          <p class="mono-label">Planned work</p>
+          <h3 id="koranco-planned-title">What comes next</h3>
+          <ul class="koranco__list">
+            <li>A production-oriented digital system shaped by the assessment findings.</li>
+            <li>Wider production visibility for day-to-day operational decisions.</li>
+          </ul>
+        </section>
+
+        <section class="koranco__panel koranco__panel--verified" aria-labelledby="koranco-verified-title">
+          <p class="mono-label">Verified outcomes</p>
+          <h3 id="koranco-verified-title">What is proven so far</h3>
+          <p class="koranco__none">None yet. The engagement is in progress — no deployment, adoption, or measured result is claimed.</p>
+        </section>
+      </div>
+
+      <aside class="koranco__boundary" aria-label="Evidence boundary">
+        <span class="mono-label">Evidence boundary</span>
+        <p>
+          No public repository, deployment, or farm-side usage figures exist yet. This engagement
+          is described from the Innovation Lab brief and my résumé; outcomes will be added only
+          when they are verified.
+        </p>
+      </aside>
+    </div>
+  </SectionFrame>
+</section>
+
+<style>
+  .koranco {
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .koranco__layout {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .koranco__header {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .koranco__head-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .koranco__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-on-paper-muted);
+  }
+
+  .koranco__status-dot {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    background: var(--color-accent);
+    border-radius: 50%;
+  }
+
+  .koranco__title {
+    margin: 0;
+    font-size: var(--text-feature);
+    font-weight: 600;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.05;
+  }
+
+  .koranco__short {
+    max-width: var(--width-reading);
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-on-paper);
+    font-size: var(--text-body-large);
+    line-height: 1.4;
+  }
+
+  .koranco__claim {
+    max-width: var(--width-reading);
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-body);
+    line-height: 1.55;
+  }
+
+  .koranco__columns {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .koranco__panel {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-5);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  .koranco__panel h3 {
+    margin: 0;
+    font-size: var(--text-component);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .koranco__list {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .koranco__list li {
+    position: relative;
+    padding-left: var(--space-4);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .koranco__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 0.35rem;
+    height: 0.35rem;
+    border: 1px solid var(--color-accent);
+    background: transparent;
+  }
+
+  .koranco__panel--verified {
+    background: var(--color-paper-soft);
+  }
+
+  .koranco__none {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .koranco__boundary {
+    display: grid;
+    gap: var(--space-2);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--color-rule-on-paper);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+  }
+
+  .koranco__boundary p {
+    margin: 0;
+    max-width: var(--width-reading);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  @media (min-width: 48rem) {
+    .koranco__columns {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -32,10 +32,10 @@ const toolkit: ToolkitGroup[] = [
       },
       {
         id: 'javascript',
-        name: 'JavaScript',
+        name: 'TypeScript',
         featuredOrder: 4,
         usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }, { project: 'Portfolio (this site)' }],
-        evidence: ['product surface logic', 'failure trace interactivity', 'editorial UI states'],
+        evidence: ['React + Vite product surfaces', 'typed AI-boundary contracts', 'portfolio interactivity (Astro)'],
       },
       {
         id: 'html',
@@ -61,21 +61,21 @@ const toolkit: ToolkitGroup[] = [
         name: 'Prompt engineering',
         featuredOrder: 1,
         usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }],
-        evidence: ['custom system instructions', 'explicit context management', 'output constraint design'],
+        evidence: ['bounded task-family server prompts', 'untrusted-data prompt rules', 'requirement/evidence citation design'],
       },
       {
         id: 'fastapi',
         name: 'FastAPI',
         featuredOrder: 5,
         usedIn: [{ project: 'SessionBook', href: '/work/sessionbook/' }],
-        evidence: ['async SQLAlchemy 2.0', 'Pydantic contracts at the boundary', 'transactional booking routes'],
+        evidence: ['async SQLAlchemy 2.0 service', 'Pydantic contracts at the boundary', 'transactional booking logic (routes pending)'],
       },
       {
         id: 'sqlalchemy',
         name: 'SQLAlchemy (async)',
         featuredOrder: 6,
         usedIn: [{ project: 'SessionBook', href: '/work/sessionbook/' }],
-        evidence: ['typed Mapped[...] models', 'async session lifecycle', 'Alembic-ready metadata'],
+        evidence: ['typed Mapped[...] models', 'async session lifecycle', 'Alembic configured — no migrations yet'],
       },
     ],
   },
@@ -91,8 +91,8 @@ const toolkit: ToolkitGroup[] = [
           { project: 'Syncareer', href: '/work/syncareer/' },
         ],
         evidence: [
-          'SELECT … FOR UPDATE for booking row lock',
-          'flexible schema for activity / progress / weaknesses',
+          'SELECT … FOR UPDATE row lock (SessionBook)',
+          'Supabase Postgres + RLS app data (Syncareer)',
         ],
       },
       {
@@ -166,8 +166,8 @@ const toolkit: ToolkitGroup[] = [
         evidence: ['evaluation beyond happy path', 'testing variance'],
       },
       {
-        id: 'output-validation-few-shot',
-        name: 'Output validation / Few-shot anchoring',
+        id: 'output-validation-evidence',
+        name: 'Output validation / Evidence grounding',
         featuredOrder: 3,
         usedIn: [
           { project: 'Syncareer', href: '/work/syncareer/' },
@@ -175,7 +175,7 @@ const toolkit: ToolkitGroup[] = [
         ],
         evidence: [
           'schema checks before product use',
-          'few-shot examples for structure',
+          'requirement/evidence citation enforcement',
           'failure mode separation',
           'spoken-output design for the booking confirmation',
         ],

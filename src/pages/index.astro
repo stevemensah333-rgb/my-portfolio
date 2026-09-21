@@ -3,6 +3,7 @@ import { GMAIL_COMPOSE_URL, PUBLIC_LINKS } from '../config/site';
 import { projects, syncareer, sessionbook } from '../data/registry';
 import ReliabilityTrace from '../components/ReliabilityTrace.astro';
 import ProjectSection from '../components/ProjectSection.astro';
+import KorancoSection from '../components/KorancoSection.astro';
 import SectionFrame from '../components/SectionFrame.astro';
 import TechnicalToolkitSection from '../components/TechnicalToolkitSection.astro';
 import AboutSection from '../components/AboutSection.astro';
@@ -13,9 +14,9 @@ import SiteFooter from '../components/SiteFooter.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GutterAxis from '../components/GutterAxis.astro';
 
-const title = 'Stephen Mensah — AI Engineering Workspace';
+const title = 'Stephen Mensah — Software Engineer building reliable AI features';
 const description =
-  "Stephen Mensah builds and debugs LLM-powered software. Attention to reliability, validation, integration, and what happens when model output has to fit an actual product.";
+  'Stephen Mensah is a software engineer who builds and debugs LLM-powered software, with attention to reliability, validation, integration, and production behavior.';
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -30,10 +31,11 @@ const structuredData = {
     '@type': 'CollegeOrUniversity',
     name: 'Ashesi University',
   },
-  jobTitle: 'AI Engineering Student',
+  jobTitle: 'Software Engineer',
+  description,
   knowsAbout: [
     'LLM reliability',
-    'Prompt engineering',
+    'Evidence-grounded AI integration',
     'Structured output validation',
     'FastAPI',
     'Postgres',
@@ -72,10 +74,10 @@ const structuredData = {
             I build and debug LLM-powered software. I pay attention to what happens when model
             output has to fit an actual product.
           </p>
-          <div class="hero__actions" aria-label="Workspace actions">
-            <a class="button button--accent" href="#syncareer">Open the workspace</a>
+          <div class="hero__actions" aria-label="Primary actions">
+            <a class="button button--accent" href="#syncareer">See the proof</a>
             <a class="text-link" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">
-              Start a conversation
+              Email me
               <span class="text-link__arrow" aria-hidden="true">→</span>
             </a>
           </div>
@@ -112,6 +114,9 @@ const structuredData = {
     coordinate={`02 / Work · ${sessionbook.name}`}
     showNarrative={false}
   />
+
+  <!-- Work · Koranco (ongoing engagement, no inspector) -->
+  <KorancoSection />
 
   <!-- Reliability Lab · the trace engine, exposed as its own workspace -->
   <section id="reliability-lab" class="reliability-lab" aria-labelledby="reliability-lab-title" data-workspace-section="reliability-lab">

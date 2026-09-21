@@ -13,8 +13,13 @@ import SectionFrame from './SectionFrame.astro';
 
       <div class="about__copy">
         <p>
-          I'm a Computer Science student at Ashesi University. I'm curious, analytical and attentive,
-          especially when details are easy to miss.
+          I'm a Computer Science student at Ashesi University in Berekuso, Ghana. I'm curious,
+          analytical and attentive, especially when details are easy to miss.
+        </p>
+        <p>
+          Most of my build time goes to Syncareer, a career workspace for students, and
+          SessionBook, a booking backend being built toward voice-agent booking. In both, I care
+          most about the unglamorous parts: validation, integration, and production behavior.
         </p>
       </div>
 
@@ -66,6 +71,8 @@ import SectionFrame from './SectionFrame.astro';
   }
 
   .about__copy {
+    display: grid;
+    gap: var(--space-4);
     max-width: var(--width-reading);
   }
 

@@ -282,7 +282,7 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
               {(stage.kind === 'raw' || stage.kind === 'valid') && stage.code && (
                 <div class="code-panel">
                   <div class="code-panel__meta">
-                    <span>{stage.kind === 'raw' ? 'ILLUSTRATIVE BAD OUTPUT' : 'ILLUSTRATIVE VALID OUTPUT'}</span>
+                    <span>{stage.codeLabel ?? (stage.kind === 'raw' ? 'ILLUSTRATIVE BAD OUTPUT' : 'ILLUSTRATIVE VALID OUTPUT')}</span>
                     <span class:list={['code-panel__type', stage.kind === 'raw' ? 'code-panel__type--fail' : 'code-panel__type--pass']}>
                       {stage.kind}
                     </span>
@@ -295,14 +295,14 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
                 <div class="validation-card">
                   <div class="validation-card__side">
                     <span class="mono-label">Product expects</span>
-                    <strong>{project.id === 'syncareer' ? 'title, level, years, next_steps' : 'slot exists, free, time valid'}</strong>
+                    <strong>{project.id === 'syncareer' ? 'requirement + evidence citations' : 'slot exists, free, time valid'}</strong>
                   </div>
                   <span class="validation-card__rule" aria-hidden="true"></span>
                   <div class="validation-card__side">
                     <span class="mono-label">Observed before fix</span>
                     <strong class="validation-card__fail">
                       {project.id === 'syncareer'
-                        ? 'mixed prose + malformed fields'
+                        ? 'bullet-only rewrite, no citations'
                         : 'concurrent read sees free slot'}
                     </strong>
                   </div>
@@ -471,11 +471,19 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
     background: var(--color-signal-pass);
   }
 
-  .project__status--in-progress .project__status-dot {
+  .project__status--mvp .project__status-dot {
+    background: var(--color-signal-pass);
+  }
+
+  .project__status--in-development .project__status-dot {
     background: var(--color-accent);
   }
 
-  .project__status--built-for-learning .project__status-dot {
+  .project__status--coursework .project__status-dot {
+    background: var(--color-text-on-paper-muted);
+  }
+
+  .project__status--experiment .project__status-dot {
     background: var(--color-text-on-paper-muted);
   }
 
