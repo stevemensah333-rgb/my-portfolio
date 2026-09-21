@@ -457,11 +457,13 @@ const first = investigationStages[0];
   }
 
   .investigation__tab[data-past='true'] {
-    opacity: 0.72;
+    opacity: 1;
   }
 
   .investigation__tab[data-future='true'] {
-    opacity: 0.55;
+    opacity: 1;
+    border-style: dotted;
+    background: var(--color-paper-soft);
   }
 
   .investigation__tab[data-past='true'][data-tone='valid'] .investigation__tab-tone {

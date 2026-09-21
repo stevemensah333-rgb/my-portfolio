@@ -1,6 +1,5 @@
 ---
 import ParticlePortrait from './ParticlePortrait.astro';
-import ReliabilityTrace from './ReliabilityTrace.astro';
 import SectionFrame from './SectionFrame.astro';
 ---
 
@@ -14,13 +13,16 @@ import SectionFrame from './SectionFrame.astro';
 
       <div class="about__copy">
         <p>
-          I'm a Computer Science student at Ashesi University in Berekuso, Ghana. I'm curious,
-          analytical and attentive, especially when details are easy to miss.
+          I'm a Computer Science student at Ashesi University in Berekuso, Ghana. I spend a lot
+          of build time chasing the problems that only show up at the boundary — between a model
+          and a contract, between a request and a database row, between what a system promises
+          and what it actually does.
         </p>
         <p>
-          Most of my build time goes to Syncareer, a career workspace for students, and
-          SessionBook, a booking backend being built toward voice-agent booking. In both, I care
-          most about the unglamorous parts: validation, integration, and production behavior.
+          Syncareer is my current shipped product: a free career workspace for students whose
+          AI help has to cite evidence before it applies. SessionBook is a backend I'm building
+          toward voice-agent booking, where the interesting problem is keeping concurrency,
+          timezones and spoken confirmation honest.
         </p>
       </div>
 
@@ -39,7 +41,6 @@ import SectionFrame from './SectionFrame.astro';
           <span class="about__portrait-mark about__portrait-mark--bl" aria-hidden="true"></span>
           <span class="about__portrait-mark about__portrait-mark--br" aria-hidden="true"></span>
         </div>
-        <ReliabilityTrace variant="portrait" />
       </div>
     </div>
   </SectionFrame>

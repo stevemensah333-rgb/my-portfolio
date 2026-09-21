@@ -112,7 +112,7 @@ const total = String(labStages.length).padStart(2, '0');
 
         <!-- Payload viewport: one panel per stage -->
         <div class="lab__viewport">
-          {labStages.map((stage) => (
+          {labStages.map((stage, index) => (
             <article
               role="tabpanel"
               id={`lab-panel-${stage.id}`}
@@ -122,6 +122,7 @@ const total = String(labStages.length).padStart(2, '0');
               data-tone={stage.tone}
               data-readout={stage.lab.readout}
               tabindex="0"
+              hidden={index !== 0}
             >
               <header class="lab__panel-top">
                 <span class="lab__tag">{stage.step} / {stage.label}</span>
@@ -1340,6 +1341,22 @@ const total = String(labStages.length).padStart(2, '0');
   :global(html:not(.js)) .lab__readout,
   :global(html:not(.js)) .lab__cursor,
   :global(html:not(.js)) .lab__track-fill {
+    display: none;
+  }
+
+  :global(html:not(.js)) .lab__panel,
+  :global(html:not(.js)) .lab__panel[hidden] {
+    display: grid !important;
+    animation: none;
+    margin-bottom: var(--space-4);
+  }
+
+  :global(html:not(.js)) .lab__panel + .lab__panel {
+    border-top: 1px solid var(--color-rule-on-canvas-soft);
+    padding-top: var(--space-4);
+  }
+
+  :global(html:not(.js)) .lab__rail {
     display: none;
   }
 
