@@ -1,10 +1,16 @@
 ---
 import { GMAIL_COMPOSE_URL } from '../../config/site';
 import { syncareer } from '../../data/registry';
-import ProjectSection from '../../components/ProjectSection.astro';
+import {
+  evidenceBoundary,
+  investigationDecisions,
+  syncareerProduct,
+} from '../../data/syncareerInvestigation';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionFrame from '../../components/SectionFrame.astro';
 import ProductFrame from '../../components/ProductFrame.astro';
+import SyncareerInvestigation from '../../components/SyncareerInvestigation.astro';
+import ReliabilityTrace from '../../components/ReliabilityTrace.astro';
 
 const title = `${syncareer.name} — Career Workspace Case Study | Stephen Mensah`;
 const description = `${syncareer.name} is an opportunity-first career workspace: saved opportunity → tailored CV → interview preparation → outcome. How its AI help was grounded in cited evidence — and what is still unverified.`;
@@ -47,10 +53,9 @@ const structuredData = {
       <div class="case-opening">
         <div>
           <p class="mono-label">Case study · {syncareer.name} · Live</p>
-          <h1>A real product, with AI help that cites its evidence.</h1>
+          <h1>A real product, with AI help that has to cite its evidence.</h1>
           <p class="case-summary">
-            {syncareer.claim} This case study is the same trace that runs on the
-            homepage — opened as its own surface so each stage can be inspected in depth.
+            {syncareer.short} {syncareerProduct.problem} {syncareerProduct.built}
           </p>
         </div>
 
@@ -63,9 +68,24 @@ const structuredData = {
           <dl>
             <div><dt>Product</dt><dd>Career workspace (free to use)</dd></div>
             <div><dt>AI feature</dt><dd>Contextual assistant + interview practice</dd></div>
-            <div><dt>AI provider</dt><dd>Lovable AI gateway</dd></div>
-            <div><dt>Evidence</dt><dd>Product interface + source repo</dd></div>
-            <div><dt>Website</dt><dd><a href="https://syncareer.me/" target="_blank" rel="noopener">Visit {syncareer.name} <span aria-hidden="true">↗</span></a></dd></div>
+            <div><dt>AI path</dt><dd>career-guidance v2 · Lovable AI gateway</dd></div>
+            <div><dt>Tracked model</dt><dd>google/gemini-2.5-flash</dd></div>
+            <div>
+              <dt>Website</dt>
+              <dd>
+                <a href={syncareerProduct.liveUrl} target="_blank" rel="noopener">
+                  Visit {syncareer.name} <span aria-hidden="true">↗</span>
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt>Source</dt>
+              <dd>
+                <a href={syncareerProduct.repoUrl} target="_blank" rel="noopener">
+                  GitHub repository <span aria-hidden="true">↗</span>
+                </a>
+              </dd>
+            </div>
           </dl>
         </aside>
       </div>
@@ -85,98 +105,107 @@ const structuredData = {
       </div>
     </header>
 
-    <SectionFrame coordinate="01 / Trace context" surface="paper" data-workspace-section="syncareer">
-      <div class="page-shell trace-context">
-        <div class="trace-context__copy">
+    <section class="case-trace-band" data-workspace-section="trace">
+    <SectionFrame coordinate="01 / Causal path" surface="canvas">
+      <div class="page-shell case-trace">
+        <div class="case-trace__copy">
           <p class="mono-label">Reliability trace</p>
-          <h2>From raw model output to product-ready.</h2>
+          <h2>Raw output is not a product feature.</h2>
           <p>
-            The trace follows the same stages used in the homepage inspector — input,
-            output, validation, failure, diagnosis, intervention, and the resulting valid
-            output — opened here so each transition is visible.
+            Replay the path, or inspect a stage. Unstructured rewrite → validation
+            → refusal → intervention → cited output. The animation is the same
+            causal story as the investigation below.
           </p>
+        </div>
+        <ReliabilityTrace instanceId="case" />
+      </div>
+    </SectionFrame>
+    </section>
+
+    <SectionFrame coordinate="02 / Investigation" surface="paper" data-workspace-section="syncareer">
+      <div class="page-shell case-investigation">
+        <SyncareerInvestigation />
+      </div>
+    </SectionFrame>
+
+    <SectionFrame coordinate="03 / Decisions" surface="paper" data-workspace-section="decisions">
+      <div class="page-shell case-decisions">
+        <header class="case-decisions__intro">
+          <p class="mono-label">What Stephen actually built</p>
+          <h2>The engineering decisions that mattered.</h2>
+        </header>
+        <ul class="case-decisions__list">
+          {investigationDecisions.map((item) => (
+            <li>
+              <p class="mono-label">{item.label}</p>
+              <p>{item.body}</p>
+            </li>
+          ))}
+        </ul>
+        <p class="case-decisions__stack">
+          React + Vite frontend on Supabase (Auth, Postgres with row-level security,
+          database functions, edge functions), hosted on Lovable Cloud — no custom
+          API server. Authorization is enforced server-side; route guards are UX only.
+          Interview generation runs in deployed-only functions, so its exact prompts
+          cannot be audited from the repository.
+        </p>
+      </div>
+    </SectionFrame>
+
+    <SectionFrame coordinate="04 / Product surfaces" surface="paper" data-workspace-section="surfaces">
+      <div class="page-shell case-surfaces">
+        <header class="case-surfaces__intro">
+          <p class="mono-label">The product around the contract</p>
+          <h2>Opportunity, CV, interview — one workspace.</h2>
+        </header>
+        <div class="case-surfaces__grid">
+          <ProductFrame
+            src1440="/images/syncareer/dashboard-1440.png"
+            src1800="/images/syncareer/dashboard-1800.png"
+            src2400="/images/syncareer/dashboard-2400.png"
+            width={2400}
+            height={1302}
+            alt="Syncareer dashboard showing career readiness, application, CV strength and interview progress."
+            label="02 / Dashboard"
+            caption="Readiness, applications, CV strength and interview progress in one place."
+            address="syncareer.me/dashboard"
+          />
+          <ProductFrame
+            src1440="/images/syncareer/opportunities-1440.png"
+            src1800="/images/syncareer/opportunities-1800.png"
+            src2400="/images/syncareer/opportunities-2400.png"
+            width={2400}
+            height={1303}
+            alt="Syncareer opportunities interface showing job search, match score, and interview / CV tailoring actions."
+            label="03 / Opportunities"
+            caption="Saved opportunities feed CV tailoring and interview practice. Match scores are product UI, not a claimed hiring probability."
+            address="syncareer.me/opportunities"
+          />
         </div>
       </div>
     </SectionFrame>
 
-    <SectionFrame coordinate="02 / Product journey" surface="paper" data-workspace-section="journey">
-      <div class="page-shell journey">
-        <div class="journey__copy">
-          <p class="mono-label">What the product does</p>
-          <h2>One journey: opportunity to outcome.</h2>
-          <p>
-            Syncareer is free to use — no tiers, no gating. Every screen serves the path from
-            a saved opportunity to a stronger application and a tracked outcome.
-          </p>
-        </div>
-        <ol class="journey__steps">
-          <li>
-            <p class="mono-label">01 · Opportunity</p>
-            <h3>Save real opportunities.</h3>
-            <p>External job aggregation for the student&apos;s major and region, with market intelligence and alumni outcomes for context. The assistant explains requirements, compares them against supplied evidence, and suggests research questions.</p>
-          </li>
-          <li>
-            <p class="mono-label">02 · Evidence / CV</p>
-            <h3>Build the CV from cited evidence.</h3>
-            <p>Structured CV editor with AI bullet rewrites against a selected requirement and selected evidence, a deterministic CV Strength Score, skill-gap analysis, export and a public portfolio. Every rewrite must cite its sources; nothing applies automatically.</p>
-          </li>
-          <li>
-            <p class="mono-label">03 · Interview preparation</p>
-            <h3>Practise against the role.</h3>
-            <p>A voice interview simulator with an AI interviewer and feedback, plus practice questions and feedback explanations. Interview generation runs in deployed-only functions, so its exact prompts cannot be audited from the repo — and LLM output is intentionally not treated as a testing contract.</p>
-          </li>
-          <li>
-            <p class="mono-label">04 · Next action</p>
-            <h3>Move the application forward.</h3>
-            <p>Application workspaces with follow-up drafts, organised notes and clarified next actions, plus counsellor booking and messaging. Drafts use only supplied facts, with placeholders where facts are missing.</p>
-          </li>
-          <li>
-            <p class="mono-label">05 · Outcome</p>
-            <h3>Track what happened.</h3>
-            <p>Applications, stages and outcomes stay connected so each round feeds the next. No placement rates or success percentages are claimed.</p>
-          </li>
-        </ol>
-        <div class="journey__decisions">
-          <p class="mono-label">Product / system decisions</p>
-          <p>React + Vite frontend on Supabase (Auth, Postgres with row-level security, database functions, edge functions), hosted on Lovable Cloud — no custom API server. Authorization is enforced server-side; route guards are UX only.</p>
-        </div>
-      </div>
-    </SectionFrame>
-
-    <ProjectSection
-      project={syncareer}
-      anchorId="trace"
-      coordinate="03 / Stage inspector"
-      showNarrative={true}
-    />
-
-    <SectionFrame coordinate="04 / Evidence & limitations" surface="paper" data-workspace-section="evidence">
+    <SectionFrame coordinate="05 / Evidence & limitations" surface="paper" data-workspace-section="evidence">
       <div class="page-shell">
         <div class="outcome-grid">
+          <section class="boundary-panel" aria-labelledby="boundary-known-title">
+            <p class="mono-label">Verified in the repository</p>
+            <h2 id="boundary-known-title">What this shows</h2>
+            <ul class="boundary-list">
+              {evidenceBoundary.known.map((item) => (
+                <li data-state="known">{item}</li>
+              ))}
+            </ul>
+          </section>
+
           <section class="boundary-panel" aria-labelledby="boundary-title">
             <p class="mono-label">What this does not prove yet</p>
             <h2 id="boundary-title">Evidence boundary</h2>
             <ul class="boundary-list">
-              <li data-state="known">Observed failure classes identified</li>
-              <li data-state="known">Revised request/response contract implemented</li>
-              <li data-state="missing">No before-and-after model outputs supplied</li>
-              <li data-state="missing">No repeatable evaluation supplied</li>
-              <li data-state="missing">No measured failure rate supplied</li>
-              <li data-state="missing">Some AI functions are deployed-only (prompts unauditable)</li>
+              {evidenceBoundary.missing.map((item) => (
+                <li data-state="missing">{item}</li>
+              ))}
             </ul>
-          </section>
-
-          <section class="traction-panel" aria-labelledby="product-result-title">
-            <p class="mono-label">Product traction · not a reliability measure</p>
-            <h2 id="product-result-title">What came of {syncareer.name}</h2>
-            <dl class="traction-metrics">
-              <div><dt>Sign-ups</dt><dd>80+</dd></div>
-              <div><dt>Daily page visits</dt><dd>About 50</dd></div>
-            </dl>
-            <p>
-              Self-reported from the founder's product analytics. These numbers show product
-              use. They are not presented as evidence that the LLM became more reliable.
-            </p>
           </section>
         </div>
       </div>
@@ -274,12 +303,6 @@ const structuredData = {
     color: var(--color-accent);
   }
 
-  .product-record h2 {
-    margin-block: var(--space-5) var(--space-4);
-    font-size: var(--text-component);
-    font-weight: 600;
-  }
-
   .product-record__name {
     margin: 0 0 var(--space-4);
     font-size: var(--text-component);
@@ -294,7 +317,7 @@ const structuredData = {
 
   .product-record dl div {
     display: grid;
-    grid-template-columns: 5rem minmax(0, 1fr);
+    grid-template-columns: 5.5rem minmax(0, 1fr);
     gap: var(--space-4);
     padding-block: var(--space-3);
     border-bottom: 1px solid var(--color-rule-on-paper);
@@ -319,45 +342,55 @@ const structuredData = {
     margin-top: var(--space-6);
   }
 
-  .trace-context {
-    padding-block: var(--section-block);
-  }
-
-  .trace-context__copy {
-    display: grid;
-    gap: var(--space-3);
-    max-width: var(--width-content);
-  }
-
-  .trace-context__copy h2 {
-    margin: 0;
-    max-width: 22ch;
-    font-size: var(--text-section);
-    font-weight: 600;
-    line-height: 1.1;
-  }
-
-  .trace-context__copy p:last-child {
-    margin: 0;
-    max-width: var(--width-reading);
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-body-large);
-    line-height: 1.55;
-  }
-
-  .journey {
+  .case-trace {
     display: grid;
     gap: var(--space-6);
     padding-block: var(--section-block);
   }
 
-  .journey__copy {
+  .case-trace__copy {
     display: grid;
     gap: var(--space-3);
     max-width: var(--width-content);
   }
 
-  .journey__copy h2 {
+  .case-trace__copy h2 {
+    margin: 0;
+    max-width: 22ch;
+    font-size: var(--text-section);
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--color-text-on-canvas);
+  }
+
+  .case-trace__copy p:last-child {
+    margin: 0;
+    max-width: var(--width-reading);
+    color: var(--color-text-on-canvas-muted);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
+  }
+
+  .case-trace .mono-label {
+    color: var(--color-text-on-canvas-muted);
+  }
+
+  .case-investigation {
+    padding-block: var(--section-block);
+  }
+
+  .case-decisions {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--section-block);
+  }
+
+  .case-decisions__intro {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .case-decisions__intro h2 {
     margin: 0;
     max-width: 22ch;
     font-size: var(--text-section);
@@ -365,60 +398,59 @@ const structuredData = {
     line-height: 1.1;
   }
 
-  .journey__copy p:last-child {
-    margin: 0;
-    max-width: var(--width-reading);
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-body-large);
-    line-height: 1.55;
-  }
-
-  .journey__steps {
+  .case-decisions__list {
     display: grid;
     gap: var(--space-4);
     margin: 0;
     padding: 0;
     list-style: none;
-    counter-reset: journey;
   }
 
-  .journey__steps li {
+  .case-decisions__list li {
     display: grid;
     gap: var(--space-2);
-    align-content: start;
     padding: var(--space-5);
     border: 1px solid var(--color-rule-on-paper);
     background: var(--color-paper);
   }
 
-  .journey__steps h3 {
-    margin: 0;
-    font-size: var(--text-component);
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
-
-  .journey__steps p:last-child {
+  .case-decisions__list p:last-child {
     margin: 0;
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.55;
   }
 
-  .journey__decisions {
-    display: grid;
-    gap: var(--space-2);
-    padding: var(--space-5);
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper-soft);
-  }
-
-  .journey__decisions p:last-child {
+  .case-decisions__stack {
     margin: 0;
     max-width: var(--width-reading);
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.55;
+  }
+
+  .case-surfaces {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--section-block);
+  }
+
+  .case-surfaces__intro {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .case-surfaces__intro h2 {
+    margin: 0;
+    max-width: 22ch;
+    font-size: var(--text-section);
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .case-surfaces__grid {
+    display: grid;
+    gap: var(--space-6);
   }
 
   .outcome-grid {
@@ -427,8 +459,7 @@ const structuredData = {
     padding-block: var(--space-7);
   }
 
-  .boundary-panel,
-  .traction-panel {
+  .boundary-panel {
     display: grid;
     gap: var(--space-3);
     padding: var(--space-5);
@@ -436,8 +467,7 @@ const structuredData = {
     background: var(--color-paper-soft);
   }
 
-  .boundary-panel h2,
-  .traction-panel h2 {
+  .boundary-panel h2 {
     margin: 0;
     font-size: var(--text-component);
     font-weight: 600;
@@ -477,40 +507,6 @@ const structuredData = {
     content: '×';
   }
 
-  .traction-metrics {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin: var(--space-3) 0;
-    border-block: 1px solid var(--color-rule-on-paper);
-  }
-
-  .traction-metrics div {
-    display: flex;
-    min-height: 6.5rem;
-    flex-direction: column-reverse;
-    justify-content: space-between;
-    padding: var(--space-4);
-  }
-
-  .traction-metrics div + div {
-    border-left: 1px solid var(--color-rule-on-paper);
-  }
-
-  .traction-metrics dt {
-    margin: 0;
-    color: var(--color-text-on-paper-muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .traction-metrics dd {
-    margin: 0;
-    font-size: var(--text-component);
-    font-weight: 650;
-  }
-
   .case-content {
     padding-bottom: var(--space-6);
   }
@@ -532,7 +528,11 @@ const structuredData = {
   }
 
   @media (min-width: 48rem) {
-    .journey__steps {
+    .case-decisions__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .case-surfaces__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -546,6 +546,11 @@ const structuredData = {
       grid-template-columns: minmax(0, 7fr) minmax(19rem, 5fr);
       align-items: end;
     }
+
+    .case-trace {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      align-items: start;
+    }
   }
 
   @media (max-width: 30rem) {
@@ -553,13 +558,8 @@ const structuredData = {
       font-size: 1.75rem;
     }
 
-    .traction-metrics {
+    .case-decisions__list {
       grid-template-columns: 1fr;
-    }
-
-    .traction-metrics div + div {
-      border-top: 1px solid var(--color-rule-on-paper);
-      border-left: 0;
     }
   }
 </style>
