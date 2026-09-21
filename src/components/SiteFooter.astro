@@ -26,25 +26,10 @@ const year = new Date().getFullYear();
     </p>
   </div>
 
-  <div class="page-shell site-footer__status" role="group" aria-label="System status">
-    <span class="site-footer__status-row">
-      <span class="site-footer__status-dot" aria-hidden="true"></span>
-      <span class="mono-label">Status</span>
-      <span class="site-footer__status-text">Online</span>
-    </span>
-    <span class="site-footer__status-row">
-      <span class="mono-label">Build</span>
-      <span class="site-footer__status-text">{year}.09</span>
-    </span>
-    <span class="site-footer__status-row">
-      <span class="mono-label">Render</span>
-      <span class="site-footer__status-text">Astro static</span>
-    </span>
-    <span class="site-footer__status-row">
-      <span class="mono-label">Source</span>
-      <span class="site-footer__status-text">/src/data</span>
-    </span>
-  </div>
+  <p class="page-shell site-footer__tagline">
+    Built and written by Stephen Mensah in Berekuso, Ghana. Content is grounded in public
+    repositories; anything not yet verified is labelled UNKNOWN.
+  </p>
 </footer>
 
 <style>
@@ -126,43 +111,14 @@ const year = new Date().getFullYear();
     color: var(--color-accent-text);
   }
 
-  /* Status bar — system-style readouts, marks the page as an instrument. */
-  .site-footer__status {
-    display: grid;
-    gap: var(--space-2) var(--space-5);
-    padding: var(--space-3) 0 var(--space-5);
+  .site-footer__tagline {
+    margin: 0;
+    padding: var(--space-4) 0 var(--space-5);
     border-top: 1px dashed var(--color-rule-on-canvas-soft);
     color: var(--color-text-on-canvas-muted);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.04em;
-  }
-
-  .site-footer__status-row {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-2);
-  }
-
-  .site-footer__status-dot {
-    width: 0.4375rem;
-    height: 0.4375rem;
-    background: var(--color-signal-pass);
-    border-radius: 50%;
-    animation: footer-blink 3.6s var(--ease-standard) infinite;
-  }
-
-  @keyframes footer-blink {
-    0%, 90%, 100% { opacity: 1; }
-    95% { opacity: 0.35; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .site-footer__status-dot { animation: none; }
-  }
-
-  .site-footer__status-text {
-    color: var(--color-text-on-canvas);
+    font-size: var(--text-small);
+    line-height: 1.55;
+    max-width: var(--width-reading);
   }
 
   @media (min-width: 48rem) {
@@ -174,18 +130,6 @@ const year = new Date().getFullYear();
 
     .site-footer__nav {
       justify-self: center;
-    }
-
-    .site-footer__status {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      align-items: center;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .site-footer__status {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: var(--space-3) var(--space-7);
     }
   }
 </style>
