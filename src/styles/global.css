@@ -65,15 +65,19 @@
   --color-paper-inset: #DDD7C9;
   --color-paper-tab: #E3DECD;
 
-  /* 2.2 Text ----------------------------------------------- */
+  /* 2.2 Text -----------------------------------------------
+     Faint tones are tuned to clear 4.5:1 against their own
+     environment (paper faint on paper / paper-soft, canvas
+     faint on canvas / canvas-soft), so tertiary labels stay
+     readable without losing the three-step hierarchy. */
 
   --color-text-on-paper: #0E1116;
   --color-text-on-paper-muted: #5A5E66;
-  --color-text-on-paper-faint: #8A8C92;
+  --color-text-on-paper-faint: #63656C;
 
   --color-text-on-canvas: #E7E2D6;
   --color-text-on-canvas-muted: #A39F95;
-  --color-text-on-canvas-faint: #6F6D69;
+  --color-text-on-canvas-faint: #93918C;
 
   /* 2.3 Borders & rules ------------------------------------ */
 
@@ -95,6 +99,16 @@
   --color-accent-deep: #A87214;
   --color-accent-soft: #F0D9B0;
   --color-accent-tint: #F4E5C9;
+
+  /* Text-safe variants. Amber and the signal tones are strong
+     as fills and marks but pass only ~2–3:1 as small text on
+     the opposite environment. `*-text` tokens are re-mapped on
+     dark surfaces (see the remap block below) so every piece of
+     accent / signal TEXT clears 4.5:1 without changing the fills. */
+  --color-accent-ink: #845A0E;
+  --color-accent-text: var(--color-accent-ink);
+  --color-signal-pass-text: #2A6B52;
+  --color-signal-fail-text: #96482F;
 
   --color-signal-pass: #2F7A5C;
   --color-signal-pass-soft: #CFE0D5;
@@ -220,6 +234,23 @@
   --z-skip: 100;
 }
 
+/* Dark-surface contexts re-map the text-signal tokens to the
+   on-canvas side of each pair. Fills, borders and marks keep the
+   pure signal colours; only TEXT changes. */
+.hero,
+.trace,
+.lab,
+.contact,
+.site-footer,
+.workspace-rail,
+.workspace-bar,
+.boot,
+.case-trace-band {
+  --color-accent-text: var(--color-accent);
+  --color-signal-fail-text: color-mix(in srgb, var(--color-signal-fail) 70%, var(--color-text-on-canvas));
+  --color-signal-pass-text: color-mix(in srgb, var(--color-signal-pass) 70%, var(--color-text-on-canvas));
+}
+
 /* ----------------------------------------------------------------
    3. Base / reset
    ---------------------------------------------------------------- */
@@ -228,6 +259,11 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  /* Grid/flex children shrink below their content's min-content width
+     (long code lines, nowrap instrument labels). Scroll boxes keep
+     their own overflow-x: auto — the document itself never scrolls
+     horizontally. */
+  min-width: 0;
 }
 
 html {
@@ -245,6 +281,9 @@ body {
   min-width: 20rem;
   min-height: 100vh;
   margin: 0;
+  /* Long unbreakable tokens (file paths, URLs) wrap instead of pushing
+     the document wide. `white-space: pre` code blocks are unaffected. */
+  overflow-wrap: break-word;
 }
 
 section[id] {
@@ -303,7 +342,10 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  /* accent-deep keeps the ring ≥3:1 on both environments
+     (paper 3.5:1, canvas 4.3:1); the brighter amber only
+     clears 2.2:1 on paper. */
+  outline: 2px solid var(--color-accent-deep);
   outline-offset: 2px;
   border-radius: var(--radius-control);
 }
@@ -460,7 +502,7 @@ button {
 }
 
 .button--accent {
-  border-color: var(--color-accent);
+  border-color: var(--color-accent-deep);
   background: var(--color-accent);
   color: var(--color-canvas);
 }
@@ -497,7 +539,7 @@ button {
 }
 
 .text-link:hover {
-  color: var(--color-accent);
+  color: var(--color-accent-text);
 }
 
 .text-link:hover::after {
@@ -507,7 +549,7 @@ button {
 
 .text-link__arrow {
   margin-left: var(--space-2);
-  color: var(--color-accent);
+  color: var(--color-accent-text);
   transition: transform var(--duration-base) var(--ease-emphasized);
 }
 

@@ -26,7 +26,7 @@ const year = new Date().getFullYear();
     </p>
   </div>
 
-  <div class="page-shell site-footer__status" aria-label="System status">
+  <div class="page-shell site-footer__status" role="group" aria-label="System status">
     <span class="site-footer__status-row">
       <span class="site-footer__status-dot" aria-hidden="true"></span>
       <span class="mono-label">Status</span>
@@ -72,7 +72,7 @@ const year = new Date().getFullYear();
     width: 1.875rem;
     height: 1.875rem;
     border: 1px solid var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-size: 0.625rem;
     font-weight: 500;
@@ -103,7 +103,7 @@ const year = new Date().getFullYear();
   }
 
   .site-footer__link:hover {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .site-footer__meta {
@@ -123,7 +123,7 @@ const year = new Date().getFullYear();
   }
 
   .site-footer__meta a:hover {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   /* Status bar — system-style readouts, marks the page as an instrument. */

@@ -265,6 +265,8 @@ const nodes: ArchNode[] = [
           activeIndex = index;
           setTrack(index);
           setReadout(index, 'active');
+          // Selection always announces — click, Enter / Space, or arrows.
+          announce(index);
           // reveal structure: past vs future
           tabs.forEach((t, i) => {
             if (i < index) {
@@ -303,14 +305,6 @@ const nodes: ArchNode[] = [
       rail.addEventListener('focusout', (e) => {
         const idx = indexOfNode(e.target);
         if (idx >= 0) setReadout(activeIndex, 'active');
-      });
-
-      // keyboard announcement
-      tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          const idx = tabs.indexOf(tab);
-          if (idx >= 0) announce(idx);
-        });
       });
 
       setTrack(0);
@@ -409,7 +403,9 @@ const nodes: ArchNode[] = [
   }
 
   .arch__node[data-past='true'] {
-    opacity: 0.72;
+    /* Past / future are carried by connectors and borders; the labels
+       stay at full contrast (WCAG 1.4.3 / 1.4.1). */
+    opacity: 1;
   }
 
   .arch__node[data-past='true']::before,
@@ -427,7 +423,11 @@ const nodes: ArchNode[] = [
   }
 
   .arch__node[data-future='true'] {
-    opacity: 0.55;
+    opacity: 1;
+    /* Future nodes read as "not yet reached" through the same dotted
+       border vocabulary the state chips use — never through dim text. */
+    border-style: dotted;
+    background: var(--color-paper-soft);
   }
 
   .arch__node[data-active='true']::before {
@@ -444,7 +444,7 @@ const nodes: ArchNode[] = [
 
   .arch__step {
     grid-area: step;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
@@ -489,12 +489,12 @@ const nodes: ArchNode[] = [
 
   .arch__chip--present {
     border-color: var(--color-signal-pass);
-    color: var(--color-signal-pass);
+    color: var(--color-signal-pass-text);
   }
 
   .arch__chip--in-progress {
     border-color: var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .arch__chip--external {
@@ -506,7 +506,7 @@ const nodes: ArchNode[] = [
   .arch__chip--written {
     border-style: dashed;
     border-color: var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   /* track: reveals causality — where payload is in 8-node path */

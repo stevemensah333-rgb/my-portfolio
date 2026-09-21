@@ -24,13 +24,15 @@ import SectionFrame from './SectionFrame.astro';
         </p>
       </div>
 
-      <aside class="about__portrait">
+      <div class="about__portrait">
         <div class="about__portrait-frame">
           <ParticlePortrait
             src="/images/stephen.png"
             alt="Stephen Mensah"
             width={800}
             height={800}
+            srcset="/images/stephen-480.webp 480w, /images/stephen-800.webp 800w"
+            sizes="(min-width: 64rem) 16rem, (min-width: 48rem) 18rem, min(100vw - 2rem, 18rem)"
           />
           <span class="about__portrait-mark about__portrait-mark--tl" aria-hidden="true"></span>
           <span class="about__portrait-mark about__portrait-mark--tr" aria-hidden="true"></span>
@@ -38,7 +40,7 @@ import SectionFrame from './SectionFrame.astro';
           <span class="about__portrait-mark about__portrait-mark--br" aria-hidden="true"></span>
         </div>
         <ReliabilityTrace variant="portrait" />
-      </aside>
+      </div>
     </div>
   </SectionFrame>
 </section>
@@ -149,7 +151,10 @@ import SectionFrame from './SectionFrame.astro';
 
   @media (min-width: 64rem) {
     .about__layout {
-      grid-template-columns: minmax(13rem, 3fr) minmax(18rem, 5fr) minmax(13rem, 16rem);
+      /* Minimums must fit at exactly 64rem (1024px) alongside the
+         17rem workspace rail and page gutters — only the portrait
+         column keeps a floor; the text columns shrink freely. */
+      grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) minmax(13rem, 16rem);
     }
 
     .about__copy {

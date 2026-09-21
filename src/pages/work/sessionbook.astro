@@ -47,7 +47,7 @@ const architectureSummary =
 >
   <article class="case-page">
     <!-- 00 · Overview -->
-    <header id="overview" class="case-hero page-shell" data-workspace-section="top">
+    <header id="overview" class="case-hero page-shell" data-workspace-section="top" data-workspace-dest="work">
       <a class="back-link" href="/#sessionbook">← Back to workspace</a>
 
       <div class="case-opening">
@@ -104,7 +104,7 @@ const architectureSummary =
     </header>
 
     <!-- 01 · Primer -->
-    <SectionFrame coordinate="01 / Why this exists" surface="paper" data-workspace-section="primer">
+    <SectionFrame coordinate="01 / Why this exists" surface="paper" data-workspace-section="primer" data-workspace-dest="work">
       <div class="page-shell primer">
         <div class="primer__intro">
           <p class="mono-label">Four anchors</p>
@@ -127,7 +127,7 @@ const architectureSummary =
     <SectionFrame
       coordinate="02 / Architecture"
       surface="paper"
-      data-workspace-section="architecture"
+      data-workspace-section="architecture" data-workspace-dest="work"
     >
       <div class="page-shell architecture">
         <header class="architecture__intro">
@@ -141,7 +141,8 @@ const architectureSummary =
             message bus, no external calendar service, no analytics — none of that is
             in the repository, so none of it appears here.
           </p>
-          <p class="architecture__legend" aria-label="Legend">
+          <p class="architecture__legend">
+            <span class="visually-hidden">Legend: </span>
             <span class="arch-chip arch-chip--present">Present</span>
             <span class="arch-chip arch-chip--in-progress">In progress</span>
             <span class="arch-chip arch-chip--written">Written, not served</span>
@@ -191,7 +192,7 @@ const architectureSummary =
     <SectionFrame
       coordinate="04 / Call path"
       surface="paper"
-      data-workspace-section="flow"
+      data-workspace-section="flow" data-workspace-dest="work"
     >
       <div class="page-shell flow">
         <header class="flow__intro">
@@ -209,7 +210,7 @@ const architectureSummary =
     </SectionFrame>
 
     <!-- 05 · Questions -->
-    <SectionFrame coordinate="05 / Questions" surface="paper" data-workspace-section="questions">
+    <SectionFrame coordinate="05 / Questions" surface="paper" data-workspace-section="questions" data-workspace-dest="work">
       <div class="page-shell questions">
         <header class="questions__intro">
           <p class="mono-label">Asked directly</p>
@@ -228,7 +229,7 @@ const architectureSummary =
     </SectionFrame>
 
     <!-- 06 · Boundary -->
-    <SectionFrame coordinate="06 / Evidence" surface="paper" data-workspace-section="evidence">
+    <SectionFrame coordinate="06 / Evidence" surface="paper" data-workspace-section="evidence" data-workspace-dest="work">
       <div class="page-shell">
         <div class="boundary">
           <section class="boundary-panel" aria-labelledby="sb-known-title">
@@ -300,7 +301,7 @@ const architectureSummary =
   }
 
   .back-link:hover {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .case-opening__copy h1 {
@@ -336,7 +337,7 @@ const architectureSummary =
   }
 
   .case-note a:hover {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .product-record {
@@ -368,7 +369,7 @@ const architectureSummary =
   }
 
   .record-heading span {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .product-record__name {
@@ -410,7 +411,7 @@ const architectureSummary =
   }
 
   .product-record a:hover {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   /* --- Primer ----------------------------------------------------- */
@@ -459,7 +460,7 @@ const architectureSummary =
   }
 
   .primer__num {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .primer__grid h3 {
@@ -527,18 +528,18 @@ const architectureSummary =
 
   .arch-chip--present {
     border-color: var(--color-signal-pass);
-    color: var(--color-signal-pass);
+    color: var(--color-signal-pass-text);
   }
 
   .arch-chip--in-progress {
     border-color: var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .arch-chip--written {
     border-style: dashed;
     border-color: var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .arch-chip--external {
@@ -614,7 +615,7 @@ const architectureSummary =
 
   .questions__num {
     grid-row: span 2;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .questions__list h3 {
@@ -679,12 +680,12 @@ const architectureSummary =
   }
 
   .boundary-list li[data-state='known']::before {
-    color: var(--color-signal-pass);
+    color: var(--color-signal-pass-text);
     content: '\2713';
   }
 
   .boundary-list li[data-state='missing']::before {
-    color: var(--color-signal-fail);
+    color: var(--color-signal-fail-text);
     content: '\00d7';
   }
 

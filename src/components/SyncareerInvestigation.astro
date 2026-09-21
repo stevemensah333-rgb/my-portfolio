@@ -215,6 +215,10 @@ const first = investigationStages[0];
     const applyStacked = () => {
       const stacked = stackedQuery.matches;
       root.dataset.layout = stacked ? 'stacked' : 'inspect';
+      // The spine is a vertical tablist on the desktop composition and a
+      // horizontal scroller when stacked — keep the declared orientation
+      // honest for assistive tech.
+      rail?.setAttribute('aria-orientation', stacked ? 'horizontal' : 'vertical');
       if (nav) nav.hidden = stacked;
       if (stacked) {
         panels.forEach((panel) => {
@@ -296,9 +300,9 @@ const first = investigationStages[0];
     const move = (delta: number) => {
       const index = ids.indexOf(activeId);
       const next = ids[(index + delta + ids.length) % ids.length];
+      // Select, but leave focus on the Previous / Next button so a
+      // keyboard visitor can press it repeatedly without re-finding it.
       if (next) controller?.select(next);
-      const tab = tabs.find((t) => t.dataset.stageTab === next);
-      tab?.focus({ preventScroll: true });
     };
 
     prevBtn?.addEventListener('click', () => move(-1));
@@ -395,7 +399,7 @@ const first = investigationStages[0];
   }
 
   .investigation__tab-step {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
@@ -674,7 +678,7 @@ const first = investigationStages[0];
     content: '+';
     position: absolute;
     left: var(--space-3);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-weight: 600;
   }
@@ -746,7 +750,7 @@ const first = investigationStages[0];
   .investigation__nav-btn:hover,
   .investigation__nav-btn:focus-visible {
     border-color: var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   @media (min-width: 48rem) {
