@@ -1,138 +1,118 @@
 ---
 import { credentials } from '../data/credentials';
+import SectionFrame from './SectionFrame.astro';
 ---
 
-<section id="evidence" class="credentials" aria-labelledby="credentials-title">
-  <div class="page-shell">
-    <header class="section-header">
-      <p class="technical-label">Selected credentials &amp; recognition</p>
-      <h2 id="credentials-title">Evidence</h2>
-      <p>A few things that are easier to show than describe.</p>
-    </header>
+<section id="evidence" class="evidence" aria-labelledby="evidence-title">
+  <SectionFrame coordinate="05 / Evidence" surface="paper">
+    <div class="page-shell evidence__layout">
+      <header class="evidence__header">
+        <p class="mono-label">Selected credentials &amp; recognition</p>
+        <h2 id="evidence-title" class="evidence__title">Evidence</h2>
+        <p class="evidence__intro">A few things that are easier to show than describe.</p>
+      </header>
 
-    <div class="desktop-evidence" data-credential-evidence>
-      <div class="credential-index">
-        <ol>
+      <div class="evidence__grid" data-credential-evidence>
+        <nav class="evidence__index" aria-label="Credentials">
+          <p class="mono-label evidence__index-label">Index</p>
+          <ol class="evidence__list">
+            {credentials.map((credential, index) => (
+              <li>
+                <button
+                  type="button"
+                  class="evidence__trigger"
+                  data-credential-trigger={credential.id}
+                  aria-controls={`credential-preview-${credential.id}`}
+                  aria-selected={index === 0 ? 'true' : 'false'}
+                  tabindex={index === 0 ? '0' : '-1'}
+                >
+                  <span class="evidence__trigger-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <span class="evidence__trigger-name">{credential.name}</span>
+                  <span class="evidence__trigger-result">{credential.result}</span>
+                  <span class="evidence__trigger-mark" aria-hidden="true"></span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </nav>
+
+        <div class="evidence__panels" aria-live="polite">
           {credentials.map((credential, index) => (
-            <li>
-              <button
-                type="button"
-                data-credential-trigger={credential.id}
-                aria-controls={`credential-preview-${credential.id}`}
-                aria-pressed={index === 0 ? 'true' : 'false'}
-              >
-                <span>{credential.name}</span>
-                <strong>{credential.result}</strong>
-              </button>
-            </li>
+            <article
+              id={`credential-preview-${credential.id}`}
+              class="evidence__panel"
+              data-credential-panel={credential.id}
+              data-active={index === 0 ? 'true' : 'false'}
+              aria-hidden={index === 0 ? 'false' : 'true'}
+              tabindex="0"
+            >
+              {credential.evidenceImage && credential.evidenceAlt && credential.evidenceWidth && credential.evidenceHeight ? (
+                <a
+                  class="evidence__image-link"
+                  href={credential.evidenceImage}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={`Open full-size evidence for ${credential.name}`}
+                >
+                  <img
+                    src={credential.evidenceImage}
+                    alt={credential.evidenceAlt}
+                    width={credential.evidenceWidth}
+                    height={credential.evidenceHeight}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span class="evidence__image-caption mono-label">
+                    Open full-size evidence <span aria-hidden="true">↗</span>
+                  </span>
+                </a>
+              ) : (
+                <div class="evidence__text-record">
+                  <p class="mono-label">Evidence record</p>
+                  <h3>{credential.name}</h3>
+                  <p class="evidence__result">{credential.result}</p>
+                </div>
+              )}
+              {(credential.issuer || credential.detail) && (
+                <dl class="evidence__meta">
+                  {credential.issuer && (
+                    <div>
+                      <dt class="mono-label">Issuer</dt>
+                      <dd>{credential.issuer}</dd>
+                    </div>
+                  )}
+                  {credential.detail && (
+                    <div>
+                      <dt class="mono-label">Detail</dt>
+                      <dd>{credential.detail}</dd>
+                    </div>
+                  )}
+                </dl>
+              )}
+              {credential.evidenceDocument && (
+                <a class="text-link" href={credential.evidenceDocument} target="_blank" rel="noopener">
+                  View document
+                  <span class="text-link__arrow" aria-hidden="true">↗</span>
+                </a>
+              )}
+            </article>
           ))}
-        </ol>
-      </div>
-
-      <div class="preview" aria-live="polite">
-        {credentials.map((credential, index) => (
-          <article
-            id={`credential-preview-${credential.id}`}
-            class="preview-panel"
-            data-credential-panel={credential.id}
-            data-active={index === 0 ? 'true' : 'false'}
-            aria-hidden={index === 0 ? 'false' : 'true'}
-          >
-            {credential.evidenceImage && credential.evidenceAlt && credential.evidenceWidth && credential.evidenceHeight ? (
-              <a
-                class="evidence-image-link"
-                href={credential.evidenceImage}
-                target="_blank"
-                rel="noopener"
-                aria-label={`Open full-size evidence for ${credential.name}`}
-              >
-                <img
-                  src={credential.evidenceImage}
-                  alt={credential.evidenceAlt}
-                  width={credential.evidenceWidth}
-                  height={credential.evidenceHeight}
-                  loading="lazy"
-                  decoding="async"
-                />
-                <span>Open full-size evidence <span aria-hidden="true">↗</span></span>
-              </a>
-            ) : (
-              <div class="text-record">
-                <p class="record-label">Evidence record</p>
-                <h3>{credential.name}</h3>
-                <p class="record-result">{credential.result}</p>
-              </div>
-            )}
-            {(credential.issuer || credential.detail) && (
-              <dl class="record-meta">
-                {credential.issuer && <div><dt>Issuer</dt><dd>{credential.issuer}</dd></div>}
-                {credential.detail && <div><dt>Detail</dt><dd>{credential.detail}</dd></div>}
-              </dl>
-            )}
-            {credential.evidenceDocument && (
-              <a class="document-link" href={credential.evidenceDocument} target="_blank" rel="noopener">
-                View document <span aria-hidden="true">↗</span>
-              </a>
-            )}
-          </article>
-        ))}
+        </div>
       </div>
     </div>
-
-    <div class="mobile-evidence">
-      {credentials.map((credential) => (
-        <details name="credentials">
-          <summary>
-            <span>{credential.name}</span>
-            <strong>{credential.result}</strong>
-          </summary>
-          <div class="mobile-record">
-            {credential.evidenceImage && credential.evidenceAlt && credential.evidenceWidth && credential.evidenceHeight ? (
-              <a
-                class="evidence-image-link"
-                href={credential.evidenceImage}
-                target="_blank"
-                rel="noopener"
-                aria-label={`Open full-size evidence for ${credential.name}`}
-              >
-                <img
-                  src={credential.evidenceImage}
-                  alt={credential.evidenceAlt}
-                  width={credential.evidenceWidth}
-                  height={credential.evidenceHeight}
-                  loading="lazy"
-                  decoding="async"
-                />
-                <span>Open full-size evidence <span aria-hidden="true">↗</span></span>
-              </a>
-            ) : (
-              <div class="mobile-text-record">
-                <p class="record-label">Evidence record</p>
-                <p class="mobile-result">{credential.result}</p>
-              </div>
-            )}
-            {credential.issuer && <p><span>Issuer</span>{credential.issuer}</p>}
-            {credential.detail && <p><span>Detail</span>{credential.detail}</p>}
-            {credential.evidenceDocument && (
-              <a class="document-link" href={credential.evidenceDocument} target="_blank" rel="noopener">
-                View document <span aria-hidden="true">↗</span>
-              </a>
-            )}
-          </div>
-        </details>
-      ))}
-    </div>
-  </div>
+  </SectionFrame>
 </section>
 
 <script>
   for (const section of document.querySelectorAll<HTMLElement>('[data-credential-evidence]')) {
-    const triggers = section.querySelectorAll<HTMLButtonElement>('[data-credential-trigger]');
-    const panels = section.querySelectorAll<HTMLElement>('[data-credential-panel]');
+    const triggers = [...section.querySelectorAll<HTMLButtonElement>('[data-credential-trigger]')];
+    const panels = [...section.querySelectorAll<HTMLElement>('[data-credential-panel]')];
 
     const selectCredential = (id: string) => {
       for (const trigger of triggers) {
-        trigger.setAttribute('aria-pressed', String(trigger.dataset.credentialTrigger === id));
+        const isActive = trigger.dataset.credentialTrigger === id;
+        trigger.setAttribute('aria-selected', String(isActive));
+        trigger.tabIndex = isActive ? 0 : -1;
       }
 
       for (const panel of panels) {
@@ -143,328 +123,288 @@ import { credentials } from '../data/credentials';
     };
 
     for (const trigger of triggers) {
-      const select = () => selectCredential(trigger.dataset.credentialTrigger ?? '');
-      trigger.addEventListener('mouseenter', select);
-      trigger.addEventListener('focus', select);
-      trigger.addEventListener('click', select);
+      const id = trigger.dataset.credentialTrigger;
+      if (!id) continue;
+
+      // Click — primary interaction
+      trigger.addEventListener('click', () => selectCredential(id));
+
+      // Hover — only on hover-capable pointers (per A4 fix)
+      trigger.addEventListener('mouseenter', () => {
+        if (window.matchMedia('(hover: hover)').matches) {
+          selectCredential(id);
+        }
+      });
+
+      // Keyboard nav: Arrow keys move between triggers; selection happens on click or Arrow
+      trigger.addEventListener('keydown', (e) => {
+        const visibleTriggers = triggers;
+        const idx = visibleTriggers.indexOf(trigger);
+        if (idx < 0) return;
+        let next: number | null = null;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          next = (idx + 1) % visibleTriggers.length;
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          next = (idx - 1 + visibleTriggers.length) % visibleTriggers.length;
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          next = 0;
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          next = visibleTriggers.length - 1;
+        }
+        if (next !== null) {
+          const t = visibleTriggers[next];
+          if (t) {
+            t.focus();
+            selectCredential(t.dataset.credentialTrigger ?? '');
+          }
+        }
+      });
     }
   }
 </script>
 
 <style>
-  .credentials {
-    padding-block: var(--section-tight);
-    border-top: var(--border-default);
-    background: var(--color-surface-light);
-    scroll-margin-top: 6rem;
+  .evidence {
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-rule-on-paper);
   }
 
-  .section-header {
-    max-width: var(--width-reading);
-    margin-bottom: var(--section-content-gap);
-  }
-
-  .section-header p,
-  .section-header h2 {
-    margin: 0;
-  }
-
-  .section-header h2 {
-    margin-block: var(--space-3) var(--space-4);
-    font-size: var(--text-h2);
-    font-weight: 600;
-    letter-spacing: -0.035em;
-  }
-
-  .section-header > p:last-child {
-    color: var(--color-text-secondary);
-  }
-
-  .desktop-evidence {
-    display: none;
-  }
-
-  .mobile-evidence {
-    border-top: var(--border-default);
-  }
-
-  .mobile-evidence details {
-    border-bottom: var(--border-default);
-  }
-
-  .mobile-evidence summary {
+  .evidence__layout {
     display: grid;
-    min-height: var(--control-height);
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--space-4);
-    align-items: center;
-    padding-block: var(--space-4);
-    cursor: pointer;
-    list-style: none;
+    gap: var(--space-6);
   }
 
-  .mobile-evidence summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .mobile-evidence summary::after {
-    grid-column: 2;
-    grid-row: 1;
-    color: var(--color-text-secondary);
-    content: '+';
-    font-family: var(--font-mono);
-  }
-
-  .mobile-evidence details[open] summary::after {
-    content: '−';
-  }
-
-  .mobile-evidence summary > span {
-    min-width: 0;
-    font-weight: 600;
-  }
-
-  .mobile-evidence summary strong {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    color: var(--color-text-secondary);
-    font-size: var(--text-small);
-    font-weight: 500;
-  }
-
-  .mobile-record {
-    display: grid;
-    gap: var(--space-2);
-    padding: 0 0 var(--space-5);
-    color: var(--color-text-secondary);
-    font-size: var(--text-small);
-  }
-
-  .mobile-text-record {
-    padding-block: var(--space-2) var(--space-3);
-  }
-
-  .mobile-text-record .record-label,
-  .mobile-result {
-    margin: 0;
-  }
-
-  .record-label {
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: var(--text-label);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .mobile-result {
-    margin-top: var(--space-2);
-    color: var(--color-text);
-    font-size: var(--text-body-large);
-    font-weight: 600;
-  }
-
-  .mobile-record p {
-    margin: 0;
-  }
-
-  .mobile-record > p > span {
-    display: inline-block;
-    min-width: 4rem;
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: var(--text-label);
-    text-transform: uppercase;
-  }
-
-  .evidence-image-link {
+  .evidence__header {
     display: grid;
     gap: var(--space-3);
-    color: var(--color-text);
-    font-size: var(--text-small);
-    font-weight: 600;
+    max-width: var(--width-reading);
   }
 
-  .evidence-image-link img {
+  .evidence__title {
+    margin: 0;
+    font-size: var(--text-section);
+    font-weight: 600;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.1;
+  }
+
+  .evidence__intro {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-body-large);
+  }
+
+  .evidence__grid {
+    display: grid;
+    gap: var(--space-5);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  /* Index list */
+  .evidence__index {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .evidence__index-label {
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper-muted);
+  }
+
+  .evidence__list {
+    display: grid;
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--color-rule-on-paper-soft);
+  }
+
+  .evidence__trigger {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    min-height: var(--control-height);
+    padding: 0 var(--space-4);
+    border: 0;
+    background: var(--color-paper);
+    color: var(--color-text-on-paper);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
+  }
+
+  .evidence__trigger-index {
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+  }
+
+  .evidence__trigger-name {
+    font-weight: 600;
+    font-size: var(--text-small);
+  }
+
+  .evidence__trigger-result {
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-align: right;
+  }
+
+  .evidence__trigger-mark {
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 1px solid var(--color-rule-on-paper);
+    background: transparent;
+    transition: all var(--duration-quick) var(--ease-standard);
+  }
+
+  .evidence__trigger:hover,
+  .evidence__trigger:focus-visible {
+    background: var(--color-paper-soft);
+  }
+
+  .evidence__trigger[aria-selected='true'] {
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper);
+    box-shadow: inset 2px 0 0 var(--color-accent);
+  }
+
+  .evidence__trigger[aria-selected='true'] .evidence__trigger-mark {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  /* Panels */
+  .evidence__panels {
+    position: relative;
+    padding: var(--space-5);
+    background: var(--color-paper-soft);
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .evidence__panel {
+    display: grid;
+    gap: var(--space-4);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(4px);
+    transition:
+      opacity var(--duration-base) var(--ease-standard),
+      transform var(--duration-base) var(--ease-standard);
+  }
+
+  .evidence__panel[data-active='true'] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .evidence__image-link {
+    display: grid;
+    gap: var(--space-2);
+    color: var(--color-text-on-paper);
+  }
+
+  .evidence__image-link img {
     display: block;
     width: 100%;
     height: auto;
-    border: var(--border-default);
-    border-radius: calc(var(--radius-card) / 2);
-    background: white;
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
   }
 
-  .document-link {
-    display: inline-flex;
-    min-height: var(--control-height);
-    align-items: center;
-    justify-self: start;
-    font-size: var(--text-small);
+  .evidence__image-caption {
+    color: var(--color-text-on-paper-muted);
+    text-align: right;
+  }
+
+  .evidence__text-record {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .evidence__text-record h3 {
+    margin: var(--space-2) 0 0;
+    font-size: 1.125rem;
     font-weight: 600;
   }
 
-  @media (min-width: 64rem) {
-    .mobile-evidence {
-      display: none;
+  .evidence__result {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-body-large);
+  }
+
+  .evidence__meta {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .evidence__meta > div {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .evidence__meta dt {
+    color: var(--color-text-on-paper-muted);
+  }
+
+  .evidence__meta dd {
+    margin: 0;
+    font-size: var(--text-small);
+    color: var(--color-text-on-paper);
+  }
+
+  @media (min-width: 48rem) {
+    .evidence__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     }
 
-    .desktop-evidence {
-      display: grid;
-      grid-template-columns: minmax(0, 7fr) minmax(18rem, 5fr);
-      gap: var(--space-6);
-      align-items: start;
-    }
-
-    .credential-index ol {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin: 0;
-      padding: 0;
-      border-top: var(--border-default);
-      border-left: var(--border-default);
-      list-style: none;
-    }
-
-    .credential-index li {
-      border-right: var(--border-default);
-      border-bottom: var(--border-default);
-    }
-
-    .credential-index button {
-      display: grid;
-      width: 100%;
-      min-height: 9rem;
-      align-content: space-between;
-      gap: var(--space-5);
-      padding: var(--space-5);
-      border: 0;
-      background: transparent;
-      color: var(--color-text);
-      cursor: pointer;
-      font: inherit;
-      text-align: left;
-      transition:
-        background-color var(--duration-fast) var(--ease-standard),
-        box-shadow var(--duration-fast) var(--ease-standard),
-        transform var(--duration-fast) var(--ease-standard);
-    }
-
-    .credential-index button:hover,
-    .credential-index button:focus-visible {
-      background: var(--color-surface-cool);
-      transform: translateY(-1px);
-    }
-
-    .credential-index button:active {
-      transform: translateY(0);
-    }
-
-    .credential-index button:focus-visible {
-      box-shadow: inset 2px 0 0 var(--color-accent), 0 0 0 2px color-mix(in srgb, var(--color-accent) 18%, transparent);
-    }
-
-    .credential-index button strong {
-      color: var(--color-text-secondary);
-      font-size: var(--text-small);
-      font-weight: 500;
-      font-size: 1rem;
-      text-align: left;
-    }
-
-    .credential-index button[aria-pressed='true'] span {
-      color: var(--color-accent);
-      font-weight: 650;
-    }
-
-    .credential-index button[aria-pressed='true'] {
-      background: var(--color-surface-cool);
-      box-shadow: inset 2px 0 0 var(--color-accent);
-    }
-
-    .credential-index button[aria-pressed='true'] strong {
-      color: var(--color-text);
-    }
-
-    .preview {
-      display: grid;
-      min-height: 20rem;
-      border: var(--border-default);
-      border-radius: var(--radius-card);
-      background: var(--color-background);
-      overflow: hidden;
-    }
-
-    .preview-panel {
-      display: grid;
-      grid-area: 1 / 1;
-      align-content: space-between;
-      padding: var(--card-padding);
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(var(--space-2));
-      transition:
-        opacity var(--duration-fast) var(--ease-standard),
-        transform var(--duration-fast) var(--ease-standard);
-      visibility: hidden;
-    }
-
-    .preview-panel[data-active='true'] {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0);
-      visibility: visible;
-    }
-
-    .record-label,
-    .text-record h3,
-    .record-result {
-      margin: 0;
-    }
-
-    .record-label,
-    .record-meta dt {
-      color: var(--color-text-secondary);
-      font-family: var(--font-mono);
-      font-size: var(--text-label);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .text-record h3 {
-      margin-top: var(--space-5);
-      font-size: var(--text-h3);
-      font-weight: 600;
-    }
-
-    .record-result {
-      margin-top: var(--space-3);
-      color: var(--color-text-secondary);
-      font-size: var(--text-body-large);
-    }
-
-    .record-meta {
-      display: grid;
-      gap: var(--space-3);
-      margin: var(--space-7) 0 0;
-      padding-top: var(--space-4);
-      border-top: var(--border-default);
-    }
-
-    .record-meta div {
-      display: grid;
-      grid-template-columns: 4rem minmax(0, 1fr);
-      gap: var(--space-4);
-    }
-
-    .record-meta dd {
-      margin: 0;
-      font-size: var(--text-small);
+    .evidence__panels {
+      border-top: 0;
+      border-left: 1px solid var(--color-rule-on-paper);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .preview-panel {
+    .evidence__panel,
+    .evidence__trigger {
       transition: none;
     }
+  }
+
+  /* Progressive enhancement: without JS, all credential panels show. */
+  html:not(.js) .evidence__panel {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    margin-bottom: var(--space-5);
+  }
+
+  html:not(.js) .evidence__index {
+    display: none;
   }
 </style>

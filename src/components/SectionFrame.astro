@@ -1,0 +1,127 @@
+---
+/*
+  SectionFrame.astro
+  -------------------
+  A bounded section panel with two signature geometric motifs:
+    - CROSSHAIR MARKS at the top corners (small + marks)
+    - an optional mono "coordinate" label anchored at the top-left
+
+  The frame is visually invisible by default — it only adds the
+  marks. Use it as a wrapper around any block that should read
+  as a "viewport / instrument panel".
+
+  Props
+  -----
+  coordinate?    : optional mono text label (e.g. "01 / HERO")
+  surface?       : 'paper' (default) | 'canvas' | 'inset'
+  label?         : optional aria-label for the wrapping region
+  as?            : element tag (default 'div')
+*/
+
+interface SectionFrameProps {
+  coordinate?: string;
+  surface?: 'paper' | 'canvas' | 'inset';
+  label?: string;
+  as?: 'div' | 'section' | 'article' | 'aside' | 'header' | 'footer' | 'nav';
+  class?: string;
+  id?: string;
+}
+
+const {
+  coordinate,
+  surface = 'paper',
+  label,
+  as: Tag = 'div',
+  class: className,
+  id,
+} = Astro.props as SectionFrameProps;
+
+const surfaceClass = surface === 'canvas' ? 'section-frame--canvas' : surface === 'inset' ? 'section-frame--inset' : '';
+---
+
+<Tag class:list={['section-frame', surfaceClass, className]} aria-label={label} id={id}>
+  {coordinate && (
+    <span class="section-frame__coordinate mono-label" aria-hidden="true">
+      {coordinate}
+    </span>
+  )}
+  <span class="section-frame__mark section-frame__mark--tl" aria-hidden="true"></span>
+  <span class="section-frame__mark section-frame__mark--tr" aria-hidden="true"></span>
+  <slot />
+</Tag>
+
+<style>
+  .section-frame {
+    position: relative;
+    padding-top: var(--space-7);
+  }
+
+  .section-frame__coordinate {
+    position: absolute;
+    top: calc(var(--space-3) * -1);
+    left: 0;
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-paper);
+    color: var(--color-text-on-paper-muted);
+    transform: translateY(-50%);
+    z-index: 1;
+  }
+
+  .section-frame--canvas .section-frame__coordinate {
+    background: var(--color-canvas);
+    color: var(--color-text-on-canvas-muted);
+  }
+
+  .section-frame--inset .section-frame__coordinate {
+    background: var(--color-paper-inset);
+  }
+
+  .section-frame__mark {
+    position: absolute;
+    top: 0;
+    width: 0.625rem;
+    height: 0.625rem;
+    pointer-events: none;
+  }
+
+  .section-frame__mark::before,
+  .section-frame__mark::after {
+    content: '';
+    position: absolute;
+    background: var(--color-rule-on-paper);
+  }
+
+  .section-frame__mark::before {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+  }
+
+  .section-frame__mark::after {
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100%;
+  }
+
+  .section-frame__mark--tr {
+    right: 0;
+    left: auto;
+  }
+
+  .section-frame__mark--tr::before {
+    right: 0;
+    left: auto;
+  }
+
+  .section-frame__mark--tr::after {
+    right: 0;
+    left: auto;
+  }
+
+  .section-frame--canvas .section-frame__mark::before,
+  .section-frame--canvas .section-frame__mark::after {
+    background: var(--color-rule-on-canvas);
+  }
+</style>

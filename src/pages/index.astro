@@ -1,62 +1,93 @@
 ---
 import { GMAIL_COMPOSE_URL, PUBLIC_LINKS } from '../config/site';
-import AboutSection from '../components/AboutSection.astro';
-import AmbientField from '../components/AmbientField.astro';
-import ContactSection from '../components/ContactSection.astro';
-import EvidenceSection from '../components/EvidenceSection.astro';
-import ExperienceSection from '../components/ExperienceSection.astro';
 import ReliabilityTrace from '../components/ReliabilityTrace.astro';
-import SiteFooter from '../components/SiteFooter.astro';
 import SyncareerSection from '../components/SyncareerSection.astro';
 import TechnicalToolkitSection from '../components/TechnicalToolkitSection.astro';
+import AboutSection from '../components/AboutSection.astro';
+import ExperienceSection from '../components/ExperienceSection.astro';
+import EvidenceSection from '../components/EvidenceSection.astro';
+import ContactSection from '../components/ContactSection.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import GutterAxis from '../components/GutterAxis.astro';
 
 const title = 'Stephen Mensah — AI Engineering & Computer Science';
-const description = 'Stephen Mensah is a Computer Science student building LLM-powered software, with a focus on making AI features more reliable in real products.';
+const description = 'Stephen Mensah builds and debugs LLM-powered software. Attention to reliability, validation, integration, and what happens when model output has to fit an actual product.';
+
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: 'Stephen Mensah',
   url: new URL('/', Astro.site).href,
   image: new URL('/images/stephen.png', Astro.site).href,
-  sameAs: [PUBLIC_LINKS.github, PUBLIC_LINKS.linkedin],
+  sameAs: [PUBLIC_LINKS.github, PUBLIC_LINKS.linkedin].filter((value): value is string => Boolean(value)),
   affiliation: {
     '@type': 'CollegeOrUniversity',
     name: 'Ashesi University',
   },
+  jobTitle: 'AI Engineering Student',
+  knowsAbout: [
+    'LLM reliability',
+    'Prompt engineering',
+    'Structured output validation',
+    'FastAPI',
+    'Postgres',
+  ],
 };
 ---
 
 <BaseLayout {title} {description} {structuredData} ogType="profile">
-  <section class="hero page-shell" aria-labelledby="hero-title">
-    <AmbientField density={16} variant="hero" />
-    <div class="hero-inner">
-      <p class="technical-label eyebrow">AI Engineering · Software</p>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__canvas">
+      <GutterAxis position="left" ticks={5} surface="canvas" />
+      <GutterAxis position="right" ticks={5} surface="canvas" />
 
-      <div class="hero-composition">
-        <div class="hero-message">
-          <h1 id="hero-title">I make AI features reliable enough to ship.</h1>
+      <div class="page-shell hero__grid">
+        <aside class="hero__meta" aria-label="Site coordinates">
+          <p class="mono-label mono-label--inverse">Session 01 / Hero</p>
+          <dl class="hero__coords">
+            <div><dt>Status</dt><dd><span class="signal-dot" aria-hidden="true"></span>Open to AI engineering roles</dd></div>
+            <div><dt>Based</dt><dd>Berekuso, Ghana</dd></div>
+            <div><dt>Year</dt><dd>2026 · B.Sc. Computer Science</dd></div>
+          </dl>
+        </aside>
 
-          <div class="hero-details">
-            <p class="supporting-copy">
-              I build and debug LLM-powered software. I pay attention to what happens when model output
-              has to fit an actual product.
-            </p>
-
-            <div class="hero-actions" aria-label="Portfolio actions">
-              <a class="button" href="#syncareer">See the proof</a>
-              <a class="email-link" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email me</a>
-            </div>
+        <div class="hero__message">
+          <p class="mono-label mono-label--inverse hero__eyebrow">
+            <span aria-hidden="true">/</span>
+            AI Engineering · Software Reliability
+          </p>
+          <h1 id="hero-title" class="hero__headline">
+            <span class="hero__line">I make AI features</span>
+            <span class="hero__line">reliable enough to ship.</span>
+          </h1>
+          <p class="hero__support">
+            I build and debug LLM-powered software. I pay attention to what happens when model
+            output has to fit an actual product.
+          </p>
+          <div class="hero__actions" aria-label="Portfolio actions">
+            <a class="button button--accent" href="#syncareer">Inspect the trace</a>
+            <a class="text-link" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">
+              Start a conversation
+              <span class="text-link__arrow" aria-hidden="true">→</span>
+            </a>
           </div>
         </div>
 
         <ReliabilityTrace />
       </div>
 
-      <ul class="hero-meta" aria-label="Current status">
-        <li>Computer Science student</li>
-        <li>Open to AI engineering internships</li>
-      </ul>
+      <div class="hero__footer page-shell">
+        <p class="mono-label mono-label--inverse">Path of this page</p>
+        <ol class="hero__path" aria-label="Sections on this page">
+          <li><a href="#syncareer">01 · Work / Syncareer</a></li>
+          <li><a href="#toolkit">02 · Toolkit</a></li>
+          <li><a href="#about">03 · About</a></li>
+          <li><a href="#experience">04 · Experience</a></li>
+          <li><a href="#evidence">05 · Evidence</a></li>
+          <li><a href="#contact">06 · Contact</a></li>
+        </ol>
+      </div>
     </div>
   </section>
 
@@ -72,155 +103,221 @@ const structuredData = {
 <style>
   .hero {
     position: relative;
-    min-height: min(30rem, calc(100svh - 4.5rem));
-    overflow: clip;
+    background: var(--color-canvas);
+    color: var(--color-text-on-canvas);
+    isolation: isolate;
   }
 
-  .hero-inner {
+  .hero__canvas {
     position: relative;
-    z-index: 1;
-    display: flex;
-    min-height: inherit;
-    flex-direction: column;
-    padding-block: clamp(2.5rem, 5vw, 3.75rem) var(--space-5);
+    padding-block: clamp(3rem, 6vw, 5rem);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
   }
 
-  .eyebrow {
-    margin-bottom: clamp(var(--space-4), 2vw, var(--space-5));
-  }
-
-  h1 {
-    max-width: 12ch;
-    margin-bottom: clamp(var(--space-5), 3vw, var(--space-6));
-    font-size: var(--type-hero);
-    font-weight: 650;
-    letter-spacing: -0.055em;
-    line-height: var(--leading-display);
-  }
-
-  .hero-composition {
+  .hero__grid {
+    position: relative;
     display: grid;
-    gap: var(--space-5);
-    margin-bottom: clamp(var(--space-4), 2.5vw, var(--space-5));
+    grid-template-columns: 1fr;
+    gap: var(--space-7);
+    padding-block: var(--space-6);
   }
 
-  .hero-message {
+  .hero__meta {
     display: grid;
-    gap: clamp(var(--space-4), 2.5vw, var(--space-5));
+    gap: var(--space-3);
+    align-content: start;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
-  .hero-message h1 {
-    margin-bottom: 0;
-  }
-
-  .hero-details {
+  .hero__coords {
     display: grid;
-    gap: var(--space-5);
-  }
-
-  .supporting-copy {
-    max-width: 42rem;
+    gap: var(--space-2);
     margin: 0;
-    color: var(--color-text-secondary);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+  }
+
+  .hero__coords div {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    gap: var(--space-3);
+    align-items: center;
+  }
+
+  .hero__coords dt {
+    color: var(--color-text-on-canvas-faint);
+    text-transform: uppercase;
+  }
+
+  .hero__coords dd {
+    margin: 0;
+    color: var(--color-text-on-canvas);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .signal-dot {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 25%, transparent);
+    animation: signal-blink 2.4s var(--ease-standard) infinite;
+  }
+
+  @keyframes signal-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .signal-dot { animation: none; }
+  }
+
+  .hero__message {
+    display: grid;
+    gap: var(--space-5);
+    align-content: center;
+  }
+
+  .hero__eyebrow {
+    color: var(--color-accent);
+  }
+
+  .hero__eyebrow span {
+    color: var(--color-text-on-canvas-faint);
+    margin-right: var(--space-1);
+  }
+
+  .hero__headline {
+    margin: 0;
+    font-size: var(--text-display);
+    font-weight: 600;
+    letter-spacing: var(--tracking-display);
+    line-height: var(--leading-display);
+    color: var(--color-text-on-canvas);
+  }
+
+  .hero__line {
+    display: block;
+  }
+
+  .hero__line:last-child {
+    color: var(--color-accent);
+  }
+
+  .hero__support {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--color-text-on-canvas-muted);
     font-size: var(--text-body-large);
     line-height: 1.55;
   }
 
-  .hero-actions {
+  .hero__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-5);
   }
 
-  .email-link {
-    display: inline-flex;
-    min-height: var(--control-height);
-    align-items: center;
-    color: var(--color-text);
-    font-size: var(--text-small);
-    font-weight: 600;
-    text-decoration: none;
-    position: relative;
-    transition:
-      color var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard);
+  .hero__actions .text-link {
+    color: var(--color-text-on-canvas);
   }
 
-  .email-link::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0.55rem;
-    border-top: 1px solid currentColor;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--duration-normal) var(--ease-standard);
+  .hero__actions .text-link:hover {
+    color: var(--color-accent);
   }
 
-  .email-link:hover {
-    transform: translateY(-1px);
+  .hero__footer {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: var(--space-5);
+    margin-top: var(--space-7);
+    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
-  .email-link:hover::after {
-    transform: scaleX(1);
-  }
-
-  .email-link:active {
-    transform: translateY(0);
-  }
-
-  .hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-6);
-    margin: auto 0 0;
-    padding: var(--space-5) 0 0;
-    border-top: var(--border-default);
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: var(--text-label);
-    line-height: 1.5;
+  .hero__path {
+    display: grid;
+    gap: var(--space-1) var(--space-5);
+    margin: 0;
+    padding: 0;
     list-style: none;
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
   }
 
-  @media (max-width: 30rem) {
-    h1 {
-      max-width: none;
-      font-size: clamp(2.25rem, 11.25vw, 3.25rem);
-      letter-spacing: -0.045em;
-    }
-
-    .hero-meta {
-      flex-direction: column;
-    }
+  .hero__path li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
   }
 
+  .hero__path a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--duration-quick) var(--ease-standard);
+  }
+
+  .hero__path a:hover {
+    color: var(--color-accent);
+  }
+
+  .hero__path li::before {
+    content: '›';
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+  }
+
+  /* Responsive layout */
   @media (min-width: 48rem) {
-    .hero {
-      min-height: min(32rem, calc(100svh - 5rem));
+    .hero__grid {
+      grid-template-columns: 14rem minmax(0, 1fr);
+      column-gap: var(--space-6);
+      row-gap: var(--space-7);
     }
 
-    .hero-details {
-      grid-template-columns: minmax(0, 7fr) minmax(12rem, 3fr);
-      align-items: end;
+    .hero__message {
+      grid-column: 2;
     }
 
-    .hero-actions {
-      justify-content: flex-end;
-    }
-
-    .hero-meta {
-      justify-content: space-between;
+    .hero__path {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 
   @media (min-width: 64rem) {
-    .hero-composition {
-      grid-template-columns: minmax(0, 7fr) minmax(20rem, 5fr);
-      gap: clamp(var(--space-7), 5vw, var(--space-9));
-      align-items: center;
+    .hero__grid {
+      grid-template-columns: 14rem minmax(0, 1.4fr) minmax(0, 1fr);
+      column-gap: var(--space-7);
+      row-gap: var(--space-7);
+      align-items: start;
+    }
+
+    .hero__message {
+      grid-column: 2;
+      padding-right: var(--space-4);
+    }
+
+    .hero__path {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .hero__coords div {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+
+    .hero__coords dt {
+      color: var(--color-text-on-canvas-faint);
     }
   }
 </style>

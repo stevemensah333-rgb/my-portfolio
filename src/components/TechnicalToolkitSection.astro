@@ -1,4 +1,6 @@
 ---
+import SectionFrame from './SectionFrame.astro';
+
 type ToolkitItem = {
   id: string;
   name: string;
@@ -170,172 +172,124 @@ const initialItemId = primaryToolkitItems[0]?.id;
 ---
 
 <section id="toolkit" class="toolkit" aria-labelledby="toolkit-title">
-  <div class="page-shell toolkit-layout" data-toolkit>
-    <header class="toolkit-header">
-      <p class="technical-label">Technical index — evidence linked</p>
-      <h2 id="toolkit-title">Technical Toolkit</h2>
-      <p class="toolkit-note">Project-relevant capabilities stay visible. Select one to see where I used it and what I actually did with it.</p>
-    </header>
+  <SectionFrame coordinate="02 / Toolkit" surface="paper">
+    <div class="page-shell toolkit-layout" data-toolkit>
+      <header class="toolkit__header">
+        <p class="mono-label">Technical index — evidence linked</p>
+        <h2 id="toolkit-title" class="toolkit__title">Technical Toolkit</h2>
+        <p class="toolkit__note">
+          Project-relevant capabilities stay visible. Select one to see where I used it and what
+          I actually did with it.
+        </p>
+      </header>
 
-    <div class="toolkit-skills">
-      <section class="toolkit-primary" aria-labelledby="toolkit-primary-title">
-        <h3 id="toolkit-primary-title">Project capabilities</h3>
-        <ul class="toolkit-primary-list" role="list">
+      <section class="toolkit__primary" aria-labelledby="toolkit-primary-title">
+        <header class="toolkit__primary-header">
+          <h3 id="toolkit-primary-title">Project capabilities</h3>
+          <p class="mono-label">{primaryToolkitItems.length} selected</p>
+        </header>
+        <ul class="toolkit__primary-list" role="list">
           {primaryToolkitItems.map(item => {
               const itemId = item.id;
-              const panelId = `toolkit-panel-${itemId}`;
               const btnId = `toolkit-btn-${itemId}`;
               const isInitial = itemId === initialItemId;
               return (
-                <li class="toolkit-item" data-toolkit-item>
+                <li class="toolkit__item">
                   <button
                     id={btnId}
                     type="button"
-                    class="toolkit-trigger"
+                    class="toolkit__trigger"
                     aria-pressed={isInitial ? 'true' : 'false'}
                     data-active={String(isInitial)}
                     data-toolkit-trigger={itemId}
                   >
-                    <span class="trigger-name">{item.name}</span>
-                    <span class="trigger-meta" aria-hidden="true"><i></i></span>
+                    <span class="toolkit__trigger-step" aria-hidden="true">
+                      {String(item.featuredOrder ?? '').padStart(2, '0')}
+                    </span>
+                    <span class="toolkit__trigger-name">{item.name}</span>
+                    <span class="toolkit__trigger-mark" aria-hidden="true"></span>
                   </button>
-                  <div
-                    id={panelId}
-                    class="toolkit-panel toolkit-panel--inline"
-                    role="region"
-                    aria-labelledby={btnId}
-                    data-toolkit-panel={itemId}
-                    data-active={String(isInitial)}
-                    hidden={!isInitial}
-                  >
-                    <div class="panel-section">
-                      <span class="panel-label">Used in</span>
-                      <ul class="panel-list">
-                        {item.usedIn.map(u => (
-                          <li>
-                            {u.href ? <a href={u.href} target={u.href.startsWith('http') ? '_blank' : undefined} rel={u.href.startsWith('http') ? 'noopener' : undefined}>{u.project}</a> : <span>{u.project}</span>}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div class="panel-section">
-                      <span class="panel-label">Evidence</span>
-                      <ul class="panel-list">
-                        {item.evidence.map(e => <li>{e}</li>)}
-                      </ul>
-                    </div>
-                    {item.note && <p class="panel-note">{item.note}</p>}
-                  </div>
                 </li>
               );
             })}
         </ul>
       </section>
 
-      <details class="toolkit-more" data-toolkit-more>
+      <section class="toolkit__detail" data-toolkit-detail aria-live="polite">
+        {toolkit.flatMap(group => group.items.map(item => {
+          const itemId = item.id;
+          const btnId = `toolkit-btn-${itemId}`;
+          const isInitial = itemId === initialItemId;
+          return (
+            <article
+              class="toolkit__panel"
+              aria-labelledby={btnId}
+              data-toolkit-detail-panel={itemId}
+              data-active={String(isInitial)}
+              hidden={!isInitial}
+            >
+              <header class="toolkit__panel-header">
+                <p class="mono-label">Selected</p>
+                <strong class="toolkit__panel-name">{item.name}</strong>
+              </header>
+              <dl class="toolkit__panel-grid">
+                <div>
+                  <dt class="mono-label">Used in</dt>
+                  <dd>
+                    <ul class="toolkit__panel-list">
+                      {item.usedIn.map(u => (
+                        <li>
+                          {u.href
+                            ? <a href={u.href} target={u.href.startsWith('http') ? '_blank' : undefined} rel={u.href.startsWith('http') ? 'noopener' : undefined}>{u.project}</a>
+                            : <span>{u.project}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+                <div>
+                  <dt class="mono-label">Evidence</dt>
+                  <dd>
+                    <ul class="toolkit__panel-list">
+                      {item.evidence.map(e => <li>{e}</li>)}
+                    </ul>
+                  </dd>
+                </div>
+              </dl>
+              {item.note && <p class="toolkit__panel-note">{item.note}</p>}
+            </article>
+          );
+        }))}
+      </section>
+
+      <details class="toolkit__more" data-toolkit-more>
         <summary>
-          <span>More technical tools</span>
-          <span class="more-count">{additionalToolCount} tools</span>
+          <span class="mono-label">More technical tools</span>
+          <span class="toolkit__more-count">{additionalToolCount} tools</span>
+          <span class="toolkit__more-mark" aria-hidden="true"></span>
         </summary>
-        <div class="toolkit-more-groups">
+        <div class="toolkit__more-groups">
           {additionalToolkit.map((group, groupIndex) => (
-            <section class="toolkit-group" aria-labelledby={`toolkit-more-group-${groupIndex}`}>
-              <h3 id={`toolkit-more-group-${groupIndex}`}>{group.category}</h3>
-              <ul role="list">
-                {group.items.map(item => {
-                  const itemId = item.id;
-                  const panelId = `toolkit-panel-${itemId}`;
-                  const btnId = `toolkit-btn-${itemId}`;
-                  return (
-                    <li class="toolkit-item" data-toolkit-item>
-                      <button
-                        id={btnId}
-                        type="button"
-                        class="toolkit-trigger"
-                        aria-pressed="false"
-                        data-active="false"
-                        data-toolkit-trigger={itemId}
-                      >
-                        <span class="trigger-name">{item.name}</span>
-                        <span class="trigger-meta" aria-hidden="true"><i></i></span>
-                      </button>
-                      <div
-                        id={panelId}
-                        class="toolkit-panel toolkit-panel--inline"
-                        role="region"
-                        aria-labelledby={btnId}
-                        data-toolkit-panel={itemId}
-                        data-active="false"
-                        hidden
-                      >
-                        <div class="panel-section">
-                          <span class="panel-label">Used in</span>
-                          <ul class="panel-list">
-                            {item.usedIn.map(u => (
-                              <li>
-                                {u.href ? <a href={u.href} target={u.href.startsWith('http') ? '_blank' : undefined} rel={u.href.startsWith('http') ? 'noopener' : undefined}>{u.project}</a> : <span>{u.project}</span>}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div class="panel-section">
-                          <span class="panel-label">Evidence</span>
-                          <ul class="panel-list">
-                            {item.evidence.map(e => <li>{e}</li>)}
-                          </ul>
-                        </div>
-                        {item.note && <p class="panel-note">{item.note}</p>}
-                      </div>
-                    </li>
-                  );
-                })}
+            <section class="toolkit__group" aria-labelledby={`toolkit-more-group-${groupIndex}`}>
+              <h3 id={`toolkit-more-group-${groupIndex}`}>
+                <span class="mono-label">{group.category}</span>
+              </h3>
+              <ul class="toolkit__group-list">
+                {group.items.map(item => (
+                  <li>
+                    <span class="toolkit__group-name">{item.name}</span>
+                    <span class="toolkit__group-meta mono-label">
+                      {item.usedIn[0]?.project ?? '—'}
+                    </span>
+                  </li>
+                ))}
               </ul>
             </section>
           ))}
         </div>
       </details>
     </div>
-
-    <div class="toolkit-detail" data-toolkit-detail>
-      {toolkit.flatMap(group => group.items.map(item => {
-        const itemId = item.id;
-        const btnId = `toolkit-btn-${itemId}`;
-        const isInitial = itemId === initialItemId;
-        return (
-          <div
-            class="toolkit-panel toolkit-panel--detail"
-            role="region"
-            aria-labelledby={btnId}
-            data-toolkit-detail-panel={itemId}
-            data-active={String(isInitial)}
-            hidden={!isInitial}
-          >
-            <div class="detail-header">
-              <span class="panel-label">Selected</span>
-              <strong class="detail-name">{item.name}</strong>
-            </div>
-            <div class="panel-section">
-              <span class="panel-label">Used in</span>
-              <ul class="panel-list">
-                {item.usedIn.map(u => (
-                  <li>
-                    {u.href ? <a href={u.href} target={u.href.startsWith('http') ? '_blank' : undefined} rel={u.href.startsWith('http') ? 'noopener' : undefined}>{u.project}</a> : <span>{u.project}</span>}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div class="panel-section">
-              <span class="panel-label">Evidence</span>
-              <ul class="panel-list">
-                {item.evidence.map(e => <li>{e}</li>)}
-              </ul>
-            </div>
-            {item.note && <p class="panel-note">{item.note}</p>}
-          </div>
-        );
-      }))}
-    </div>
-  </div>
+  </SectionFrame>
 </section>
 
 <script>
@@ -343,9 +297,7 @@ const initialItemId = primaryToolkitItems[0]?.id;
 
   if (toolkitRoot) {
     const triggers = [...toolkitRoot.querySelectorAll<HTMLButtonElement>('[data-toolkit-trigger]')];
-    const panels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-panel]')];
     const detailPanels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-detail-panel]')];
-    const moreDisclosure = toolkitRoot.querySelector<HTMLDetailsElement>('[data-toolkit-more]');
 
     const select = (id: string) => {
       if (!triggers.some(trigger => trigger.dataset.toolkitTrigger === id)) return;
@@ -355,20 +307,12 @@ const initialItemId = primaryToolkitItems[0]?.id;
         trigger.setAttribute('aria-pressed', String(active));
         trigger.dataset.active = String(active);
       });
-      panels.forEach(panel => {
-        const active = panel.dataset.toolkitPanel === id;
-        panel.hidden = !active;
-        panel.dataset.active = String(active);
-      });
       detailPanels.forEach(panel => {
         const active = panel.dataset.toolkitDetailPanel === id;
         panel.hidden = !active;
         panel.dataset.active = String(active);
       });
     };
-
-    const initial = triggers.find(trigger => trigger.getAttribute('aria-pressed') === 'true')?.dataset.toolkitTrigger;
-    const getVisibleTriggers = () => triggers.filter(trigger => !trigger.closest('details:not([open])'));
 
     triggers.forEach(trigger => {
       const itemId = trigger.dataset.toolkitTrigger;
@@ -382,12 +326,12 @@ const initialItemId = primaryToolkitItems[0]?.id;
         }
       });
 
-      trigger.addEventListener('focus', () => {
-        select(itemId);
-      });
+      // A4 fix: do not select on focus. Keyboard nav uses Arrow keys
+      // to move focus + change selection; tabbing through should not
+      // mutate the visible detail panel.
 
       trigger.addEventListener('keydown', (e) => {
-        const visibleTriggers = getVisibleTriggers();
+        const visibleTriggers = triggers;
         const idx = visibleTriggers.indexOf(trigger);
         if (idx < 0) return;
         let next: number | null = null;
@@ -406,27 +350,27 @@ const initialItemId = primaryToolkitItems[0]?.id;
         }
         if (next !== null) {
           const t = visibleTriggers[next];
-          t?.focus();
+          if (t) {
+            t.focus();
+            // Select on Arrow / Home / End so keyboard-only users see the
+            // corresponding detail panel change (A4 fix — selection is NOT
+            // driven by plain focus).
+            const nextId = t.dataset.toolkitTrigger;
+            if (nextId) select(nextId);
+          }
         }
       });
     });
 
-    moreDisclosure?.addEventListener('toggle', () => {
-      if (moreDisclosure.open || !initial) return;
-      const activeTrigger = triggers.find(trigger => trigger.getAttribute('aria-pressed') === 'true');
-      if (activeTrigger && moreDisclosure.contains(activeTrigger)) select(initial);
-    });
-
+    const initial = triggers.find(trigger => trigger.getAttribute('aria-pressed') === 'true')?.dataset.toolkitTrigger;
     if (initial) select(initial);
   }
 </script>
 
 <style>
   .toolkit {
-    padding-block: var(--section-tight);
-    border-top: var(--border-default);
-    background: var(--color-background);
-    position: relative;
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-rule-on-paper);
   }
 
   .toolkit-layout {
@@ -434,268 +378,181 @@ const initialItemId = primaryToolkitItems[0]?.id;
     gap: var(--space-6);
   }
 
-  .toolkit-header p,
-  .toolkit-header h2 {
-    margin: 0;
+  .toolkit__header {
+    display: grid;
+    gap: var(--space-3);
+    max-width: var(--width-content);
   }
 
-  .toolkit-header h2 {
-    margin-top: var(--section-heading-gap);
-    font-size: var(--text-h2);
+  .toolkit__title {
+    margin: 0;
+    font-size: var(--text-section);
     font-weight: 600;
-    letter-spacing: -0.035em;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.1;
   }
 
-  .toolkit-note {
-    max-width: 30rem;
-    margin: var(--space-4) 0 0;
-    color: var(--color-text-secondary);
-    font-size: var(--text-small);
-    line-height: 1.6;
+  .toolkit__note {
+    max-width: 32rem;
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
   }
 
-  .toolkit-detail {
-    display: none;
-    padding: var(--space-5);
-    border: var(--border-default);
-    border-radius: var(--radius-small);
-    background: var(--color-surface-light);
-    min-height: 0;
-  }
-
-  .detail-header {
-    display: grid;
-    gap: var(--space-1);
-    margin-bottom: var(--space-4);
-    padding-bottom: var(--space-4);
-    border-bottom: var(--border-default);
-  }
-
-  .detail-name {
-    font-size: 1rem;
-    font-weight: 650;
-    letter-spacing: -0.015em;
-    line-height: 1.35;
-    color: var(--color-text);
-  }
-
-  .toolkit-detail .toolkit-panel {
-    margin-top: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    gap: var(--space-4);
-    animation: none;
-  }
-
-  .toolkit-skills {
-    display: grid;
-    gap: 0;
-    border-top: var(--border-default);
-    border-bottom: var(--border-default);
-  }
-
-  .toolkit-primary {
+  /* Primary skills list */
+  .toolkit__primary {
     display: grid;
     gap: var(--space-3);
-    padding-block: var(--space-4);
-    border-bottom: var(--border-default);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
   }
 
-  .toolkit-group {
-    display: grid;
-    grid-template-columns: minmax(7.75rem, 0.9fr) minmax(0, 1fr);
-    gap: var(--space-4);
-    padding-block: var(--space-4);
-    border-bottom: var(--border-default);
-  }
-
-  .toolkit-group:last-child {
-    border-bottom: 0;
-  }
-
-  .toolkit-primary h3,
-  .toolkit-group h3 {
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: var(--text-label);
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    line-height: 1.5;
-    text-transform: uppercase;
-  }
-
-  .toolkit-primary-list,
-  .toolkit-group ul {
-    display: grid;
-    gap: var(--space-1);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .toolkit-more summary {
-    display: grid;
-    min-height: var(--control-height);
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    gap: var(--space-3);
-    align-items: center;
-    padding: var(--space-3) 0;
-    color: var(--color-text);
-    font-size: var(--text-small);
-    font-weight: 650;
-    cursor: pointer;
-    list-style: none;
-  }
-
-  .toolkit-more summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .toolkit-more summary::after {
-    content: '+';
-    color: var(--color-accent);
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 500;
-  }
-
-  .toolkit-more[open] summary::after {
-    content: '−';
-  }
-
-  .toolkit-more summary:focus-visible {
-    outline-offset: -2px;
-    background: var(--color-surface-cool);
-  }
-
-  .more-count {
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .toolkit-more-groups {
-    border-top: var(--border-default);
-  }
-
-  .toolkit-item {
-    position: relative;
-  }
-
-  .toolkit-trigger {
+  .toolkit__primary-header {
     display: flex;
-    width: 100%;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid transparent;
-    border-radius: var(--radius-small);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+  }
+
+  .toolkit__primary-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .toolkit__primary-list {
+    display: grid;
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--color-rule-on-paper-soft);
+  }
+
+  .toolkit__item {
+    background: var(--color-paper);
+  }
+
+  .toolkit__trigger {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    min-height: var(--control-height);
+    padding: 0 var(--space-4);
+    border: 0;
     background: transparent;
-    color: var(--color-text);
-    font: 550 var(--text-small) / 1.5 var(--font-sans);
+    color: var(--color-text-on-paper);
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
     text-align: left;
     cursor: pointer;
     transition:
-      background-color var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard);
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
   }
 
-  .trigger-name {
-    min-width: 0;
+  .toolkit__trigger:hover,
+  .toolkit__trigger:focus-visible {
+    background: var(--color-paper-soft);
   }
 
-  .trigger-meta {
-    display: inline-flex;
-    align-items: center;
-    flex-shrink: 0;
+  .toolkit__trigger-step {
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
   }
 
-  .trigger-meta i {
-    width: 0.375rem;
-    height: 0.375rem;
-    background: var(--color-border);
-    border: 1px solid var(--color-border);
+  .toolkit__trigger-mark {
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 1px solid var(--color-rule-on-paper);
+    background: transparent;
     transition:
-      background-color var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard);
+      background-color var(--duration-quick) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard);
   }
 
-  .toolkit-trigger:hover {
-    background: var(--color-surface-light);
-    border-color: var(--color-border);
-    transform: translateX(1px);
+  .toolkit__trigger[aria-pressed='true'] {
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper);
+    box-shadow: inset 2px 0 0 var(--color-accent);
   }
 
-  .toolkit-trigger:hover .trigger-meta i {
+  .toolkit__trigger[aria-pressed='true'] .toolkit__trigger-mark {
     background: var(--color-accent);
     border-color: var(--color-accent);
   }
 
-  .toolkit-trigger:focus-visible {
-    outline: 0.1875rem solid var(--color-accent);
-    outline-offset: -1px;
-    background: var(--color-surface-cool);
+  /* Detail panel */
+  .toolkit__detail {
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+    min-height: 0;
   }
 
-  .toolkit-trigger[aria-pressed='true'] {
-    background: var(--color-surface-cool);
-    border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-accent));
-    color: var(--color-text);
-  }
-
-  .toolkit-trigger[aria-pressed='true'] .trigger-meta i {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    transform: scale(1.2);
-  }
-
-  .toolkit-trigger[data-active='true'] {
-    font-weight: 650;
-  }
-
-  .toolkit-panel {
-    margin-top: var(--space-2);
-    padding: var(--space-4);
-    border: var(--border-default);
-    border-radius: var(--radius-small);
-    background: var(--color-surface-light);
+  .toolkit__panel {
     display: grid;
-    gap: var(--space-4);
-    animation: panel-in var(--duration-normal) var(--ease-standard);
+    gap: var(--space-5);
+    padding: var(--space-5);
   }
 
-  .toolkit-panel[hidden] {
+  .toolkit__panel[hidden] {
+    display: none !important;
+  }
+
+  /* Progressive enhancement: without JS, every panel shows stacked. */
+  html:not(.js) .toolkit__panel,
+  html:not(.js) .toolkit__panel[hidden] {
+    display: grid !important;
+  }
+
+  html:not(.js) .toolkit__primary {
     display: none;
   }
 
-  @keyframes panel-in {
-    from { opacity: 0; transform: translateY(2px); }
-    to { opacity: 1; transform: translateY(0); }
+  .toolkit__panel-header {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
   }
 
-  .panel-section {
+  .toolkit__panel-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-text-on-paper);
+  }
+
+  .toolkit__panel-grid {
+    display: grid;
+    gap: var(--space-5);
+    margin: 0;
+  }
+
+  .toolkit__panel-grid > div {
     display: grid;
     gap: var(--space-2);
   }
 
-  .panel-label {
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+  .toolkit__panel-grid dt {
+    color: var(--color-text-on-paper-muted);
   }
 
-  .panel-list {
+  .toolkit__panel-grid dd {
+    margin: 0;
+  }
+
+  .toolkit__panel-list {
     display: grid;
     gap: var(--space-1);
     margin: 0;
@@ -703,184 +560,176 @@ const initialItemId = primaryToolkitItems[0]?.id;
     list-style: none;
   }
 
-  .panel-list li {
+  .toolkit__panel-list li {
     position: relative;
     padding-left: var(--space-4);
-    font-size: 0.825rem;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
     line-height: 1.5;
-    color: var(--color-text-secondary);
   }
 
-  .panel-list li::before {
+  .toolkit__panel-list li::before {
     content: '';
     position: absolute;
     left: 0;
-    top: 0.65em;
+    top: 0.6em;
     width: 0.35rem;
     height: 0.35rem;
     border: 1px solid var(--color-accent);
-    background: var(--color-background);
+    background: transparent;
   }
 
-  .panel-list a {
-    color: var(--color-text);
+  .toolkit__panel-list a {
+    color: var(--color-text-on-paper);
     font-weight: 600;
-    text-decoration-color: var(--color-border);
   }
 
-  .panel-list a:hover {
-    text-decoration-color: var(--color-accent);
-  }
-
-  .panel-note {
+  .toolkit__panel-note {
     margin: 0;
-    padding-top: var(--space-3);
-    border-top: var(--border-default);
-    color: var(--color-text-secondary);
-    font-size: 0.75rem;
+    padding: var(--space-3);
+    border-left: 2px solid var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent-tint) 30%, var(--color-paper));
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
     line-height: 1.5;
-    font-style: italic;
   }
 
-  /* Mobile: inspector after skills (default order header -> skills -> detail) already natural */
-  /* Desktop two-zone */
+  /* More tools disclosure */
+  .toolkit__more {
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  .toolkit__more summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--control-height);
+    padding: 0 var(--space-4);
+    color: var(--color-text-on-paper);
+    cursor: pointer;
+    list-style: none;
+    transition:
+      background-color var(--duration-quick) var(--ease-standard);
+  }
+
+  .toolkit__more summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .toolkit__more summary:hover,
+  .toolkit__more summary:focus-visible {
+    background: var(--color-paper-soft);
+  }
+
+  .toolkit__more-count {
+    color: var(--color-text-on-paper-muted);
+  }
+
+  .toolkit__more-mark {
+    width: 0.625rem;
+    height: 0.625rem;
+    border: 1px solid var(--color-accent);
+    background: transparent;
+    position: relative;
+  }
+
+  .toolkit__more[open] .toolkit__more-mark {
+    background: var(--color-accent);
+  }
+
+  .toolkit__more-groups {
+    display: grid;
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .toolkit__group {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .toolkit__group:last-child {
+    border-bottom: 0;
+  }
+
+  .toolkit__group h3 {
+    margin: 0 0 var(--space-2);
+  }
+
+  .toolkit__group-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toolkit__group-list li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-3);
+    align-items: baseline;
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--color-rule-on-paper-soft);
+    color: var(--color-text-on-paper);
+    font-size: var(--text-small);
+  }
+
+  .toolkit__group-list li:first-child {
+    border-top: 0;
+  }
+
+  .toolkit__group-meta {
+    color: var(--color-text-on-paper-muted);
+  }
+
   @media (min-width: 48rem) {
     .toolkit-layout {
-      grid-template-columns: minmax(17rem, 22rem) minmax(0, 1fr);
+      grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
       grid-template-areas:
-        "header skills"
-        "detail skills";
-      align-items: start;
+        "header header"
+        "primary detail";
       column-gap: var(--space-7);
       row-gap: var(--space-5);
+      align-items: start;
     }
 
-    .toolkit-header {
+    .toolkit__header {
       grid-area: header;
     }
 
-    .toolkit-detail {
-      display: block;
+    .toolkit__primary {
+      grid-area: primary;
+    }
+
+    .toolkit__detail {
       grid-area: detail;
       position: sticky;
       top: 5.5rem;
     }
 
-    .toolkit-skills {
-      grid-area: skills;
-      display: block;
-      border: var(--border-default);
-      border-radius: var(--radius-small);
-      overflow: hidden;
-      background: var(--color-background);
-    }
-
-    .toolkit-primary {
-      padding: var(--space-4);
-    }
-
-    .toolkit-primary-list {
+    .toolkit__more-groups {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .toolkit-more summary {
-      padding-inline: var(--space-4);
+    .toolkit__group {
+      border-right: 1px solid var(--color-rule-on-paper-soft);
     }
 
-    .toolkit-more-groups {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .toolkit-group {
-      display: block;
-      min-height: 0;
-      padding: var(--space-4);
-      border-right: var(--border-default);
-      border-bottom: var(--border-default);
-    }
-
-    .toolkit-group:nth-child(2n) {
+    .toolkit__group:nth-child(2n) {
       border-right: 0;
-    }
-
-    .toolkit-group:last-child {
-      grid-column: 1 / -1;
-      border-bottom: 0;
-      border-right: 0;
-    }
-
-    .toolkit-primary .toolkit-panel--inline,
-    .toolkit-group .toolkit-panel--inline {
-      display: none !important;
-    }
-
-    .toolkit-group ul {
-      margin-top: var(--space-3);
-    }
-
-    .toolkit-detail .toolkit-panel:not([hidden]) {
-      display: grid !important;
     }
   }
 
   @media (min-width: 64rem) {
-    .toolkit-layout {
-      grid-template-columns: minmax(18rem, 23rem) minmax(0, 1fr);
-      column-gap: var(--space-8);
-    }
-
-    .toolkit-more-groups {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-    }
-
-    .toolkit-group {
-      grid-column: span 2;
-      border-right: var(--border-default);
-      border-bottom: var(--border-default);
-    }
-
-    .toolkit-group:nth-child(1) {
-      grid-column: span 2;
-      border-right: var(--border-default);
-      border-bottom: var(--border-default);
-    }
-    .toolkit-group:nth-child(2) {
-      grid-column: span 2;
-      border-right: var(--border-default);
-      border-bottom: var(--border-default);
-    }
-    .toolkit-group:nth-child(3) {
-      grid-column: span 2;
-      border-right: 0;
-      border-bottom: var(--border-default);
-    }
-    .toolkit-group:nth-child(4) {
-      grid-column: span 3;
-      border-right: var(--border-default);
-      border-bottom: 0;
-    }
-    .toolkit-group:nth-child(5) {
-      grid-column: span 3;
-      border-right: 0;
-      border-bottom: 0;
-    }
-  }
-
-  @media (max-width: 47.98rem) {
-    .toolkit-skills {
-      order: 2;
-    }
-    .toolkit-group .toolkit-panel[hidden] {
-      display: none !important;
+    .toolkit__panel-grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .toolkit-panel {
-      animation: none;
-    }
-    .toolkit-trigger {
+    .toolkit__trigger {
       transition: none;
     }
   }

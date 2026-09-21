@@ -24,28 +24,32 @@ const stages = [
     ...sharedSyncareerStages.input,
     step: '01',
     summary: 'Degree, interests, activity, progress, weaknesses.',
-    detail: 'Syncareer supplies Claude with explicit context from the student profile so guidance can be tailored. Context includes degree, interests, skills, CV progress and interview activity.',
+    detail:
+      'Syncareer supplies Claude with explicit context from the student profile so guidance can be tailored. Context includes degree, interests, skills, CV progress and interview activity.',
     code: null,
   },
   {
     ...sharedSyncareerStages.modelOutput,
     step: '02',
     summary: 'Mixed prose + inconsistent structure before constraints.',
-    detail: 'ILLUSTRATIVE EXAMPLE — not a historical Syncareer log. Shows the kind of format drift observed in production: malformed fields, prose bleed, missing required keys.',
+    detail:
+      'ILLUSTRATIVE EXAMPLE — not a historical Syncareer log. Shows the kind of format drift observed in production: malformed fields, prose bleed, missing required keys.',
     code: illustrativeBadOutput,
   },
   {
     ...sharedSyncareerStages.validation,
     step: '03',
     summary: 'Does output match product contract?',
-    detail: 'Gate that checks required fields and type expectations before the product uses the response. If validation fails, the path routes to failure diagnosis.',
+    detail:
+      'Gate that checks required fields and type expectations before the product uses the response. If validation fails, the path routes to failure diagnosis.',
     code: null,
   },
   {
     ...sharedSyncareerStages.failure,
     step: '04',
     summary: 'Formatting, context, structure.',
-    detail: 'Separate failures treated as distinct: inconsistent formatting, dropped context (activity/progress/weaknesses not retained), unpredictable response structure.',
+    detail:
+      'Separate failures treated as distinct: inconsistent formatting, dropped context (activity/progress/weaknesses not retained), unpredictable response structure.',
     code: `// failure signals
 - formatting varied
 - context not always retained
@@ -58,7 +62,8 @@ const stages = [
     label: 'DIAGNOSIS',
     title: 'Why it failed',
     summary: 'Prompt lacked explicit constraints; context not explicitly managed.',
-    detail: 'Root cause not reduced to one “AI problem”. Each mode mapped to a specific missing constraint. Interpretation: prompt structure, context handling and expected output needed tighter control.',
+    detail:
+      'Root cause not reduced to one "AI problem". Each mode mapped to a specific missing constraint. Interpretation: prompt structure, context handling and expected output needed tighter control.',
     evidence: 'No invented root cause beyond observed behaviours.',
     code: null,
     kind: 'diagnosis',
@@ -67,7 +72,8 @@ const stages = [
     ...sharedSyncareerStages.intervention,
     step: '06',
     summary: 'Prompt restructuring + few-shot + explicit context + tighter constraints.',
-    detail: 'Implemented: restructured prompts, added few-shot examples to anchor expected structure, managed context explicitly, set clearer constraints around expected output. ILLUSTRATIVE pattern shown for constraint — not claiming exact historical prompt text.',
+    detail:
+      'Implemented: restructured prompts, added few-shot examples to anchor expected structure, managed context explicitly, set clearer constraints around expected output. ILLUSTRATIVE pattern shown for constraint — not claiming exact historical prompt text.',
     code: `// illustrative constraint pattern
 {
   "type": "object",
@@ -89,117 +95,134 @@ Output: {"title":"...","level":"mid"...}`,
     step: '07',
     label: 'OUTPUT AFTERWARD',
     summary: 'Now conforms to product contract.',
-    detail: 'ILLUSTRATIVE valid output showing shape after intervention. Not claimed as historical Syncareer log. Measured reliability threshold not yet supplied — evidence boundary preserved.',
+    detail:
+      'ILLUSTRATIVE valid output showing shape after intervention. Not claimed as historical Syncareer log. Measured reliability threshold not yet supplied — evidence boundary preserved.',
     code: illustrativeValidOutput,
   },
 ] satisfies FullStage[];
 ---
 
-<div class="failure-trace" data-failure-trace aria-labelledby="trace-title">
-      <div class="trace-intro">
-        <div>
-          <p class="technical-label">Interactive failure trace / full inspector</p>
-          <h3 id="trace-title">Inspect the path: input → validation → failure → fix → valid output.</h3>
-        </div>
-        <p class="trace-legend">Click / focus a stage to reveal its detail. Keyboard: Tab + Enter, arrows to move. Values marked ILLUSTRATIVE are demo shapes, not historical logs.</p>
-      </div>
+<section class="failure-trace" data-failure-trace aria-labelledby="trace-title">
+  <header class="failure-trace__intro">
+    <div>
+      <p class="mono-label">Interactive failure trace / full inspector</p>
+      <h3 id="trace-title">Inspect the path: input → validation → failure → fix → valid output.</h3>
+    </div>
+    <p class="failure-trace__legend">
+      Click / focus a stage to reveal its detail. Keyboard: Tab + Enter, arrows to move.
+      Values marked ILLUSTRATIVE are demo shapes, not historical logs.
+    </p>
+  </header>
 
-      <div class="trace-shell">
-        <div class="trace-rail" aria-hidden="true"><span class="rail-progress" data-rail-progress></span></div>
+  <div class="failure-trace__shell">
+    <div class="failure-trace__rail" aria-hidden="true">
+      <span class="failure-trace__rail-progress" data-rail-progress></span>
+    </div>
 
-        <div class="trace-tablist" role="tablist" aria-label="Failure trace stages">
-          {stages.map((stage, idx) => (
-            <button
-              role="tab"
-              id={`tab-${stage.id}`}
-              class="trace-tab"
-              data-stage-tab={stage.id}
-              aria-controls={`panel-${stage.id}`}
-              aria-selected={idx === 0 ? 'true' : 'false'}
-              tabindex={idx === 0 ? '0' : '-1'}
-              data-step={stage.step}
-            >
-              <span class="tab-meta">
-                <span class="tab-step">{stage.step}</span>
-                <span class="tab-label">{stage.label}</span>
-              </span>
-              <span class="tab-title">{stage.title}</span>
-              <span class="tab-summary">{stage.summary}</span>
-              <i class="tab-dot" aria-hidden="true"></i>
-            </button>
-          ))}
-        </div>
+    <div class="failure-trace__tablist" role="tablist" aria-label="Failure trace stages">
+      {stages.map((stage, idx) => (
+        <button
+          role="tab"
+          id={`tab-${stage.id}`}
+          class="failure-trace__tab"
+          data-stage-tab={stage.id}
+          aria-controls={`panel-${stage.id}`}
+          aria-selected={idx === 0 ? 'true' : 'false'}
+          tabindex={idx === 0 ? '0' : '-1'}
+          data-step={stage.step}
+        >
+          <span class="failure-trace__tab-meta">
+            <span class="failure-trace__tab-step">{stage.step}</span>
+            <span class="failure-trace__tab-label">{stage.label}</span>
+          </span>
+          <span class="failure-trace__tab-title">{stage.title}</span>
+          <span class="failure-trace__tab-summary">{stage.summary}</span>
+          <span class="failure-trace__tab-dot" aria-hidden="true"></span>
+        </button>
+      ))}
+    </div>
 
-        <div class="trace-panels">
-          {stages.map((stage, idx) => (
-            <div
-              role="tabpanel"
-              id={`panel-${stage.id}`}
-              aria-labelledby={`tab-${stage.id}`}
-              class="trace-panel"
-              data-stage-panel={stage.id}
-              data-active={idx === 0 ? 'true' : 'false'}
-              tabindex="0"
-              hidden={idx !== 0}
-            >
-              <header class="panel-header">
-                <p class="panel-kicker">{stage.step} / {stage.label}</p>
-                <h4>{stage.title}</h4>
-                <p class="panel-detail">{stage.detail}</p>
-              </header>
+    <div class="failure-trace__panels">
+      {stages.map((stage, idx) => (
+        <div
+          role="tabpanel"
+          id={`panel-${stage.id}`}
+          aria-labelledby={`tab-${stage.id}`}
+          class="failure-trace__panel"
+          data-stage-panel={stage.id}
+          data-active={idx === 0 ? 'true' : 'false'}
+          tabindex="0"
+          hidden={idx !== 0}
+        >
+          <header class="failure-trace__panel-header">
+            <p class="mono-label">{stage.step} / {stage.label}</p>
+            <h4>{stage.title}</h4>
+            <p class="failure-trace__panel-detail">{stage.detail}</p>
+          </header>
 
-              {stage.code && (
-                <div class="panel-code">
-                  <div class="code-meta">
-                    <span>{stage.kind === 'raw' ? 'ILLUSTRATIVE BAD OUTPUT' : stage.kind === 'valid' ? 'ILLUSTRATIVE VALID OUTPUT' : stage.kind === 'fail' ? 'Observed failure signals' : 'Illustrative pattern'}</span>
-                    <span class="code-type">{stage.kind}</span>
-                  </div>
-                  <pre><code>{stage.code}</code></pre>
-                  {stage.kind === 'raw' && <p class="code-note">Marked illustrative — not a historical Syncareer log. Used to show format drift type.</p>}
-                  {stage.kind === 'valid' && <p class="code-note">Marked illustrative — shape matches product contract. No fabricated metrics.</p>}
-                </div>
+          {stage.code && (
+            <div class="failure-trace__code">
+              <div class="failure-trace__code-meta">
+                <span>
+                  {stage.kind === 'raw' ? 'ILLUSTRATIVE BAD OUTPUT' : stage.kind === 'valid' ? 'ILLUSTRATIVE VALID OUTPUT' : stage.kind === 'fail' ? 'Observed failure signals' : 'Illustrative pattern'}
+                </span>
+                <span class:list={['failure-trace__code-type', stage.kind === 'raw' && 'failure-trace__code-type--fail', stage.kind === 'valid' && 'failure-trace__code-type--pass']}>
+                  {stage.kind}
+                </span>
+              </div>
+              <pre><code>{stage.code}</code></pre>
+              {stage.kind === 'raw' && (
+                <p class="failure-trace__code-note">
+                  Marked illustrative — not a historical Syncareer log. Used to show format drift type.
+                </p>
               )}
-
-              {stage.id === 'validation' && (
-                <div class="panel-diagram">
-                  <div class="validation-card">
-                    <span class="mono-small">Product expects</span>
-                    <strong>title, level, years, next_steps</strong>
-                    <i aria-hidden="true"></i>
-                    <span class="mono-small mono-fail">Observed before fix</span>
-                    <strong class="fail-text">mixed prose + malformed fields</strong>
-                  </div>
-                </div>
-              )}
-
-              {stage.id === 'diagnosis' && (
-                <div class="panel-diagram">
-                  <div class="diagnosis-grid">
-                    <div><span>Formatting</span><p>Needed explicit schema</p></div>
-                    <div><span>Context</span><p>Needed explicit re-injection</p></div>
-                    <div><span>Structure</span><p>Needed few-shot anchor</p></div>
-                  </div>
-                </div>
-              )}
-
-              <footer class="panel-evidence">
-                <span>Evidence</span>
-                <p>{stage.evidence}</p>
-              </footer>
-
-              {(stage.id === 'failure' || stage.id === 'output') && (
-                <p class="evidence-boundary"><span>Boundary</span> No measured before-and-after failure rate is claimed here. Evidence boundary preserved.</p>
+              {stage.kind === 'valid' && (
+                <p class="failure-trace__code-note">
+                  Marked illustrative — shape matches product contract. No fabricated metrics.
+                </p>
               )}
             </div>
-          ))}
+          )}
+
+          {stage.id === 'validation' && (
+            <div class="failure-trace__validation-card">
+              <span class="mono-label">Product expects</span>
+              <strong>title, level, years, next_steps</strong>
+              <span class="failure-trace__validation-rule" aria-hidden="true"></span>
+              <span class="mono-label failure-trace__fail-text">Observed before fix</span>
+              <strong class="failure-trace__fail-text">mixed prose + malformed fields</strong>
+            </div>
+          )}
+
+          {stage.id === 'diagnosis' && (
+            <div class="failure-trace__diagnosis">
+              <div><span class="mono-label">Formatting</span><p>Needed explicit schema</p></div>
+              <div><span class="mono-label">Context</span><p>Needed explicit re-injection</p></div>
+              <div><span class="mono-label">Structure</span><p>Needed few-shot anchor</p></div>
+            </div>
+          )}
+
+          <footer class="failure-trace__evidence">
+            <span class="mono-label">Evidence</span>
+            <p>{stage.evidence}</p>
+          </footer>
+
+          {(stage.id === 'failure' || stage.id === 'output') && (
+            <p class="failure-trace__boundary">
+              <span class="mono-label">Boundary</span>
+              No measured before-and-after failure rate is claimed here. Evidence boundary preserved.
+            </p>
+          )}
         </div>
-      </div>
+      ))}
     </div>
+  </div>
+</section>
 
 <script>
   import { initTraceTabs } from '../scripts/initTraceTabs';
 
-  const traceRoots = document.querySelectorAll('[data-failure-trace]');
+  const traceRoots = document.querySelectorAll<HTMLElement>('[data-failure-trace]');
 
   for (const root of traceRoots) {
     const rail = root.querySelector<HTMLElement>('[data-rail-progress]');
@@ -214,518 +237,405 @@ Output: {"title":"...","level":"mid"...}`,
   }
 </script>
 
-
 <style>
-/* --- Failure trace — bounded inspector --- */
   .failure-trace {
-    border: var(--border-default);
-    border-radius: var(--radius-card);
-    background: var(--color-background);
-    overflow: hidden;
-    display: grid;
-    grid-template-rows: auto 1fr;
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
   }
 
-  .trace-intro {
+  .failure-trace__intro {
     display: grid;
     gap: var(--space-3);
-    padding: var(--space-4) var(--card-padding);
-    border-bottom: var(--border-default);
-    background: var(--color-surface-light);
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
   }
 
-  .trace-intro h3 {
-    max-width: 24ch;
+  .failure-trace__intro h3 {
     margin: var(--space-2) 0 0;
-    font-size: var(--text-h3);
+    max-width: 36ch;
+    font-size: var(--text-component);
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     line-height: 1.2;
   }
 
-  .trace-legend {
-    max-width: 38rem;
+  .failure-trace__legend {
     margin: 0;
-    color: var(--color-text-secondary);
+    max-width: var(--width-reading);
+    color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.6;
   }
 
-  .trace-shell {
-    display: grid;
-    min-height: 0;
-    overflow: hidden;
+  .failure-trace__shell {
     position: relative;
+    display: grid;
+    overflow: hidden;
   }
 
-  .trace-rail {
+  .failure-trace__rail {
     display: none;
   }
 
-  .trace-tablist {
+  .failure-trace__tablist {
     display: grid;
-    border-bottom: var(--border-default);
-    background: var(--color-background);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: thin;
-    scrollbar-color: var(--color-border) transparent;
-    -webkit-overflow-scrolling: touch;
   }
 
-  .trace-tablist::-webkit-scrollbar { height: 6px; }
-  .trace-tablist::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 999px; }
-
-  .trace-tab {
+  .failure-trace__tab {
     position: relative;
     display: grid;
     gap: var(--space-1);
-    padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);
+    padding: var(--space-3) var(--space-4);
     border: 0;
-    border-bottom: var(--border-default);
+    border-bottom: 1px solid var(--color-rule-on-paper);
     background: transparent;
-    text-align: left;
+    color: var(--color-text-on-paper-muted);
     cursor: pointer;
     font: inherit;
-    color: var(--color-text-secondary);
+    text-align: left;
     transition:
-      background-color var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard);
-    min-width: 0;
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
   }
 
-  .trace-tab:last-child {
-    border-bottom: 0;
-  }
+  .failure-trace__tab:last-child { border-bottom: 0; }
 
-  .tab-meta {
+  .failure-trace__tab-meta {
     display: flex;
     gap: var(--space-2);
     align-items: center;
   }
 
-  .tab-step {
+  .failure-trace__tab-step {
     display: inline-flex;
-    min-width: 1.8rem;
+    min-width: 2rem;
     justify-content: center;
-    padding: 0.15rem 0.35rem;
-    border: var(--border-default);
-    background: var(--color-surface-light);
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper-muted);
     font-family: var(--font-mono);
     font-size: 0.625rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
   }
 
-  .tab-label {
+  .failure-trace__tab-label {
     font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.06em;
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    white-space: nowrap;
   }
 
-  .tab-title {
-    color: var(--color-text);
-    font-size: 0.9rem;
+  .failure-trace__tab-title {
+    color: var(--color-text-on-paper);
+    font-size: 0.9375rem;
     font-weight: 600;
     line-height: 1.3;
-    white-space: normal;
   }
 
-  .tab-summary {
-    font-size: 0.7875rem;
+  .failure-trace__tab-summary {
+    color: var(--color-text-on-paper-muted);
+    font-size: 0.8125rem;
     line-height: 1.45;
-    color: var(--color-text-secondary);
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
 
-  .tab-dot {
+  .failure-trace__tab-dot {
     position: absolute;
     left: 0;
     top: 50%;
-    width: 3px;
-    height: 2rem;
+    width: 2px;
+    height: 1.5rem;
     background: transparent;
     transform: translateY(-50%);
-    transition: background-color var(--duration-fast) var(--ease-standard);
+    transition: background-color var(--duration-quick) var(--ease-standard);
   }
 
-  .trace-tab[data-active='true'] {
-    background: var(--color-surface-cool);
-    color: var(--color-text);
+  .failure-trace__tab[data-active='true'] {
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper);
   }
 
-  .trace-tab[data-active='true'] .tab-dot {
+  .failure-trace__tab[data-active='true'] .failure-trace__tab-dot {
     background: var(--color-accent);
   }
 
-  .trace-tab[data-past='true'] .tab-dot {
-    background: var(--color-border);
+  .failure-trace__tab[data-past='true'] .failure-trace__tab-dot {
+    background: var(--color-rule-on-paper);
   }
 
-  .trace-tab:hover {
-    background: color-mix(in srgb, var(--color-surface-cool) 70%, white);
-    color: var(--color-text);
+  .failure-trace__tab:hover,
+  .failure-trace__tab:focus-visible {
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper);
   }
 
-  .trace-tab:focus-visible {
-    outline-offset: -2px;
-    background: var(--color-surface-cool);
-  }
-
-  .trace-panels {
-    padding: var(--space-4) var(--card-padding);
-    background: var(--color-background);
+  .failure-trace__panels {
+    padding: var(--space-5);
+    background: var(--color-paper);
     min-height: 0;
     overflow: visible;
   }
 
-  .trace-panel {
+  .failure-trace__panel {
     display: grid;
     gap: var(--space-4);
   }
 
-  .trace-panel[hidden] {
+  .failure-trace__panel[hidden] {
     display: none !important;
   }
 
-  .panel-kicker {
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: var(--text-label);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+  /* Progressive enhancement: without JS, every panel is shown. */
+  html:not(.js) .failure-trace__panel,
+  html:not(.js) .failure-trace__panel[hidden] {
+    display: grid !important;
+    margin-bottom: var(--space-5);
+    border: 1px solid var(--color-rule-on-paper-soft);
+    padding: var(--space-5);
   }
 
-  .panel-header h4 {
+  html:not(.js) .failure-trace__tablist {
+    display: none;
+  }
+
+  .failure-trace__panel-header h4 {
     margin: var(--space-2) 0 0;
-    font-size: 1.0625rem;
+    font-size: 1.125rem;
     font-weight: 600;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
   }
 
-  .panel-detail {
-    max-width: 38rem;
+  .failure-trace__panel-detail {
+    max-width: 40rem;
     margin: var(--space-2) 0 0;
-    color: var(--color-text-secondary);
+    color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.6;
   }
 
-  .panel-code {
-    border: var(--border-default);
-    border-radius: var(--radius-small);
+  .failure-trace__code {
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
     overflow: hidden;
-    background: var(--color-surface-light);
   }
 
-  .code-meta {
+  .failure-trace__code-meta {
     display: flex;
     justify-content: space-between;
     gap: var(--space-3);
     padding: var(--space-2) var(--space-3);
-    border-bottom: var(--border-default);
-    background: var(--color-background);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+    color: var(--color-text-on-paper-muted);
     font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.05em;
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-meta);
     text-transform: uppercase;
-    color: var(--color-text-secondary);
   }
 
-  .code-type {
+  .failure-trace__code-type {
     color: var(--color-accent);
   }
 
-  .panel-code pre {
+  .failure-trace__code-type--fail { color: var(--color-signal-fail); }
+  .failure-trace__code-type--pass { color: var(--color-signal-pass); }
+
+  .failure-trace__code pre {
     margin: 0;
     padding: var(--space-3);
-    overflow-x: auto;
+    overflow: auto;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     line-height: 1.55;
-    background: var(--color-background);
-    max-height: 18rem;
-    overflow-y: auto;
-    scrollbar-width: thin;
+    background: var(--color-paper);
+    color: var(--color-text-on-paper);
+    max-height: 22rem;
   }
 
-  .code-note {
+  .failure-trace__code-note {
     margin: 0;
     padding: var(--space-2) var(--space-3);
-    border-top: var(--border-default);
-    background: var(--color-surface-light);
-    color: var(--color-text-secondary);
-    font-size: 0.72rem;
+    border-top: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper-muted);
+    font-size: 0.75rem;
     line-height: 1.5;
   }
 
-  .panel-diagram {
-    border: var(--border-default);
-    background: var(--color-surface-light);
-    padding: var(--space-3);
-  }
-
-  .validation-card {
+  .failure-trace__validation-card {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 2.2rem minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 2rem minmax(0, 1fr);
     gap: var(--space-3);
     align-items: center;
+    padding: var(--space-4);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
   }
 
-  .validation-card strong {
+  .failure-trace__validation-card strong {
     font-size: var(--text-small);
     line-height: 1.4;
   }
 
-  .validation-card i {
-    border-top: var(--border-default);
+  .failure-trace__validation-rule {
+    height: 1px;
+    background: var(--color-rule-on-paper);
     position: relative;
   }
 
-  .validation-card i::after {
+  .failure-trace__validation-rule::after {
     content: '';
     position: absolute;
     right: 0;
     top: -0.25rem;
-    width: 0.45rem;
-    height: 0.45rem;
+    width: 0.5rem;
+    height: 0.5rem;
     border: 1px solid var(--color-accent);
-    background: var(--color-background);
+    background: var(--color-paper);
   }
 
-  .mono-small {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  .failure-trace__fail-text {
+    color: var(--color-signal-fail);
   }
 
-  .mono-fail {
-    color: var(--color-failure-text);
-  }
-
-  .fail-text {
-    color: var(--color-failure-text);
-  }
-
-  .diagnosis-grid {
+  .failure-trace__diagnosis {
     display: grid;
     gap: var(--space-2);
   }
 
-  .diagnosis-grid div {
+  .failure-trace__diagnosis div {
     display: grid;
     gap: var(--space-1);
     padding: var(--space-3);
-    border: var(--border-default);
-    background: var(--color-background);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
   }
 
-  .diagnosis-grid span {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-text-secondary);
-  }
-
-  .diagnosis-grid p {
+  .failure-trace__diagnosis p {
     margin: 0;
     font-size: var(--text-small);
     line-height: 1.45;
   }
 
-  .panel-evidence {
+  .failure-trace__evidence {
     display: grid;
     gap: var(--space-1);
     padding-top: var(--space-3);
-    border-top: var(--border-default);
+    border-top: 1px solid var(--color-rule-on-paper);
   }
 
-  .panel-evidence span {
-    font-family: var(--font-mono);
-    font-size: var(--text-label);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-text-secondary);
-  }
-
-  .panel-evidence p {
+  .failure-trace__evidence p {
     margin: 0;
     max-width: 36rem;
-    color: var(--color-text-secondary);
+    color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.5;
   }
 
-  .evidence-boundary {
+  .failure-trace__boundary {
+    display: grid;
+    gap: var(--space-1);
     margin: 0;
-    padding-left: var(--space-4);
+    padding: var(--space-3);
     border-left: 2px solid var(--color-accent);
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    line-height: 1.6;
-    text-transform: uppercase;
+    background: color-mix(in srgb, var(--color-accent-tint) 30%, var(--color-paper));
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
   }
 
-  .evidence-boundary span {
-    display: block;
-    margin-bottom: var(--space-1);
-    color: var(--color-text);
-  }
-
-/* ——— Desktop bounded inspector ——— */
-@media (min-width: 48rem) {
-    .failure-trace {
-      /* Bounded height: ~512-640px, responsive to viewport */
-      max-height: clamp(32rem, 68vh, 40rem);
-    }
-
-    .trace-intro {
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-      align-items: end;
-      gap: var(--space-4);
-      padding-block: var(--space-4);
-    }
-
-    .trace-shell {
-      grid-template-columns: 17rem minmax(0, 1fr);
+  /* Desktop bounded inspector */
+  @media (min-width: 48rem) {
+    .failure-trace__shell {
+      grid-template-columns: 18rem minmax(0, 1fr);
       align-items: stretch;
-      overflow: hidden;
     }
 
-    .trace-tablist {
+    .failure-trace__tablist {
       border-bottom: 0;
-      border-right: var(--border-default);
+      border-right: 1px solid var(--color-rule-on-paper);
       display: grid;
       align-content: start;
       overflow-y: auto;
-      overflow-x: hidden;
-      overscroll-behavior: contain;
-      scrollbar-width: thin;
-      scrollbar-color: var(--color-border) transparent;
-      max-height: 100%;
+      max-height: 36rem;
     }
 
-    .trace-tablist::-webkit-scrollbar { width: 6px; }
-    .trace-tablist::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 999px; }
+    .failure-trace__tab {
+      border-bottom: 1px solid var(--color-rule-on-paper-soft);
+    }
 
-    .trace-rail {
+    .failure-trace__rail {
       display: block;
       position: absolute;
-      left: calc(17rem - 1px);
+      left: calc(18rem - 1px);
       top: 0;
       bottom: 0;
       width: 1px;
-      background: var(--color-border);
-      z-index: 1;
+      background: var(--color-rule-on-paper);
       pointer-events: none;
+      z-index: 1;
     }
 
-    .rail-progress {
+    .failure-trace__rail-progress {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: var(--progress, 0%);
       background: var(--color-accent);
-      transition: height var(--duration-normal) var(--ease-standard);
+      transition: height var(--duration-base) var(--ease-standard);
     }
 
-    .trace-panels {
+    .failure-trace__panels {
+      padding: var(--space-5);
+      max-height: 36rem;
       overflow-y: auto;
-      overflow-x: hidden;
-      overscroll-behavior: contain;
-      scrollbar-width: thin;
-      scrollbar-color: var(--color-border) transparent;
-      padding: var(--space-4) var(--card-padding);
     }
 
-    .trace-panels::-webkit-scrollbar { width: 8px; }
-    .trace-panels::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 999px; }
-
-    .diagnosis-grid {
+    .failure-trace__diagnosis {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 
-/* ——— Mobile: horizontal tabs + no nested vertical scroll ——— */
-@media (max-width: 47.98rem) {
-    .failure-trace {
-      max-height: none;
-    }
-
-    .trace-shell {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr;
-      overflow: visible;
-    }
-
-    .trace-tablist {
+  @media (max-width: 47.98rem) {
+    .failure-trace__tablist {
       display: flex;
       flex-wrap: nowrap;
       overflow-x: auto;
-      overflow-y: hidden;
-      border-bottom: var(--border-default);
-      border-right: 0;
-      scrollbar-width: thin;
-      -webkit-overflow-scrolling: touch;
       scroll-snap-type: x proximity;
     }
 
-    .trace-tab {
+    .failure-trace__tab {
       flex: 0 0 auto;
-      min-width: 11.5rem;
-      max-width: 14rem;
+      min-width: 12rem;
+      max-width: 16rem;
+      border-right: 1px solid var(--color-rule-on-paper-soft);
       border-bottom: 0;
-      border-right: var(--border-default);
       scroll-snap-align: start;
-      padding: var(--space-3) var(--space-4);
     }
 
-    .trace-tab:last-child {
-      border-right: 0;
-    }
-
-    .tab-summary {
-      -webkit-line-clamp: 2;
-    }
-
-    .trace-rail { display: none; }
-
-    .trace-panels {
-      overflow: visible;
-      max-height: none;
-    }
-
-    .validation-card {
+    .failure-trace__validation-card {
       grid-template-columns: 1fr;
       gap: var(--space-2);
     }
-    .validation-card i {
+
+    .failure-trace__validation-rule {
       width: 1px;
-      height: 1rem;
+      height: 1.25rem;
       margin-left: var(--space-3);
-      border-top: 0;
-      border-left: var(--border-default);
     }
   }
 
-@media (max-width: 30rem) {
-    .trace-intro { padding: var(--space-4); }
-  }
-
-@media (prefers-reduced-motion: reduce) {
-    .rail-progress { transition: none; }
-    .trace-tab { transition: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .failure-trace__rail-progress,
+    .failure-trace__tab {
+      transition: none;
+    }
   }
 </style>

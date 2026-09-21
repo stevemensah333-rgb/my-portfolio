@@ -1,66 +1,189 @@
+---
+const year = new Date().getFullYear();
+---
+
 <footer class="site-footer">
-  <div class="page-shell footer-inner">
-    <p>Stephen Mensah</p>
-    <a href="#top">Back to top</a>
+  <div class="page-shell site-footer__inner">
+    <div class="site-footer__brand">
+      <span class="site-footer__mark" aria-hidden="true">SM</span>
+      <div>
+        <p class="site-footer__name">Stephen Mensah</p>
+        <p class="mono-label site-footer__role">AI Engineering · Computer Science</p>
+      </div>
+    </div>
+
+    <nav class="site-footer__nav" aria-label="Footer">
+      <a class="site-footer__link" href="/">Index</a>
+      <a class="site-footer__link" href="/work/syncareer/">Syncareer case</a>
+      <a class="site-footer__link" href="#contact">Contact</a>
+    </nav>
+
+    <p class="site-footer__meta">
+      <span class="mono-label">© {year}</span>
+      <a href="#top">Back to top <span aria-hidden="true">↑</span></a>
+    </p>
+  </div>
+
+  <div class="page-shell site-footer__status" aria-label="System status">
+    <span class="site-footer__status-row">
+      <span class="site-footer__status-dot" aria-hidden="true"></span>
+      <span class="mono-label">Status</span>
+      <span class="site-footer__status-text">Online</span>
+    </span>
+    <span class="site-footer__status-row">
+      <span class="mono-label">Build</span>
+      <span class="site-footer__status-text">{year}.09</span>
+    </span>
+    <span class="site-footer__status-row">
+      <span class="mono-label">Render</span>
+      <span class="site-footer__status-text">Astro static</span>
+    </span>
+    <span class="site-footer__status-row">
+      <span class="mono-label">Source</span>
+      <span class="site-footer__status-text">/src/data</span>
+    </span>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    border-top: 1px solid var(--color-on-dark-border);
-    background: var(--color-text);
+    background: var(--color-canvas);
+    color: var(--color-text-on-canvas);
+    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
-  .footer-inner {
+  .site-footer__inner {
+    display: grid;
+    gap: var(--space-4);
+    padding-block: var(--space-6);
+  }
+
+  .site-footer__brand {
     display: flex;
-    min-height: 5rem;
-    justify-content: space-between;
-    gap: var(--space-5);
     align-items: center;
+    gap: var(--space-3);
   }
 
-  .footer-inner p,
-  .footer-inner a {
+  .site-footer__mark {
+    display: grid;
+    place-items: center;
+    width: 1.875rem;
+    height: 1.875rem;
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .site-footer__name {
     margin: 0;
-    color: var(--color-on-dark-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .site-footer__role {
+    color: var(--color-text-on-canvas-muted);
+  }
+
+  .site-footer__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+  }
+
+  .site-footer__link {
+    color: var(--color-text-on-canvas-muted);
+    font-size: var(--text-small);
+    text-decoration: none;
+    transition: color var(--duration-quick) var(--ease-standard);
+  }
+
+  .site-footer__link:hover {
+    color: var(--color-accent);
+  }
+
+  .site-footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+    align-items: center;
+    margin: 0;
+    color: var(--color-text-on-canvas-muted);
     font-size: var(--text-small);
   }
 
-  .footer-inner a {
-    display: inline-flex;
-    min-height: var(--control-height);
-    align-items: center;
-    position: relative;
-    transition:
-      color var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard);
+  .site-footer__meta a {
+    color: var(--color-text-on-canvas);
+    text-decoration: none;
+    transition: color var(--duration-quick) var(--ease-standard);
   }
 
-  .footer-inner a::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0.7rem;
-    border-top: 1px solid currentColor;
-    opacity: 0;
-    transform: translateY(2px);
-    transition:
-      opacity var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard);
+  .site-footer__meta a:hover {
+    color: var(--color-accent);
   }
 
-  .footer-inner a:hover {
-    color: var(--color-background);
-    transform: translateY(-1px);
+  /* Status bar — system-style readouts, marks the page as an instrument. */
+  .site-footer__status {
+    display: grid;
+    gap: var(--space-2) var(--space-5);
+    padding: var(--space-3) 0 var(--space-5);
+    border-top: 1px dashed var(--color-rule-on-canvas-soft);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
   }
 
-  .footer-inner a:hover::after {
-    opacity: 1;
-    transform: translateY(0);
+  .site-footer__status-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
   }
 
-  .footer-inner a:active {
-    transform: translateY(0);
+  .site-footer__status-dot {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    background: var(--color-signal-pass);
+    border-radius: 50%;
+    animation: footer-blink 3.6s var(--ease-standard) infinite;
+  }
+
+  @keyframes footer-blink {
+    0%, 90%, 100% { opacity: 1; }
+    95% { opacity: 0.35; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-footer__status-dot { animation: none; }
+  }
+
+  .site-footer__status-text {
+    color: var(--color-text-on-canvas);
+  }
+
+  @media (min-width: 48rem) {
+    .site-footer__inner {
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: var(--space-7);
+    }
+
+    .site-footer__nav {
+      justify-self: center;
+    }
+
+    .site-footer__status {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: center;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .site-footer__status {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-3) var(--space-7);
+    }
   }
 </style>

@@ -1,5 +1,6 @@
 ---
 import ProductFrame from './ProductFrame.astro';
+import SectionFrame from './SectionFrame.astro';
 import {
   illustrativeBadOutput,
   illustrativeValidOutput,
@@ -70,15 +71,23 @@ const compactStages: CompactStage[] = [
 ];
 ---
 
-<section id="syncareer" class="case-study" aria-labelledby="syncareer-title">
-  <div class="page-shell">
-    <header class="case-header">
-      <p class="technical-label">Case 01 / Syncareer</p>
-      <h2 id="syncareer-title">The AI worked in the demo. Production exposed what the demo didn't.</h2>
-      <p class="case-context">Syncareer is an AI-integrated career platform built by Stephen. This trace previews how an output moves from raw model to product-ready.</p>
+<section id="syncareer" class="case" aria-labelledby="syncareer-title">
+  <SectionFrame coordinate="01 / Case · Syncareer" surface="paper">
+    <header class="case__header page-shell">
+      <div class="case__header-row">
+        <p class="mono-label">Project 01</p>
+        <p class="mono-label case__header-meta">Live · syncareer.me</p>
+      </div>
+      <h2 id="syncareer-title" class="case__headline">
+        The AI worked in the demo. Production exposed what the demo didn't.
+      </h2>
+      <p class="case__context">
+        Syncareer is an AI-integrated career platform built by Stephen. This trace previews how an
+        output moves from raw model to product-ready.
+      </p>
     </header>
 
-    <div class="product-proof">
+    <div class="case__product page-shell">
       <ProductFrame
         src1440="/images/syncareer/synai-context-1440.png"
         src1800="/images/syncareer/synai-context-1800.png"
@@ -92,118 +101,135 @@ const compactStages: CompactStage[] = [
     </div>
 
     <section
-      class="engineering-narrative"
+      class="case__narrative page-shell"
       data-syncareer-narrative
       data-active-narrative-state="observed-failure"
       aria-labelledby="narrative-title"
     >
-      <header class="narrative-intro">
-        <p class="technical-label">Reliability narrative</p>
+      <div class="narrative__intro">
+        <p class="mono-label">Reliability narrative</p>
         <h3 id="narrative-title">Failure, engineering response, then a product contract.</h3>
         <p>Scroll the three states or use the state controls. The detailed trace remains directly selectable below.</p>
-      </header>
+      </div>
 
-      <nav class="narrative-rail" aria-label="Syncareer narrative states">
-        <p><span data-narrative-position>01 / 03</span> Current state</p>
-        <ol>
+      <nav class="narrative__rail" aria-label="Syncareer narrative states">
+        <p class="narrative__rail-meta">
+          <span class="mono-label" data-narrative-position>01 / 03</span>
+          <span class="narrative__rail-status">Current state</span>
+        </p>
+        <ol class="narrative__rail-list">
           {syncareerHomepageNarrativeStates.map((state, index) => (
             <li>
               <button
                 type="button"
+                class="narrative__rail-btn"
                 data-narrative-control={state.id}
                 aria-controls={`narrative-${state.id}`}
                 aria-current={index === 0 ? 'step' : undefined}
               >
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                {state.label}
+                <span class="narrative__rail-num">{String(index + 1).padStart(2, '0')}</span>
+                <span class="narrative__rail-label">{state.label}</span>
+                <span class="narrative__rail-tone" data-tone={state.tone}></span>
               </button>
             </li>
           ))}
         </ol>
-        <p class="sr-only" aria-live="polite" aria-atomic="true" data-narrative-announcement>
+        <p class="visually-hidden" aria-live="polite" aria-atomic="true" data-narrative-announcement>
           Current state: Observed failure
         </p>
       </nav>
 
-      <div class="narrative-sequence">
+      <div class="narrative__sequence">
         {syncareerHomepageNarrativeStates.map((state, index) => (
           <article
             id={`narrative-${state.id}`}
-            class="narrative-state"
+            class="narrative__state"
             data-narrative-step={state.id}
             data-tone={state.tone}
             data-active={index === 0 ? 'true' : 'false'}
             style={`--state-row: ${index + 1}`}
           >
-            <div class="narrative-copy">
-              <p class="narrative-kicker">State {String(index + 1).padStart(2, '0')} / {state.label}</p>
+            <header class="narrative__state-copy">
+              <p class="narrative__state-kicker mono-label">
+                State {String(index + 1).padStart(2, '0')} / {state.label}
+              </p>
               <h4>{state.title}</h4>
-              <p class="narrative-summary">{state.summary}</p>
+              <p class="narrative__state-summary">{state.summary}</p>
               <button
                 type="button"
-                class="narrative-stage-link"
+                class="text-link narrative__state-link"
                 data-select-trace-stage={state.primaryStageId}
               >
-                Inspect this state in the trace <span aria-hidden="true">↓</span>
+                Inspect this state in the trace
+                <span class="text-link__arrow" aria-hidden="true">↓</span>
               </button>
-            </div>
+            </header>
 
-            <div class="narrative-evidence" aria-label={`${state.label} evidence`}>
-              <div class="narrative-evidence-meta">
-                <span>Evidence state</span>
-                <span>{String(index + 1).padStart(2, '0')} / 03</span>
-              </div>
+            <div class="narrative__state-evidence" aria-label={`${state.label} evidence`}>
+              <header class="narrative__state-evidence-header">
+                <span class="mono-label">Evidence state</span>
+                <span class="mono-label">{String(index + 1).padStart(2, '0')} / 03</span>
+              </header>
 
               {state.id === 'observed-failure' && (
                 <>
-                  <div class="panel-code narrative-code">
-                    <div class="code-meta">
+                  <div class="code-panel">
+                    <div class="code-panel__meta">
                       <span>Illustrative bad output</span>
-                      <span class="code-type code-type-failure">Raw</span>
+                      <span class="code-panel__type code-panel__type--fail">Raw</span>
                     </div>
                     <pre><code>{illustrativeBadOutput}</code></pre>
                   </div>
-                  <ul class="failure-modes narrative-modes">
+                  <ul class="failure-grid">
                     {syncareerFailureModes.map((mode) => (
-                      <li><span>{mode.name}</span><p>{mode.note}</p></li>
+                      <li>
+                        <span class="mono-label">{mode.name}</span>
+                        <p>{mode.note}</p>
+                      </li>
                     ))}
                   </ul>
-                  <p class="narrative-evidence-line"><span>Evidence</span> Confirmed observations from production use.</p>
+                  <p class="evidence-line">
+                    <span class="mono-label">Evidence</span>
+                    Confirmed observations from production use.
+                  </p>
                 </>
               )}
 
               {state.id === 'engineering-response' && (
                 <>
-                  <ul class="fix-list narrative-fixes">
+                  <ul class="fix-list">
                     {syncareerInterventions.map((fix) => <li>{fix}</li>)}
                   </ul>
-                  <p class="narrative-evidence-line"><span>Evidence</span> Related interventions listed in the case study.</p>
+                  <p class="evidence-line">
+                    <span class="mono-label">Evidence</span>
+                    Related interventions listed in the case study.
+                  </p>
                 </>
               )}
 
               {state.id === 'product-contract' && (
                 <>
-                  <div class="validate-card narrative-validation">
-                    <div class="validate-side">
-                      <span class="mono-small">Product expects</span>
+                  <div class="validation-card">
+                    <div class="validation-card__side">
+                      <span class="mono-label">Product expects</span>
                       <strong>title, level, years, next_steps</strong>
                     </div>
-                    <i aria-hidden="true"></i>
-                    <div class="validate-side">
-                      <span class="mono-small">Validation</span>
+                    <span class="validation-card__rule" aria-hidden="true"></span>
+                    <div class="validation-card__side">
+                      <span class="mono-label">Validation</span>
                       <strong>required fields + types</strong>
                     </div>
                   </div>
-                  <div class="panel-code narrative-code">
-                    <div class="code-meta">
+                  <div class="code-panel">
+                    <div class="code-panel__meta">
                       <span>Illustrative valid output</span>
-                      <span class="code-type">Valid</span>
+                      <span class="code-panel__type code-panel__type--pass">Valid</span>
                     </div>
                     <pre><code>{illustrativeValidOutput}</code></pre>
                   </div>
-                  <div class="narrative-boundary">
-                    <p><span>Interpretation</span> Prompt structure, context handling and the expected output needed tighter control.</p>
-                    <p><span>Measured result</span> Not yet supplied. No reliability threshold is claimed here.</p>
+                  <div class="boundary-callout">
+                    <p><span class="mono-label">Interpretation</span>Prompt structure, context handling and the expected output needed tighter control.</p>
+                    <p><span class="mono-label">Measured result</span>Not yet supplied. No reliability threshold is claimed here.</p>
                   </div>
                 </>
               )}
@@ -213,23 +239,26 @@ const compactStages: CompactStage[] = [
       </div>
     </section>
 
-    <div class="failure-trace" data-trace-compact aria-labelledby="trace-title">
-      <div class="trace-intro">
+    <section class="case__inspector page-shell" aria-labelledby="trace-title">
+      <header class="inspector__intro">
         <div>
-          <p class="technical-label">Direct stage inspector</p>
+          <p class="mono-label">Direct stage inspector</p>
           <h3 id="trace-title">Inspect the six underlying stages.</h3>
         </div>
-        <p class="trace-legend">Select a stage to see what happened at each step. Keyboard: arrows to move between stages. Values marked ILLUSTRATIVE are demo shapes, not historical logs.</p>
-      </div>
+        <p class="inspector__legend">
+          Select a stage to see what happened at each step. Keyboard: arrows to move between stages.
+          Values marked ILLUSTRATIVE are demo shapes, not historical logs.
+        </p>
+      </header>
 
-      <div class="trace-strip">
-        <div class="trace-tablist" role="tablist" aria-label="Failure trace stages" aria-orientation="horizontal">
+      <div class="inspector__panel" data-trace-compact>
+        <div class="inspector__rail" role="tablist" aria-label="Failure trace stages" aria-orientation="horizontal">
           {compactStages.map((stage, idx) => (
             <button
               type="button"
               role="tab"
               id={`ctab-${stage.id}`}
-              class="trace-tab"
+              class="inspector__tab"
               data-stage-tab={stage.id}
               data-narrative-state={syncareerHomepageNarrativeStateByStage[stage.id]}
               aria-controls={`cpanel-${stage.id}`}
@@ -237,85 +266,99 @@ const compactStages: CompactStage[] = [
               tabindex={idx === 0 ? '0' : '-1'}
               data-step={stage.step}
             >
-              <span class="tab-step">{stage.step}</span>
-              <span class="tab-label">{stage.label}</span>
-              <i class="tab-dot" aria-hidden="true"></i>
+              <span class="inspector__tab-step">{stage.step}</span>
+              <span class="inspector__tab-label">{stage.label}</span>
+              <span class="inspector__tab-dot" aria-hidden="true"></span>
             </button>
           ))}
         </div>
-      </div>
 
-      <div class="trace-panels">
-        {compactStages.map((stage, idx) => (
-          <div
-            role="tabpanel"
-            id={`cpanel-${stage.id}`}
-            aria-labelledby={`ctab-${stage.id}`}
-            class="trace-panel"
-            data-stage-panel={stage.id}
-            data-narrative-state={syncareerHomepageNarrativeStateByStage[stage.id]}
-            data-active={idx === 0 ? 'true' : 'false'}
-            tabindex="0"
-            hidden={idx !== 0}
-          >
-            <header class="panel-header">
-              <p class="panel-kicker">{stage.step} / {stage.label}</p>
-              <h4>{stage.title}</h4>
-              <p class="panel-detail">{stage.detail}</p>
-            </header>
+        <div class="inspector__panels">
+          {compactStages.map((stage, idx) => (
+            <div
+              role="tabpanel"
+              id={`cpanel-${stage.id}`}
+              aria-labelledby={`ctab-${stage.id}`}
+              class="inspector__panel-content"
+              data-stage-panel={stage.id}
+              data-narrative-state={syncareerHomepageNarrativeStateByStage[stage.id]}
+              data-active={idx === 0 ? 'true' : 'false'}
+              tabindex="0"
+              hidden={idx !== 0}
+            >
+              <header class="inspector__panel-header">
+                <p class="mono-label">{stage.step} / {stage.label}</p>
+                <h4>{stage.title}</h4>
+                <p class="inspector__panel-detail">{stage.detail}</p>
+              </header>
 
-            {(stage.kind === 'raw' || stage.kind === 'valid') && (
-              <div class="panel-code">
-                <div class="code-meta">
-                  <span>{stage.kind === 'raw' ? 'ILLUSTRATIVE BAD OUTPUT' : 'ILLUSTRATIVE VALID OUTPUT'}</span>
-                  <span class="code-type">{stage.kind}</span>
+              {(stage.kind === 'raw' || stage.kind === 'valid') && (
+                <div class="code-panel">
+                  <div class="code-panel__meta">
+                    <span>{stage.kind === 'raw' ? 'ILLUSTRATIVE BAD OUTPUT' : 'ILLUSTRATIVE VALID OUTPUT'}</span>
+                    <span class:list={['code-panel__type', stage.kind === 'raw' ? 'code-panel__type--fail' : 'code-panel__type--pass']}>
+                      {stage.kind}
+                    </span>
+                  </div>
+                  <pre><code>{stage.code}</code></pre>
                 </div>
-                <pre><code>{stage.code}</code></pre>
-              </div>
-            )}
+              )}
 
-            {stage.kind === 'validate' && (
-              <div class="validate-card">
-                <div class="validate-side">
-                  <span class="mono-small">Product expects</span>
-                  <strong>title, level, years, next_steps</strong>
+              {stage.kind === 'validate' && (
+                <div class="validation-card">
+                  <div class="validation-card__side">
+                    <span class="mono-label">Product expects</span>
+                    <strong>title, level, years, next_steps</strong>
+                  </div>
+                  <span class="validation-card__rule" aria-hidden="true"></span>
+                  <div class="validation-card__side">
+                    <span class="mono-label">Observed before fix</span>
+                    <strong class="validation-card__fail">mixed prose + malformed fields</strong>
+                  </div>
                 </div>
-                <i aria-hidden="true"></i>
-                <div class="validate-side">
-                  <span class="mono-small mono-fail">Observed before fix</span>
-                  <strong class="fail-text">mixed prose + malformed fields</strong>
-                </div>
-              </div>
-            )}
+              )}
 
-            {stage.kind === 'fail' && (
-              <ul class="failure-modes">
-                {stage.modes?.map((mode) => (
-                  <li><span>{mode.name}</span><p>{mode.note}</p></li>
-                ))}
-              </ul>
-            )}
+              {stage.kind === 'fail' && (
+                <ul class="failure-grid">
+                  {stage.modes?.map((mode) => (
+                    <li>
+                      <span class="mono-label">{mode.name}</span>
+                      <p>{mode.note}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
 
-            {stage.kind === 'intervene' && (
-              <ul class="fix-list">
-                {stage.fixes?.map((fix) => <li>{fix}</li>)}
-              </ul>
-            )}
+              {stage.kind === 'intervene' && (
+                <ul class="fix-list">
+                  {stage.fixes?.map((fix) => <li>{fix}</li>)}
+                </ul>
+              )}
 
-            <p class="panel-evidence"><span>Evidence</span>{stage.evidence}</p>
-          </div>
-        ))}
+              <p class="evidence-line">
+                <span class="mono-label">Evidence</span>
+                {stage.evidence}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <footer class="inspector__footer">
+          <a class="text-link" href="/work/syncareer/">
+            Explore the full reliability case study
+            <span class="text-link__arrow" aria-hidden="true">→</span>
+          </a>
+        </footer>
       </div>
+    </section>
 
-      <div class="trace-cta">
-        <a class="case-link" href="/work/syncareer/">Explore the full reliability case study <span aria-hidden="true">→</span></a>
-      </div>
+    <div class="case__footer page-shell">
+      <a class="text-link" href="https://syncareer.me/" target="_blank" rel="noopener">
+        View Syncareer
+        <span class="text-link__arrow" aria-hidden="true">↗</span>
+      </a>
     </div>
-
-    <div class="case-actions">
-      <a class="live-link" href="https://syncareer.me/" target="_blank" rel="noopener">View Syncareer <span aria-hidden="true">↗</span></a>
-    </div>
-  </div>
+  </SectionFrame>
 </section>
 
 <script>
@@ -324,7 +367,7 @@ const compactStages: CompactStage[] = [
   const narrativeRoots = document.querySelectorAll<HTMLElement>('[data-syncareer-narrative]');
 
   for (const narrativeRoot of narrativeRoots) {
-    const section = narrativeRoot.closest('.case-study');
+    const section = narrativeRoot.closest('.case');
     const traceRoot = section?.querySelector<HTMLElement>('[data-trace-compact]');
     const steps = [...narrativeRoot.querySelectorAll<HTMLElement>('[data-narrative-step]')];
     const controls = [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-narrative-control]')];
@@ -369,7 +412,7 @@ const compactStages: CompactStage[] = [
 
       if (position) position.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(steps.length).padStart(2, '0')}`;
       if (options.announce && announcement) {
-        const activeLabel = controls[activeIndex]?.textContent?.trim() ?? stateId;
+        const activeLabel = controls[activeIndex]?.querySelector<HTMLElement>('.narrative__rail-label')?.textContent?.trim() ?? stateId;
         announcement.textContent = `Current state: ${activeLabel}`;
       }
 
@@ -410,7 +453,6 @@ const compactStages: CompactStage[] = [
       narrativeObserver = new IntersectionObserver(
         () => syncNarrativeToScrollPosition(),
         {
-          // A 1% observer band surrounds the explicit 42.5% activation line.
           rootMargin: '-42% 0px -57% 0px',
           threshold: 0,
         },
@@ -449,656 +491,330 @@ const compactStages: CompactStage[] = [
 </script>
 
 <style>
-  .case-study {
-    padding-block: var(--section-standard);
-    border-top: var(--border-default);
-    background: var(--color-surface-light);
-    scroll-margin-top: 5rem;
-    position: relative;
+  .case {
+    background: var(--color-paper);
+    color: var(--color-text-on-paper);
+    border-top: 1px solid var(--color-rule-on-paper);
   }
 
-  .case-header {
+  .case__header {
     display: grid;
-    gap: var(--space-4);
-    max-width: 62rem;
+    gap: var(--space-3);
+    padding-bottom: var(--space-6);
   }
 
-  .case-header p,
-  .case-header h2 {
+  .case__header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .case__header-meta {
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .case__headline {
     margin: 0;
-  }
-
-  .case-header h2 {
-    max-width: 20ch;
-    font-size: var(--text-h1);
+    max-width: 22ch;
+    font-size: var(--text-feature);
     font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 1.02;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.05;
   }
 
-  .case-context {
+  .case__context {
     max-width: var(--width-reading);
-    color: var(--color-text-secondary);
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
     font-size: var(--text-body-large);
+    line-height: 1.55;
   }
 
-  .product-proof {
-    margin-top: var(--section-content-gap);
+  .case__product {
+    padding-block: var(--space-6);
+    border-top: 1px solid var(--color-rule-on-paper);
+    border-bottom: 1px solid var(--color-rule-on-paper);
   }
 
-  /* --- Three-state engineering narrative --- */
-  .engineering-narrative {
-    margin-top: var(--section-content-gap);
+  /* --- Narrative --- */
+  .case__narrative {
+    padding-block: var(--section-block);
   }
 
-  .narrative-intro {
+  .narrative__intro {
     display: grid;
-    gap: var(--space-2);
-    max-width: 48rem;
+    gap: var(--space-3);
+    max-width: var(--width-content);
+    margin-bottom: var(--space-7);
   }
 
-  .narrative-intro p,
-  .narrative-intro h3 {
+  .narrative__intro h3 {
     margin: 0;
-  }
-
-  .narrative-intro h3 {
     max-width: 24ch;
-    font-size: var(--text-h2);
+    font-size: var(--text-section);
     font-weight: 600;
-    letter-spacing: -0.035em;
-    line-height: 1.08;
+    line-height: 1.1;
   }
 
-  .narrative-intro > p:last-child {
+  .narrative__intro p {
+    margin: 0;
     max-width: var(--width-reading);
-    color: var(--color-text-secondary);
+    color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.55;
   }
 
-  .narrative-rail {
+  .narrative__rail {
+    position: relative;
     display: grid;
     gap: var(--space-3);
-    margin-top: var(--space-6);
-    padding-block: var(--space-3);
-    border-block: var(--border-default);
-    background: var(--color-surface-light);
+    padding: var(--space-3);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
   }
 
-  .narrative-rail > p {
+  .narrative__rail-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
     margin: 0;
-    color: var(--color-text-secondary);
+  }
+
+  .narrative__rail-status {
+    color: var(--color-text-on-paper-muted);
     font-family: var(--font-mono);
-    font-size: var(--text-label);
-    letter-spacing: 0.06em;
+    font-size: var(--text-meta);
+    letter-spacing: var(--tracking-meta);
     text-transform: uppercase;
   }
 
-  .narrative-rail > p span {
-    margin-right: var(--space-2);
-    color: var(--color-text);
-  }
-
-  .narrative-rail .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  .narrative-rail ol {
+  .narrative__rail-list {
     display: grid;
-    gap: 1px;
     margin: 0;
     padding: 0;
-    border: var(--border-default);
-    background: var(--color-border);
     list-style: none;
   }
 
-  .narrative-rail li {
-    min-width: 0;
+  .narrative__rail-list li {
+    border-top: 1px solid var(--color-rule-on-paper);
   }
 
-  .narrative-rail button {
-    position: relative;
+  .narrative__rail-list li:first-child {
+    border-top: 0;
+  }
+
+  .narrative__rail-btn {
     display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
     width: 100%;
     min-height: var(--control-height);
-    grid-template-columns: 2rem minmax(0, 1fr) auto;
-    gap: var(--space-2);
-    align-items: center;
     padding: var(--space-2) var(--space-3);
     border: 0;
-    background: var(--color-background);
-    color: var(--color-text-secondary);
-    font: inherit;
-    font-size: var(--text-small);
+    background: transparent;
+    color: var(--color-text-on-paper-muted);
     text-align: left;
     cursor: pointer;
+    font: inherit;
     transition:
-      background-color var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard);
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
   }
 
-  .narrative-rail button > span {
+  .narrative__rail-btn:hover {
+    color: var(--color-text-on-paper);
+    background: color-mix(in srgb, var(--color-paper) 60%, transparent);
+  }
+
+  .narrative__rail-num {
+    color: var(--color-accent);
     font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.05em;
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
   }
 
-  .engineering-narrative[data-narrative-enhanced='true'] .narrative-rail button[aria-current='step'] {
-    background: var(--color-surface-cool);
-    color: var(--color-text);
+  .narrative__rail-label {
+    font-size: 0.9375rem;
     font-weight: 600;
   }
 
-  .engineering-narrative[data-narrative-enhanced='true'] .narrative-rail button[aria-current='step']::before {
-    content: '';
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 2px;
+  .narrative__rail-tone {
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  .narrative__rail-tone[data-tone='failure'] {
+    border-color: var(--color-signal-fail);
+    background: var(--color-signal-fail);
+  }
+  .narrative__rail-tone[data-tone='technical'] {
+    border-color: var(--color-accent);
     background: var(--color-accent);
   }
-
-  .engineering-narrative[data-narrative-enhanced='true'] .narrative-rail button[aria-current='step']::after {
-    content: 'Current';
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
-    font-weight: 400;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+  .narrative__rail-tone[data-tone='valid'] {
+    border-color: var(--color-signal-pass);
+    background: var(--color-signal-pass);
   }
 
-  .narrative-rail button:hover {
-    color: var(--color-text);
+  .engineering-narrative[data-narrative-enhanced='true'] .narrative__rail-btn[aria-current='step'] {
+    background: var(--color-paper);
+    color: var(--color-text-on-paper);
+    box-shadow: inset 2px 0 0 var(--color-accent);
   }
 
-  .narrative-rail button:focus-visible {
-    z-index: 1;
+  .narrative__rail-btn:focus-visible {
     outline-offset: -3px;
   }
 
-  .narrative-sequence {
+  /* Sequence */
+  .narrative__sequence {
     display: grid;
-    margin-top: var(--space-4);
+    gap: var(--space-6);
+    margin-top: var(--space-6);
   }
 
-  .narrative-state {
+  .narrative__state {
     display: grid;
-    gap: var(--space-4);
-    padding-block: var(--space-7);
-    border-bottom: var(--border-default);
-    scroll-margin-top: 7rem;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
   }
 
-  .narrative-state:first-child {
-    border-top: var(--border-default);
+  .narrative__state[data-tone='failure'] {
+    border-color: color-mix(in srgb, var(--color-signal-fail) 40%, var(--color-rule-on-paper));
   }
 
-  .narrative-copy {
+  .narrative__state[data-tone='valid'] {
+    border-color: color-mix(in srgb, var(--color-signal-pass) 40%, var(--color-rule-on-paper));
+  }
+
+  .narrative__state-copy {
     display: grid;
     gap: var(--space-3);
-    align-content: center;
   }
 
-  .narrative-kicker {
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+  .narrative__state-kicker {
+    color: var(--color-text-on-paper-muted);
   }
 
-  .narrative-copy h4 {
-    max-width: 19ch;
+  .narrative__state-copy h4 {
     margin: 0;
-    font-size: var(--text-h2);
+    max-width: 22ch;
+    font-size: var(--text-section);
     font-weight: 600;
-    letter-spacing: -0.035em;
     line-height: 1.08;
   }
 
-  .narrative-summary {
-    max-width: 34rem;
+  .narrative__state-summary {
     margin: 0;
-    color: var(--color-text-secondary);
+    max-width: 34rem;
+    color: var(--color-text-on-paper-muted);
     font-size: var(--text-body-large);
     line-height: 1.55;
   }
 
-  .narrative-stage-link {
+  .narrative__state-link {
+    color: var(--color-text-on-paper);
     justify-self: start;
-    min-height: var(--control-height);
-    padding: 0;
-    border: 0;
-    border-bottom: 1px solid currentColor;
-    background: transparent;
-    color: var(--color-text);
-    font: inherit;
-    font-size: var(--text-small);
-    font-weight: 600;
-    cursor: pointer;
   }
 
-  .narrative-stage-link span {
-    margin-left: 0.2rem;
-    color: var(--color-accent);
-  }
-
-  .narrative-evidence {
-    min-width: 0;
+  .narrative__state-evidence {
     display: grid;
     gap: var(--space-3);
     padding: var(--space-4);
-    border: var(--border-default);
-    border-radius: var(--radius-card);
-    background: var(--color-background);
+    border: 1px solid var(--color-rule-on-paper-soft);
+    background: var(--color-paper-soft);
   }
 
-  .engineering-narrative[data-narrative-enhanced='true'] .narrative-evidence {
-    transition:
-      opacity var(--duration-reveal) var(--ease-standard),
-      transform var(--duration-reveal) var(--ease-standard),
-      border-color var(--duration-normal) var(--ease-standard),
-      background-color var(--duration-normal) var(--ease-standard);
+  .narrative__state[data-tone='failure'] .narrative__state-evidence {
+    background: color-mix(in srgb, var(--color-signal-fail-tint) 40%, var(--color-paper));
+    border-color: color-mix(in srgb, var(--color-signal-fail) 25%, var(--color-rule-on-paper));
   }
 
-  .narrative-state[data-tone='failure'] .narrative-evidence {
-    border-color: var(--color-failure-border);
-    background: var(--color-failure-surface);
-  }
-
-  .narrative-state[data-tone='valid'] .narrative-evidence {
-    border-color: color-mix(in srgb, var(--color-border) 45%, var(--color-accent));
-  }
-
-  .narrative-evidence-meta {
+  .narrative__state-evidence-header {
     display: flex;
     justify-content: space-between;
     gap: var(--space-3);
     padding-bottom: var(--space-2);
-    border-bottom: var(--border-default);
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
   }
 
-  .narrative-code pre {
-    max-height: 12.5rem;
-  }
-
-  .code-type-failure {
-    color: var(--color-failure-text);
-  }
-
-  .narrative-modes {
-    gap: var(--space-2);
-  }
-
-  .narrative-modes li {
-    background: color-mix(in srgb, var(--color-background) 80%, var(--color-failure-surface));
-  }
-
-  .narrative-modes span {
-    color: var(--color-failure-text);
-  }
-
-  .narrative-fixes li {
-    background: var(--color-surface-light);
-  }
-
-  .narrative-evidence-line,
-  .narrative-boundary p {
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-size: var(--text-small);
-    line-height: 1.5;
-  }
-
-  .narrative-evidence-line {
-    padding-top: var(--space-3);
-    border-top: var(--border-default);
-  }
-
-  .narrative-evidence-line span,
-  .narrative-boundary span {
-    display: inline-block;
-    margin-right: var(--space-2);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: var(--text-label);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .narrative-boundary {
-    display: grid;
-    gap: var(--space-2);
-    padding: var(--space-3);
-    border-left: 2px solid var(--color-accent);
-    background: var(--color-surface-cool);
-  }
-
-  /* --- Compact failure trace --- */
-  .failure-trace {
-    margin-top: var(--section-content-gap);
-    border: var(--border-default);
-    border-radius: var(--radius-card);
-    background: var(--color-background);
+  /* Code panel */
+  .code-panel {
+    border: 1px solid var(--color-rule-on-paper-soft);
+    background: var(--color-paper);
     overflow: hidden;
   }
 
-  .trace-intro {
-    display: grid;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-4);
-    border-bottom: var(--border-default);
-    background: var(--color-surface-light);
-  }
-
-  .trace-intro h3 {
-    max-width: 26ch;
-    margin: var(--space-1) 0 0;
-    font-size: var(--text-h3);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-  }
-
-  .trace-legend {
-    max-width: 42rem;
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-size: 0.8125rem;
-    line-height: 1.55;
-  }
-
-  .trace-strip {
-    position: relative;
-    display: flex;
-    border-bottom: var(--border-default);
-    background: var(--color-background);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .trace-strip::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Fade on the right edge signals the tab strip scrolls on narrow screens. */
-  .trace-strip::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1.5rem;
-    background: linear-gradient(to right, transparent, var(--color-background));
-    pointer-events: none;
-  }
-
-  .trace-tablist {
-    display: flex;
-    align-items: stretch;
-    flex: 0 0 auto;
-  }
-
-  .trace-tab {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-height: 2.75rem;
-    padding: 0 var(--space-4);
-    border: 0;
-    border-right: var(--border-default);
-    background: transparent;
-    color: var(--color-text-secondary);
-    font: inherit;
-    white-space: nowrap;
-    cursor: pointer;
-    transition:
-      background-color var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard);
-  }
-
-  .trace-tab:last-child {
-    border-right: 0;
-  }
-
-  .tab-step {
-    display: inline-flex;
-    min-width: 1.8rem;
-    justify-content: center;
-    padding: 0.15rem 0.35rem;
-    border: var(--border-default);
-    background: var(--color-surface-light);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.05em;
-    color: var(--color-text-secondary);
-    transition:
-      color var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      background-color var(--duration-fast) var(--ease-standard);
-  }
-
-  .tab-label {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .tab-dot {
-    position: absolute;
-    left: var(--space-3);
-    right: var(--space-3);
-    bottom: 0;
-    height: 2px;
-    background: transparent;
-    transition: background-color var(--duration-fast) var(--ease-standard);
-  }
-
-  .trace-tab:hover {
-    background: color-mix(in srgb, var(--color-surface-cool) 70%, white);
-    color: var(--color-text);
-  }
-
-  .trace-tab:focus-visible {
-    outline-offset: -2px;
-    background: var(--color-surface-cool);
-  }
-
-  .trace-tab[data-active='true'] {
-    color: var(--color-text);
-  }
-
-  .trace-tab[data-active='true'] .tab-step {
-    border-color: var(--color-accent);
-    background: var(--color-surface-cool);
-    color: var(--color-text);
-  }
-
-  .trace-tab[data-active='true'] .tab-dot {
-    background: var(--color-accent);
-  }
-
-  .trace-tab[data-past='true'] .tab-step {
-    border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-accent));
-  }
-
-  .trace-panels {
-    padding: var(--space-4);
-    background: var(--color-background);
-  }
-
-  .trace-panel {
-    display: grid;
-    gap: var(--space-3);
-  }
-
-  .trace-panel[hidden] {
-    display: none !important;
-  }
-
-  .panel-kicker {
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .panel-header h4 {
-    margin: var(--space-1) 0 0;
-    font-size: 1.0625rem;
-    font-weight: 600;
-    letter-spacing: -0.015em;
-  }
-
-  .panel-detail {
-    max-width: 40rem;
-    margin: var(--space-2) 0 0;
-    color: var(--color-text-secondary);
-    font-size: 0.9375rem;
-    line-height: 1.55;
-  }
-
-  .panel-code {
-    border: var(--border-default);
-    border-radius: var(--radius-small);
-    overflow: hidden;
-    background: var(--color-surface-light);
-  }
-
-  .code-meta {
+  .code-panel__meta {
     display: flex;
     justify-content: space-between;
     gap: var(--space-3);
-    padding: var(--space-1) var(--space-3);
-    border-bottom: var(--border-default);
-    background: var(--color-background);
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+    color: var(--color-text-on-paper-muted);
     font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.05em;
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-meta);
     text-transform: uppercase;
-    color: var(--color-text-secondary);
+    background: var(--color-paper-soft);
   }
 
-  .code-type {
+  .code-panel__type {
     color: var(--color-accent);
   }
 
-  .narrative-state[data-tone='failure'] .code-type-failure {
-    color: var(--color-failure-text);
+  .code-panel__type--fail {
+    color: var(--color-signal-fail);
   }
 
-  .panel-code pre {
+  .code-panel__type--pass {
+    color: var(--color-signal-pass);
+  }
+
+  .code-panel pre {
     margin: 0;
     padding: var(--space-3);
     overflow-x: auto;
     font-family: var(--font-mono);
-    font-size: 0.7rem;
-    line-height: 1.5;
-    background: var(--color-background);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    background: var(--color-paper);
+    color: var(--color-text-on-paper);
+    max-height: 16rem;
   }
 
-  .validate-card {
+  /* Failure grid */
+  .failure-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 2.5rem minmax(0, 1fr);
-    gap: var(--space-3);
-    align-items: center;
-    padding: var(--space-3) var(--space-4);
-    border: var(--border-default);
-    background: var(--color-surface-light);
-  }
-
-  .validate-side {
-    display: grid;
-    gap: var(--space-1);
-  }
-
-  .validate-side strong {
-    font-size: var(--text-small);
-    line-height: 1.4;
-  }
-
-  .validate-card i {
-    border-top: var(--border-default);
-    position: relative;
-  }
-
-  .validate-card i::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: -0.25rem;
-    width: 0.45rem;
-    height: 0.45rem;
-    border: 1px solid var(--color-accent);
-    background: var(--color-background);
-  }
-
-  .mono-small {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .mono-fail {
-    color: var(--color-failure-text);
-  }
-
-  .fail-text {
-    color: var(--color-failure-text);
-  }
-
-  .failure-modes {
-    display: grid;
-    gap: var(--space-3);
+    gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .failure-modes li {
+  .failure-grid li {
     display: grid;
     gap: var(--space-1);
     padding: var(--space-3);
-    border: var(--border-default);
-    background: var(--color-surface-light);
+    border: 1px solid var(--color-rule-on-paper-soft);
+    background: var(--color-paper);
   }
 
-  .failure-modes span {
-    color: var(--color-accent);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .failure-modes p {
+  .failure-grid p {
     margin: 0;
     font-size: var(--text-small);
     line-height: 1.45;
+    color: var(--color-text-on-paper-muted);
   }
 
+  /* Fix list */
   .fix-list {
     display: grid;
     gap: var(--space-2);
@@ -1109,326 +825,399 @@ const compactStages: CompactStage[] = [
 
   .fix-list li {
     position: relative;
-    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-6);
-    border: var(--border-default);
-    background: var(--color-surface-light);
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-7);
+    border: 1px solid var(--color-rule-on-paper-soft);
+    background: var(--color-paper);
     font-size: var(--text-small);
     line-height: 1.45;
+    color: var(--color-text-on-paper);
   }
 
   .fix-list li::before {
     content: '+';
     position: absolute;
     left: var(--space-3);
+    top: var(--space-2);
     color: var(--color-accent);
     font-family: var(--font-mono);
     font-weight: 600;
   }
 
-  .panel-evidence {
+  /* Validation card */
+  .validation-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 2.5rem minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-rule-on-paper-soft);
+    background: var(--color-paper-soft);
+  }
+
+  .validation-card__side {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .validation-card__side strong {
+    font-size: var(--text-small);
+    line-height: 1.4;
+  }
+
+  .validation-card__fail {
+    color: var(--color-signal-fail);
+  }
+
+  .validation-card__rule {
+    height: 1px;
+    background: var(--color-rule-on-paper);
+    position: relative;
+  }
+
+  .validation-card__rule::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -0.25rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 1px solid var(--color-accent);
+    background: var(--color-paper);
+  }
+
+  /* Boundary callout */
+  .boundary-callout {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-left: 2px solid var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent-tint) 30%, var(--color-paper));
+  }
+
+  .boundary-callout p {
     margin: 0;
-    padding-top: var(--space-3);
-    border-top: var(--border-default);
-    color: var(--color-text-secondary);
+    color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.5;
   }
 
-  .panel-evidence span {
-    display: inline-block;
-    margin-right: var(--space-3);
-    color: var(--color-text);
+  /* Evidence line */
+  .evidence-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule-on-paper-soft);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  /* --- Inspector --- */
+  .case__inspector {
+    padding-block: var(--section-block);
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .inspector__intro {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    max-width: var(--width-content);
+  }
+
+  .inspector__intro h3 {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-component);
+    font-weight: 600;
+  }
+
+  .inspector__legend {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+    max-width: var(--width-reading);
+  }
+
+  .inspector__panel {
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  .inspector__rail {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+    scrollbar-width: thin;
+  }
+
+  .inspector__rail::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .inspector__rail::-webkit-scrollbar-thumb {
+    background: var(--color-rule-on-paper);
+  }
+
+  .inspector__tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-height);
+    padding: 0 var(--space-4);
+    border: 0;
+    border-right: 1px solid var(--color-rule-on-paper);
+    background: transparent;
+    color: var(--color-text-on-paper-muted);
+    cursor: pointer;
+    font: inherit;
+    white-space: nowrap;
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
+  }
+
+  .inspector__tab:last-child {
+    border-right: 0;
+  }
+
+  .inspector__tab-step {
+    display: inline-flex;
+    min-width: 2rem;
+    justify-content: center;
+    padding: 0.15rem 0.35rem;
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+    color: var(--color-text-on-paper-muted);
     font-family: var(--font-mono);
-    font-size: var(--text-label);
-    letter-spacing: 0.06em;
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+  }
+
+  .inspector__tab-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
   }
 
-  .trace-cta {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding: var(--space-4) var(--space-5);
-    border-top: var(--border-default);
-    background: var(--color-surface-light);
-  }
-
-  .trace-cta .case-link {
-    font-size: var(--text-small);
-  }
-
-  .case-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3) var(--space-6);
-    margin-top: var(--space-5);
-  }
-
-  .case-link,
-  .live-link {
-    display: inline-flex;
-    min-height: var(--control-height);
-    align-items: center;
-    color: var(--color-text);
-    font-weight: 600;
-    position: relative;
-    text-decoration: none;
-    transition:
-      color var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard);
-  }
-
-  .case-link::after,
-  .live-link::after {
-    content: '';
+  .inspector__tab-dot {
     position: absolute;
+    bottom: 0;
     left: 0;
     right: 0;
-    bottom: 0.35rem;
-    border-top: 1px solid currentColor;
-    opacity: 0;
-    transform: translateY(2px);
-    transition:
-      opacity var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard);
+    height: 2px;
+    background: transparent;
+    transition: background-color var(--duration-quick) var(--ease-standard);
   }
 
-  .case-link:hover::after,
-  .live-link:hover::after {
-    opacity: 1;
-    transform: translateY(0);
+  .inspector__tab:hover {
+    background: color-mix(in srgb, var(--color-paper) 60%, transparent);
+    color: var(--color-text-on-paper);
   }
 
-  .case-link:hover,
-  .live-link:hover {
-    transform: translateY(-1px);
+  .inspector__tab[data-active='true'] {
+    color: var(--color-text-on-paper);
+    background: var(--color-paper);
   }
 
-  .case-link span,
-  .live-link span {
+  .inspector__tab[data-active='true'] .inspector__tab-step {
+    border-color: var(--color-accent);
     color: var(--color-accent);
-    margin-left: 0.25rem;
   }
 
-  @media (min-width: 48rem) {
-    .trace-strip::after {
-      display: none;
-    }
+  .inspector__tab[data-active='true'] .inspector__tab-dot {
+    background: var(--color-accent);
+  }
 
-    .narrative-rail ol {
+  .inspector__tab[data-past='true'] .inspector__tab-step {
+    border-color: color-mix(in srgb, var(--color-rule-on-paper) 50%, var(--color-accent));
+  }
+
+  .inspector__panels {
+    padding: var(--space-5);
+  }
+
+  .inspector__panel-content {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .inspector__panel-content[hidden] {
+    display: none !important;
+  }
+
+  /* Progressive enhancement: without JS, every panel is visible.
+     With JS, the inspector script applies [hidden] to all but one
+     panel so tabs can switch between them. */
+  html:not(.js) .inspector__panel-content,
+  html:not(.js) .inspector__panel-content[hidden] {
+    display: grid !important;
+  }
+
+  html:not(.js) .inspector__rail {
+    display: none;
+  }
+
+  .inspector__panel-header h4 {
+    margin: var(--space-2) 0 0;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .inspector__panel-detail {
+    max-width: 40rem;
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .inspector__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    border-top: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+  }
+
+  .case__footer {
+    display: flex;
+    justify-content: flex-start;
+    padding-block: var(--space-6);
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  /* Responsive */
+  @media (min-width: 48rem) {
+    .narrative__rail-list {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .failure-modes {
+    .narrative__rail-list li {
+      border-top: 0;
+      border-left: 1px solid var(--color-rule-on-paper);
+    }
+
+    .narrative__rail-list li:first-child {
+      border-left: 0;
+    }
+
+    .failure-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .fix-list {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .inspector__intro {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      align-items: end;
+      gap: var(--space-4);
+    }
   }
 
   @media (min-width: 64rem) {
-    .narrative-rail {
-      position: sticky;
-      top: 4.75rem;
-      z-index: 4;
-      grid-template-columns: auto minmax(0, 1fr);
-      align-items: center;
-      padding-inline: var(--space-3);
-    }
-
-    .narrative-rail > p {
-      white-space: nowrap;
-    }
-
-    .narrative-sequence {
+    .narrative__sequence {
       display: block;
     }
 
-    .narrative-state {
-      grid-template-columns: minmax(0, 1.08fr) minmax(20rem, 0.82fr);
-      column-gap: clamp(var(--space-6), 5vw, var(--space-8));
-      padding-block: 0;
+    .narrative__state {
+      grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.82fr);
+      gap: var(--space-7);
+      align-items: start;
+      padding: var(--space-6);
     }
 
-    .narrative-copy {
+    .narrative__state-copy {
       grid-column: 2;
       grid-row: 1;
       min-height: clamp(28rem, 68vh, 36rem);
-      padding-block: var(--space-8);
+      align-content: center;
     }
 
-    .narrative-evidence {
+    .narrative__state-evidence {
       position: sticky;
-      top: 10rem;
+      top: 9rem;
       grid-column: 1;
       grid-row: 1;
       align-self: start;
-      margin-block: var(--space-8);
     }
 
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='false'] .narrative-evidence {
-      opacity: 0;
-      transform: translateY(16px);
-      pointer-events: none;
-    }
-
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='true'] .narrative-evidence {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    .trace-intro {
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-      align-items: end;
-    }
-  }
-
-  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-kicker,
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-copy h4,
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-summary,
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-stage-link {
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative__state-evidence,
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative__state-copy {
       transition:
-        opacity var(--duration-reveal) var(--ease-standard),
-        transform var(--duration-reveal) var(--ease-standard);
+        opacity var(--duration-base) var(--ease-standard),
+        transform var(--duration-base) var(--ease-standard);
     }
 
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='false'] .narrative-copy > * {
-      opacity: 0.52;
-      transform: translateY(16px);
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative__state[data-active='false'] .narrative__state-evidence {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
     }
 
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='true'] .narrative-copy > * {
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative__state[data-active='true'] .narrative__state-evidence {
       opacity: 1;
+      pointer-events: auto;
       transform: translateY(0);
     }
 
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='true'] .narrative-copy h4 {
-      transition-delay: 50ms;
-    }
-
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='true'] .narrative-summary {
-      transition-delay: 100ms;
-    }
-
-    .engineering-narrative[data-narrative-enhanced='true'] .narrative-state[data-active='true'] .narrative-stage-link {
-      transition-delay: 150ms;
-    }
-  }
-
-  @media (max-width: 63.999rem) {
-    .trace-strip {
-      overflow-x: visible;
-    }
-
-    .trace-strip::after {
-      display: none;
-    }
-
-    .trace-tablist {
-      display: grid;
-      width: 100%;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .trace-tab {
-      min-width: 0;
-      justify-content: flex-start;
-      padding: var(--space-2) var(--space-3);
-      border-bottom: var(--border-default);
-      white-space: normal;
-    }
-
-    .trace-tab:nth-child(2n) {
-      border-right: 0;
-    }
-
-    .tab-label {
-      overflow-wrap: anywhere;
-    }
-  }
-
-  @media (min-width: 48rem) and (max-width: 63.999rem) {
-    .trace-tablist {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .trace-tab:nth-child(2n) {
-      border-right: var(--border-default);
-    }
-
-    .trace-tab:nth-child(3n) {
-      border-right: 0;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .narrative-evidence,
-    .narrative-copy > * {
-      opacity: 1 !important;
-      transform: none !important;
-      transition: none !important;
-    }
-
-    .narrative-evidence {
-      pointer-events: auto !important;
+    .case__header {
+      padding-bottom: var(--space-7);
     }
   }
 
   @media (min-width: 64rem) and (prefers-reduced-motion: reduce) {
-    .narrative-rail {
+    .narrative__state-evidence {
       position: static;
+      grid-column: 2;
+      grid-row: 1;
     }
 
-    .narrative-sequence {
-      display: block;
+    .narrative__state-copy {
+      grid-column: 1;
     }
 
-    .narrative-state {
-      display: grid;
-      grid-template-columns: minmax(0, 0.95fr) minmax(20rem, 1.05fr);
-      gap: var(--space-7);
-    }
-
-    .narrative-copy,
-    .narrative-evidence {
-      position: static;
-      grid-column: auto;
-      grid-row: auto;
-      min-height: 0;
-      margin: 0;
-      padding-block: var(--space-7);
-    }
-
-    .narrative-evidence {
-      align-self: center;
-      padding-inline: var(--space-4);
+    .engineering-narrative[data-narrative-enhanced='true'] .narrative__state-evidence {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: none !important;
     }
   }
 
   @media (max-width: 30rem) {
-    .case-header h2 {
+    .case__headline {
       font-size: clamp(1.875rem, 8.5vw, 2.25rem);
     }
 
-    .validate-card {
+    .validation-card {
       grid-template-columns: 1fr;
     }
 
-    .validate-card i {
+    .validation-card__rule {
       width: 1px;
       height: 1.25rem;
       margin-left: var(--space-3);
-      border-top: 0;
-      border-left: var(--border-default);
     }
 
-    .trace-cta {
-      justify-content: flex-start;
+    .inspector__panels {
+      padding: var(--space-4);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .narrative__state-evidence,
+    .narrative__state-copy {
+      transition: none;
     }
   }
 </style>
