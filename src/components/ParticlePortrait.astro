@@ -16,22 +16,28 @@ interface Props {
   alt: string;
   width: number;
   height: number;
+  /** Optional responsive WebP sources for the same portrait. */
+  srcset?: string;
+  sizes?: string;
 }
 
-const { src, alt, width, height } = Astro.props;
+const { src, alt, width, height, srcset, sizes } = Astro.props;
 ---
 
 <div class="pportrait" data-particle-portrait>
-  <img
-    class="pportrait__img"
-    src={src}
-    alt={alt}
-    width={width}
-    height={height}
-    loading="lazy"
-    decoding="async"
-    data-portrait-img
-  />
+  <picture>
+    {srcset && <source type="image/webp" {srcset} {sizes} />}
+    <img
+      class="pportrait__img"
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      loading="lazy"
+      decoding="async"
+      data-portrait-img
+    />
+  </picture>
   <canvas class="pportrait__canvas" data-portrait-canvas aria-hidden="true" hidden></canvas>
   <p class="pportrait__readout mono-label" data-portrait-readout aria-live="polite">
     <span data-readout-blocks>—</span>
@@ -84,18 +90,25 @@ const { src, alt, width, height } = Astro.props;
 
     const STOP_SPEED = 0.02;
 
+    // The readout reports discrete states, not per-frame telemetry: it
+    // only touches the DOM when its text actually changes, so the live
+    // region stays quiet during motion and the loop does no layout work.
+    const setText = (el: HTMLElement | null, text: string) => {
+      if (el && el.textContent !== text) el.textContent = text;
+    };
+
     const updateReadout = () => {
       if (!readoutBlocks || !readoutState) return;
-      readoutBlocks.textContent = `${particles.length} data blocks`;
-      if (!built) {
-        readoutState.textContent = 'sampling…';
-      } else if (pointer) {
-        readoutState.textContent = `${displacedCount} displaced · amber = out of place`;
-      } else if (displacedCount > 0) {
-        readoutState.textContent = `recovering · ${displacedCount} displaced`;
-      } else {
-        readoutState.textContent = 'in place · move pointer to displace';
-      }
+      const blocks = built ? `${particles.length} data blocks` : '—';
+      const state = !built
+        ? 'static image'
+        : pointer
+          ? 'displaced · amber = out of place'
+          : displacedCount > 0
+            ? 'recovering'
+            : 'in place · move pointer to displace';
+      setText(readoutBlocks, blocks);
+      setText(readoutState, state);
     };
 
     const draw = () => {

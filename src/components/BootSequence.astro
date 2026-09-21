@@ -4,7 +4,8 @@
  *
  * Rules from the brief:
  * - very short (≤ 600ms)
- * - skippable (click, Esc, Enter, Space)
+ * - skippable (click anywhere, Esc, or the skip button — which is a
+ *   real button, so Enter / Space activate it when focused)
  * - never blocks content (content is underneath, boot is an overlay that fades)
  * - never repeats constantly (sessionStorage flag)
  * - disabled under reduced-motion (immediately hidden)
@@ -16,15 +17,7 @@
  */
 ---
 
-<div
-  id="boot"
-  class="boot"
-  data-boot
-  role="status"
-  aria-live="polite"
-  aria-label="Workspace boot"
-  hidden
->
+<div id="boot" class="boot" data-boot hidden>
   <div class="boot__inner">
     <span class="boot__marks" aria-hidden="true">
       <i class="boot__mark boot__mark--tl"></i>
@@ -33,13 +26,18 @@
       <i class="boot__mark boot__mark--br"></i>
     </span>
     <div class="boot__meta">
-      <span class="mono-label mono-label--inverse boot__eyebrow">Workspace · boot</span>
-      <p class="boot__path" data-boot-path>00 / 07 · initializing</p>
+      <span class="mono-label mono-label--inverse boot__eyebrow" aria-hidden="true">Workspace · boot</span>
+      <p class="boot__path" data-boot-path aria-hidden="true">00 / 07 · initializing</p>
     </div>
     <div class="boot__track" aria-hidden="true">
       <span class="boot__track-fill" data-boot-fill></span>
     </div>
-    <button type="button" class="boot__skip mono-label mono-label--inverse" data-boot-skip>
+    <button
+      type="button"
+      class="boot__skip mono-label mono-label--inverse"
+      data-boot-skip
+      aria-label="Skip boot animation"
+    >
       Skip · Esc
     </button>
   </div>
@@ -61,20 +59,43 @@
     const path = root.querySelector<HTMLElement>('[data-boot-path]');
     const skipBtn = root.querySelector<HTMLButtonElement>('[data-boot-skip]');
 
+    let raf = 0;
+    const onKey = (e: KeyboardEvent) => {
+      // Escape skips the animation. Enter / Space also skip — but only
+      // while the overlay itself holds focus context (the skip button
+      // handles its own activation natively).
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        cancelAnimationFrame(raf);
+        hide();
+      }
+    };
+    const onClick = () => {
+      cancelAnimationFrame(raf);
+      hide();
+    };
+
     const hide = (immediate = false) => {
+      document.removeEventListener('keydown', onKey);
+      root.removeEventListener('click', onClick);
       try {
         sessionStorage.setItem('workspace-boot-seen', '1');
       } catch {}
-      if (immediate) {
+      // If focus sat on the skip button, it is about to be hidden — hand
+      // focus to the page's main region so keyboard users are not dropped
+      // back to the top of the document.
+      const skipHadFocus = skipBtn === document.activeElement;
+      const finish = () => {
         root.hidden = true;
         root.dataset.state = 'done';
+        if (skipHadFocus) document.getElementById('main-content')?.focus();
+      };
+      if (immediate) {
+        finish();
         return;
       }
       root.dataset.state = 'out';
-      setTimeout(() => {
-        root.hidden = true;
-        root.dataset.state = 'done';
-      }, 220);
+      setTimeout(finish, 220);
     };
 
     const run = () => {
@@ -90,7 +111,6 @@
       const totalLabel = String(total).padStart(2, '0');
 
       let progress = 0;
-      let raf = 0;
       const start = performance.now();
       const duration = 560;
 
@@ -111,20 +131,9 @@
       };
       raf = requestAnimationFrame(tick);
 
-      const onKey = (e: KeyboardEvent) => {
-        if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
-          cancelAnimationFrame(raf);
-          hide();
-        }
-      };
-      const onClick = () => {
-        cancelAnimationFrame(raf);
-        hide();
-      };
-
-      document.addEventListener('keydown', onKey, { once: true });
-      root.addEventListener('click', onClick, { once: true });
-      skipBtn?.addEventListener('click', onClick, { once: true });
+      document.addEventListener('keydown', onKey);
+      root.addEventListener('click', onClick);
+      skipBtn?.addEventListener('click', onClick);
     };
 
     run();
@@ -248,7 +257,7 @@
   .boot__skip:hover,
   .boot__skip:focus-visible {
     border-color: var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   /* states */

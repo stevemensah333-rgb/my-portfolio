@@ -24,7 +24,9 @@ const secondaryLinks = [
       <div class="contact__actions">
         <header class="contact__actions-header">
           <span class="mono-label mono-label--inverse">Direct contact</span>
-          <p class="contact__email">{PUBLIC_EMAIL}</p>
+          <p class="contact__email">
+            <a class="contact__email-link" href={`mailto:${PUBLIC_EMAIL}`}>{PUBLIC_EMAIL}</a>
+          </p>
         </header>
 
         <a
@@ -121,6 +123,16 @@ const secondaryLinks = [
     letter-spacing: -0.01em;
   }
 
+  .contact__email-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .contact__email-link:hover,
+  .contact__email-link:focus-visible {
+    color: var(--color-accent-text);
+  }
+
   .contact__button {
     justify-self: stretch;
   }
@@ -147,11 +159,11 @@ const secondaryLinks = [
   }
 
   .contact__secondary-link:hover {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .contact__secondary-link span:last-child {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   /* Status row — decorative terminal-style row of marks */

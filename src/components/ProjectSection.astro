@@ -153,7 +153,7 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
           <p>Each state maps to specific stages below.</p>
         </header>
 
-        <nav class="narrative__rail" aria-label={`${project.name} narrative states`}>
+        <div class="narrative__rail" role="group" aria-label={`${project.name} narrative states`}>
           <p class="narrative__rail-meta">
             <span class="mono-label" data-narrative-position>01 / {String(narrativeStates.length).padStart(2, '0')}</span>
             <span class="narrative__rail-status">Current state</span>
@@ -178,7 +178,7 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
           <p class="visually-hidden" aria-live="polite" aria-atomic="true" data-narrative-announcement>
             Current state: {narrativeStates[0]?.label ?? ''}
           </p>
-        </nav>
+        </div>
 
         <div class="narrative__sequence">
           {narrativeStates.map((state, index) => (
@@ -355,29 +355,22 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
 <script>
   import { initTraceTabs } from '../scripts/initTraceTabs';
 
-  for (const narrativeRoot of document.querySelectorAll<HTMLElement>('[data-project-narrative]')) {
-    const section = narrativeRoot.closest('.project');
-    const traceRoot = section?.querySelector<HTMLElement>('[data-trace-compact]');
-    const steps = [...narrativeRoot.querySelectorAll<HTMLElement>('[data-narrative-step]')];
-    const controls = [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-narrative-control]')];
-    const stageLinks = [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-select-trace-stage]')];
-    const position = narrativeRoot.querySelector<HTMLElement>('[data-narrative-position]');
-    const announcement = narrativeRoot.querySelector<HTMLElement>('[data-narrative-announcement]');
-
-    if (steps.length === 0 || controls.length === 0) continue;
+  // The stage inspector is live on its own — the narrative block is an
+  // optional companion (showNarrative) and must not be a prerequisite.
+  for (const traceRoot of document.querySelectorAll<HTMLElement>('[data-trace-compact]')) {
+    const section = traceRoot.closest('.project');
+    const narrativeRoot = section?.querySelector<HTMLElement>('[data-project-narrative]') ?? null;
+    const steps = narrativeRoot ? [...narrativeRoot.querySelectorAll<HTMLElement>('[data-narrative-step]')] : [];
+    const controls = narrativeRoot ? [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-narrative-control]')] : [];
+    const stageLinks = narrativeRoot ? [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-select-trace-stage]')] : [];
+    const position = narrativeRoot?.querySelector<HTMLElement>('[data-narrative-position]') ?? null;
+    const announcement = narrativeRoot?.querySelector<HTMLElement>('[data-narrative-announcement]') ?? null;
+    const hasNarrative = Boolean(narrativeRoot) && steps.length > 0 && controls.length > 0;
 
     let syncingTrace = false;
-    const traceController = traceRoot
-      ? initTraceTabs(traceRoot, {
-          onSelect: (_id, _index, _count, tab) => {
-            const narrativeState = tab.dataset.narrativeState;
-            if (!narrativeState || syncingTrace) return;
-            setActiveState(narrativeState, { syncTrace: false, announce: true });
-          },
-        })
-      : null;
 
     function setActiveState(stateId: string, options: { syncTrace?: boolean; announce?: boolean } = {}) {
+      if (!hasNarrative || !narrativeRoot) return;
       const activeIndex = steps.findIndex((step) => step.dataset.narrativeStep === stateId);
       if (activeIndex < 0) return;
 
@@ -410,6 +403,16 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
       }
     }
 
+    const traceController = initTraceTabs(traceRoot, {
+      onSelect: (_id, _index, _count, tab) => {
+        const narrativeState = tab.dataset.narrativeState;
+        if (!narrativeState || syncingTrace) return;
+        setActiveState(narrativeState, { syncTrace: false, announce: true });
+      },
+    });
+
+    if (!hasNarrative) continue;
+
     controls.forEach((control) => {
       control.addEventListener('click', () => {
         const stateId = control.dataset.narrativeControl;
@@ -423,7 +426,7 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
     stageLinks.forEach((link) => {
       link.addEventListener('click', () => {
         const stageId = link.dataset.selectTraceStage;
-        if (!stageId || !traceRoot || !traceController) return;
+        if (!stageId || !traceController) return;
         traceRoot.scrollIntoView({ block: 'center', behavior: 'instant' });
         traceController.select(stageId);
         traceRoot.querySelector<HTMLButtonElement>(`[data-stage-tab="${stageId}"]`)?.focus({ preventScroll: true });
@@ -558,12 +561,12 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
   }
 
   .project__meta-list a:hover {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .project__meta-ext {
     margin-left: var(--space-1);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-size: 0.75em;
   }
 
@@ -673,7 +676,7 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
   }
 
   .narrative__rail-num {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
@@ -881,7 +884,7 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
 
   .inspector__tab[data-active='true'] .inspector__tab-step {
     border-color: var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .inspector__tab[data-active='true'] .inspector__tab-dot {
@@ -917,8 +920,10 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
     display: none !important;
   }
 
-  .inspector__tab[data-future='true'] {
-    opacity: 0.6;
+  /* Future stages: full-contrast labels with a dotted step chip
+     (WCAG 1.4.3 / 1.4.1 — structure without dimming the text). */
+  .inspector__tab[data-future='true'] .inspector__tab-step {
+    border-style: dotted;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -985,15 +990,15 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
   }
 
   .code-panel__type {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .code-panel__type--fail {
-    color: var(--color-signal-fail);
+    color: var(--color-signal-fail-text);
   }
 
   .code-panel__type--pass {
-    color: var(--color-signal-pass);
+    color: var(--color-signal-pass-text);
   }
 
   .code-panel pre {
@@ -1056,7 +1061,7 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
     position: absolute;
     left: var(--space-3);
     top: var(--space-2);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-weight: 600;
   }
@@ -1083,7 +1088,7 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
   }
 
   .validation-card__fail {
-    color: var(--color-signal-fail);
+    color: var(--color-signal-fail-text);
   }
 
   .validation-card__rule {

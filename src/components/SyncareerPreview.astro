@@ -14,6 +14,7 @@ import SectionFrame from './SectionFrame.astro';
   class="sync-preview"
   aria-labelledby="syncareer-title"
   data-workspace-section="syncareer"
+  data-workspace-dest="work"
 >
   <SectionFrame coordinate="01 / Work · Syncareer" surface="paper">
     <div class="page-shell sync-preview__layout">
@@ -228,11 +229,11 @@ import SectionFrame from './SectionFrame.astro';
   .sync-preview__trail-link:hover,
   .sync-preview__trail-link:focus-visible {
     border-color: var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .sync-preview__trail-step {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     letter-spacing: 0.04em;

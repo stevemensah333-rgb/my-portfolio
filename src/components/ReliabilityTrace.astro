@@ -13,11 +13,7 @@ const copy = reliabilityTraceCopy;
 ---
 
 {variant === 'hero' ? (
-  <aside
-    class="trace trace--hero"
-    data-reliability-trace
-    aria-labelledby={`${traceId}-title`}
-  >
+  <div class="trace trace--hero" data-reliability-trace>
     <header class="trace__topbar">
       <span id={`${traceId}-title`} class="trace__title">
         <span class="trace__title-prefix">▸</span> Reliability trace · CV rewrite
@@ -77,7 +73,7 @@ const copy = reliabilityTraceCopy;
             <span class="trace__panel-tag">raw</span>
             <p class="trace__panel-title">Unstructured model output</p>
           </header>
-          <pre class="trace__code"><code data-code-raw></code><span class="trace__cursor" aria-hidden="true"></span></pre>
+          <pre class="trace__code"><code data-code-raw>{copy.raw}</code><span class="trace__cursor" aria-hidden="true"></span></pre>
           <p class="trace__panel-note">
             Illustrative: a fluent bullet the supplied evidence does not support.
           </p>
@@ -92,7 +88,7 @@ const copy = reliabilityTraceCopy;
             {copy.gates.map((gate) => (
               <li>
                 <span>{gate.label}</span>
-                <i data-gate={gate.id}></i>
+                <i data-gate={gate.id} aria-hidden="true"></i>
                 <b>{gate.rule}</b>
               </li>
             ))}
@@ -134,7 +130,7 @@ const copy = reliabilityTraceCopy;
             <span class="trace__panel-tag trace__panel-tag--valid">pass</span>
             <p class="trace__panel-title">Cited output the product can review</p>
           </header>
-          <pre class="trace__code trace__code--valid"><code data-code-valid></code><span class="trace__cursor trace__cursor--valid" aria-hidden="true"></span></pre>
+          <pre class="trace__code trace__code--valid"><code data-code-valid>{copy.valid}</code><span class="trace__cursor trace__cursor--valid" aria-hidden="true"></span></pre>
           <p class="trace__panel-note">
             Fixture accepted by the revised validator. Not a live provider sample.
           </p>
@@ -160,16 +156,8 @@ const copy = reliabilityTraceCopy;
       </footer>
 
       <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-live></div>
-
-      <noscript>
-        <div class="trace__noscript">
-          <p class="mono-label">No-JS: raw ungrounded rewrite fails validation; intervention produces a cited proposal.</p>
-          <pre class="trace__code"><code>{copy.raw}</code></pre>
-          <pre class="trace__code trace__code--valid"><code>{copy.valid}</code></pre>
-        </div>
-      </noscript>
     </div>
-  </aside>
+  </div>
 ) : (
   <div class="trace trace--portrait" aria-hidden="true">
     <svg viewBox="0 0 180 58">
@@ -222,6 +210,17 @@ const copy = reliabilityTraceCopy;
     });
     reducedQuery.addEventListener('change', (event) => {
       reduced = event.matches;
+      if (reduced) {
+        // Mid-run flip: cancel the engine and jump to the final state so
+        // no information is left hidden behind cancelled animation.
+        activeRun += 1;
+        paused = false;
+        populateStatic(steps.length - 1);
+        setStatus('Complete · pass', 'pass');
+        if (live) {
+          live.textContent = 'Reliability trace: ungrounded rewrite failed validation; intervention produced a cited proposal.';
+        }
+      }
     });
 
     const wait = (ms: number, runId: number) => new Promise<boolean>((resolve) => {
@@ -508,7 +507,7 @@ const copy = reliabilityTraceCopy;
   }
 
   .trace__title-prefix {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .trace__status {
@@ -524,9 +523,9 @@ const copy = reliabilityTraceCopy;
     border-radius: 50%;
   }
 
-  [data-trace-status-label][data-tone='running'] { color: var(--color-accent); }
-  [data-trace-status-label][data-tone='fail'] { color: var(--color-signal-fail); }
-  [data-trace-status-label][data-tone='pass'] { color: var(--color-signal-pass); }
+  [data-trace-status-label][data-tone='running'] { color: var(--color-accent-text); }
+  [data-trace-status-label][data-tone='fail'] { color: var(--color-signal-fail-text); }
+  [data-trace-status-label][data-tone='pass'] { color: var(--color-signal-pass-text); }
 
   .trace__engine {
     display: grid;
@@ -564,7 +563,7 @@ const copy = reliabilityTraceCopy;
   .trace__rail li:last-child .trace__step { border-bottom: 0; }
 
   .trace__step-num {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
@@ -589,17 +588,17 @@ const copy = reliabilityTraceCopy;
   }
 
   .trace__step-state--fail {
-    color: var(--color-signal-fail);
+    color: var(--color-signal-fail-text);
     border-color: color-mix(in srgb, var(--color-signal-fail) 50%, transparent);
   }
 
   .trace__step-state--active {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
   }
 
   .trace__step-state--valid {
-    color: var(--color-signal-pass);
+    color: var(--color-signal-pass-text);
     border-color: color-mix(in srgb, var(--color-signal-pass) 50%, transparent);
   }
 
@@ -690,17 +689,17 @@ const copy = reliabilityTraceCopy;
   }
 
   .trace__panel-tag--fail {
-    color: var(--color-signal-fail);
+    color: var(--color-signal-fail-text);
     border-color: color-mix(in srgb, var(--color-signal-fail) 50%, transparent);
   }
 
   .trace__panel-tag--active {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
   }
 
   .trace__panel-tag--valid {
-    color: var(--color-signal-pass);
+    color: var(--color-signal-pass-text);
     border-color: color-mix(in srgb, var(--color-signal-pass) 50%, transparent);
   }
 
@@ -799,11 +798,34 @@ const copy = reliabilityTraceCopy;
   }
 
   .trace__gate i {
+    position: relative;
     width: 0.625rem;
     height: 0.625rem;
     border: 1px solid var(--color-rule-on-canvas);
     background: var(--color-canvas);
     transition: background-color var(--duration-quick) var(--ease-standard), border-color var(--duration-quick) var(--ease-standard);
+  }
+
+  /* State is carried by shape as well as colour (WCAG 1.4.1):
+     pending = empty, fail = ✕, pass = ✓. */
+  .trace__gate i::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    display: grid;
+    place-items: center;
+    font-style: normal;
+    font-size: 0.5rem;
+    line-height: 1;
+    color: var(--color-canvas);
+  }
+
+  [data-gate][data-state='pass']::after {
+    content: '✓';
+  }
+
+  [data-gate][data-state='fail']::after {
+    content: '✕';
   }
 
   [data-gate][data-state='pass'] {
@@ -841,7 +863,7 @@ const copy = reliabilityTraceCopy;
   .trace__failures li:last-child { border-bottom: 0; }
 
   .trace__failures span {
-    color: var(--color-signal-fail);
+    color: var(--color-signal-fail-text);
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
   }
@@ -877,7 +899,7 @@ const copy = reliabilityTraceCopy;
     content: counter(interv, decimal-leading-zero);
     position: absolute;
     left: var(--space-3);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-size: 0.625rem;
     letter-spacing: 0.04em;
@@ -914,7 +936,7 @@ const copy = reliabilityTraceCopy;
     padding: 0 var(--space-3);
     border: 1px solid var(--color-accent);
     background: transparent;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     cursor: pointer;
     font-family: var(--font-mono);
     font-size: 0.6875rem;
@@ -940,7 +962,7 @@ const copy = reliabilityTraceCopy;
   .trace__replay--ghost:focus-visible {
     border-color: var(--color-accent);
     background: transparent;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .trace__replay-mark {
@@ -957,18 +979,7 @@ const copy = reliabilityTraceCopy;
   }
 
   .trace__legend::before {
-    border-color: var(--color-accent);
-  }
-
-  .trace__noscript {
-    display: grid;
-    gap: var(--space-2);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--color-rule-on-canvas);
-  }
-
-  .trace__noscript .mono-label {
-    color: var(--color-text-on-canvas-muted);
+    border-color: var(--color-accent-text);
   }
 
   .trace--portrait {
@@ -997,6 +1008,35 @@ const copy = reliabilityTraceCopy;
   .trace__point--active {
     fill: var(--color-accent);
     stroke: var(--color-accent);
+  }
+
+  /* No-JS: every stage panel stacks and reads. The step rail and the
+     replay/step controls are dead without the engine, so they leave the
+     flow; nothing that carries information is hidden. */
+  html:not(.js) .trace__stage {
+    gap: var(--space-4);
+  }
+
+  html:not(.js) .trace__panel {
+    grid-area: auto;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  html:not(.js) .trace__rail,
+  html:not(.js) .trace__controls,
+  html:not(.js) .trace__readout,
+  html:not(.js) .trace__cursor {
+    display: none;
+  }
+
+  html:not(.js) .trace__interventions li {
+    opacity: 1;
+    transform: none;
+    color: var(--color-text-on-canvas);
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-rule-on-canvas));
   }
 
   @media (max-width: 30rem) {

@@ -35,7 +35,7 @@ const {
   alt,
   label,
   caption,
-  sizes = '(min-width: 75rem) 72rem, calc(100vw - 2.5rem)',
+  sizes = '(min-width: 64rem) min(68rem, calc(100vw - 22rem)), calc(100vw - 2.5rem)',
   priority = false,
   address = 'syncareer.me',
 } = Astro.props;
@@ -78,7 +78,13 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
           <span>·</span>
           <span>evidence</span>
         </p>
-        <button type="button" class="frame-inspect__btn" data-frame-open aria-controls={`${id}-dialog`}>
+        <button
+          type="button"
+          class="frame-inspect__btn"
+          data-frame-open
+          aria-haspopup="dialog"
+          aria-controls={`${id}-dialog`}
+        >
           <span>Inspect</span>
           <span aria-hidden="true">↗</span>
         </button>
@@ -153,12 +159,24 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
       if (target === dialog) close();
     });
 
-    dialog.addEventListener('close', () => {
-      document.documentElement.style.overflow = '';
+    // Escape is native dialog behaviour (cancel → close). Handled here so
+    // focus restore runs through one path; no per-instance document
+    // listeners are needed.
+    dialog.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      close();
     });
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && dialog.open) {
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+      // Belt and braces for the non-modal fallback path.
+      if (lastFocus && document.activeElement === document.body) lastFocus.focus();
+    });
+
+    // Fallback only: when showModal is unavailable the dialog is not
+    // modal, so Escape must be caught on the dialog itself.
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && typeof dialog.showModal !== 'function' && dialog.open) {
         close();
       }
     });
@@ -219,7 +237,7 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
 
   .frame-state {
     justify-self: end;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .frame-media {
@@ -297,7 +315,7 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
     padding: 0 var(--space-2);
     border: 1px solid var(--color-accent);
     background: var(--color-paper);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-size: 0.625rem;
     letter-spacing: 0.04em;
@@ -354,7 +372,7 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
   }
 
   .product-caption__label {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .product-caption p {
@@ -434,7 +452,7 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
   .frame-dialog__close:hover,
   .frame-dialog__close:focus-visible {
     border-color: var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .frame-dialog__caption {

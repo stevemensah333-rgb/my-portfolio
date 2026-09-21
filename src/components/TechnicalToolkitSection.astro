@@ -215,18 +215,21 @@ const initialItemId = primaryToolkitItems[0]?.id;
           <h3 id="toolkit-primary-title">Project capabilities</h3>
           <p class="mono-label">{primaryToolkitItems.length} selected</p>
         </header>
-        <ul class="toolkit__primary-list" role="list">
+        <ul class="toolkit__primary-list" role="tablist" aria-label="Project capabilities">
           {primaryToolkitItems.map(item => {
               const itemId = item.id;
               const btnId = `toolkit-btn-${itemId}`;
               const isInitial = itemId === initialItemId;
               return (
-                <li class="toolkit__item">
+                <li class="toolkit__item" role="presentation">
                   <button
                     id={btnId}
                     type="button"
+                    role="tab"
                     class="toolkit__trigger"
-                    aria-pressed={isInitial ? 'true' : 'false'}
+                    aria-controls={`toolkit-panel-${itemId}`}
+                    aria-selected={isInitial ? 'true' : 'false'}
+                    tabindex={isInitial ? 0 : -1}
                     data-active={String(isInitial)}
                     data-toolkit-trigger={itemId}
                   >
@@ -242,17 +245,20 @@ const initialItemId = primaryToolkitItems[0]?.id;
         </ul>
       </section>
 
-      <section class="toolkit__detail" data-toolkit-detail aria-live="polite">
-        {toolkit.flatMap(group => group.items.map(item => {
+      <section class="toolkit__detail" data-toolkit-detail>
+        {primaryToolkitItems.map(item => {
           const itemId = item.id;
           const btnId = `toolkit-btn-${itemId}`;
           const isInitial = itemId === initialItemId;
           return (
             <article
+              id={`toolkit-panel-${itemId}`}
               class="toolkit__panel"
+              role="tabpanel"
               aria-labelledby={btnId}
               data-toolkit-detail-panel={itemId}
               data-active={String(isInitial)}
+              tabindex="0"
               hidden={!isInitial}
             >
               <header class="toolkit__panel-header">
@@ -286,7 +292,8 @@ const initialItemId = primaryToolkitItems[0]?.id;
               {item.note && <p class="toolkit__panel-note">{item.note}</p>}
             </article>
           );
-        }))}
+        })}
+        <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-toolkit-status></p>
       </section>
 
       <details class="toolkit__more" data-toolkit-more>
@@ -306,8 +313,11 @@ const initialItemId = primaryToolkitItems[0]?.id;
                   <li>
                     <span class="toolkit__group-name">{item.name}</span>
                     <span class="toolkit__group-meta mono-label">
-                      {item.usedIn[0]?.project ?? '—'}
+                      {item.usedIn.map((u) => u.project).join(' · ') || '—'}
                     </span>
+                    <ul class="toolkit__group-evidence">
+                      {item.evidence.map((e) => <li>{e}</li>)}
+                    </ul>
                   </li>
                 ))}
               </ul>
@@ -320,18 +330,23 @@ const initialItemId = primaryToolkitItems[0]?.id;
 </section>
 
 <script>
+  import { reserveStackHeight } from '../scripts/initTraceTabs';
+
   const toolkitRoot = document.querySelector('[data-toolkit]');
 
   if (toolkitRoot) {
     const triggers = [...toolkitRoot.querySelectorAll<HTMLButtonElement>('[data-toolkit-trigger]')];
     const detailPanels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-detail-panel]')];
+    const status = toolkitRoot.querySelector<HTMLElement>('[data-toolkit-status]');
+    reserveStackHeight(detailPanels);
 
     const select = (id: string) => {
       if (!triggers.some(trigger => trigger.dataset.toolkitTrigger === id)) return;
 
       triggers.forEach(trigger => {
         const active = trigger.dataset.toolkitTrigger === id;
-        trigger.setAttribute('aria-pressed', String(active));
+        trigger.setAttribute('aria-selected', String(active));
+        trigger.tabIndex = active ? 0 : -1;
         trigger.dataset.active = String(active);
       });
       detailPanels.forEach(panel => {
@@ -339,6 +354,13 @@ const initialItemId = primaryToolkitItems[0]?.id;
         panel.hidden = !active;
         panel.dataset.active = String(active);
       });
+
+      const label = triggers
+        .find((trigger) => trigger.dataset.toolkitTrigger === id)
+        ?.querySelector('.toolkit__trigger-name')
+        ?.textContent
+        ?.trim();
+      if (status && label) status.textContent = `Showing capability detail: ${label}`;
     };
 
     triggers.forEach(trigger => {
@@ -389,7 +411,7 @@ const initialItemId = primaryToolkitItems[0]?.id;
       });
     });
 
-    const initial = triggers.find(trigger => trigger.getAttribute('aria-pressed') === 'true')?.dataset.toolkitTrigger;
+    const initial = triggers.find(trigger => trigger.getAttribute('aria-selected') === 'true')?.dataset.toolkitTrigger;
     if (initial) select(initial);
   }
 </script>
@@ -491,7 +513,7 @@ const initialItemId = primaryToolkitItems[0]?.id;
   }
 
   .toolkit__trigger-step {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
@@ -507,13 +529,13 @@ const initialItemId = primaryToolkitItems[0]?.id;
       border-color var(--duration-quick) var(--ease-standard);
   }
 
-  .toolkit__trigger[aria-pressed='true'] {
+  .toolkit__trigger[aria-selected='true'] {
     background: var(--color-paper-soft);
     color: var(--color-text-on-paper);
     box-shadow: inset 2px 0 0 var(--color-accent);
   }
 
-  .toolkit__trigger[aria-pressed='true'] .toolkit__trigger-mark {
+  .toolkit__trigger[aria-selected='true'] .toolkit__trigger-mark {
     background: var(--color-accent);
     border-color: var(--color-accent);
   }
@@ -695,7 +717,7 @@ const initialItemId = primaryToolkitItems[0]?.id;
   .toolkit__group-list li {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--space-3);
+    gap: var(--space-1) var(--space-3);
     align-items: baseline;
     padding: var(--space-2) 0;
     border-top: 1px solid var(--color-rule-on-paper-soft);
@@ -705,6 +727,35 @@ const initialItemId = primaryToolkitItems[0]?.id;
 
   .toolkit__group-list li:first-child {
     border-top: 0;
+  }
+
+  .toolkit__group-evidence {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: var(--space-1);
+    margin: var(--space-1) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toolkit__group-evidence li {
+    position: relative;
+    padding: 0 0 0 var(--space-4);
+    border-top: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-meta);
+    line-height: 1.5;
+  }
+
+  .toolkit__group-evidence li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.35rem;
+    height: 0.35rem;
+    border: 1px solid var(--color-accent-text);
+    background: transparent;
   }
 
   .toolkit__group-meta {

@@ -6,11 +6,46 @@ export type TraceTabController = {
   select: (id: string) => void;
 };
 
+/**
+ * Reserve the height of the tallest panel on the panels' shared parent
+ * so switching stages never resizes the document below the instrument
+ * (layout stability). Hidden panels are measured in one synchronous
+ * pass — no paint happens between unhide and re-hide. Returns the
+ * stabilize function so callers can re-run it when their layout flips
+ * between stacked and exclusive modes.
+ */
+export function reserveStackHeight(panels: HTMLElement[]): () => void {
+  const stack = panels[0]?.parentElement;
+  let resizeTimer = 0;
+  const stabilize = () => {
+    if (!stack) return;
+    stack.style.minHeight = '';
+    let max = 0;
+    for (const panel of panels) {
+      const wasHidden = panel.hidden;
+      panel.hidden = false;
+      max = Math.max(max, panel.offsetHeight);
+      panel.hidden = wasHidden;
+    }
+    const exclusive = panels.some((panel) => panel.hidden);
+    stack.style.minHeight = exclusive && max > 0 ? `${max}px` : '';
+  };
+  stabilize();
+  document.fonts?.ready.then(stabilize).catch(() => {});
+  window.addEventListener('resize', () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(stabilize, 150);
+  });
+  return stabilize;
+}
+
 export function initTraceTabs(root: Element, options: TraceTabOptions = {}): TraceTabController | null {
   const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')];
   const panels = [...root.querySelectorAll<HTMLElement>('[data-stage-panel]')];
 
   if (tabs.length === 0 || panels.length === 0) return null;
+
+  reserveStackHeight(panels);
 
   const select = (id: string) => {
     const index = tabs.findIndex(tab => tab.dataset.stageTab === id);

@@ -267,6 +267,7 @@ const steps: WalkStep[] = [
   .walk__frame {
     border: 1px solid var(--color-rule-on-paper);
     background: var(--color-paper);
+    min-width: 0;
   }
 
   .walk__rail {
@@ -339,7 +340,7 @@ const steps: WalkStep[] = [
 
   .walk__tab[data-active='true'] .walk__step {
     border-color: var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .walk__label {
@@ -440,6 +441,7 @@ const steps: WalkStep[] = [
     border: 1px solid var(--color-rule-on-paper-soft);
     background: var(--color-paper);
     overflow: hidden;
+    min-width: 0;
   }
 
   .walk__code-meta {
@@ -458,17 +460,19 @@ const steps: WalkStep[] = [
   }
 
   .walk__code-badge {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .walk__code-badge--impl {
-    color: var(--color-signal-pass);
+    color: var(--color-signal-pass-text);
   }
 
   .walk__code pre {
     margin: 0;
     padding: var(--space-3);
     overflow-x: auto;
+    min-width: 0;
+    max-width: 100%;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     line-height: 1.6;

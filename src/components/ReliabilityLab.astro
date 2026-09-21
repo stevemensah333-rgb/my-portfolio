@@ -91,12 +91,7 @@ const total = String(labStages.length).padStart(2, '0');
 
         <!-- Transport -->
         <div class="lab__transport">
-          <button
-            type="button"
-            class="lab__btn lab__btn--run"
-            data-lab-run
-            aria-pressed="false"
-          >
+          <button type="button" class="lab__btn lab__btn--run" data-lab-run>
             <span class="lab__btn-icon" data-run-icon aria-hidden="true">▶</span>
             <span data-run-label>{labCopy.run}</span>
           </button>
@@ -353,7 +348,7 @@ const total = String(labStages.length).padStart(2, '0');
       const setPosition = (index: number) => {
         const meta = stageOf(index);
         if (position) {
-          position.textContent = `${meta.step} / 0${count} · ${meta.label}`;
+          position.textContent = `${meta.step} / ${String(count).padStart(2, '0')} · ${meta.label}`;
         }
       };
 
@@ -364,7 +359,8 @@ const total = String(labStages.length).padStart(2, '0');
 
       const setRunButton = (state: 'idle' | 'running' | 'paused') => {
         if (!runBtn || !runLabel || !runIcon) return;
-        runBtn.setAttribute('aria-pressed', String(state !== 'idle'));
+        // A media-style transport button: state lives in its name
+        // (Run / Pause / Resume), not in aria-pressed.
         runBtn.dataset.state = state;
         runIcon.textContent = state === 'running' ? '❚❚' : '▶';
         runLabel.textContent =
@@ -713,7 +709,7 @@ const total = String(labStages.length).padStart(2, '0');
   }
 
   .lab__node[aria-selected='true'] .lab__node-step {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .lab__node[aria-selected='true'] .lab__node-mark {
@@ -742,7 +738,7 @@ const total = String(labStages.length).padStart(2, '0');
   }
 
   .lab__node[data-future='true'] {
-    opacity: 0.52;
+    opacity: 0.8;
   }
 
   .lab__node[data-future='true'] .lab__node-mark {
@@ -827,7 +823,7 @@ const total = String(labStages.length).padStart(2, '0');
     padding: 0 var(--space-3);
     border: 1px solid var(--color-accent);
     background: transparent;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     cursor: pointer;
     font-family: var(--font-mono);
     font-size: 0.6875rem;
@@ -845,7 +841,8 @@ const total = String(labStages.length).padStart(2, '0');
     color: var(--color-canvas);
   }
 
-  .lab__btn--run[aria-pressed='true'] {
+  .lab__btn--run[data-state='running'],
+  .lab__btn--run[data-state='paused'] {
     background: var(--color-accent);
     color: var(--color-canvas);
   }
@@ -859,7 +856,7 @@ const total = String(labStages.length).padStart(2, '0');
   .lab__btn--ghost:focus-visible {
     border-color: var(--color-accent);
     background: transparent;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .lab__btn-icon {
@@ -884,6 +881,12 @@ const total = String(labStages.length).padStart(2, '0');
     padding: var(--space-4);
     border: 1px solid var(--color-rule-on-canvas);
     background: var(--color-canvas-soft);
+  }
+
+  /* The author display above would otherwise defeat the hidden
+     attribute's UA style — exclusive panels must actually hide. */
+  .lab__panel[hidden] {
+    display: none;
   }
 
   .lab__panel:focus-visible {
@@ -973,6 +976,7 @@ const total = String(labStages.length).padStart(2, '0');
     margin: 0;
     display: grid;
     gap: var(--space-2);
+    min-width: 0;
   }
 
   .lab__code pre {
@@ -981,6 +985,8 @@ const total = String(labStages.length).padStart(2, '0');
     border: 1px solid var(--color-rule-on-canvas);
     background: var(--color-canvas);
     overflow-x: auto;
+    min-width: 0;
+    max-width: 100%;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     line-height: 1.55;
@@ -1015,6 +1021,7 @@ const total = String(labStages.length).padStart(2, '0');
   }
 
   .lab__checkmark {
+    position: relative;
     width: 0.625rem;
     height: 0.625rem;
     border: 1px solid var(--color-rule-on-canvas);
@@ -1024,14 +1031,35 @@ const total = String(labStages.length).padStart(2, '0');
       border-color var(--duration-quick) var(--ease-standard);
   }
 
+  /* Shape carries the state as well as colour (WCAG 1.4.1). */
+  .lab__checkmark::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    display: grid;
+    place-items: center;
+    font-style: normal;
+    font-size: 0.5rem;
+    line-height: 1;
+    color: var(--color-canvas);
+  }
+
   .lab__checkmark[data-mark='fail'] {
     background: var(--color-signal-fail);
     border-color: var(--color-signal-fail);
   }
 
+  .lab__checkmark[data-mark='fail']::after {
+    content: '✕';
+  }
+
   .lab__checkmark[data-mark='pass'] {
     background: var(--color-signal-pass);
     border-color: var(--color-signal-pass);
+  }
+
+  .lab__checkmark[data-mark='pass']::after {
+    content: '✓';
   }
 
   .lab__checks-name {
@@ -1120,7 +1148,7 @@ const total = String(labStages.length).padStart(2, '0');
     content: counter(labfix, decimal-leading-zero);
     position: absolute;
     left: var(--space-3);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-size: 0.625rem;
     letter-spacing: 0.04em;
   }
@@ -1320,6 +1348,13 @@ const total = String(labStages.length).padStart(2, '0');
   @media (prefers-reduced-motion: reduce) {
     .lab__panel[data-active='true'] .lab__payload {
       animation: none;
+    }
+
+    /* Reveals are content, not decoration: never leave a fix dimmed
+       because its entrance animation is disabled. */
+    .lab__fixes li {
+      opacity: 1 !important;
+      transform: none !important;
     }
 
     .lab__track-fill,
