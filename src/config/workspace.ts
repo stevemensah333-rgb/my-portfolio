@@ -74,6 +74,14 @@ export const destinations: Destination[] = [
     index: '06',
   },
   {
+    id: 'contact',
+    label: 'Email',
+    section: 'contact',
+    kind: 'home',
+    description: 'Direct email — opens Gmail compose.',
+    index: '07',
+  },
+  {
     id: 'resume',
     label: 'Résumé',
     section: '/Stephen-Mensah-Resume.pdf',

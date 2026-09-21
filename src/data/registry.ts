@@ -1,6 +1,11 @@
 /**
  * Concrete project entries. Each entry is shaped by Project in projects.ts.
  * No project literal should appear anywhere else in the codebase.
+ *
+ * Evidence policy: Syncareer copy is grounded in the public syncareer repo
+ * (README, AGENTS.md, career-guidance edge function, AI_APPLICATION_GUIDANCE).
+ * SessionBook copy is grounded in the public sessionbook repo at commit
+ * 48ba544. Anything illustrative is labelled illustrative in the interface.
  */
 
 import type { Project } from './projects';
@@ -8,15 +13,20 @@ import type { Project } from './projects';
 export const syncareer: Project = {
   id: 'syncareer',
   name: 'Syncareer',
-  short: 'AI-integrated career platform with a real LLM reliability case study.',
+  short: 'Opportunity-first career workspace: saved opportunity → tailored CV → interview prep → outcome.',
   status: 'live',
   claim:
-    'An AI-integrated career platform. Production use exposed real LLM failure modes; the engineering response is the case study.',
+    'A free career workspace for students and graduates. Its AI help is evidence-grounded — bounded tasks, cited requirements and evidence, validated output — because a career claim has to trace back to something real.',
   evidence: [
     {
       kind: 'product',
       label: 'Live product',
       href: 'https://syncareer.me/',
+    },
+    {
+      kind: 'code',
+      label: 'Source repository',
+      href: 'https://github.com/stevemensah333-rgb/syncareer',
     },
     {
       kind: 'artifact-image',
@@ -38,126 +48,113 @@ export const syncareer: Project = {
     },
   ],
   claimLimit:
-    'No before-and-after outputs, repeatable evaluation, or measured failure rate is supplied. The case study states this boundary inside the interaction.',
-  stack: ['Prompt engineering', 'Claude API', 'Postgres', 'JavaScript', 'PostgreSQL schema design'],
+    'No before-and-after model outputs, repeatable evaluation, or measured failure rate is supplied. Some AI behaviour runs in deployed-only functions whose exact prompts cannot be audited from the repository.',
+  stack: ['TypeScript', 'React + Vite', 'Supabase Postgres + RLS', 'Edge Functions (Deno)', 'Lovable AI gateway'],
   route: '/work/syncareer/',
   stages: [
     {
       id: 'input',
       step: '01',
       label: 'INPUT',
-      title: 'User activity + profile context',
-      summary: 'Degree, interests, activity, progress, weaknesses.',
+      title: 'Allowlisted context, nothing else',
+      summary: 'One bounded task, explicit context items, hard size limits.',
       detail:
-        'Syncareer supplies Claude with explicit context from the student profile so guidance can be tailored. Context includes degree, interests, skills, CV progress and interview activity.',
-      evidence: 'Product record — context visible in SynAI surface.',
+        'Each request carries one bounded task (for example, cv.rewrite_bullet) plus explicit context items with id, provenance and label. The server fetches nothing on its own — no profile, no history, no CV beyond what is supplied — and rejects requests that exceed the item and size limits.',
+      evidence: 'contract.ts + prompts.ts in the career-guidance edge function.',
       kind: 'input',
     },
     {
       id: 'model-output',
       step: '02',
       label: 'MODEL OUTPUT',
-      title: 'Raw LLM response (illustrative bad output)',
-      summary: 'Mixed prose + inconsistent structure before constraints.',
+      title: 'Ungrounded rewrite (illustrative bad output)',
+      summary: 'A plausible bullet the evidence does not support.',
       detail:
-        'ILLUSTRATIVE EXAMPLE — not a historical Syncareer log. Shows the kind of format drift observed in production: malformed fields, prose bleed, missing required keys.',
-      evidence: 'Confirmed observation: inconsistent formatting.',
+        'ILLUSTRATIVE EXAMPLE — not a historical Syncareer log. Previous model outputs were never captured, so the “before” shape is inferred from the old request contract, which sent only the selected bullet: the server could not see the job requirement and could not tell job keywords from candidate evidence.',
+      evidence: 'Failure class from the repo evidence-grounding notes; old outputs not captured.',
       kind: 'raw',
-      code: `To become senior, you should...
-- build projects
-
-{
-  title: Senior Dev
-  level:
-  years: "five?"`,
+      code: `Results-driven engineer with 5 years of Kubernetes experience
+who transformed deployments at Acme Corp,
+improving speed by 40%.`,
       tone: 'failure',
     },
     {
       id: 'validation',
       step: '03',
       label: 'VALIDATION',
-      title: 'Schema check',
-      summary: 'Does output match product contract?',
+      title: 'Citations + factual-risk checks',
+      summary: 'Requirement and evidence IDs required; risky claims flagged.',
       detail:
-        'Gate that checks required fields and type expectations before the product uses the response. If validation fails, the path routes to failure diagnosis.',
-      evidence: 'Check: title (string), level (enum), years (number), next_steps (array).',
+        'Valid output must cite at least one requirement-* and one evidence-* context the model actually used. The application layer then checks for new numbers, job skills copied without candidate evidence, employers presented as experience, and coursework upgraded to employment. Unsafe proposals stay visible with a warning but cannot be accepted until fixed.',
+      evidence: 'Citation enforcement in career-guidance; factual-risk checks in the CV review flow.',
       kind: 'validate',
     },
     {
       id: 'failure',
       step: '04',
       label: 'FAILURE',
-      title: 'Observed failure modes',
-      summary: 'Formatting, context, structure.',
+      title: 'How ungrounded help failed',
+      summary: 'Too little context in, too little checking out.',
       detail:
-        'Separate failures treated as distinct: inconsistent formatting, dropped context (activity / progress / weaknesses not retained), unpredictable response structure.',
-      evidence: 'Confirmed observations from production use.',
+        'Three distinct gaps, not one “AI problem”: requests carried too little context for the server to judge, job wording and candidate evidence were never distinguished, and remote JSON was trusted without runtime validation.',
+      evidence: 'Root causes recorded in the repo evidence-grounding notes.',
       kind: 'fail',
       tone: 'failure',
       modes: [
-        { name: 'Formatting', note: 'Missing schema' },
-        { name: 'Context', note: 'Context dropped' },
-        { name: 'Response variance', note: 'Inconsistent output' },
+        { name: 'Bullet-only requests', note: 'Server could not see the requirement.' },
+        { name: 'Job skills as candidate skills', note: 'No evidence distinction.' },
+        { name: 'Unvalidated JSON trusted', note: 'A type cast, not a check.' },
       ],
     },
     {
       id: 'diagnosis',
       step: '05',
       label: 'DIAGNOSIS',
-      title: 'Why it failed',
-      summary: 'Prompt lacked explicit constraints; context not explicitly managed.',
+      title: 'The contract was too thin',
+      summary: 'Both the request and the response needed more structure.',
       detail:
-        'Root cause not reduced to one "AI problem". Each mode mapped to a specific missing constraint. Interpretation: prompt structure, context handling and expected output needed tighter control.',
-      evidence: 'No invented root cause beyond observed behaviours.',
+        'The old contract sent only the selected bullet and accepted text plus broad source IDs, while the UI supplied a fixed rationale. The fix had to cover both sides: richer, bounded requests and validated, cited responses.',
+      evidence: 'Interpretation of the old vs revised contracts; old outputs not captured.',
       kind: 'diagnosis',
     },
     {
       id: 'intervention',
       step: '06',
       label: 'INTERVENTION',
-      title: 'Constrain what was breaking',
-      summary: 'Prompt restructure + few-shot + explicit context + tighter constraints.',
+      title: 'Ground every proposal in cited evidence',
+      summary: 'Bounded prompts, allowlisted context, citation + risk checks.',
       detail:
-        'Implemented: restructured prompts, added few-shot examples to anchor expected structure, managed context explicitly, set clearer constraints around expected output. ILLUSTRATIVE pattern shown for constraint — not claiming exact historical prompt text.',
-      evidence: 'No measured before-and-after reliability rate is available.',
+        'Revised contract: bounded task-family server prompts that treat all supplied text as untrusted data, allowlisted context items with size limits, mandatory requirement/evidence citations before quota is consumed, and application-layer factual-risk checks with explicit accept, reject and undo. Nothing is applied automatically.',
+      evidence: 'Tracked career-guidance v2 source; revised server prompt awaits deployment through Lovable Cloud.',
       kind: 'intervene',
       tone: 'technical',
       fixes: [
-        'Prompt restructuring',
-        'Few-shot anchor',
-        'Explicit context management',
-        'Tighter output constraints',
+        'Bounded task-family server prompts',
+        'Allowlisted context with size limits',
+        'Requirement/evidence citation enforcement',
+        'Factual-risk checks + explicit review',
       ],
-      code: `// illustrative constraint pattern
+      code: `// revised response contract (real shape)
 {
-  "type": "object",
-  "required": ["title", "level", "years"],
-  "properties": {
-    "title": { "type": "string" },
-    "level": { "enum": ["junior", "mid", "senior"] },
-    "years": { "type": "number" }
-  }
+  "kind": "rewrite",
+  "text": "the proposal",
+  "sourceContextIds": ["requirement-1", "evidence-3"]
 }`,
     },
     {
       id: 'output',
       step: '07',
       label: 'VALID OUTPUT',
-      title: 'Valid product output (illustrative)',
-      summary: 'Now conforms to product contract.',
+      title: 'Cited proposal, ready for review (illustrative)',
+      summary: 'A rewrite that traces back to requirement + evidence.',
       detail:
-        'ILLUSTRATIVE valid output showing shape after intervention. Not claimed as historical Syncareer log. Measured reliability threshold not yet supplied — evidence boundary preserved.',
-      evidence: 'Outcome shape matches product needs; no fabricated metrics.',
+        'ILLUSTRATIVE valid output in the revised contract shape. The wording stays inside the supplied evidence and cites the contexts used. Accept changes only the local draft; the existing save persists it. No reliability rate is claimed.',
+      evidence: 'Contract shape from career-guidance; fixture-style example, not a live sample.',
       kind: 'valid',
       code: `{
-  "title": "Senior Developer",
-  "level": "senior",
-  "years": 5,
-  "next_steps": [
-    "ship one AI feature",
-    "add validation",
-    "test beyond happy path"
-  ]
+  "kind": "rewrite",
+  "text": "Built Python and SQL queries to analyse 1,200 sales records.",
+  "sourceContextIds": ["requirement-2", "evidence-1"]
 }`,
       tone: 'valid',
     },
@@ -166,24 +163,24 @@ export const syncareer: Project = {
     {
       id: 'observed-failure',
       label: 'Observed failure',
-      title: 'Production exposed three failure modes.',
-      summary: 'Inconsistent formatting, dropped context and response variance broke the expected product contract.',
+      title: 'The assistant saw too little and proved too little.',
+      summary: 'Bullet-only requests, undistinguished job wording, and unvalidated responses made ungrounded help possible.',
       tone: 'failure',
       primaryStageId: 'failure',
     },
     {
       id: 'engineering-response',
       label: 'Engineering response',
-      title: 'Each failure mapped to a tighter response path.',
-      summary: 'The prompt, examples, context and output constraints were made more explicit.',
+      title: 'Both sides of the contract were rebuilt.',
+      summary: 'Bounded prompts, allowlisted context, mandatory citations and factual-risk checks — with the user reviewing every proposal.',
       tone: 'technical',
       primaryStageId: 'intervention',
     },
     {
       id: 'product-contract',
       label: 'Product contract',
-      title: 'Valid output is a contract, not a reliability metric.',
-      summary: 'The output shape can match product needs while the evidence boundary remains explicit.',
+      title: 'A proposal is a draft, never a verdict.',
+      summary: 'Cited output the user can accept, edit or reject. No reliability metric is claimed.',
       tone: 'valid',
       primaryStageId: 'output',
     },
@@ -194,7 +191,7 @@ export const sessionbook: Project = {
   id: 'sessionbook',
   name: 'SessionBook',
   short: 'A backend service that manages appointment / session bookings.',
-  status: 'in-progress',
+  status: 'in-development',
   claim:
     'A booking service with double-booking protection, timezone correctness, and spoken-output design. The voice-agent integration is in progress.',
   evidence: [
@@ -206,7 +203,7 @@ export const sessionbook: Project = {
     {
       kind: 'illustrative',
       label: 'AssemblyAI voice-agent integration',
-      note: 'Voice-agent JSON configuration and HTTP tool routes are not yet implemented. Repository is honest about this.',
+      note: 'Voice-agent JSON configuration and HTTP tool routes are not yet implemented. The repository is honest about this.',
     },
   ],
   claimLimit:
@@ -219,10 +216,10 @@ export const sessionbook: Project = {
       step: '01',
       label: 'REQUEST',
       title: 'Caller asks for availability',
-      summary: 'Date or window, validated at the boundary.',
+      summary: 'Contracts defined; routes not wired yet.',
       detail:
-        'A caller asks for availability for a date. The request is validated against a Pydantic schema before it reaches the service layer — caller_name and caller_phone types are enforced.',
-      evidence: 'Pydantic contract: AvailabilityRequest(date), BookingRequest with phone regex.',
+        'A caller asks for availability for a date. Pydantic contracts are defined for this boundary — AvailabilityRequest(date), BookingRequest with a phone regex — but no HTTP route exposes them yet; only /health is wired in main.py.',
+      evidence: 'schemas.py defines the contracts; main.py exposes only /health.',
       kind: 'input',
     },
     {
@@ -232,15 +229,17 @@ export const sessionbook: Project = {
       title: 'Slots queried by date',
       summary: 'Timezone-aware, unbooked only.',
       detail:
-        'The service queries slots for the requested date, filtered by provider and `is_booked`. Datetimes are stored timezone-aware in `Africa/Accra` and rendered with `ZoneInfo`.',
-      evidence: 'Verified in booking_service.check_availability and Provider.timezone.',
+        'check_availability queries slots for the requested date that are still unbooked. Datetimes are timezone-aware and rendered for speech in Africa/Accra via ZoneInfo. Note: the query filters by date and booked state; it does not filter by provider.',
+      evidence: 'booking_service.check_availability; PROVIDER_TZ = Africa/Accra.',
       kind: 'raw',
-      code: `SELECT start_time, end_time
-FROM slots
-WHERE provider_id = :pid
-  AND is_booked = false
-  AND date_trunc('day', start_time AT TIME ZONE 'Africa/Accra')
-      = :day;`,
+      code: `result = await db.execute(
+    select(Slot).where(
+        Slot.start_time >= day_start,
+        Slot.start_time < day_end,
+        Slot.is_booked == False,
+    )
+)`,
+      codeLabel: 'IMPLEMENTATION EXCERPT',
       tone: 'technical',
     },
     {
@@ -248,10 +247,10 @@ WHERE provider_id = :pid
       step: '03',
       label: 'CHECK',
       title: 'Slot exists and is free',
-      summary: 'Existence and overlap gate.',
+      summary: 'Lock first, then check inside the transaction.',
       detail:
-        'Before a booking is created, the service confirms the slot exists, is not booked, and the time window is valid. The check happens before the row lock to keep the happy path cheap.',
-      evidence: 'Verified in booking_service.book_slot precondition.',
+        'Inside a transaction, book_slot locks the slot row with SELECT … FOR UPDATE, then confirms the slot exists and is still free. The existence check happens after the lock is held, so two concurrent callers cannot both pass the gate.',
+      evidence: 'book_slot: with_for_update(), then None / is_booked checks.',
       kind: 'validate',
     },
     {
@@ -289,8 +288,8 @@ WHERE provider_id = :pid
       title: 'SELECT … FOR UPDATE + spoken confirmation',
       summary: 'Lock the slot, return a code the caller can read back.',
       detail:
-        'book_slot runs `SELECT … FOR UPDATE` inside a transaction, raises `SlotAlreadyBookedError` on `IntegrityError`, and generates a confirmation code that excludes ambiguous glyphs (0/O, 1/I). Spoken output is rendered via `_to_spoken_label`.',
-      evidence: 'Verified in booking_service.book_slot, _generate_confirmation_code, _to_spoken_label.',
+        'book_slot runs `SELECT … FOR UPDATE` inside a transaction, raises `SlotAlreadyBookedError` on `IntegrityError`, and generates a confirmation code that excludes ambiguous glyphs (0/O, 1/I). Spoken output is rendered via `_to_spoken_label`, and a `get_today()` helper returns the provider-local date.',
+      evidence: 'Verified in booking_service.book_slot, _generate_confirmation_code, _to_spoken_label, get_today.',
       kind: 'intervene',
       tone: 'technical',
       fixes: [
@@ -312,9 +311,7 @@ WHERE provider_id = :pid
       kind: 'valid',
       code: `{
   "confirmation_code": "A3F9K2",
-  "spoken_confirmation": "You're booked for Saturday, September 5 at 9:00 AM. Your confirmation code is A F 3 F 9 K 2.",
-  "slot_id": 412,
-  "created_at": "2026-09-21T08:14:22Z"
+  "spoken_confirmation": "You're booked for Saturday, September 5 at 9:00 AM. Your confirmation code is A3F9K2."
 }`,
       tone: 'valid',
     },

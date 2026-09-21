@@ -51,14 +51,14 @@ const structuredData = {
         <aside class="product-record" aria-label={`${sessionbook.name} product record`}>
           <div class="record-heading">
             <p>Product record · 01</p>
-            <span>{sessionbook.status === 'in-progress' ? 'In progress' : sessionbook.status}</span>
+            <span>{sessionbook.status === 'in-development' ? 'In development' : sessionbook.status}</span>
           </div>
           <p class="product-record__name">{sessionbook.name}</p>
           <dl>
             <div><dt>Type</dt><dd>Backend service</dd></div>
             <div><dt>Framework</dt><dd>FastAPI</dd></div>
             <div><dt>Database</dt><dd>Postgres 16</dd></div>
-            <div><dt>Status</dt><dd>{sessionbook.status === 'in-progress' ? 'In progress — voice agent pending' : sessionbook.status}</dd></div>
+            <div><dt>Status</dt><dd>{sessionbook.status === 'in-development' ? 'In development — voice agent pending' : sessionbook.status}</dd></div>
             <div><dt>Evidence</dt><dd><a href="https://github.com/stevemensah333-rgb/sessionbook" target="_blank" rel="noopener">Source repository <span aria-hidden="true">↗</span></a></dd></div>
           </dl>
         </aside>
@@ -98,7 +98,7 @@ const structuredData = {
               <li data-state="known">Timezone handling via ZoneInfo</li>
               <li data-state="known">Spoken-output design for the agent</li>
               <li data-state="missing">No AssemblyAI voice-agent integration implemented</li>
-              <li data-state="missing">No HTTP tool routes implemented</li>
+              <li data-state="missing">No HTTP routes for availability / booking / lookup yet</li>
               <li data-state="missing">No migrations or test coverage supplied</li>
               <li data-state="missing">No deployment, latency, or live-call metrics</li>
             </ul>
@@ -114,8 +114,12 @@ const structuredData = {
               <li data-state="known">End-to-end test coverage</li>
             </ul>
             <p class="case-content-note">
-              When those land, the case study is updated. Until then, the booking engine is the
-              only verified surface.
+              The planned voice work follows the HTTP-tools shape: a stored agent document
+              whose tools call the booking API directly, so no developer-maintained WebSocket
+              dispatcher is needed. Reference:
+              <a href="https://lablab.ai/ai-tutorials/assemblyai-voice-agent-http-tools" target="_blank" rel="noopener">AssemblyAI voice-agent HTTP-tools tutorial <span aria-hidden="true">↗</span></a>.
+              None of this is implemented yet — when it lands, the case study is updated.
+              Until then, the booking engine is the only verified surface.
             </p>
           </section>
         </div>
