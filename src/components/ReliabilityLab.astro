@@ -1,0 +1,1273 @@
+---
+/**
+ * Reliability Lab — the portfolio's signature instrument.
+ *
+ * Shows one payload moving through the real Syncareer pipeline:
+ *   INPUT → MODEL OUTPUT → VALIDATION → FAILURE → DIAGNOSIS →
+ *   INTERVENTION → VALID OUTPUT
+ *
+ * Operable, not decorative:
+ *   - Run / Pause / Replay transport (real buttons)
+ *   - Step back / forward
+ *   - Direct stage inspection via a roving-tabindex tablist
+ *     (shared `initTraceTabs` controller: arrows, Home/End)
+ *   - Hover / focus readout that never owns information
+ *   - Reduced motion: final state immediately, stepping still works
+ *   - No-JS: every stage stacked and readable; transport hidden
+ *
+ * The evidence boundary is stated inside the instrument, and every
+ * illustrative payload carries its own ILLUSTRATIVE stamp.
+ */
+import { labStages, labCopy, labBoundary } from '../data/reliabilityLab';
+import { syncareer } from '../data/registry';
+import SectionFrame from './SectionFrame.astro';
+
+const first = labStages[0];
+const total = String(labStages.length).padStart(2, '0');
+---
+
+<section
+  id="reliability-lab"
+  class="lab"
+  data-reliability-lab
+  aria-labelledby="reliability-lab-title"
+  data-workspace-section="reliability-lab"
+>
+  <SectionFrame coordinate="02 / Lab · Reliability" surface="canvas">
+    <div class="page-shell lab__shell">
+      <header class="lab__header">
+        <p class="mono-label mono-label--inverse">{labCopy.eyebrow}</p>
+        <h2 id="reliability-lab-title" class="lab__title">{labCopy.title}</h2>
+        <p class="lab__intro">{labCopy.intro}</p>
+      </header>
+
+      <div class="lab__bench">
+        <span class="corner-mark corner-mark--tl lab__mark-corner" aria-hidden="true"></span>
+        <span class="corner-mark corner-mark--tr lab__mark-corner" aria-hidden="true"></span>
+        <span class="corner-mark corner-mark--bl lab__mark-corner" aria-hidden="true"></span>
+        <span class="corner-mark corner-mark--br lab__mark-corner" aria-hidden="true"></span>
+
+        <!-- Pipeline: stage nodes + the payload travelling the track -->
+        <div class="lab__railscroll">
+          <div class="lab__railwrap">
+            <div
+              class="lab__rail"
+              role="tablist"
+              aria-label="Reliability pipeline, stage 1 to 7"
+              aria-orientation="horizontal"
+              data-lab-rail
+            >
+              {labStages.map((stage, index) => (
+                <button
+                  type="button"
+                  role="tab"
+                  id={`lab-tab-${stage.id}`}
+                  class="lab__node"
+                  data-stage-tab={stage.id}
+                  data-tone={stage.tone}
+                  aria-controls={`lab-panel-${stage.id}`}
+                  aria-selected={index === 0 ? 'true' : 'false'}
+                  tabindex={index === 0 ? 0 : -1}
+                >
+                  <span class="lab__node-step" aria-hidden="true">{stage.step}</span>
+                  <span class="lab__node-label">{stage.label}</span>
+                  <span class="lab__node-mark" aria-hidden="true"></span>
+                </button>
+              ))}
+            </div>
+            <div class="lab__track" aria-hidden="true">
+              <span class="lab__track-fill" data-track-fill></span>
+              <span class="lab__cursor" data-cursor></span>
+            </div>
+          </div>
+        </div>
+
+        <p class="lab__readout">
+          <span class="mono-label mono-label--inverse" data-readout-label>
+            Active · {first?.step}
+          </span>
+          <span data-readout-text>{first?.lab.readout}</span>
+        </p>
+
+        <!-- Transport -->
+        <div class="lab__transport">
+          <button
+            type="button"
+            class="lab__btn lab__btn--run"
+            data-lab-run
+            aria-pressed="false"
+          >
+            <span class="lab__btn-icon" data-run-icon aria-hidden="true">▶</span>
+            <span data-run-label>{labCopy.run}</span>
+          </button>
+          <button type="button" class="lab__btn" data-lab-replay>
+            <span class="lab__btn-icon" aria-hidden="true">↻</span>
+            {labCopy.replay}
+          </button>
+          <button type="button" class="lab__btn lab__btn--ghost" data-lab-prev>
+            {labCopy.prev}
+          </button>
+          <button type="button" class="lab__btn lab__btn--ghost" data-lab-next>
+            {labCopy.next}
+          </button>
+          <p class="lab__position mono-label mono-label--inverse" data-lab-position>
+            {first?.step} / {total} · {first?.label}
+          </p>
+        </div>
+
+        <!-- Payload viewport: one panel per stage -->
+        <div class="lab__viewport">
+          {labStages.map((stage) => (
+            <article
+              role="tabpanel"
+              id={`lab-panel-${stage.id}`}
+              aria-labelledby={`lab-tab-${stage.id}`}
+              class="lab__panel"
+              data-stage-panel={stage.id}
+              data-tone={stage.tone}
+              data-readout={stage.lab.readout}
+              tabindex="0"
+            >
+              <header class="lab__panel-top">
+                <span class="lab__tag">{stage.step} / {stage.label}</span>
+                <span class="lab__chip" data-tone={stage.tone}>{stage.lab.chip}</span>
+                {stage.lab.illustrative && (
+                  <span class="lab__chip lab__chip--illus">illustrative fixture</span>
+                )}
+              </header>
+
+              <h3 class="lab__panel-title">{stage.title}</h3>
+              <p class="lab__panel-detail">{stage.detail}</p>
+
+              <div class="lab__payload">
+                {stage.artifact?.kind === 'code' && stage.artifact.code && (
+                  <figure class="lab__code" data-tone={stage.tone}>
+                    <figcaption class="mono-label mono-label--inverse">
+                      {stage.artifact.label}
+                    </figcaption>
+                    <pre><code>{stage.artifact.code}</code></pre>
+                  </figure>
+                )}
+
+                {stage.artifact?.kind === 'checks' && stage.artifact.items && (
+                  <ul class="lab__checks" aria-label="Validation checks and their result for this payload">
+                    {stage.artifact.items.map((item) => (
+                      <li>
+                        <i class="lab__checkmark" data-mark="fail" aria-hidden="true"></i>
+                        <span class="lab__checks-name">{item.name}</span>
+                        <span class="lab__checks-note">{item.note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {stage.artifact?.kind === 'modes' && stage.artifact.items && (
+                  <ul class="lab__modes">
+                    {stage.artifact.items.map((item, i) => (
+                      <li>
+                        <span>{String(i + 1).padStart(2, '0')}</span>
+                        <span>
+                          {item.name}
+                          {item.note && <em> — {item.note}</em>}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {stage.artifact?.kind === 'fixes' && stage.artifact.items && (
+                  <ol class="lab__fixes" data-fix-list>
+                    {stage.artifact.items.map((item) => (
+                      <li data-revealed="true">
+                        {item.name}
+                        {item.note && <em> — {item.note}</em>}
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
+
+              <p class="lab__delta">
+                <span class="mono-label mono-label--inverse">Payload delta</span>
+                {stage.lab.delta}
+              </p>
+
+              <dl class="lab__handoff">
+                <div>
+                  <dt>Receives</dt>
+                  <dd>{stage.receivedFrom}</dd>
+                </div>
+                <div>
+                  <dt>Hands off</dt>
+                  <dd>{stage.handedOff}</dd>
+                </div>
+                <div>
+                  <dt>Evidence</dt>
+                  <dd>{stage.evidence}</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <aside class="lab__boundary" aria-label="Evidence boundary for the Reliability Lab">
+        <p class="lab__boundary-intro">{labBoundary.intro}</p>
+        <div class="lab__boundary-cols">
+          <div>
+            <p class="mono-label mono-label--inverse">Verified in tracked source</p>
+            <ul>
+              {labBoundary.known.map((item) => (
+                <li data-kind="known">{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p class="mono-label mono-label--inverse">Never measured · not supplied</p>
+            <ul>
+              {labBoundary.missing.map((item) => (
+                <li data-kind="missing">{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <p class="lab__case-link">
+          <a class="text-link" href={syncareer.route}>
+            {labCopy.caseLinkLabel}
+            <span class="text-link__arrow" aria-hidden="true">→</span>
+          </a>
+        </p>
+      </aside>
+
+      <p class="lab__keys mono-label mono-label--inverse">{labCopy.keys}</p>
+
+      <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-lab-live></p>
+    </div>
+  </SectionFrame>
+</section>
+
+<script>
+  import { initTraceTabs } from '../scripts/initTraceTabs';
+
+  const root = document.querySelector<HTMLElement>('[data-reliability-lab]');
+
+  if (root) {
+    const rail = root.querySelector<HTMLElement>('[data-lab-rail]');
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-stage-panel]')];
+    const trackFill = root.querySelector<HTMLElement>('[data-track-fill]');
+    const cursor = root.querySelector<HTMLElement>('[data-cursor]');
+    const readoutLabel = root.querySelector<HTMLElement>('[data-readout-label]');
+    const readoutText = root.querySelector<HTMLElement>('[data-readout-text]');
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-lab-run]');
+    const runIcon = root.querySelector<HTMLElement>('[data-run-icon]');
+    const runLabel = root.querySelector<HTMLElement>('[data-run-label]');
+    const replayBtn = root.querySelector<HTMLButtonElement>('[data-lab-replay]');
+    const prevBtn = root.querySelector<HTMLButtonElement>('[data-lab-prev]');
+    const nextBtn = root.querySelector<HTMLButtonElement>('[data-lab-next]');
+    const position = root.querySelector<HTMLElement>('[data-lab-position]');
+    const live = root.querySelector<HTMLElement>('[data-lab-live]');
+
+    if (rail && tabs.length > 0 && panels.length > 0) {
+      const ids = tabs.map((tab) => tab.dataset.stageTab ?? '').filter(Boolean);
+      const count = ids.length;
+
+      const stageOf = (index: number) => ({
+        step: tabs[index]?.querySelector('.lab__node-step')?.textContent?.trim() ?? '',
+        label: tabs[index]?.querySelector('.lab__node-label')?.textContent?.trim() ?? '',
+      });
+
+      /* Each panel carries its one-line inspection text as data-readout;
+         the readout line below the rail only ever echoes it. */
+      const readouts = panels.map((panel) => panel.dataset.readout ?? '');
+
+      const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let reduced = reducedQuery.matches;
+      let runId = 0;
+      let running = false;
+      let engineDriving = false;
+      let paused = false;
+      let hasRun = false;
+      let activeIndex = 0;
+
+      document.addEventListener('visibilitychange', () => {
+        paused = document.hidden;
+      });
+      reducedQuery.addEventListener('change', (event) => {
+        reduced = event.matches;
+        if (reduced) inspect(count - 1, false);
+      });
+
+      const wait = (ms: number, myRun: number) =>
+        new Promise<boolean>((resolve) => {
+          let elapsed = 0;
+          const stepMs = 50;
+          const tick = () => {
+            if (myRun !== runId) { resolve(false); return; }
+            if (!paused) elapsed += stepMs;
+            if (elapsed >= ms) resolve(true);
+            else setTimeout(tick, stepMs);
+          };
+          setTimeout(tick, stepMs);
+        });
+
+      const panelFor = (index: number) => panels[index];
+
+      const resolvePanel = (index: number) => {
+        const panel = panelFor(index);
+        if (!panel) return;
+        panel.querySelectorAll<HTMLElement>('[data-mark]').forEach((mark) => {
+          mark.dataset.mark = 'fail';
+        });
+        panel.querySelectorAll<HTMLElement>('[data-fix-list] li').forEach((li) => {
+          li.dataset.revealed = 'true';
+        });
+      };
+
+      const resetPanel = (index: number) => {
+        const panel = panelFor(index);
+        if (!panel) return;
+        panel.querySelectorAll<HTMLElement>('[data-mark]').forEach((mark) => {
+          delete mark.dataset.mark;
+        });
+        panel.querySelectorAll<HTMLElement>('[data-fix-list] li').forEach((li) => {
+          li.dataset.revealed = 'false';
+        });
+      };
+
+      const setTrack = (index: number) => {
+        const pct = ((index + 0.5) / count) * 100;
+        if (trackFill) trackFill.style.width = `${pct}%`;
+        if (cursor) cursor.style.left = `${pct}%`;
+      };
+
+      const setReadout = (index: number, source: 'active' | 'hover') => {
+        const meta = stageOf(index);
+        if (readoutLabel) {
+          readoutLabel.textContent =
+            source === 'hover' ? `Inspect · ${meta.step}` : `Active · ${meta.step}`;
+        }
+        if (readoutText) readoutText.textContent = readouts[index] ?? '';
+      };
+
+      const setPosition = (index: number) => {
+        const meta = stageOf(index);
+        if (position) {
+          position.textContent = `${meta.step} / 0${count} · ${meta.label}`;
+        }
+      };
+
+      const announce = (index: number) => {
+        const meta = stageOf(index);
+        if (live) live.textContent = `Stage ${meta.step} ${meta.label}. ${readouts[index] ?? ''}`;
+      };
+
+      const setRunButton = (state: 'idle' | 'running' | 'paused') => {
+        if (!runBtn || !runLabel || !runIcon) return;
+        runBtn.setAttribute('aria-pressed', String(state !== 'idle'));
+        runBtn.dataset.state = state;
+        runIcon.textContent = state === 'running' ? '❚❚' : '▶';
+        runLabel.textContent =
+          state === 'running' ? 'Pause' : state === 'paused' ? 'Resume' : 'Run';
+      };
+
+      const stopRun = () => {
+        runId += 1;
+        running = false;
+        engineDriving = false;
+        paused = false;
+        setRunButton('idle');
+      };
+
+      const controller = initTraceTabs(root, {
+        onSelect: (_id, index) => {
+          activeIndex = index;
+          setTrack(index);
+          setPosition(index);
+          setReadout(index, 'active');
+          if (!engineDriving) resolvePanel(index);
+        },
+      });
+
+      const inspect = (index: number, shouldAnnounce = true) => {
+        stopRun();
+        const clamped = Math.min(count - 1, Math.max(0, index));
+        controller?.select(ids[clamped] ?? '');
+        resolvePanel(clamped);
+        if (shouldAnnounce) announce(clamped);
+      };
+
+      /** One stage of a run: reveal its internal marks in order, dwell. */
+      const playStage = async (index: number, myRun: number) => {
+        engineDriving = true;
+        resetPanel(index);
+        controller?.select(ids[index] ?? '');
+        if (!(await wait(260, myRun))) return false;
+
+        const panel = panelFor(index);
+        const marks = panel ? [...panel.querySelectorAll<HTMLElement>('[data-mark]')] : [];
+        for (const mark of marks) {
+          if (myRun !== runId) return false;
+          mark.dataset.mark = 'fail';
+          if (!(await wait(150, myRun))) return false;
+        }
+        const fixes = panel ? [...panel.querySelectorAll<HTMLElement>('[data-fix-list] li')] : [];
+        for (const li of fixes) {
+          if (myRun !== runId) return false;
+          li.dataset.revealed = 'true';
+          if (!(await wait(200, myRun))) return false;
+        }
+        const dwell = marks.length > 0 || fixes.length > 0 ? 620 : 1050;
+        return wait(dwell, myRun);
+      };
+
+      const run = async () => {
+        if (reduced) {
+          inspect(count - 1, false);
+          if (live) {
+            live.textContent =
+              'Reliability Lab, reduced motion: final state shown. Step backwards to inspect earlier stages.';
+          }
+          return;
+        }
+        runId += 1;
+        const myRun = runId;
+        running = true;
+        paused = false;
+        setRunButton('running');
+
+        for (let index = 0; index < count; index += 1) {
+          if (!(await playStage(index, myRun))) return;
+        }
+        if (myRun !== runId) return;
+        running = false;
+        engineDriving = false;
+        setRunButton('idle');
+        if (live) {
+          live.textContent =
+            'Run complete: ungrounded rewrite refused at validation; the revised contract produces a cited proposal.';
+        }
+      };
+
+      /* --- transport ------------------------------------------------ */
+      runBtn?.addEventListener('click', () => {
+        if (running) {
+          paused = !paused;
+          setRunButton(paused ? 'paused' : 'running');
+          if (live) live.textContent = paused ? 'Run paused.' : 'Run resumed.';
+          return;
+        }
+        void run();
+      });
+
+      replayBtn?.addEventListener('click', () => {
+        hasRun = true;
+        void run();
+      });
+
+      prevBtn?.addEventListener('click', () => inspect(activeIndex - 1));
+      nextBtn?.addEventListener('click', () => inspect(activeIndex + 1));
+
+      /* Any direct interaction with the rail cancels an in-flight run. */
+      rail.addEventListener('click', stopRun, true);
+      rail.addEventListener('keydown', (event) => {
+        if (event.key.startsWith('Arrow') || event.key === 'Home' || event.key === 'End') {
+          stopRun();
+        }
+      }, true);
+
+      /* --- hover / focus inspection --------------------------------- */
+      const indexOfNode = (target: EventTarget | null) => {
+        const node =
+          target instanceof Element ? target.closest<HTMLButtonElement>('.lab__node') : null;
+        if (!node) return -1;
+        return tabs.indexOf(node);
+      };
+      rail.addEventListener('pointerover', (event) => {
+        const index = indexOfNode(event.target);
+        if (index >= 0) setReadout(index, 'hover');
+      });
+      rail.addEventListener('pointerout', (event) => {
+        const index = indexOfNode(event.target);
+        if (index >= 0) setReadout(activeIndex, 'active');
+      });
+      rail.addEventListener('focusin', (event) => {
+        const index = indexOfNode(event.target);
+        if (index >= 0) setReadout(index, 'hover');
+      });
+      rail.addEventListener('focusout', (event) => {
+        const index = indexOfNode(event.target);
+        if (index >= 0) setReadout(activeIndex, 'active');
+      });
+
+      /* --- deep links: /#lab-<stage-id> ------------------------------ */
+      const openHash = () => {
+        const hash = window.location.hash;
+        if (!hash.startsWith('#lab-')) return;
+        const id = hash.slice('#lab-'.length);
+        const index = ids.indexOf(id);
+        if (index < 0) return;
+        inspect(index, false);
+        root.scrollIntoView({ block: 'start' });
+      };
+      openHash();
+      window.addEventListener('hashchange', openHash);
+
+      /* --- autoplay once, when the bench is actually seen ------------ */
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting && !hasRun) {
+              hasRun = true;
+              observer.disconnect();
+              if (!reduced) void run();
+            }
+          }
+        },
+        { threshold: 0.3 },
+      );
+      observer.observe(root);
+
+      if (reduced) {
+        inspect(count - 1, false);
+      } else {
+        setTrack(0);
+      }
+    }
+  }
+</script>
+
+<style>
+  .lab {
+    background: var(--color-canvas);
+    color: var(--color-text-on-canvas);
+    border-top: 1px solid var(--color-rule-on-canvas);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+
+    /* Signal tones read at ~3:1 on the dark canvas: fine as fills and
+       marks, too weak for small text. These mixes lift them to AA for
+       the words; pure signals stay on squares and borders. */
+    --lab-fail: color-mix(in srgb, var(--color-signal-fail) 70%, var(--color-text-on-canvas));
+    --lab-pass: color-mix(in srgb, var(--color-signal-pass) 70%, var(--color-text-on-canvas));
+  }
+
+  .lab__shell {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--section-block);
+  }
+
+  .lab__header {
+    display: grid;
+    gap: var(--space-3);
+    max-width: var(--width-content);
+  }
+
+  .lab__title {
+    margin: 0;
+    max-width: 24ch;
+    font-size: var(--text-feature);
+    font-weight: 600;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.05;
+  }
+
+  .lab__intro {
+    margin: 0;
+    max-width: var(--width-reading);
+    color: var(--color-text-on-canvas-muted);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
+  }
+
+  /* --- bench --------------------------------------------------------- */
+
+  .lab__bench {
+    position: relative;
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas-soft);
+  }
+
+  .lab__mark-corner {
+    color: var(--color-rule-on-canvas);
+  }
+
+  .lab__railscroll {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    padding-bottom: var(--space-1);
+    scroll-snap-type: x proximity;
+  }
+
+  .lab__railwrap {
+    display: grid;
+    width: 100%;
+    min-width: max-content;
+  }
+
+  .lab__rail {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(7.5rem, 1fr));
+  }
+
+  .lab__node {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    padding: var(--space-3) var(--space-2) var(--space-4);
+    border: 0;
+    border-right: 1px solid var(--color-rule-on-canvas-soft);
+    background: transparent;
+    color: var(--color-text-on-canvas-muted);
+    text-align: center;
+    cursor: pointer;
+    font: inherit;
+    scroll-snap-align: start;
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
+  }
+
+  .lab__node:last-child {
+    border-right: 0;
+  }
+
+  /* stem down to the track, meeting the travelling payload block */
+  .lab__node::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    height: var(--space-3);
+    background: var(--color-rule-on-canvas);
+  }
+
+  .lab__node-step {
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+
+  .lab__node-label {
+    color: inherit;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .lab__node-mark {
+    width: 0.625rem;
+    height: 0.625rem;
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas);
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard);
+  }
+
+  .lab__node:hover,
+  .lab__node:focus-visible {
+    background: var(--color-canvas-inset);
+    color: var(--color-text-on-canvas);
+  }
+
+  .lab__node[aria-selected='true'] {
+    background: var(--color-canvas-inset);
+    color: var(--color-text-on-canvas);
+    box-shadow: inset 0 -2px 0 var(--color-accent);
+  }
+
+  .lab__node[aria-selected='true'] .lab__node-step {
+    color: var(--color-accent);
+  }
+
+  .lab__node[aria-selected='true'] .lab__node-mark {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  /* passed stages: the mark fills with the stage tone */
+  .lab__node[data-past='true'] .lab__node-mark {
+    border-color: var(--color-text-on-canvas-faint);
+    background: var(--color-text-on-canvas-faint);
+  }
+
+  .lab__node[data-past='true'][data-tone='failure'] .lab__node-mark {
+    border-color: var(--color-signal-fail);
+    background: var(--color-signal-fail);
+  }
+
+  .lab__node[data-past='true'][data-tone='valid'] .lab__node-mark {
+    border-color: var(--color-signal-pass);
+    background: var(--color-signal-pass);
+  }
+
+  .lab__node[data-past='true'][data-tone='valid'] .lab__node-label {
+    color: var(--lab-pass);
+  }
+
+  /* the track the payload travels */
+  .lab__track {
+    position: relative;
+    height: 0.875rem;
+  }
+
+  .lab__track::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--color-rule-on-canvas);
+  }
+
+  .lab__track-fill {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--color-accent);
+    transform: translateY(-50%);
+    transition: width var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  .lab__cursor {
+    position: absolute;
+    top: 50%;
+    left: 7.14%;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--color-accent);
+    transform: translate(-50%, -50%);
+    transition: left var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  /* --- readout ------------------------------------------------------- */
+
+  .lab__readout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    margin: 0;
+    min-height: 1.25rem;
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+  }
+
+  /* --- transport ----------------------------------------------------- */
+
+  .lab__transport {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-rule-on-canvas);
+  }
+
+  .lab__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-height-sm);
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-accent);
+    background: transparent;
+    color: var(--color-accent);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard);
+  }
+
+  .lab__btn:hover,
+  .lab__btn:focus-visible {
+    background: var(--color-accent);
+    color: var(--color-canvas);
+  }
+
+  .lab__btn--run[aria-pressed='true'] {
+    background: var(--color-accent);
+    color: var(--color-canvas);
+  }
+
+  .lab__btn--ghost {
+    border-color: var(--color-rule-on-canvas);
+    color: var(--color-text-on-canvas);
+  }
+
+  .lab__btn--ghost:hover,
+  .lab__btn--ghost:focus-visible {
+    border-color: var(--color-accent);
+    background: transparent;
+    color: var(--color-accent);
+  }
+
+  .lab__btn-icon {
+    font-size: 0.625rem;
+    line-height: 1;
+  }
+
+  .lab__position {
+    margin-left: auto;
+  }
+
+  /* --- panels -------------------------------------------------------- */
+
+  .lab__viewport {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .lab__panel {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas-soft);
+  }
+
+  .lab__panel:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .lab__panel[data-active='true'] .lab__payload {
+    animation: lab-enter var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  @keyframes lab-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  .lab__panel-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .lab__tag {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .lab__chip {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--color-rule-on-canvas);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .lab__chip[data-tone='failure'] {
+    color: var(--lab-fail);
+    border-color: color-mix(in srgb, var(--color-signal-fail) 50%, transparent);
+  }
+
+  .lab__chip[data-tone='valid'] {
+    color: var(--lab-pass);
+    border-color: color-mix(in srgb, var(--color-signal-pass) 50%, transparent);
+  }
+
+  .lab__chip[data-tone='technical'] {
+    color: var(--color-text-on-canvas);
+  }
+
+  .lab__chip--illus {
+    border-style: dotted;
+    color: var(--color-text-on-canvas-muted);
+  }
+
+  .lab__panel-title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-text-on-canvas);
+  }
+
+  .lab__panel-detail {
+    margin: 0;
+    max-width: var(--width-content);
+    color: var(--color-text-on-canvas-muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .lab__payload {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .lab__code {
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .lab__code pre {
+    margin: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--color-text-on-canvas);
+  }
+
+  .lab__code[data-tone='valid'] pre {
+    border-color: color-mix(in srgb, var(--color-signal-pass) 45%, var(--color-rule-on-canvas));
+  }
+
+  .lab__code[data-tone='failure'] pre {
+    border-color: color-mix(in srgb, var(--color-signal-fail) 45%, var(--color-rule-on-canvas));
+  }
+
+  .lab__checks {
+    display: grid;
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-rule-on-canvas);
+  }
+
+  .lab__checks li {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 9rem) minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-canvas);
+  }
+
+  .lab__checkmark {
+    width: 0.625rem;
+    height: 0.625rem;
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas-soft);
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard);
+  }
+
+  .lab__checkmark[data-mark='fail'] {
+    background: var(--color-signal-fail);
+    border-color: var(--color-signal-fail);
+  }
+
+  .lab__checkmark[data-mark='pass'] {
+    background: var(--color-signal-pass);
+    border-color: var(--color-signal-pass);
+  }
+
+  .lab__checks-name {
+    color: var(--color-text-on-canvas);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .lab__checks-note {
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.02em;
+  }
+
+  .lab__modes {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 2px solid var(--color-signal-fail);
+    background: var(--color-canvas);
+  }
+
+  .lab__modes li {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: var(--space-3);
+    align-items: baseline;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-canvas-soft);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .lab__modes li:last-child {
+    border-bottom: 0;
+  }
+
+  .lab__modes li > span:first-child {
+    color: var(--lab-fail);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+  }
+
+  .lab__modes em,
+  .lab__fixes em {
+    font-style: normal;
+    color: var(--color-text-on-canvas-muted);
+  }
+
+  .lab__fixes {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: labfix;
+  }
+
+  .lab__fixes li {
+    position: relative;
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-7);
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    opacity: 0.45;
+    transform: translateX(-4px);
+    transition:
+      opacity var(--duration-base) var(--ease-standard),
+      transform var(--duration-base) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
+  }
+
+  .lab__fixes li::before {
+    counter-increment: labfix;
+    content: counter(labfix, decimal-leading-zero);
+    position: absolute;
+    left: var(--space-3);
+    color: var(--color-accent);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+  }
+
+  .lab__fixes li[data-revealed='true'] {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--color-text-on-canvas);
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-rule-on-canvas));
+  }
+
+  .lab__delta {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding-left: var(--space-3);
+    border-left: 2px solid var(--color-accent);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.55;
+  }
+
+  .lab__handoff {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule-on-canvas);
+  }
+
+  .lab__handoff div {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: var(--space-3);
+    align-items: baseline;
+  }
+
+  .lab__handoff dt {
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .lab__handoff dd {
+    margin: 0;
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.55;
+  }
+
+  /* --- boundary ------------------------------------------------------ */
+
+  .lab__boundary {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border: 1px dotted var(--color-rule-on-canvas);
+  }
+
+  .lab__boundary-intro {
+    margin: 0;
+    max-width: var(--width-content);
+    color: var(--color-text-on-canvas-muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .lab__boundary-cols {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .lab__boundary-cols > div {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+
+  .lab__boundary ul {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lab__boundary li {
+    position: relative;
+    padding-left: var(--space-4);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.55;
+  }
+
+  .lab__boundary li::before {
+    content: '';
+    position: absolute;
+    top: 0.45em;
+    left: 0;
+    width: 0.375rem;
+    height: 0.375rem;
+    border: 1px solid var(--color-rule-on-canvas);
+  }
+
+  .lab__boundary li[data-kind='known']::before {
+    background: var(--color-signal-pass);
+    border-color: var(--color-signal-pass);
+  }
+
+  .lab__boundary li[data-kind='missing']::before {
+    background: transparent;
+    border-style: dotted;
+    border-color: var(--color-text-on-canvas-faint);
+  }
+
+  .lab__case-link {
+    margin: 0;
+  }
+
+  .lab__case-link .text-link {
+    color: var(--color-text-on-canvas);
+  }
+
+  .lab__keys {
+    color: var(--color-text-on-canvas-muted);
+  }
+
+  /* --- responsive ---------------------------------------------------- */
+
+  @media (min-width: 48rem) {
+    .lab__boundary-cols {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .lab__bench {
+      padding: var(--space-6);
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .lab__bench {
+      padding: var(--space-3);
+    }
+
+    .lab__panel {
+      padding: var(--space-3);
+    }
+
+    .lab__checks li {
+      grid-template-columns: 1.25rem 1fr;
+    }
+
+    .lab__checks-note {
+      grid-column: 2;
+    }
+
+    .lab__position {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+
+  /* --- no-JS: transport and readout are operational surfaces --------- */
+
+  :global(html:not(.js)) .lab__transport,
+  :global(html:not(.js)) .lab__readout,
+  :global(html:not(.js)) .lab__cursor,
+  :global(html:not(.js)) .lab__track-fill {
+    display: none;
+  }
+
+  /* --- reduced motion ------------------------------------------------ */
+
+  @media (prefers-reduced-motion: reduce) {
+    .lab__panel[data-active='true'] .lab__payload {
+      animation: none;
+    }
+
+    .lab__track-fill,
+    .lab__cursor,
+    .lab__fixes li,
+    .lab__checkmark {
+      transition: none;
+    }
+  }
+</style>

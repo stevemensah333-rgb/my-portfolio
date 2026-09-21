@@ -79,18 +79,81 @@ The new components read the same tokens (`--color-canvas`,
 
 ## 5. Reliability Lab as its own workspace
 
-`Reliability Lab` is a dedicated destination (#02). The same
-`ReliabilityTrace` engine renders both inside the hero and as a
-standalone surface in the dark canvas environment. Both instances use
-the same component and the same `data-*` contract. `instanceId` keeps
-their DOM IDs unique when both render on the same page.
+`Reliability Lab` is a dedicated destination (#02) and the signature
+interactive experience of the portfolio. Since Phase 5 it is its own
+component, `ReliabilityLab.astro`, not a second copy of the hero
+trace. The hero `ReliabilityTrace` remains the compact preview; the
+Lab is the full instrument.
 
-The trace engine has the R1 fix from the audit:
+The Lab shows one payload moving through the real Syncareer pipeline:
+
+```
+INPUT → MODEL OUTPUT → VALIDATION → FAILURE → DIAGNOSIS →
+INTERVENTION → VALID OUTPUT
+```
+
+Structure:
+
+- **Pipeline rail** — seven stage nodes in a `role="tablist"`, driven
+  by the shared `initTraceTabs` controller (roving tabindex, arrows,
+  Home/End). Passed stages fill their validation mark with the stage
+  tone; the active stage is amber.
+- **Track + payload block** — a 1 px track under the rail with an
+  amber square that travels to the active node and a fill line that
+  records progress. Causality, not decoration.
+- **Transport** — Run/Pause (one toggle, `aria-pressed`), Replay,
+  Step back, Step forward, and a mono position readout
+  (`03 / 07 · VALIDATION`). Any direct interaction with the rail
+  cancels an in-flight run.
+- **Payload viewport** — one `role="tabpanel"` per stage: the real
+  artifact (contract code, validation checks, failure classes,
+  fixes), a *payload delta* line (what the system did to the payload
+  between stages), and receives / hands-off / evidence rows.
+  Illustrative payloads carry their own `ILLUSTRATIVE FIXTURE` stamp.
+- **Hover / focus readout** — a single line under the rail that
+  echoes the hovered or focused stage's one-line summary. The same
+  text lives in the panel, so hover is never the only route.
+- **Evidence boundary inside the instrument** — verified-in-source
+  vs never-measured lists, plus the link into the full investigation.
+
+Behaviour contract:
+
+- Run advances stage by stage; validation marks flip to fail one at a
+  time; interventions reveal one at a time. `wait()` only advances
+  while `!paused`; a run id invalidates superseded runs.
+- Autoplay once, at 30 % visibility, exactly like the trace.
+- Reduced motion: final state immediately, no autoplay, stepping and
+  inspection still work.
+- No-JS: all seven panels stack and read; transport, readout and
+  track cursor are hidden with `html:not(.js)`.
+- Deep links: `/#lab-<stage-id>` selects and scrolls to a stage.
+
+The trace engine keeps the R1 fix from the audit:
 - `mouseenter` no longer pauses when the pointer is over the replay
   button (the button is detected with `closest('[data-replay]')`).
 - `wait()` only advances while `!paused`.
 - `IntersectionObserver` runs once per instance at 30 % visibility.
 - Reduced motion renders the final state immediately.
+
+## 5b. Particle portrait — the single particle surface
+
+`ParticlePortrait.astro` (used once, in About) samples the real
+portrait into a grid of square data blocks on a 2D canvas:
+
+- At rest the blocks resolve into the portrait. Pointer movement
+  displaces blocks inside a 64 px radius; displaced blocks are drawn
+  in the controlled accent (amber = out of place), and the spring
+  pulls them home when the pointer leaves. Nothing moves otherwise.
+- The rAF loop stops the moment the field settles, and never starts
+  off-screen (`IntersectionObserver`), while hidden
+  (`visibilitychange`), or under reduced motion.
+- Cost is capped: cell size grows until the field is ≤ 2600 blocks
+  (≤ 1200 on coarse pointers). Draws are batched per ink bucket, so
+  fillStyle changes stay rare. No dependencies, no WebGL.
+- Fallbacks: the `<img>` stays in the DOM with its alt text; the
+  canvas is `aria-hidden` and `hidden` until the first successful
+  draw. No-JS, reduced motion, canvas failure or a tainted image all
+  leave the static portrait.
 
 ## 6. Routes
 
@@ -162,16 +225,20 @@ Used consistently.
 
 ## 10. Performance & build
 
-- **4 static routes** built in ~540 ms.
-- **HTML gz**: home 21 KB, syncareer 11 KB, sessionbook 10 KB, 404 5 KB.
-- **CSS gz**: total ~16 KB across 5 per-page-split files.
-- **JS gz**: ~3 KB (the only JS chunk is `ReliabilityTrace`).
+- **4 static routes** built in ~450 ms.
+- **HTML gz**: home ~25.5 KB (the Lab's seven panels are content, not
+  chrome), syncareer ~14 KB, sessionbook ~10 KB, 404 ~5 KB.
+- **CSS gz**: home page CSS ~6.6 KB; per-page splitting preserved.
+- **JS gz**: Lab controller ~1.9 KB + shared `initTraceTabs` ~0.5 KB;
+  trace ~2.3 KB; the particle portrait inlines at ~2 KB on the home
+  page only.
 - Total `dist/` is ~5 MB — almost entirely product screenshots.
 
 Per-page CSS splitting is preserved (verified in dist). No JS framework
-added. No WebGL. No canvas effects. No new dependencies. The trace
-engine uses `requestAnimationFrame` only for the typewriter, and
-`IntersectionObserver` for visibility gating.
+added. No WebGL. No new dependencies. The trace engine uses
+`requestAnimationFrame` only for the typewriter; the Lab uses chained
+timeouts for its run; the particle portrait uses one 2D canvas whose
+loop idles at zero cost once the field settles.
 
 ## 11. Compromises and trade-offs
 
@@ -187,15 +254,19 @@ oversight.
 | Product screenshots ship both PNG and WebP | Same — out of scope. |
 | Reliability trace panel titles changed from `<h3>` to `<p>` | They are stage labels inside the hero, not section headings; keeping them as `<h3>` produced an `h1 → h3` skip. Documented. |
 | Toolkit 6th featured item (SQLAlchemy) added | Per-group layout uses `nth-child(2n)`, which is group-count agnostic. The audit's concern about a 6th *group* does not apply. |
-| The Reliability Lab surface duplicates the trace | Both instances are real, both are keyboard-operable, both render the same component. The hero trace is the "preview"; the Lab is the "full surface". |
+| Hero trace and Lab coexist | Resolved in Phase 5: the Lab is now its own component and its own instrument; the hero trace stays as the compact preview. They share data, not DOM. |
+| Particle portrait samples the 799 KB PNG at runtime | The image is already lazy-loaded for the static fallback; sampling reuses the decoded image, so no second asset ships. Coarse pointers get a reduced cap. |
 
 ## 12. What I deliberately did not do
 
 - No fake terminal, fake diagnostic, fake status counter. Every
   surface that looks "instrumental" carries real information.
 - No OS chrome (no window controls, no wallpaper, no folders).
-- No particle backgrounds, no ambient animation beyond two CSS
-  pulses (signal-blink on the hero coordinate dot, footer status).
+- No particle *backgrounds* and no ambient particle motion. The one
+  particle surface is the portrait in About, it is static until a
+  pointer perturbs it, and it degrades to the static image. Ambient
+  animation is still only two CSS pulses (signal-blink on the hero
+  coordinate dot, footer status).
 - No dark/light mode toggle — the canvas/paper alternation is
   intentional and structural.
 - No JS framework. Astro static + ~3 KB of vanilla TS.
@@ -211,6 +282,14 @@ oversight.
 - `src/data/registry.ts` — concrete project entries (syncareer, sessionbook).
 - `src/config/workspace.ts` — destination list for the rail.
 - `src/pages/work/sessionbook.astro` — SessionBook case study route.
+- `src/components/ReliabilityLab.astro` — Phase 5: the Lab instrument
+  (pipeline rail, track + payload block, transport, payload viewport,
+  readout, evidence boundary).
+- `src/data/reliabilityLab.ts` — Phase 5: instrument vocabulary
+  (chip / readout / delta / illustrative) layered over the
+  investigation stages; no new facts.
+- `src/components/ParticlePortrait.astro` — Phase 5: the single
+  particle surface (canvas data-block portrait with pointer response).
 
 ### Changed
 
@@ -230,7 +309,13 @@ oversight.
   capabilities (Python, FastAPI, SQLAlchemy, Docker); PostgreSQL
   and output-validation-few-shot are now used in both projects.
 - `src/pages/index.astro` — uses the new ProjectSection; hosts the
-  Reliability Lab as its own destination.
+  Reliability Lab as its own destination. Phase 5: the Lab section is
+  now `<ReliabilityLab />` (the duplicated trace instance and its
+  scoped styles were removed).
+- `src/components/AboutSection.astro` — Phase 5: portrait renders
+  through `ParticlePortrait` (static image preserved as fallback).
+- `src/config/workspace.ts` — Phase 5: destination #02 caption updated
+  to describe the instrument.
 - `src/pages/work/syncareer.astro` — uses ProjectSection; back link
   goes to workspace.
 - `src/pages/sitemap.xml.ts` — derives routes from the project registry.
@@ -246,7 +331,7 @@ oversight.
 ## 14. Verification performed
 
 - `astro check` — 0 errors / 0 warnings / 0 hints.
-- `astro build` — 4 pages built successfully in ~540 ms.
+- `astro build` — 4 pages built successfully in ~450 ms.
 - Dev server smoke test — all routes return 200; `/404` returns 404.
 - Heading hierarchy — every page has exactly one `<h1>`; no level skips
   on the home or case pages.
@@ -255,3 +340,10 @@ oversight.
 - Sitemap — all three content routes listed.
 - Reduced-motion and no-JS fallbacks — present in every interactive
   component.
+- Phase 5 functional harnesses (jsdom, executed against the built
+  page, kept outside the repository): 36 Lab checks — initial state,
+  stepping, roving tabindex + arrow/Home/End, hover-focus readout,
+  run/pause/resume, cancel-on-interaction, full run to completion,
+  live announcements, no-JS stacked panels — and 7 particle-portrait
+  checks — field build, background skip, pointer displacement,
+  recovery and loop shutdown. All pass.
