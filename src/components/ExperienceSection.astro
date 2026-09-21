@@ -176,10 +176,40 @@ const experiences = [
   }
 
   .experience__panel {
+    position: relative;
     max-width: 42rem;
     margin: 0 0 var(--space-4) calc(2.25rem + var(--space-4));
     padding-left: var(--space-4);
     border-left: 2px solid var(--color-accent);
+    animation: exp-enter var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  @keyframes exp-enter {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .experience__panel::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-accent);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  .experience__entry[open] .experience__panel::before {
+    transform: scaleY(1);
   }
 
   .experience__panel p {
@@ -192,6 +222,16 @@ const experiences = [
   .experience__meta {
     margin-top: var(--space-3);
     color: var(--color-text-on-paper-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .experience__panel {
+      animation: none;
+    }
+    .experience__panel::before {
+      transition: none;
+      transform: scaleY(1);
+    }
   }
 
   @media (max-width: 36rem) {

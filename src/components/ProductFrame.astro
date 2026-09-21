@@ -1,4 +1,17 @@
 ---
+/**
+ * ProductFrame — captioned responsive image with inspection interaction.
+ *
+ * Interaction design (selected):
+ * - Hover reveals information: shows technical meta (dimensions, real artifact)
+ *   and an Inspect action — not just glow or enlarge.
+ * - Click/tap opens an accessible lightbox that reveals structure:
+ *   the image is a real product screenshot (evidence), not a mockup.
+ * - Keyboard: Inspect button focusable, Esc closes lightbox, focus restored.
+ * - Touch: Inspect button always reachable, no hover dependency.
+ * - Reduced-motion: no zoom animation, instant open.
+ * - No-JS: image + caption remain, lightbox hidden.
+ */
 interface Props {
   src1440: string;
   src1800: string;
@@ -28,32 +41,49 @@ const {
 } = Astro.props;
 
 const toWebP = (src: string) => src.replace(/\.png$/i, '.webp');
+const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
 ---
 
-<figure class="product-figure">
+<figure class="product-figure" data-product-frame data-frame-id={id}>
   <div class="product-frame">
     <div class="frame-bar" aria-hidden="true">
       <span class="frame-controls"><i></i><i></i><i></i></span>
       <span class="frame-address mono-label">{address}</span>
       <span class="frame-state mono-label">Live product</span>
     </div>
-    <picture>
-      <source
-        type="image/webp"
-        srcset={`${toWebP(src1440)} 1440w, ${toWebP(src1800)} 1800w, ${toWebP(src2400)} 2400w`}
-        {sizes}
-      />
-      <source type="image/png" srcset={`${src1440} 1440w, ${src1800} 1800w, ${src2400} 2400w`} {sizes} />
-      <img
-        src={src1440}
-        {alt}
-        {width}
-        {height}
-        loading={priority ? 'eager' : 'lazy'}
-        fetchpriority={priority ? 'high' : 'auto'}
-        decoding="async"
-      />
-    </picture>
+    <div class="frame-media">
+      <picture>
+        <source
+          type="image/webp"
+          srcset={`${toWebP(src1440)} 1440w, ${toWebP(src1800)} 1800w, ${toWebP(src2400)} 2400w`}
+          {sizes}
+        />
+        <source type="image/png" srcset={`${src1440} 1440w, ${src1800} 1800w, ${src2400} 2400w`} {sizes} />
+        <img
+          src={src1440}
+          {alt}
+          {width}
+          {height}
+          loading={priority ? 'eager' : 'lazy'}
+          fetchpriority={priority ? 'high' : 'auto'}
+          decoding="async"
+          data-frame-img
+        />
+      </picture>
+      <div class="frame-inspect">
+        <p class="frame-inspect__meta mono-label">
+          <span>{width}×{height}</span>
+          <span>·</span>
+          <span>real screenshot</span>
+          <span>·</span>
+          <span>evidence</span>
+        </p>
+        <button type="button" class="frame-inspect__btn" data-frame-open aria-controls={`${id}-dialog`}>
+          <span>Inspect</span>
+          <span aria-hidden="true">↗</span>
+        </button>
+      </div>
+    </div>
     <span class="frame-mark frame-mark--bl" aria-hidden="true"></span>
     <span class="frame-mark frame-mark--br" aria-hidden="true"></span>
   </div>
@@ -61,7 +91,79 @@ const toWebP = (src: string) => src.replace(/\.png$/i, '.webp');
     <span class="product-caption__label mono-label">{label}</span>
     <p>{caption}</p>
   </figcaption>
+
+  <dialog id={`${id}-dialog`} class="frame-dialog" data-frame-dialog aria-label={`Inspect ${label}`}>
+    <div class="frame-dialog__inner">
+      <div class="frame-dialog__top">
+        <p class="mono-label">{label} · {width}×{height} · real artifact</p>
+        <button type="button" class="frame-dialog__close" data-frame-close>Close · Esc</button>
+      </div>
+      <picture>
+        <source
+          type="image/webp"
+          srcset={`${toWebP(src1440)} 1440w, ${toWebP(src1800)} 1800w, ${toWebP(src2400)} 2400w`}
+          sizes="90vw"
+        />
+        <source type="image/png" srcset={`${src1440} 1440w, ${src1800} 1800w, ${src2400} 2400w`} sizes="90vw" />
+        <img src={src2400} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
+      </picture>
+      <p class="frame-dialog__caption">{caption} — {alt}</p>
+      <p class="frame-dialog__evidence mono-label">Evidence: real product screenshot, not a mockup. Source repository or live product.</p>
+    </div>
+  </dialog>
 </figure>
+
+<script>
+  for (const fig of document.querySelectorAll<HTMLElement>('[data-product-frame]')) {
+    const openBtn = fig.querySelector<HTMLButtonElement>('[data-frame-open]');
+    const dialog = fig.querySelector<HTMLDialogElement>('[data-frame-dialog]');
+    const closeBtn = fig.querySelector<HTMLButtonElement>('[data-frame-close]');
+    if (!openBtn || !dialog) continue;
+
+    let lastFocus: HTMLElement | null = null;
+
+    const open = () => {
+      lastFocus = document.activeElement as HTMLElement;
+      if (typeof dialog.showModal === 'function') {
+        dialog.showModal();
+      } else {
+        dialog.setAttribute('open', '');
+        dialog.hidden = false;
+      }
+      closeBtn?.focus();
+      document.documentElement.style.overflow = 'hidden';
+    };
+
+    const close = () => {
+      if (typeof dialog.close === 'function' && dialog.open) {
+        dialog.close();
+      } else {
+        dialog.removeAttribute('open');
+        dialog.hidden = true;
+      }
+      document.documentElement.style.overflow = '';
+      lastFocus?.focus();
+    };
+
+    openBtn.addEventListener('click', open);
+    closeBtn?.addEventListener('click', close);
+
+    dialog.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target === dialog) close();
+    });
+
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && dialog.open) {
+        close();
+      }
+    });
+  }
+</script>
 
 <style>
   .product-figure {
@@ -73,13 +175,12 @@ const toWebP = (src: string) => src.replace(/\.png$/i, '.webp');
     border: 1px solid var(--color-rule-on-paper);
     background: var(--color-paper);
     overflow: hidden;
-    transition:
-      border-color var(--duration-quick) var(--ease-standard);
+    transition: border-color var(--duration-quick) var(--ease-standard);
   }
 
   .product-figure:hover .product-frame,
   .product-figure:focus-within .product-frame {
-    border-color: color-mix(in srgb, var(--color-rule-on-paper) 50%, var(--color-accent));
+    border-color: var(--color-accent);
   }
 
   .frame-bar {
@@ -121,6 +222,11 @@ const toWebP = (src: string) => src.replace(/\.png$/i, '.webp');
     color: var(--color-accent);
   }
 
+  .frame-media {
+    position: relative;
+    display: grid;
+  }
+
   picture,
   img {
     display: block;
@@ -131,7 +237,84 @@ const toWebP = (src: string) => src.replace(/\.png$/i, '.webp');
     height: auto;
   }
 
-  /* Signature corner marks on the product frame */
+  /* inspect overlay — reveals information on hover/focus, not just glow */
+  .frame-inspect {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background: color-mix(in srgb, var(--color-paper) 88%, transparent);
+    backdrop-filter: blur(6px);
+    border-top: 1px solid var(--color-rule-on-paper);
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition:
+      opacity var(--duration-quick) var(--ease-standard),
+      transform var(--duration-quick) var(--ease-standard);
+  }
+
+  .product-figure:hover .frame-inspect,
+  .product-figure:focus-within .frame-inspect {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* touch fallback: no hover, so show inspect on focus and keep button reachable */
+  @media (hover: none) {
+    .frame-inspect {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      position: static;
+      backdrop-filter: none;
+      background: var(--color-paper-soft);
+    }
+  }
+
+  .frame-inspect__meta {
+    color: var(--color-text-on-paper-muted);
+    font-size: 0.625rem;
+    gap: var(--space-2);
+  }
+
+  .frame-inspect__meta::before {
+    display: none;
+  }
+
+  .frame-inspect__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 1.75rem;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--color-accent);
+    background: var(--color-paper);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
+  }
+
+  .frame-inspect__btn:hover,
+  .frame-inspect__btn:focus-visible {
+    background: var(--color-accent);
+    color: var(--color-canvas);
+  }
+
+  /* corner marks */
   .frame-mark {
     position: absolute;
     width: 0.625rem;
@@ -182,17 +365,119 @@ const toWebP = (src: string) => src.replace(/\.png$/i, '.webp');
     line-height: 1.55;
   }
 
+  /* dialog — reveals structure: real artifact */
+  .frame-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: var(--page-gutter);
+    border: 0;
+    background: color-mix(in srgb, var(--color-canvas) 88%, transparent);
+    backdrop-filter: blur(12px);
+    z-index: 110;
+  }
+
+  .frame-dialog:not([open]) {
+    display: none;
+  }
+
+  .frame-dialog__inner {
+    width: min(100%, 76rem);
+    max-height: 90vh;
+    overflow: auto;
+    margin: auto;
+    background: var(--color-paper);
+    border: 1px solid var(--color-rule-on-paper);
+    padding: var(--space-4);
+    animation: frame-dialog-in var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  @keyframes frame-dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .frame-dialog__top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    margin-bottom: var(--space-4);
+  }
+
+  .frame-dialog__close {
+    min-height: var(--control-height-sm);
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+    color: var(--color-text-on-paper);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .frame-dialog__close:hover,
+  .frame-dialog__close:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .frame-dialog__caption {
+    margin: var(--space-3) 0 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .frame-dialog__evidence {
+    margin-top: var(--space-3);
+    color: var(--color-text-on-paper-faint);
+    font-size: 0.6875rem;
+  }
+
+  .frame-dialog__evidence::before {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .frame-inspect,
+    .frame-dialog__inner {
+      transition: none;
+      animation: none;
+    }
+  }
+
   @media (max-width: 30rem) {
     .frame-bar {
       grid-template-columns: auto 1fr;
     }
-
     .frame-address {
       justify-self: end;
     }
-
     .frame-state {
       display: none;
     }
+    .frame-dialog {
+      padding: var(--space-3);
+    }
+  }
+
+  :global(html:not(.js)) .frame-inspect {
+    display: none;
   }
 </style>

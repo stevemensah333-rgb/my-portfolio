@@ -899,10 +899,35 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
   .inspector__panel-content {
     display: grid;
     gap: var(--space-4);
+    animation: inspector-enter var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  @keyframes inspector-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .inspector__panel-content[hidden] {
     display: none !important;
+  }
+
+  .inspector__tab[data-future='true'] {
+    opacity: 0.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .inspector__panel-content {
+      animation: none;
+    }
+    .inspector__tab {
+      transition: none;
+    }
   }
 
   html:not(.js) .inspector__panel-content,

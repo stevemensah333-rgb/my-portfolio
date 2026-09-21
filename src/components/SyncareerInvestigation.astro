@@ -1,10 +1,15 @@
 ---
 /**
- * Full Syncareer engineering investigation.
+ * Full Syncareer engineering investigation — enhanced interaction design.
  *
- * Desktop: stage spine + inspector. Each stage is a causal hand-off
- * from the previous one, not a list of headings.
- * Mobile / no-JS: sequential readable articles.
+ * Chosen as strongest because it reveals causality and transformation:
+ * - Each stage receives from previous, hands off to next — causal chain.
+ * - Track fill + cursor show where payload is in 7-stage pipeline.
+ * - Hover/focus readout reveals one-line summary without owning info.
+ * - Past stages show tone (failure/valid), future dimmed — reveals structure.
+ * - Touch: horizontal scroll on mobile, prev/next buttons. Keyboard: arrows.
+ * - Reduced-motion: final state, no travel animation.
+ * - No-JS: stacked readable articles.
  */
 import { investigationStages } from '../data/syncareerInvestigation';
 
@@ -27,31 +32,45 @@ const first = investigationStages[0];
   </header>
 
   <div class="investigation__workspace">
-    <div
-      class="investigation__spine"
-      role="tablist"
-      aria-label="Investigation stages"
-      aria-orientation="vertical"
-    >
-      {investigationStages.map((stage, idx) => (
-        <button
-          type="button"
-          role="tab"
-          id={`inv-tab-${stage.id}`}
-          class="investigation__tab"
-          data-stage-tab={stage.id}
-          aria-controls={`stage-${stage.id}`}
-          aria-selected={idx === 0 ? 'true' : 'false'}
-          tabindex={idx === 0 ? 0 : -1}
-        >
-          <span class="investigation__tab-step">{stage.step}</span>
-          <span class="investigation__tab-copy">
-            <span class="investigation__tab-label">{stage.label}</span>
-            <span class="investigation__tab-title">{stage.title}</span>
-          </span>
-          <span class="investigation__tab-tone" data-tone={stage.tone} aria-hidden="true"></span>
-        </button>
-      ))}
+    <div class="investigation__spinewrap">
+      <div
+        class="investigation__spine"
+        role="tablist"
+        aria-label="Investigation stages"
+        aria-orientation="vertical"
+        data-inv-rail
+      >
+        {investigationStages.map((stage, idx) => (
+          <button
+            type="button"
+            role="tab"
+            id={`inv-tab-${stage.id}`}
+            class="investigation__tab"
+            data-stage-tab={stage.id}
+            data-tone={stage.tone}
+            data-readout={`${stage.step} ${stage.label} — ${stage.summary}`}
+            aria-controls={`stage-${stage.id}`}
+            aria-selected={idx === 0 ? 'true' : 'false'}
+            tabindex={idx === 0 ? 0 : -1}
+          >
+            <span class="investigation__tab-step">{stage.step}</span>
+            <span class="investigation__tab-copy">
+              <span class="investigation__tab-label">{stage.label}</span>
+              <span class="investigation__tab-title">{stage.title}</span>
+            </span>
+            <span class="investigation__tab-tone" data-tone={stage.tone} aria-hidden="true"></span>
+          </button>
+        ))}
+      </div>
+      <div class="investigation__track" aria-hidden="true">
+        <span class="investigation__track-line"></span>
+        <span class="investigation__track-fill" data-inv-fill></span>
+        <span class="investigation__cursor" data-inv-cursor></span>
+      </div>
+      <p class="investigation__readout">
+        <span class="mono-label" data-inv-readout-label>Active · {first?.step}</span>
+        <span data-inv-readout-text>{first?.summary}</span>
+      </p>
     </div>
 
     <div class="investigation__inspector">
@@ -147,16 +166,51 @@ const first = investigationStages[0];
   const root = document.querySelector<HTMLElement>('[data-syncareer-investigation]');
   if (root) {
     const stackedQuery = window.matchMedia('(max-width: 63.99rem)');
-    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')];
+    const rail = root.querySelector<HTMLElement>('[data-inv-rail]');
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')] as HTMLButtonElement[];
     const panels = [...root.querySelectorAll<HTMLElement>('[data-stage-panel]')];
     const prevBtn = root.querySelector<HTMLButtonElement>('[data-inv-prev]');
     const nextBtn = root.querySelector<HTMLButtonElement>('[data-inv-next]');
     const position = root.querySelector<HTMLElement>('[data-inv-position]');
     const live = root.querySelector<HTMLElement>('[data-inv-live]');
     const nav = root.querySelector<HTMLElement>('.investigation__nav');
+    const fill = root.querySelector<HTMLElement>('[data-inv-fill]');
+    const cursor = root.querySelector<HTMLElement>('[data-inv-cursor]');
+    const readoutLabel = root.querySelector<HTMLElement>('[data-inv-readout-label]');
+    const readoutText = root.querySelector<HTMLElement>('[data-inv-readout-text]');
 
     const ids = tabs.map((tab) => tab.dataset.stageTab ?? '').filter(Boolean);
     let activeId = ids[0] ?? 'input';
+    let activeIndex = 0;
+
+    const readouts = tabs.map(t => t.dataset.readout ?? '');
+
+    const setTrack = (index: number) => {
+      if (!fill || !cursor) return;
+      const pct = ((index + 0.5) / ids.length) * 100;
+      if (stackedQuery.matches) {
+        // horizontal on mobile
+        fill.style.width = `${pct}%`;
+        fill.style.height = '1px';
+        cursor.style.left = `${pct}%`;
+        cursor.style.top = '50%';
+      } else {
+        // vertical on desktop
+        fill.style.height = `${pct}%`;
+        fill.style.width = '1px';
+        cursor.style.top = `${pct}%`;
+        cursor.style.left = '50%';
+      }
+    };
+
+    const setReadout = (index: number, source: 'active' | 'hover') => {
+      const tab = tabs[index];
+      const step = tab?.querySelector('.investigation__tab-step')?.textContent?.trim() ?? '';
+      if (readoutLabel) {
+        readoutLabel.textContent = source === 'hover' ? `Inspect · ${step}` : `Active · ${step}`;
+      }
+      if (readoutText) readoutText.textContent = readouts[index] ?? '';
+    };
 
     const applyStacked = () => {
       const stacked = stackedQuery.matches;
@@ -171,6 +225,7 @@ const first = investigationStages[0];
           panel.hidden = panel.dataset.stagePanel !== activeId;
         });
       }
+      setTrack(activeIndex);
     };
 
     const announce = (id: string, index: number) => {
@@ -185,7 +240,23 @@ const first = investigationStages[0];
     const controller = initTraceTabs(root, {
       onSelect: (id, index) => {
         activeId = id;
+        activeIndex = index;
         announce(id, index);
+        setTrack(index);
+        setReadout(index, 'active');
+        // reveal structure: past vs future
+        tabs.forEach((t, i) => {
+          if (i < index) {
+            t.dataset.past = 'true';
+            delete t.dataset.future;
+          } else if (i > index) {
+            t.dataset.future = 'true';
+            delete t.dataset.past;
+          } else {
+            delete t.dataset.past;
+            delete t.dataset.future;
+          }
+        });
         if (stackedQuery.matches) {
           panels.forEach((panel) => {
             panel.hidden = false;
@@ -195,6 +266,32 @@ const first = investigationStages[0];
         }
       },
     });
+
+    // hover / focus readout — reveals information, never owns it
+    const indexOfNode = (target: EventTarget | null) => {
+      const node = target instanceof Element ? target.closest<HTMLButtonElement>('.investigation__tab') : null;
+      if (!node) return -1;
+      return tabs.indexOf(node as HTMLButtonElement);
+    };
+
+    if (rail) {
+      rail.addEventListener('pointerover', (e) => {
+        const idx = indexOfNode(e.target);
+        if (idx >= 0) setReadout(idx, 'hover');
+      });
+      rail.addEventListener('pointerout', (e) => {
+        const idx = indexOfNode(e.target);
+        if (idx >= 0) setReadout(activeIndex, 'active');
+      });
+      rail.addEventListener('focusin', (e) => {
+        const idx = indexOfNode(e.target);
+        if (idx >= 0) setReadout(idx, 'hover');
+      });
+      rail.addEventListener('focusout', (e) => {
+        const idx = indexOfNode(e.target);
+        if (idx >= 0) setReadout(activeIndex, 'active');
+      });
+    }
 
     const move = (delta: number) => {
       const index = ids.indexOf(activeId);
@@ -216,6 +313,9 @@ const first = investigationStages[0];
     };
     openHash();
     window.addEventListener('hashchange', openHash);
+
+    setTrack(0);
+    setReadout(0, 'active');
   }
 </script>
 
@@ -254,12 +354,21 @@ const first = investigationStages[0];
     background: var(--color-paper);
   }
 
+  .investigation__spinewrap {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--color-paper-soft);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+  }
+
   .investigation__spine {
     display: flex;
     overflow-x: auto;
     scrollbar-width: thin;
-    border-bottom: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper-soft);
+    gap: 0;
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
   }
 
   .investigation__tab {
@@ -279,6 +388,10 @@ const first = investigationStages[0];
     cursor: pointer;
     font: inherit;
     scroll-snap-align: start;
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard),
+      opacity var(--duration-quick) var(--ease-standard);
   }
 
   .investigation__tab-step {
@@ -339,8 +452,72 @@ const first = investigationStages[0];
     box-shadow: inset 0 -2px 0 var(--color-accent);
   }
 
-  .investigation__tab[data-past='true'] .investigation__tab-step {
-    color: var(--color-text-on-paper);
+  .investigation__tab[data-past='true'] {
+    opacity: 0.72;
+  }
+
+  .investigation__tab[data-future='true'] {
+    opacity: 0.55;
+  }
+
+  .investigation__tab[data-past='true'][data-tone='valid'] .investigation__tab-tone {
+    background: var(--color-signal-pass);
+    border-color: var(--color-signal-pass);
+  }
+
+  .investigation__tab[data-past='true'][data-tone='failure'] .investigation__tab-tone {
+    background: var(--color-signal-fail);
+    border-color: var(--color-signal-fail);
+  }
+
+  /* track: reveals causality — where payload is */
+  .investigation__track {
+    position: relative;
+    height: 0.75rem;
+  }
+
+  .investigation__track-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: var(--color-rule-on-paper);
+    transform: translateY(-50%);
+  }
+
+  .investigation__track-fill {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0%;
+    height: 1px;
+    background: var(--color-accent);
+    transform: translateY(-50%);
+    transition: width var(--duration-reveal) var(--ease-emphasized), height var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  .investigation__cursor {
+    position: absolute;
+    left: 7%;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--color-accent);
+    transform: translate(-50%, -50%);
+    transition: left var(--duration-reveal) var(--ease-emphasized), top var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  .investigation__readout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin: 0;
+    min-height: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--color-text-on-paper-muted);
   }
 
   .investigation__inspector {
@@ -353,6 +530,18 @@ const first = investigationStages[0];
     gap: var(--space-4);
     padding: var(--space-5);
     scroll-margin-top: 5.5rem;
+    animation: inv-enter var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  @keyframes inv-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .investigation__panel[hidden] {
@@ -364,10 +553,11 @@ const first = investigationStages[0];
   .investigation[data-layout='stacked'] .investigation__panel,
   .investigation[data-layout='stacked'] .investigation__panel[hidden] {
     display: grid !important;
+    animation: none;
   }
 
-  html:not(.js) .investigation__spine,
-  .investigation[data-layout='stacked'] .investigation__spine {
+  html:not(.js) .investigation__spinewrap,
+  .investigation[data-layout='stacked'] .investigation__spinewrap {
     display: none;
   }
 
@@ -548,6 +738,9 @@ const first = investigationStages[0];
     font-size: 0.6875rem;
     letter-spacing: var(--tracking-meta);
     text-transform: uppercase;
+    transition:
+      border-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
   }
 
   .investigation__nav-btn:hover,
@@ -569,32 +762,81 @@ const first = investigationStages[0];
 
   @media (min-width: 64rem) {
     .investigation__workspace {
-      grid-template-columns: 17.5rem minmax(0, 1fr);
+      grid-template-columns: 20rem minmax(0, 1fr);
       align-items: start;
+    }
+
+    .investigation__spinewrap {
+      position: sticky;
+      top: 5.5rem;
+      border-bottom: 0;
+      border-right: 1px solid var(--color-rule-on-paper);
+      padding: var(--space-5);
+      gap: var(--space-4);
+      align-content: start;
     }
 
     .investigation__spine {
       display: grid;
       overflow: visible;
-      border-bottom: 0;
-      border-right: 1px solid var(--color-rule-on-paper);
+      border: 0;
+      background: transparent;
+      gap: var(--space-2);
     }
 
     .investigation__tab {
       min-width: 0;
       min-height: 4.25rem;
-      border-right: 0;
-      border-bottom: 1px solid var(--color-rule-on-paper);
+      border: 1px solid var(--color-rule-on-paper);
+      border-right: 1px solid var(--color-rule-on-paper);
+      background: var(--color-paper);
       grid-template-columns: 2.25rem minmax(0, 1fr) auto;
     }
 
     .investigation__tab[data-active='true'],
     .investigation__tab[aria-selected='true'] {
       box-shadow: inset 2px 0 0 var(--color-accent);
+      border-color: var(--color-accent);
     }
 
     .investigation__tab-title {
       white-space: normal;
+    }
+
+    .investigation__track {
+      position: absolute;
+      left: calc(var(--space-5) + 1rem);
+      top: calc(var(--space-5) + 0.5rem);
+      bottom: calc(var(--space-5) + 2.5rem);
+      width: 1px;
+      height: auto;
+    }
+
+    .investigation__track-line {
+      left: 50%;
+      right: auto;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      height: 100%;
+      transform: translateX(-50%);
+    }
+
+    .investigation__track-fill {
+      left: 50%;
+      top: 0;
+      width: 1px;
+      height: 0%;
+      transform: translateX(-50%);
+    }
+
+    .investigation__cursor {
+      left: 50%;
+      top: 7%;
+    }
+
+    .investigation__spine {
+      padding-left: var(--space-7);
     }
 
     .inv-list[data-kind='checks'],
@@ -606,6 +848,20 @@ const first = investigationStages[0];
   @media (max-width: 30rem) {
     .investigation__panel {
       padding: var(--space-4);
+    }
+    .investigation__spinewrap {
+      padding: var(--space-3);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .investigation__panel {
+      animation: none;
+    }
+    .investigation__track-fill,
+    .investigation__cursor,
+    .investigation__tab {
+      transition: none;
     }
   }
 </style>

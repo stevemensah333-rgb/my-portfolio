@@ -1,0 +1,250 @@
+/* ============================================================
+   Interactions — motion vocabulary + shared inspection patterns
+   ------------------------------------------------------------
+   One system, not a collection of effects.
+
+   Every major interaction must reveal: information, state,
+   causality, structure, or transformation.
+
+   Motion tokens (from global.css) are the only durations/easings
+   allowed. No new durations are introduced.
+
+   Patterns in this file:
+   - reveal-enter : panel enters when selected
+   - delta-reveal : payload delta border grows on stage change
+   - track-fill   : progress along a causal track
+   - signal-dot   : payload travelling
+   - hover-readout: mono line that echoes hovered/focused stage
+   - inspectable  : hover reveals information, never only glow
+   ============================================================ */
+
+/* --- reveal --------------------------------------------------- */
+@keyframes reveal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal-left {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Shared enter class: applied by JS when a panel becomes active.
+   Uses the canonical reveal duration + emphasized ease. */
+.reveal-enter {
+  animation: reveal-enter var(--duration-reveal) var(--ease-emphasized);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-enter {
+    animation: none;
+  }
+}
+
+/* --- delta: payload transformation border --------------------- */
+.delta-reveal {
+  position: relative;
+}
+
+.delta-reveal::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-accent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--duration-reveal) var(--ease-emphasized);
+}
+
+.delta-reveal[data-active='true']::before,
+.delta-reveal[data-revealed='true']::before {
+  transform: scaleY(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .delta-reveal::before {
+    transition: none;
+    transform: scaleY(1);
+  }
+}
+
+/* --- track ---------------------------------------------------- */
+.track-fill {
+  transition: width var(--duration-reveal) var(--ease-emphasized),
+              height var(--duration-reveal) var(--ease-emphasized);
+}
+
+.signal-dot {
+  transition:
+    left var(--duration-reveal) var(--ease-emphasized),
+    top var(--duration-reveal) var(--ease-emphasized),
+    opacity var(--duration-quick) var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track-fill,
+  .signal-dot {
+    transition: none;
+  }
+}
+
+/* --- hover readout (Lab, Architecture, Investigation) --------- */
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: baseline;
+  min-height: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-text-on-canvas-muted);
+  transition: color var(--duration-quick) var(--ease-standard);
+}
+
+.readout--paper {
+  color: var(--color-text-on-paper-muted);
+}
+
+/* --- inspectable: hover reveals information -------------------
+   Any .inspectable surface shows a hidden meta line on hover/focus
+   without moving layout. The hidden info is also present in the
+   panel, so hover is never the only route.
+   ------------------------------------------------------------ */
+.inspectable {
+  position: relative;
+}
+
+.inspectable__hover-meta {
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: var(--space-2);
+  display: flex;
+  gap: var(--space-2);
+  opacity: 0;
+  transform: translateY(2px);
+  pointer-events: none;
+  transition:
+    opacity var(--duration-quick) var(--ease-standard),
+    transform var(--duration-quick) var(--ease-standard);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-on-paper-muted);
+}
+
+.inspectable:hover .inspectable__hover-meta,
+.inspectable:focus-within .inspectable__hover-meta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (hover: none) {
+  .inspectable__hover-meta {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inspectable__hover-meta {
+    transition: none;
+  }
+}
+
+/* --- lightbox (ProductFrame inspection) ----------------------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: var(--page-gutter);
+  background: color-mix(in srgb, var(--color-canvas) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.lightbox[hidden] {
+  display: none !important;
+}
+
+.lightbox__inner {
+  position: relative;
+  width: min(100%, 72rem);
+  max-height: 90vh;
+  overflow: auto;
+  border: 1px solid var(--color-rule-on-canvas);
+  background: var(--color-paper);
+  padding: var(--space-4);
+  animation: reveal-enter var(--duration-reveal) var(--ease-emphasized);
+}
+
+.lightbox__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-rule-on-paper);
+  margin-bottom: var(--space-4);
+}
+
+.lightbox__close {
+  min-height: var(--control-height-sm);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-rule-on-paper);
+  background: var(--color-paper);
+  color: var(--color-text-on-paper);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.lightbox__close:hover,
+.lightbox__close:focus-visible {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.lightbox__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--color-rule-on-paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox__inner {
+    animation: none;
+  }
+}
+
+html:not(.js) .lightbox {
+  display: none !important;
+}
+
+/* --- focus + reduced motion guards --------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+  }
+}

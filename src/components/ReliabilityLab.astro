@@ -386,6 +386,34 @@ const total = String(labStages.length).padStart(2, '0');
           setPosition(index);
           setReadout(index, 'active');
           if (!engineDriving) resolvePanel(index);
+          // reveal structure: past vs future, and payload enter
+          tabs.forEach((t, i) => {
+            if (i < index) {
+              t.dataset.past = 'true';
+              delete t.dataset.future;
+            } else if (i > index) {
+              t.dataset.future = 'true';
+              delete t.dataset.past;
+            } else {
+              delete t.dataset.past;
+              delete t.dataset.future;
+            }
+          });
+          const activePanel = panelFor(index);
+          if (activePanel) {
+            const payload = activePanel.querySelector<HTMLElement>('.lab__payload');
+            if (payload) {
+              payload.classList.remove('reveal-enter');
+              // force reflow to restart animation
+              void payload.offsetWidth;
+              payload.classList.add('reveal-enter');
+            }
+            // delta border reveal — shows transformation
+            const delta = activePanel.querySelector<HTMLElement>('.lab__delta');
+            if (delta) {
+              delta.dataset.revealed = 'true';
+            }
+          }
         },
       });
 
@@ -711,6 +739,19 @@ const total = String(labStages.length).padStart(2, '0');
 
   .lab__node[data-past='true'][data-tone='valid'] .lab__node-label {
     color: var(--lab-pass);
+  }
+
+  .lab__node[data-future='true'] {
+    opacity: 0.52;
+  }
+
+  .lab__node[data-future='true'] .lab__node-mark {
+    background: transparent;
+  }
+
+  /* reveal-enter — payload transformation enters, shows causality */
+  .lab__payload.reveal-enter {
+    animation: lab-enter var(--duration-reveal) var(--ease-emphasized);
   }
 
   /* the track the payload travels */
@@ -1092,6 +1133,7 @@ const total = String(labStages.length).padStart(2, '0');
   }
 
   .lab__delta {
+    position: relative;
     display: grid;
     gap: var(--space-1);
     margin: 0;
@@ -1101,6 +1143,23 @@ const total = String(labStages.length).padStart(2, '0');
     font-family: var(--font-mono);
     font-size: 0.75rem;
     line-height: 1.55;
+  }
+
+  .lab__delta::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-accent);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  .lab__delta[data-revealed='true']::before {
+    transform: scaleY(1);
   }
 
   .lab__handoff {

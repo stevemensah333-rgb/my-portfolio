@@ -2,17 +2,15 @@
 /**
  * SessionBookArchitecture — inspectable signal path for the SessionBook case.
  *
- * Renders the eight-node path a booking travels:
- *   Caller → Voice Agent → HTTP tool call → SessionBook backend →
- *   booking / availability logic → response → Voice Agent → spoken response
+ * Interaction design (selected as strongest):
+ * - Reveals structure: 8 nodes, what exists vs in-progress, ownership.
+ * - Reveals causality: signal travels from caller through backend to spoken response.
+ * - Reveals transformation: each node receives and hands off; evidence shows what is real.
+ * - Hover reveals information: readout shows owner + state + one-line summary, never owns info.
+ * - Pointer is subtle, touch fallback (tap selects), reduced-motion disables travel.
  *
- * Every node is marked by what the repository actually contains today
- * (`present` / `written` / `in-progress` / `external`), so the diagram
- * never implies infrastructure that does not exist.
- *
- * Uses the shared initTraceTabs controller. No-JS: the diagram stays
- * visible and every node's detail panel is stacked, so the full content
- * is reachable without scripting.
+ * Uses shared initTraceTabs for roving tabindex, arrows, Home/End.
+ * No-JS: diagram stays visible, every panel stacked.
  */
 
 interface ArchNode {
@@ -24,6 +22,7 @@ interface ArchNode {
   stateLabel: string;
   detail: string[];
   evidence: string;
+  readout: string;
 }
 
 const nodes: ArchNode[] = [
@@ -39,6 +38,7 @@ const nodes: ArchNode[] = [
       'The caller never touches a form or a calendar. They hear options and choose one, which is the constraint that shapes everything downstream on this path.',
     ],
     evidence: 'Actor, not an artifact. Not part of the repository.',
+    readout: 'Person on phone — hears options, chooses one. Constraint for everything downstream.',
   },
   {
     id: 'voice-agent',
@@ -52,6 +52,7 @@ const nodes: ArchNode[] = [
       'SessionBook\u2019s job is the agent document — name, voice, prompt, and the list of tools with their URLs — plus the backend those tools call. Today that document is the empty voice_agent/agent.json.',
     ],
     evidence: 'voice_agent/agent.json — present in the repo, empty (0 bytes).',
+    readout: 'AssemblyAI runtime — STT, dialogue, TTS. SessionBook must supply agent.json (empty today).',
   },
   {
     id: 'http-tool-call',
@@ -65,6 +66,7 @@ const nodes: ArchNode[] = [
       'Intended shape, per the reference: each tool declares a URL, an HTTP method, an argument schema, and a timeout. AssemblyAI performs the request; the caller\u2019s call never holds a WebSocket to SessionBook.',
     ],
     evidence: 'app/routers/tools.py — present in the repo, empty (0 bytes); no tool routes wired in main.py.',
+    readout: 'Agent makes HTTPS request with only allowed args. No WebSocket to SessionBook.',
   },
   {
     id: 'backend',
@@ -78,6 +80,7 @@ const nodes: ArchNode[] = [
       'The availability, booking and lookup functions exist in the service layer but are not yet behind HTTP routes — so what exists is the engine, and the endpoint surface is the next piece to wire.',
     ],
     evidence: 'app/main.py — FastAPI app with GET /health.',
+    readout: 'FastAPI service — engine written, only /health wired. Endpoint surface is next.',
   },
   {
     id: 'booking-logic',
@@ -91,6 +94,7 @@ const nodes: ArchNode[] = [
       'Reservation takes a row lock (SELECT \u2026 FOR UPDATE), confirms the slot is still free, writes the booking, and returns a confirmation — so two concurrent callers cannot both claim the same slot. Datetimes are timezone-aware, anchored to Africa/Accra (the provider\u2019s zone), and persisted to Postgres 16.',
     ],
     evidence: 'app/services/booking_service.py; app/models.py (Provider, Slot, Booking); docker-compose.yml (Postgres 16).',
+    readout: 'check_availability + book_slot with row lock. Timezone-aware, Africa/Accra.',
   },
   {
     id: 'response',
@@ -104,6 +108,7 @@ const nodes: ArchNode[] = [
       'These are written as Pydantic shapes and used by the service layer. The HTTP endpoints that would serve them to an agent are not wired yet.',
     ],
     evidence: 'app/schemas.py — AvailabilitySlot.spoken_label, BookingConfirmation.spoken_confirmation.',
+    readout: 'Answers as spoken values, not status codes. Shapes written, routes not wired.',
   },
   {
     id: 'voice-agent-return',
@@ -117,6 +122,7 @@ const nodes: ArchNode[] = [
       'This is not a second system — it is the return pass through the one agent. Listing it separately keeps the forward and return paths distinct.',
     ],
     evidence: 'Same component as step 02.',
+    readout: 'Same agent, return pass — receives backend response, decides what to say.',
   },
   {
     id: 'spoken-response',
@@ -130,37 +136,52 @@ const nodes: ArchNode[] = [
       'SessionBook owns the wording; the voice that speaks it is AssemblyAI\u2019s text-to-speech.',
     ],
     evidence: 'booking_service.py — book_slot builds the spoken_confirmation sentence.',
+    readout: 'Agent speaks backend sentence. SessionBook owns wording, AssemblyAI owns voice.',
   },
 ];
 ---
 
 <div class="arch" data-arch>
   <div class="arch__frame">
-    <div
-      class="arch__rail"
-      role="tablist"
-      aria-label="SessionBook architecture — select a node to inspect"
-      aria-orientation="vertical"
-    >
-      {nodes.map((node, idx) => (
-        <button
-          type="button"
-          role="tab"
-          id={`arch-tab-${node.id}`}
-          class="arch__node"
-          data-stage-tab={node.id}
-          aria-controls={`arch-panel-${node.id}`}
-          aria-selected={idx === 0 ? 'true' : 'false'}
-          tabindex={idx === 0 ? '0' : '-1'}
-        >
-          <span class="arch__step">{node.step}</span>
-          <span class="arch__name">{node.name}</span>
-          <span class="arch__badges">
-            <span class:list={['arch__chip', `arch__chip--${node.state}`]}>{node.stateLabel}</span>
-          </span>
-          <span class="arch__owner">{node.owner}</span>
-        </button>
-      ))}
+    <div class="arch__railwrap">
+      <div
+        class="arch__rail"
+        role="tablist"
+        aria-label="SessionBook architecture — select a node to inspect"
+        aria-orientation="vertical"
+        data-arch-rail
+      >
+        {nodes.map((node, idx) => (
+          <button
+            type="button"
+            role="tab"
+            id={`arch-tab-${node.id}`}
+            class="arch__node"
+            data-stage-tab={node.id}
+            data-state={node.state}
+            data-readout={node.readout}
+            aria-controls={`arch-panel-${node.id}`}
+            aria-selected={idx === 0 ? 'true' : 'false'}
+            tabindex={idx === 0 ? '0' : '-1'}
+          >
+            <span class="arch__step">{node.step}</span>
+            <span class="arch__name">{node.name}</span>
+            <span class="arch__badges">
+              <span class:list={['arch__chip', `arch__chip--${node.state}`]}>{node.stateLabel}</span>
+            </span>
+            <span class="arch__owner">{node.owner}</span>
+          </button>
+        ))}
+      </div>
+      <div class="arch__track" aria-hidden="true">
+        <span class="arch__track-line"></span>
+        <span class="arch__track-fill" data-arch-fill></span>
+        <span class="arch__cursor" data-arch-cursor></span>
+      </div>
+      <p class="arch__readout">
+        <span class="mono-label" data-arch-readout-label>Active · 01</span>
+        <span data-arch-readout-text>{nodes[0]?.readout}</span>
+      </p>
     </div>
 
     <div class="arch__panels">
@@ -171,6 +192,7 @@ const nodes: ArchNode[] = [
           aria-labelledby={`arch-tab-${node.id}`}
           class="arch__panel"
           data-stage-panel={node.id}
+          data-state={node.state}
           data-active={idx === 0 ? 'true' : 'false'}
           tabindex="0"
           hidden={idx !== 0}
@@ -192,13 +214,109 @@ const nodes: ArchNode[] = [
       ))}
     </div>
   </div>
+  <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-arch-live></p>
 </div>
 
 <script>
   import { initTraceTabs } from '../scripts/initTraceTabs';
 
   const root = document.querySelector<HTMLElement>('[data-arch]');
-  if (root) initTraceTabs(root);
+  if (root) {
+    const rail = root.querySelector<HTMLElement>('[data-arch-rail]');
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')] as HTMLButtonElement[];
+    const fill = root.querySelector<HTMLElement>('[data-arch-fill]');
+    const cursor = root.querySelector<HTMLElement>('[data-arch-cursor]');
+    const readoutLabel = root.querySelector<HTMLElement>('[data-arch-readout-label]');
+    const readoutText = root.querySelector<HTMLElement>('[data-arch-readout-text]');
+    const live = root.querySelector<HTMLElement>('[data-arch-live]');
+
+    if (rail && tabs.length > 0) {
+      const ids = tabs.map(t => t.dataset.stageTab ?? '').filter(Boolean);
+      const count = ids.length;
+      let activeIndex = 0;
+
+      const readouts = tabs.map(t => t.dataset.readout ?? '');
+
+      const setTrack = (index: number) => {
+        if (!fill || !cursor) return;
+        const pct = ((index + 0.5) / count) * 100;
+        fill.style.height = `${pct}%`;
+        cursor.style.top = `${pct}%`;
+      };
+
+      const setReadout = (index: number, source: 'active' | 'hover') => {
+        const tab = tabs[index];
+        const step = tab?.querySelector('.arch__step')?.textContent?.trim() ?? '';
+        if (readoutLabel) {
+          readoutLabel.textContent = source === 'hover' ? `Inspect · ${step}` : `Active · ${step}`;
+        }
+        if (readoutText) readoutText.textContent = readouts[index] ?? '';
+      };
+
+      const announce = (index: number) => {
+        const tab = tabs[index];
+        const name = tab?.querySelector('.arch__name')?.textContent?.trim() ?? '';
+        const step = tab?.querySelector('.arch__step')?.textContent?.trim() ?? '';
+        if (live) live.textContent = `Step ${step} ${name}. ${readouts[index] ?? ''}`;
+      };
+
+      initTraceTabs(root, {
+        onSelect: (_id, index) => {
+          activeIndex = index;
+          setTrack(index);
+          setReadout(index, 'active');
+          // reveal structure: past vs future
+          tabs.forEach((t, i) => {
+            if (i < index) {
+              t.dataset.past = 'true';
+              delete t.dataset.future;
+            } else if (i > index) {
+              t.dataset.future = 'true';
+              delete t.dataset.past;
+            } else {
+              delete t.dataset.past;
+              delete t.dataset.future;
+            }
+          });
+        },
+      });
+
+      // hover / focus readout — reveals information, never owns it
+      const indexOfNode = (target: EventTarget | null) => {
+        const node = target instanceof Element ? target.closest<HTMLButtonElement>('.arch__node') : null;
+        if (!node) return -1;
+        return tabs.indexOf(node as HTMLButtonElement);
+      };
+
+      rail.addEventListener('pointerover', (e) => {
+        const idx = indexOfNode(e.target);
+        if (idx >= 0) setReadout(idx, 'hover');
+      });
+      rail.addEventListener('pointerout', (e) => {
+        const idx = indexOfNode(e.target);
+        if (idx >= 0) setReadout(activeIndex, 'active');
+      });
+      rail.addEventListener('focusin', (e) => {
+        const idx = indexOfNode(e.target);
+        if (idx >= 0) setReadout(idx, 'hover');
+      });
+      rail.addEventListener('focusout', (e) => {
+        const idx = indexOfNode(e.target);
+        if (idx >= 0) setReadout(activeIndex, 'active');
+      });
+
+      // keyboard announcement
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const idx = tabs.indexOf(tab);
+          if (idx >= 0) announce(idx);
+        });
+      });
+
+      setTrack(0);
+      setReadout(0, 'active');
+    }
+  }
 </script>
 
 <style>
@@ -209,12 +327,18 @@ const nodes: ArchNode[] = [
     background: var(--color-paper);
   }
 
-  .arch__rail {
+  .arch__railwrap {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-3);
     padding: var(--space-5);
     border-bottom: 1px solid var(--color-rule-on-paper);
     background: var(--color-paper-soft);
+  }
+
+  .arch__rail {
+    position: relative;
+    display: grid;
+    gap: var(--space-6);
   }
 
   .arch__node {
@@ -237,10 +361,12 @@ const nodes: ArchNode[] = [
     cursor: pointer;
     transition:
       border-color var(--duration-quick) var(--ease-standard),
-      background-color var(--duration-quick) var(--ease-standard);
+      background-color var(--duration-quick) var(--ease-standard),
+      opacity var(--duration-quick) var(--ease-standard),
+      transform var(--duration-quick) var(--ease-standard);
   }
 
-  /* connector arrow drawn between nodes (the "↓" of the signal path) */
+  /* signal path connectors */
   .arch__node::before {
     content: '';
     position: absolute;
@@ -249,6 +375,7 @@ const nodes: ArchNode[] = [
     width: 1px;
     height: calc(var(--space-6) - 9px);
     background: var(--color-rule-on-paper);
+    transition: background-color var(--duration-quick) var(--ease-standard);
   }
 
   .arch__node::after {
@@ -261,6 +388,7 @@ const nodes: ArchNode[] = [
     border-right: 1px solid var(--color-rule-on-paper);
     border-bottom: 1px solid var(--color-rule-on-paper);
     transform: rotate(45deg);
+    transition: border-color var(--duration-quick) var(--ease-standard);
   }
 
   .arch__node:last-child::before,
@@ -269,13 +397,45 @@ const nodes: ArchNode[] = [
   }
 
   .arch__node:hover,
-  .arch__node[data-active='true'] {
+  .arch__node:focus-visible {
     border-color: var(--color-accent);
     background: var(--color-paper);
   }
 
   .arch__node[data-active='true'] {
+    border-color: var(--color-accent);
+    background: var(--color-paper);
     box-shadow: inset 2px 0 0 var(--color-accent);
+  }
+
+  .arch__node[data-past='true'] {
+    opacity: 0.72;
+  }
+
+  .arch__node[data-past='true']::before,
+  .arch__node[data-past='true']::after {
+    background: var(--color-rule-on-paper);
+    border-color: var(--color-rule-on-paper);
+  }
+
+  .arch__node[data-past='true'][data-state='present'] {
+    opacity: 1;
+  }
+
+  .arch__node[data-past='true'][data-state='present']::before {
+    background: var(--color-signal-pass);
+  }
+
+  .arch__node[data-future='true'] {
+    opacity: 0.55;
+  }
+
+  .arch__node[data-active='true']::before {
+    background: var(--color-accent);
+  }
+
+  .arch__node[data-active='true']::after {
+    border-color: var(--color-accent);
   }
 
   .arch__node:focus-visible {
@@ -349,6 +509,58 @@ const nodes: ArchNode[] = [
     color: var(--color-accent);
   }
 
+  /* track: reveals causality — where payload is in 8-node path */
+  .arch__track {
+    position: relative;
+    height: 0.75rem;
+    display: none;
+  }
+
+  .arch__track-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--color-rule-on-paper);
+    transform: translateY(-50%);
+  }
+
+  .arch__track-fill {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: var(--color-accent);
+    transform-origin: left;
+    transform: translateY(-50%) scaleY(1);
+    transition: height var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  .arch__cursor {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--color-accent);
+    transform: translate(-50%, -50%);
+    transition: top var(--duration-reveal) var(--ease-emphasized), left var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  .arch__readout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin: 0;
+    min-height: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--color-text-on-paper-muted);
+  }
+
   .arch__panels {
     padding: var(--space-5);
   }
@@ -357,21 +569,39 @@ const nodes: ArchNode[] = [
     display: grid;
     gap: var(--space-3);
     border-top: 2px solid var(--color-accent);
+    animation: arch-enter var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  @keyframes arch-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .arch__panel[hidden] {
-    display: none;
+    display: none !important;
   }
 
   html:not(.js) .arch__panel,
   html:not(.js) .arch__panel[hidden] {
-    display: grid;
+    display: grid !important;
     border-top: 1px solid var(--color-rule-on-paper-soft);
     padding-top: var(--space-4);
+    animation: none;
   }
 
   html:not(.js) .arch__panel + .arch__panel {
     margin-top: var(--space-4);
+  }
+
+  html:not(.js) .arch__readout,
+  html:not(.js) .arch__track {
+    display: none;
   }
 
   .arch__panel-head h3 {
@@ -422,22 +652,69 @@ const nodes: ArchNode[] = [
   }
 
   @media (min-width: 48rem) {
-    .arch__rail {
+    .arch__railwrap {
       padding: var(--space-6);
+    }
+    .arch__rail {
       gap: var(--space-6);
     }
   }
 
   @media (min-width: 64rem) {
     .arch__frame {
-      grid-template-columns: minmax(15rem, 0.75fr) minmax(0, 1.25fr);
+      grid-template-columns: minmax(15rem, 0.78fr) minmax(0, 1.22fr);
+    }
+
+    .arch__railwrap {
+      border-bottom: 0;
+      border-right: 1px solid var(--color-rule-on-paper);
+      padding: var(--space-6);
+      align-content: start;
+      gap: var(--space-4);
     }
 
     .arch__rail {
       grid-template-columns: 1fr;
-      border-bottom: 0;
-      border-right: 1px solid var(--color-rule-on-paper);
-      padding: var(--space-6);
+    }
+
+    .arch__track {
+      display: block;
+      position: absolute;
+      left: calc(var(--space-6) + 1rem);
+      top: calc(var(--space-6) + 0.5rem);
+      bottom: calc(var(--space-6) + 0.5rem);
+      width: 1px;
+      height: auto;
+    }
+
+    .arch__track-line {
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      right: auto;
+      width: 1px;
+      height: 100%;
+      transform: translateX(-50%);
+    }
+
+    .arch__track-fill {
+      top: 0;
+      bottom: auto;
+      left: 50%;
+      width: 1px;
+      height: 0%;
+      transform: translateX(-50%);
+      transition: height var(--duration-reveal) var(--ease-emphasized);
+    }
+
+    .arch__cursor {
+      left: 50%;
+      top: 6.25%;
+      transform: translate(-50%, -50%);
+    }
+
+    .arch__rail {
+      padding-left: var(--space-7);
     }
 
     .arch__panels {
@@ -446,13 +723,23 @@ const nodes: ArchNode[] = [
   }
 
   @media (max-width: 30rem) {
-    .arch__rail {
+    .arch__railwrap {
       padding: var(--space-4);
-      gap: var(--space-6);
     }
 
     .arch__node {
       padding: var(--space-3);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .arch__panel {
+      animation: none;
+    }
+    .arch__track-fill,
+    .arch__cursor,
+    .arch__node {
+      transition: none;
     }
   }
 </style>

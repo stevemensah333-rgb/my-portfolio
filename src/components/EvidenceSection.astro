@@ -16,23 +16,30 @@ import SectionFrame from './SectionFrame.astro';
         <nav class="evidence__index" aria-label="Credentials">
           <p class="mono-label evidence__index-label">Index</p>
           <ol class="evidence__list">
-            {credentials.map((credential, index) => (
-              <li>
-                <button
-                  type="button"
-                  class="evidence__trigger"
-                  data-credential-trigger={credential.id}
-                  aria-controls={`credential-preview-${credential.id}`}
-                  aria-selected={index === 0 ? 'true' : 'false'}
-                  tabindex={index === 0 ? '0' : '-1'}
-                >
-                  <span class="evidence__trigger-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                  <span class="evidence__trigger-name">{credential.name}</span>
-                  <span class="evidence__trigger-result">{credential.result}</span>
-                  <span class="evidence__trigger-mark" aria-hidden="true"></span>
-                </button>
-              </li>
-            ))}
+            {credentials.map((credential, index) => {
+              const type = credential.evidenceImage ? 'image' : credential.evidenceDocument ? 'document' : 'record';
+              return (
+                <li>
+                  <button
+                    type="button"
+                    class="evidence__trigger"
+                    data-credential-trigger={credential.id}
+                    data-evidence-type={type}
+                    aria-controls={`credential-preview-${credential.id}`}
+                    aria-selected={index === 0 ? 'true' : 'false'}
+                    tabindex={index === 0 ? '0' : '-1'}
+                  >
+                    <span class="evidence__trigger-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                    <span class="evidence__trigger-copy">
+                      <span class="evidence__trigger-name">{credential.name}</span>
+                      <span class="evidence__trigger-meta mono-label">{type} · {credential.issuer ?? 'record'}</span>
+                    </span>
+                    <span class="evidence__trigger-result">{credential.result}</span>
+                    <span class="evidence__trigger-mark" aria-hidden="true"></span>
+                  </button>
+                </li>
+              );
+            })}
           </ol>
         </nav>
 
@@ -231,10 +238,10 @@ import SectionFrame from './SectionFrame.astro';
     display: grid;
     grid-template-columns: 2.25rem minmax(0, 1fr) auto auto;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-2) var(--space-3);
     width: 100%;
     min-height: var(--control-height);
-    padding: 0 var(--space-4);
+    padding: var(--space-2) var(--space-4);
     border: 0;
     background: var(--color-paper);
     color: var(--color-text-on-paper);
@@ -251,11 +258,49 @@ import SectionFrame from './SectionFrame.astro';
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
+    align-self: start;
+    margin-top: 0.2rem;
+  }
+
+  .evidence__trigger-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
   }
 
   .evidence__trigger-name {
     font-weight: 600;
     font-size: var(--text-small);
+  }
+
+  .evidence__trigger-meta {
+    color: var(--color-text-on-paper-faint);
+    font-size: 0.625rem;
+    opacity: 0;
+    transform: translateY(2px);
+    transition:
+      opacity var(--duration-quick) var(--ease-standard),
+      transform var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
+  }
+
+  .evidence__trigger-meta::before {
+    display: none;
+  }
+
+  .evidence__trigger:hover .evidence__trigger-meta,
+  .evidence__trigger:focus-visible .evidence__trigger-meta,
+  .evidence__trigger[aria-selected='true'] .evidence__trigger-meta {
+    opacity: 1;
+    transform: translateY(0);
+    color: var(--color-text-on-paper-muted);
+  }
+
+  @media (hover: none) {
+    .evidence__trigger-meta {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .evidence__trigger-result {
@@ -264,6 +309,14 @@ import SectionFrame from './SectionFrame.astro';
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
     text-align: right;
+    align-self: start;
+    margin-top: 0.2rem;
+    transition: color var(--duration-quick) var(--ease-standard);
+  }
+
+  .evidence__trigger:hover .evidence__trigger-result,
+  .evidence__trigger:focus-visible .evidence__trigger-result {
+    color: var(--color-accent);
   }
 
   .evidence__trigger-mark {
@@ -272,6 +325,8 @@ import SectionFrame from './SectionFrame.astro';
     border: 1px solid var(--color-rule-on-paper);
     background: transparent;
     transition: all var(--duration-quick) var(--ease-standard);
+    align-self: start;
+    margin-top: 0.4rem;
   }
 
   .evidence__trigger:hover,

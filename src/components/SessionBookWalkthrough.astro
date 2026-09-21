@@ -356,10 +356,35 @@ const steps: WalkStep[] = [
   .walk__panel {
     display: grid;
     gap: var(--space-4);
+    animation: walk-enter var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  @keyframes walk-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .walk__panel[hidden] {
     display: none !important;
+  }
+
+  .walk__tab[data-future='true'] {
+    opacity: 0.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .walk__panel {
+      animation: none;
+    }
+    .walk__tab {
+      transition: none;
+    }
   }
 
   html:not(.js) .walk__panel,
