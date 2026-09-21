@@ -1,31 +1,29 @@
 ---
 import { GMAIL_COMPOSE_URL } from '../../config/site';
-import { syncareer } from '../../data/registry';
+import { sessionbook } from '../../data/registry';
 import ProjectSection from '../../components/ProjectSection.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionFrame from '../../components/SectionFrame.astro';
-import ProductFrame from '../../components/ProductFrame.astro';
 
-const title = `${syncareer.name} — LLM Reliability Case Study | Stephen Mensah`;
-const description = `How Stephen Mensah identified format drift, context loss and response variance in ${syncareer.name}, then changed prompts, context handling and output constraints.`;
+const title = `${sessionbook.name} — Backend Case Study | Stephen Mensah`;
+const description = `${sessionbook.short} A FastAPI + Postgres service with double-booking protection, timezone correctness, and spoken-output design.`;
 
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'CreativeWork',
-  name: `${syncareer.name} — LLM Reliability Case Study`,
-  headline: 'Engineering around real LLM failure modes',
+  name: `${sessionbook.name} — Backend Case Study`,
+  headline: sessionbook.claim,
   description,
-  url: new URL(syncareer.route, Astro.site).href,
-  image: new URL('/images/syncareer/synai-context-2400.png', Astro.site).href,
+  url: new URL(sessionbook.route, Astro.site).href,
   author: {
     '@type': 'Person',
     name: 'Stephen Mensah',
     url: new URL('/', Astro.site).href,
   },
   about: {
-    '@type': 'SoftwareApplication',
-    name: syncareer.name,
-    url: 'https://syncareer.me/',
+    '@type': 'SoftwareSourceCode',
+    name: sessionbook.name,
+    codeRepository: 'https://github.com/stevemensah333-rgb/sessionbook',
   },
 };
 ---
@@ -34,76 +32,58 @@ const structuredData = {
   {title}
   {description}
   {structuredData}
-  image="/images/syncareer/synai-context-2400.png"
-  imageAlt="Syncareer SynAI career-guidance interface"
-  imageWidth={2400}
-  imageHeight={1302}
   ogType="article"
 >
   <article class="case-page">
     <header id="overview" class="case-hero page-shell" data-workspace-section="top">
-      <a class="back-link" href="/#syncareer">← Back to workspace</a>
+      <a class="back-link" href="/#sessionbook">← Back to workspace</a>
 
       <div class="case-opening">
         <div>
-          <p class="mono-label">Case study · {syncareer.name}</p>
-          <h1>Engineering around real LLM failure modes.</h1>
+          <p class="mono-label">Case study · {sessionbook.name}</p>
+          <h1>Concurrency, not the model, is the boundary.</h1>
           <p class="case-summary">
-            {syncareer.claim} This case study is the same trace that runs on the
-            homepage — opened as its own surface so each stage can be inspected in depth.
+            {sessionbook.claim} This case study states what the repository actually
+            implements — the verified booking engine — and what is honestly in progress.
           </p>
         </div>
 
-        <aside class="product-record" aria-label={`${syncareer.name} product record`}>
+        <aside class="product-record" aria-label={`${sessionbook.name} product record`}>
           <div class="record-heading">
             <p>Product record · 01</p>
-            <span>Built product</span>
+            <span>{sessionbook.status === 'in-progress' ? 'In progress' : sessionbook.status}</span>
           </div>
-          <p class="product-record__name">{syncareer.name}</p>
+          <p class="product-record__name">{sessionbook.name}</p>
           <dl>
-            <div><dt>Product</dt><dd>AI-integrated career platform</dd></div>
-            <div><dt>AI feature</dt><dd>Career guidance</dd></div>
-            <div><dt>Model</dt><dd>Claude</dd></div>
-            <div><dt>Evidence</dt><dd>Product interface supplied</dd></div>
-            <div><dt>Website</dt><dd><a href="https://syncareer.me/" target="_blank" rel="noopener">Visit {syncareer.name} <span aria-hidden="true">↗</span></a></dd></div>
+            <div><dt>Type</dt><dd>Backend service</dd></div>
+            <div><dt>Framework</dt><dd>FastAPI</dd></div>
+            <div><dt>Database</dt><dd>Postgres 16</dd></div>
+            <div><dt>Status</dt><dd>{sessionbook.status === 'in-progress' ? 'In progress — voice agent pending' : sessionbook.status}</dd></div>
+            <div><dt>Evidence</dt><dd><a href="https://github.com/stevemensah333-rgb/sessionbook" target="_blank" rel="noopener">Source repository <span aria-hidden="true">↗</span></a></dd></div>
           </dl>
         </aside>
       </div>
-
-      <div class="case-product-hero">
-        <ProductFrame
-          src1440="/images/syncareer/synai-context-1440.png"
-          src1800="/images/syncareer/synai-context-1800.png"
-          src2400="/images/syncareer/synai-context-2400.png"
-          width={2400}
-          height={1302}
-          alt="Syncareer SynAI interface showing a personalised introduction using Stephen's degree, interests and profile skills, with career guidance, CV tips, interview preparation and skill-gap actions."
-          label="01 / AI feature and context"
-          caption="SynAI makes the product context visible: degree, interests and profile skills inform the career-guidance interface."
-          priority={true}
-        />
-      </div>
     </header>
 
-    <SectionFrame coordinate="01 / Trace context" surface="paper" data-workspace-section="syncareer">
+    <SectionFrame coordinate="01 / Trace context" surface="paper" data-workspace-section="sessionbook">
       <div class="page-shell trace-context">
         <div class="trace-context__copy">
           <p class="mono-label">Reliability trace</p>
-          <h2>From raw model output to product-ready.</h2>
+          <h2>From caller request to confirmed booking.</h2>
           <p>
-            The trace follows the same stages used in the homepage inspector — input,
-            output, validation, failure, diagnosis, intervention, and the resulting valid
-            output — opened here so each transition is visible.
+            The trace follows the booking service through the same stages as the
+            Syncareer reliability case — request, validation, failure, diagnosis,
+            intervention, output — applied here to the booking-engine domain.
           </p>
         </div>
       </div>
     </SectionFrame>
 
     <ProjectSection
-      project={syncareer}
+      project={sessionbook}
       anchorId="trace"
       coordinate="02 / Stage inspector"
-      showNarrative={true}
+      showNarrative={false}
     />
 
     <SectionFrame coordinate="03 / Evidence & limitations" surface="paper" data-workspace-section="evidence">
@@ -113,25 +93,29 @@ const structuredData = {
             <p class="mono-label">What this does not prove yet</p>
             <h2 id="boundary-title">Evidence boundary</h2>
             <ul class="boundary-list">
-              <li data-state="known">Observed behaviours identified</li>
-              <li data-state="known">Engineering responses implemented</li>
-              <li data-state="missing">No before-and-after outputs supplied</li>
-              <li data-state="missing">No repeatable evaluation supplied</li>
-              <li data-state="missing">No measured failure rate supplied</li>
-              <li data-state="missing">No quantified reliability threshold established</li>
+              <li data-state="known">Booking service implements double-booking protection</li>
+              <li data-state="known">Pydantic contracts at the boundary</li>
+              <li data-state="known">Timezone handling via ZoneInfo</li>
+              <li data-state="known">Spoken-output design for the agent</li>
+              <li data-state="missing">No AssemblyAI voice-agent integration implemented</li>
+              <li data-state="missing">No HTTP tool routes implemented</li>
+              <li data-state="missing">No migrations or test coverage supplied</li>
+              <li data-state="missing">No deployment, latency, or live-call metrics</li>
             </ul>
           </section>
 
-          <section class="traction-panel" aria-labelledby="product-result-title">
-            <p class="mono-label">Product traction · not a reliability measure</p>
-            <h2 id="product-result-title">What came of {syncareer.name}</h2>
-            <dl class="traction-metrics">
-              <div><dt>Sign-ups</dt><dd>80+</dd></div>
-              <div><dt>Daily page visits</dt><dd>About 50</dd></div>
-            </dl>
-            <p>
-              These numbers show product use. They are not presented as evidence that the LLM
-              became more reliable.
+          <section class="boundary-panel" aria-labelledby="status-title">
+            <p class="mono-label">Current status</p>
+            <h2 id="status-title">What is being built next</h2>
+            <ul class="boundary-list">
+              <li data-state="known">Voice-agent JSON configuration</li>
+              <li data-state="known">HTTP tools that point at the booking API</li>
+              <li data-state="known">Alembic migration history</li>
+              <li data-state="known">End-to-end test coverage</li>
+            </ul>
+            <p class="case-content-note">
+              When those land, the case study is updated. Until then, the booking engine is the
+              only verified surface.
             </p>
           </section>
         </div>
@@ -146,7 +130,7 @@ const structuredData = {
         data-workspace-section="contact"
       >
         <p class="mono-label">Contact</p>
-        <h2 id="contact-title">Want to talk through the engineering?</h2>
+        <h2 id="contact-title">Want to talk through the design?</h2>
         <a class="button" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email Stephen</a>
       </section>
     </div>
@@ -271,10 +255,6 @@ const structuredData = {
     color: var(--color-accent);
   }
 
-  .case-product-hero {
-    margin-top: var(--space-6);
-  }
-
   .trace-context {
     padding-block: var(--section-block);
   }
@@ -307,8 +287,7 @@ const structuredData = {
     padding-block: var(--space-7);
   }
 
-  .boundary-panel,
-  .traction-panel {
+  .boundary-panel {
     display: grid;
     gap: var(--space-3);
     padding: var(--space-5);
@@ -316,8 +295,7 @@ const structuredData = {
     background: var(--color-paper-soft);
   }
 
-  .boundary-panel h2,
-  .traction-panel h2 {
+  .boundary-panel h2 {
     margin: 0;
     font-size: var(--text-component);
     font-weight: 600;
@@ -357,40 +335,6 @@ const structuredData = {
     content: '×';
   }
 
-  .traction-metrics {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin: var(--space-3) 0;
-    border-block: 1px solid var(--color-rule-on-paper);
-  }
-
-  .traction-metrics div {
-    display: flex;
-    min-height: 6.5rem;
-    flex-direction: column-reverse;
-    justify-content: space-between;
-    padding: var(--space-4);
-  }
-
-  .traction-metrics div + div {
-    border-left: 1px solid var(--color-rule-on-paper);
-  }
-
-  .traction-metrics dt {
-    margin: 0;
-    color: var(--color-text-on-paper-muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .traction-metrics dd {
-    margin: 0;
-    font-size: var(--text-component);
-    font-weight: 650;
-  }
-
   .case-content {
     padding-bottom: var(--space-6);
   }
@@ -398,6 +342,13 @@ const structuredData = {
   .case-content section {
     padding-block: var(--space-6);
     border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .case-content-note {
+    margin: var(--space-3) 0 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
   }
 
   .contact-section h2 {
@@ -427,15 +378,6 @@ const structuredData = {
   @media (max-width: 30rem) {
     .case-hero h1 {
       font-size: 1.75rem;
-    }
-
-    .traction-metrics {
-      grid-template-columns: 1fr;
-    }
-
-    .traction-metrics div + div {
-      border-top: 1px solid var(--color-rule-on-paper);
-      border-left: 0;
     }
   }
 </style>

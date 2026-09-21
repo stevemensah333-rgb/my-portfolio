@@ -25,6 +25,7 @@ interface SectionFrameProps {
   as?: 'div' | 'section' | 'article' | 'aside' | 'header' | 'footer' | 'nav';
   class?: string;
   id?: string;
+  'data-workspace-section'?: string;
 }
 
 const {
@@ -34,12 +35,18 @@ const {
   as: Tag = 'div',
   class: className,
   id,
+  'data-workspace-section': workspaceSection,
 } = Astro.props as SectionFrameProps;
 
 const surfaceClass = surface === 'canvas' ? 'section-frame--canvas' : surface === 'inset' ? 'section-frame--inset' : '';
 ---
 
-<Tag class:list={['section-frame', surfaceClass, className]} aria-label={label} id={id}>
+<Tag
+  class:list={['section-frame', surfaceClass, className]}
+  aria-label={label}
+  id={id}
+  data-workspace-section={workspaceSection}
+>
   {coordinate && (
     <span class="section-frame__coordinate mono-label" aria-hidden="true">
       {coordinate}

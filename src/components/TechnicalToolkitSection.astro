@@ -23,14 +23,17 @@ const toolkit: ToolkitGroup[] = [
         id: 'python',
         name: 'Python',
         featuredOrder: null,
-        usedIn: [{ project: 'Coursework / Data cleaning' }, { project: 'Supervised ML (DataCamp)' }],
-        evidence: ['data cleaning', 'validation patterns', 'scripting for evaluation'],
-        note: 'Used for data work and API validation patterns, not claimed as Syncareer prod stack.',
+        usedIn: [
+          { project: 'SessionBook', href: '/work/sessionbook/' },
+          { project: 'Coursework / Data cleaning' },
+          { project: 'Supervised ML (DataCamp)' },
+        ],
+        evidence: ['FastAPI service', 'async DB drivers', 'data cleaning', 'validation patterns'],
       },
       {
         id: 'javascript',
         name: 'JavaScript',
-        featuredOrder: 3,
+        featuredOrder: 4,
         usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }, { project: 'Portfolio (this site)' }],
         evidence: ['product surface logic', 'failure trace interactivity', 'editorial UI states'],
       },
@@ -63,10 +66,16 @@ const toolkit: ToolkitGroup[] = [
       {
         id: 'fastapi',
         name: 'FastAPI',
-        featuredOrder: null,
-        usedIn: [{ project: 'Learning / API design' }],
-        evidence: ['schema validation patterns', 'transfer to LLM output validation'],
-        note: 'Learning – pattern reference, not Syncareer prod claim.',
+        featuredOrder: 5,
+        usedIn: [{ project: 'SessionBook', href: '/work/sessionbook/' }],
+        evidence: ['async SQLAlchemy 2.0', 'Pydantic contracts at the boundary', 'transactional booking routes'],
+      },
+      {
+        id: 'sqlalchemy',
+        name: 'SQLAlchemy (async)',
+        featuredOrder: 6,
+        usedIn: [{ project: 'SessionBook', href: '/work/sessionbook/' }],
+        evidence: ['typed Mapped[...] models', 'async session lifecycle', 'Alembic-ready metadata'],
       },
     ],
   },
@@ -76,9 +85,15 @@ const toolkit: ToolkitGroup[] = [
       {
         id: 'postgresql',
         name: 'PostgreSQL',
-        featuredOrder: 4,
-        usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }],
-        evidence: ['flexible schema for activity / progress / weaknesses', 'career data storage'],
+        featuredOrder: 2,
+        usedIn: [
+          { project: 'SessionBook', href: '/work/sessionbook/' },
+          { project: 'Syncareer', href: '/work/syncareer/' },
+        ],
+        evidence: [
+          'SELECT … FOR UPDATE for booking row lock',
+          'flexible schema for activity / progress / weaknesses',
+        ],
       },
       {
         id: 'mysql',
@@ -110,8 +125,8 @@ const toolkit: ToolkitGroup[] = [
         id: 'docker',
         name: 'Docker',
         featuredOrder: null,
-        usedIn: [{ project: 'Learning / reproducible env' }],
-        evidence: ['reproducible deployment exploration'],
+        usedIn: [{ project: 'SessionBook', href: '/work/sessionbook/' }],
+        evidence: ['docker-compose for Postgres 16', 'reproducible local dev environment'],
       },
       {
         id: 'vercel',
@@ -124,7 +139,11 @@ const toolkit: ToolkitGroup[] = [
         id: 'git-github',
         name: 'Git / GitHub',
         featuredOrder: null,
-        usedIn: [{ project: 'Syncareer' }, { project: 'Portfolio' }],
+        usedIn: [
+          { project: 'Syncareer' },
+          { project: 'SessionBook', href: '/work/sessionbook/' },
+          { project: 'Portfolio' },
+        ],
         evidence: ['evidence branch workflow', 'documentation history'],
       },
     ],
@@ -149,9 +168,17 @@ const toolkit: ToolkitGroup[] = [
       {
         id: 'output-validation-few-shot',
         name: 'Output validation / Few-shot anchoring',
-        featuredOrder: 2,
-        usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }],
-        evidence: ['schema checks before product use', 'few-shot examples for structure', 'failure mode separation'],
+        featuredOrder: 3,
+        usedIn: [
+          { project: 'Syncareer', href: '/work/syncareer/' },
+          { project: 'SessionBook', href: '/work/sessionbook/' },
+        ],
+        evidence: [
+          'schema checks before product use',
+          'few-shot examples for structure',
+          'failure mode separation',
+          'spoken-output design for the booking confirmation',
+        ],
       },
     ],
   },
@@ -171,8 +198,8 @@ const additionalToolCount = additionalToolkit.reduce((count, group) => count + g
 const initialItemId = primaryToolkitItems[0]?.id;
 ---
 
-<section id="toolkit" class="toolkit" aria-labelledby="toolkit-title">
-  <SectionFrame coordinate="02 / Toolkit" surface="paper">
+<section id="toolkit" class="toolkit" aria-labelledby="toolkit-title" data-workspace-section="toolkit">
+  <SectionFrame coordinate="03 / Toolkit" surface="paper">
     <div class="page-shell toolkit-layout" data-toolkit>
       <header class="toolkit__header">
         <p class="mono-label">Technical index — evidence linked</p>

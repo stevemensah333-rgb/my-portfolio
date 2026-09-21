@@ -1,7 +1,9 @@
 ---
 import { GMAIL_COMPOSE_URL, PUBLIC_LINKS } from '../config/site';
+import { projects, syncareer, sessionbook } from '../data/registry';
 import ReliabilityTrace from '../components/ReliabilityTrace.astro';
-import SyncareerSection from '../components/SyncareerSection.astro';
+import ProjectSection from '../components/ProjectSection.astro';
+import SectionFrame from '../components/SectionFrame.astro';
 import TechnicalToolkitSection from '../components/TechnicalToolkitSection.astro';
 import AboutSection from '../components/AboutSection.astro';
 import ExperienceSection from '../components/ExperienceSection.astro';
@@ -11,8 +13,9 @@ import SiteFooter from '../components/SiteFooter.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GutterAxis from '../components/GutterAxis.astro';
 
-const title = 'Stephen Mensah — AI Engineering & Computer Science';
-const description = 'Stephen Mensah builds and debugs LLM-powered software. Attention to reliability, validation, integration, and what happens when model output has to fit an actual product.';
+const title = 'Stephen Mensah — AI Engineering Workspace';
+const description =
+  "Stephen Mensah builds and debugs LLM-powered software. Attention to reliability, validation, integration, and what happens when model output has to fit an actual product.";
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -20,7 +23,9 @@ const structuredData = {
   name: 'Stephen Mensah',
   url: new URL('/', Astro.site).href,
   image: new URL('/images/stephen.png', Astro.site).href,
-  sameAs: [PUBLIC_LINKS.github, PUBLIC_LINKS.linkedin].filter((value): value is string => Boolean(value)),
+  sameAs: [PUBLIC_LINKS.github, PUBLIC_LINKS.linkedin].filter(
+    (value): value is string => Boolean(value),
+  ),
   affiliation: {
     '@type': 'CollegeOrUniversity',
     name: 'Ashesi University',
@@ -32,23 +37,25 @@ const structuredData = {
     'Structured output validation',
     'FastAPI',
     'Postgres',
+    'Concurrent transaction design',
   ],
 };
 ---
 
 <BaseLayout {title} {description} {structuredData} ogType="profile">
-  <section class="hero" aria-labelledby="hero-title">
+  <section class="hero" aria-labelledby="hero-title" data-workspace-section="top">
     <div class="hero__canvas">
       <GutterAxis position="left" ticks={5} surface="canvas" />
       <GutterAxis position="right" ticks={5} surface="canvas" />
 
-      <div class="page-shell hero__grid">
+      <div class="hero__grid">
         <aside class="hero__meta" aria-label="Site coordinates">
-          <p class="mono-label mono-label--inverse">Session 01 / Hero</p>
+          <p class="mono-label mono-label--inverse">Session · Hero</p>
           <dl class="hero__coords">
             <div><dt>Status</dt><dd><span class="signal-dot" aria-hidden="true"></span>Open to AI engineering roles</dd></div>
             <div><dt>Based</dt><dd>Berekuso, Ghana</dd></div>
             <div><dt>Year</dt><dd>2026 · B.Sc. Computer Science</dd></div>
+            <div><dt>Workspace</dt><dd>{projects.length} projects</dd></div>
           </dl>
         </aside>
 
@@ -65,8 +72,8 @@ const structuredData = {
             I build and debug LLM-powered software. I pay attention to what happens when model
             output has to fit an actual product.
           </p>
-          <div class="hero__actions" aria-label="Portfolio actions">
-            <a class="button button--accent" href="#syncareer">Inspect the trace</a>
+          <div class="hero__actions" aria-label="Workspace actions">
+            <a class="button button--accent" href="#syncareer">Open the workspace</a>
             <a class="text-link" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">
               Start a conversation
               <span class="text-link__arrow" aria-hidden="true">→</span>
@@ -74,27 +81,58 @@ const structuredData = {
           </div>
         </div>
 
-        <ReliabilityTrace />
-      </div>
-
-      <div class="hero__footer page-shell">
-        <p class="mono-label mono-label--inverse">Path of this page</p>
-        <ol class="hero__path" aria-label="Sections on this page">
-          <li><a href="#syncareer">01 · Work / Syncareer</a></li>
-          <li><a href="#toolkit">02 · Toolkit</a></li>
-          <li><a href="#about">03 · About</a></li>
-          <li><a href="#experience">04 · Experience</a></li>
-          <li><a href="#evidence">05 · Evidence</a></li>
-          <li><a href="#contact">06 · Contact</a></li>
-        </ol>
+        <ReliabilityTrace instanceId="hero" />
       </div>
     </div>
   </section>
 
-  <SyncareerSection />
+  <!-- Work · Syncareer -->
+  <ProjectSection
+    project={syncareer}
+    anchorId="syncareer"
+    coordinate={`01 / Work · ${syncareer.name}`}
+    showNarrative={true}
+    productFrame={{
+      src1440: '/images/syncareer/synai-context-1440.png',
+      src1800: '/images/syncareer/synai-context-1800.png',
+      src2400: '/images/syncareer/synai-context-2400.png',
+      width: 2400,
+      height: 1302,
+      alt: 'Syncareer SynAI interface showing personalised career guidance based on profile, quick actions and a message input.',
+      label: 'Product surface / SynAI',
+      caption: 'The AI feature combines profile context with career-guidance entry points inside the product.',
+      address: 'syncareer.me',
+    }}
+  />
+
+  <!-- Work · SessionBook -->
+  <ProjectSection
+    project={sessionbook}
+    anchorId="sessionbook"
+    coordinate={`02 / Work · ${sessionbook.name}`}
+    showNarrative={false}
+  />
+
+  <!-- Reliability Lab · the trace engine, exposed as its own workspace -->
+  <section id="reliability-lab" class="reliability-lab" aria-labelledby="reliability-lab-title" data-workspace-section="reliability-lab">
+    <SectionFrame coordinate="Lab / Reliability trace" surface="canvas">
+      <div class="page-shell reliability-lab__layout">
+        <header class="reliability-lab__header">
+          <p class="mono-label">Reliability Lab · instrument</p>
+          <h2 id="reliability-lab-title">A trace engine you can operate.</h2>
+          <p>
+            The Reliability Lab is the same engine that runs on the homepage, opened as its own surface.
+            Inspect stages, replay, and step through each transition. No fabricated metrics.
+          </p>
+        </header>
+        <ReliabilityTrace instanceId="lab" />
+      </div>
+    </SectionFrame>
+  </section>
+
   <TechnicalToolkitSection />
-  <AboutSection />
   <ExperienceSection />
+  <AboutSection />
   <EvidenceSection />
   <ContactSection />
   <SiteFooter slot="footer" />
@@ -120,6 +158,7 @@ const structuredData = {
     grid-template-columns: 1fr;
     gap: var(--space-7);
     padding-block: var(--space-6);
+    padding-inline: var(--page-gutter);
   }
 
   .hero__meta {
@@ -142,7 +181,7 @@ const structuredData = {
 
   .hero__coords div {
     display: grid;
-    grid-template-columns: 4.5rem 1fr;
+    grid-template-columns: 5.5rem 1fr;
     gap: var(--space-3);
     align-items: center;
   }
@@ -170,12 +209,19 @@ const structuredData = {
   }
 
   @keyframes signal-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.45; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .signal-dot { animation: none; }
+    .signal-dot {
+      animation: none;
+    }
   }
 
   .hero__message {
@@ -233,46 +279,41 @@ const structuredData = {
     color: var(--color-accent);
   }
 
-  .hero__footer {
+  /* Reliability Lab section */
+  .reliability-lab {
+    background: var(--color-canvas);
+    color: var(--color-text-on-canvas);
+    border-top: 1px solid var(--color-rule-on-canvas);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+  }
+
+  .reliability-lab__layout {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--section-block);
+  }
+
+  .reliability-lab__header {
     display: grid;
     gap: var(--space-3);
-    padding-block: var(--space-5);
-    margin-top: var(--space-7);
-    border-top: 1px solid var(--color-rule-on-canvas);
+    max-width: var(--width-content);
   }
 
-  .hero__path {
-    display: grid;
-    gap: var(--space-1) var(--space-5);
+  .reliability-lab__header h2 {
     margin: 0;
-    padding: 0;
-    list-style: none;
+    max-width: 22ch;
+    font-size: var(--text-feature);
+    font-weight: 600;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.05;
+  }
+
+  .reliability-lab__header p:last-child {
+    max-width: var(--width-reading);
+    margin: 0;
     color: var(--color-text-on-canvas-muted);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-  }
-
-  .hero__path li {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .hero__path a {
-    color: inherit;
-    text-decoration: none;
-    transition: color var(--duration-quick) var(--ease-standard);
-  }
-
-  .hero__path a:hover {
-    color: var(--color-accent);
-  }
-
-  .hero__path li::before {
-    content: '›';
-    color: var(--color-accent);
-    font-family: var(--font-mono);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
   }
 
   /* Responsive layout */
@@ -287,8 +328,10 @@ const structuredData = {
       grid-column: 2;
     }
 
-    .hero__path {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .reliability-lab__layout {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      align-items: start;
+      gap: var(--space-7);
     }
   }
 
@@ -303,10 +346,6 @@ const structuredData = {
     .hero__message {
       grid-column: 2;
       padding-right: var(--space-4);
-    }
-
-    .hero__path {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
     }
   }
 

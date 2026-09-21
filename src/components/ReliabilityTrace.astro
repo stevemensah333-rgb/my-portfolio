@@ -1,19 +1,22 @@
 ---
 interface Props {
   variant?: 'hero' | 'portrait';
+  /** Optional id used to disambiguate when multiple traces render on the same page. */
+  instanceId?: string;
 }
 
-const { variant = 'hero' } = Astro.props;
+const { variant = 'hero', instanceId } = Astro.props;
+const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-trace-${variant}`;
 ---
 
 {variant === 'hero' ? (
   <aside
     class="trace trace--hero"
     data-reliability-trace
-    aria-labelledby="reliability-trace-title"
+    aria-labelledby={`${traceId}-title`}
   >
     <header class="trace__topbar">
-      <span id="reliability-trace-title" class="trace__title">
+      <span id={`${traceId}-title`} class="trace__title">
         <span class="trace__title-prefix">▸</span> Reliability trace
       </span>
       <span class="trace__status">
@@ -55,7 +58,7 @@ const { variant = 'hero' } = Astro.props;
         <article class="trace__panel" data-panel="raw" data-panel-active="true">
           <header class="trace__panel-header">
             <span class="trace__panel-tag">raw</span>
-            <h4 class="trace__panel-title">Unstructured model output</h4>
+            <p class="trace__panel-title">Unstructured model output</p>
           </header>
           <pre class="trace__code"><code data-code-raw></code><span class="trace__cursor" aria-hidden="true"></span></pre>
           <p class="trace__panel-note">
@@ -66,7 +69,7 @@ const { variant = 'hero' } = Astro.props;
         <article class="trace__panel" data-panel="validate">
           <header class="trace__panel-header">
             <span class="trace__panel-tag">check</span>
-            <h4 class="trace__panel-title">Schema validation gate</h4>
+            <p class="trace__panel-title">Schema validation gate</p>
           </header>
           <ul class="trace__gate">
             <li><span>title</span><i data-gate="title"></i><b>required · string</b></li>
@@ -82,7 +85,7 @@ const { variant = 'hero' } = Astro.props;
         <article class="trace__panel" data-panel="failed">
           <header class="trace__panel-header">
             <span class="trace__panel-tag trace__panel-tag--fail">invalid</span>
-            <h4 class="trace__panel-title">Observed failure modes</h4>
+            <p class="trace__panel-title">Observed failure modes</p>
           </header>
           <ul class="trace__failures">
             <li><span>01</span>Missing quotes around keys</li>
@@ -97,7 +100,7 @@ const { variant = 'hero' } = Astro.props;
         <article class="trace__panel" data-panel="intervene">
           <header class="trace__panel-header">
             <span class="trace__panel-tag trace__panel-tag--active">fix</span>
-            <h4 class="trace__panel-title">Constraint / retry / context fix</h4>
+            <p class="trace__panel-title">Constraint / retry / context fix</p>
           </header>
           <ol class="trace__interventions" data-intervention-list>
             <li data-revealed="false">Explicit JSON schema + few-shot anchor</li>
@@ -109,7 +112,7 @@ const { variant = 'hero' } = Astro.props;
         <article class="trace__panel" data-panel="valid">
           <header class="trace__panel-header">
             <span class="trace__panel-tag trace__panel-tag--valid">pass</span>
-            <h4 class="trace__panel-title">Valid output</h4>
+            <p class="trace__panel-title">Valid output</p>
           </header>
           <pre class="trace__code trace__code--valid"><code data-code-valid></code><span class="trace__cursor trace__cursor--valid" aria-hidden="true"></span></pre>
           <p class="trace__panel-note">
