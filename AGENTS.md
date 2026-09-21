@@ -97,7 +97,33 @@ The site is part of the demonstration, and it may be memorable. Visual distincti
 
 Every visual decision should communicate at least one of: engineering, systems, structure, transformation, precision, interaction, inspection.
 
-References are conceptual only. Do not copy the visual identity, layouts, branding, copy, illustrations or exact interactions of Folio98, Windows 98, macOS, AETΣRNA, Wilbert Boadzo, Claude Tomoh, or any other portfolio, template or product.
+REFERENCES — WHAT THEY ARE, WHAT THEY'RE FOR, WHAT WE DO NOT TAKE
+
+The redesign was shaped by three named references. Each is a *conceptual* lesson only. We do not copy their visual identity, layout, branding, copy, illustrations, interaction vocabulary, or specific motifs.
+
+1. Folio98 — https://folio98.framer.website/
+   A Framer template that turns the entire page into a small "operating system" metaphor, with desktop icons, a wallpaper, a notepad, a paint app, etc.
+   LESSON: the website itself can behave like a small software environment; areas of the portfolio can be presented as applications or instruments that the visitor operates.
+   DO NOT TAKE: the retro/Windows-98 visual vocabulary, the wallpaper/folder/desktop-icon metaphor, the skeuomorphic OS chrome, the wallpaper picker, the casual gamified UI, or any specific app metaphor (paint, notepad, logic grid, etc.). None of this fits a serious engineering portfolio for an AI-reliability focused candidate.
+   The replacement: a precise instrument panel vocabulary — corner registration marks, gutter axis ticks, mono coordinate labels, bounded trace surfaces — that reads as "instrument" without imitating any OS.
+
+2. Wilbert Boadzo — https://www.wilbertboadzo.tech/
+   A freelance software engineer's portfolio. Hero uses oversized name-as-typography with a portrait layered behind, numbered service cards (01–05), a "process" timeline with status labels, and client testimonials.
+   LESSON: typographic confidence (oversized name-as-identity, italic emphasis on key phrases), numbered list markers as a structural motif, and a clear "process / how I work" section.
+   DO NOT TAKE: the testimonials layout (we have no testimonials and must not fabricate them — see EVAL 3 / P1), the "schedule time with me" Calendly CTA, the metric claims, the specific colour palette, the large-portrait-as-hero composition, or the AI-image / gradient styling. The audit notes this site's testimonial pattern is the opposite of what an evidence-led portfolio should show.
+   The replacement: same structural move (numbered markers, process transparency, oversized identity typography) executed with restraint — mono indices, small "Status / Path / Coordinate" labels rather than decorative numerals, and process shown via the actual Reliability Lab interaction rather than a separate carousel.
+
+3. AETΣRNA — https://aeterna.framer.ai/
+   A Framer template for AI-startup positioning. Strong typographic geometry, large display type, classical-proportion references, dark/light theme, "capabilities" cards.
+   LESSON: visual identity can come from a coherent system of geometry, proportion, typography and motion rather than decorative gradients or AI imagery. Specific moves worth understanding: a single dominant serif/grotesque pairing, large display headlines with negative tracking, deliberate grid breaking, a small set of signature geometric motifs used sparingly.
+   DO NOT TAKE: the AI-startup marketing copy ("neural precision", "human synthesis", "the chisel", "build your legacy"), the testimonial quote ("Aeterna didn't just give us a tool; they gave us an era"), the classical-marble/architecture metaphors, the dark-mode hero with overlarge italic display type, the "Join Waitlist" CTA, or the three-step "Blueprint / Chisel / Reveal" methodology framing. All of that is startup-product positioning and would directly conflict with P3 (Positioning) and EVAL 3 (Credibility) for a candidate applying for entry-level roles.
+   The replacement: borrow the underlying idea — a coherent geometric system (corner registration marks + gutter axis ticks + mono coordinate labels, sharp 90° geometry, restrained motion vocabulary, single controlled accent) — without borrowing any of the language, tone, or metaphorical scaffolding.
+
+OVERALL CONSTRAINTS
+
+References are conceptual only. Do not copy the visual identity, layouts, branding, copy, illustrations, interaction vocabulary or exact motifs of Folio98, Windows 98, macOS, AETΣRNA, Wilbert Boadzo, Claude Tomoh, or any other portfolio, template or product.
+
+When you reference any of these sites in design reasoning, name the specific lesson you are taking from it AND name what you are explicitly not taking. Naming the constraint is part of the lesson.
 
 VISUAL SYSTEM
 

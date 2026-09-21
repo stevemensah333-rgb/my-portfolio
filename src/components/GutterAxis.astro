@@ -1,0 +1,128 @@
+---
+/*
+  GutterAxis.astro
+  ----------------
+  The second signature geometric motif: a vertical axis of small
+  mono ticks along one or both edges of the page. Communicates
+  "this surface has coordinates / is measured".
+
+  Used sparingly: at the hero, at the start of major sections.
+
+  Props
+  -----
+  position?  : 'left' (default) | 'right' | 'both'
+  ticks?     : number of ticks to draw (default 8)
+  surface?   : 'paper' (default) | 'canvas'
+  labels?    : optional array of mono labels rendered next to
+               each tick (paper surfaces only by default)
+*/
+
+interface Props {
+  position?: 'left' | 'right' | 'both';
+  ticks?: number;
+  surface?: 'paper' | 'canvas';
+  labels?: string[];
+  ariaHidden?: boolean;
+}
+
+const {
+  position = 'left',
+  ticks = 8,
+  surface = 'paper',
+  labels = [],
+  ariaHidden = true,
+} = Astro.props;
+
+const tickArray = Array.from({ length: ticks }, (_, i) => i);
+const leftColor = surface === 'canvas' ? 'var(--color-rule-on-canvas)' : 'var(--color-rule-on-paper)';
+const textColor = surface === 'canvas' ? 'var(--color-text-on-canvas-muted)' : 'var(--color-text-on-paper-muted)';
+---
+
+<div
+  class:list={['gutter-axis', `gutter-axis--${position}`, `gutter-axis--${surface}`]}
+  aria-hidden={ariaHidden ? 'true' : undefined}
+>
+  {position !== 'right' && (
+    <div class="gutter-axis__column gutter-axis__column--left">
+      {tickArray.map((i) => (
+        <span class="gutter-axis__tick">
+          <i class="gutter-axis__tick-mark" style={`--tick-color: ${leftColor}`}></i>
+          {labels[i] && (
+            <span class="gutter-axis__tick-label" style={`color: ${textColor}`}>
+              {labels[i]}
+            </span>
+          )}
+        </span>
+      ))}
+    </div>
+  )}
+  {position !== 'left' && (
+    <div class="gutter-axis__column gutter-axis__column--right">
+      {tickArray.map((i) => (
+        <span class="gutter-axis__tick">
+          {labels[i] && (
+            <span class="gutter-axis__tick-label" style={`color: ${textColor}`}>
+              {labels[i]}
+            </span>
+          )}
+          <i class="gutter-axis__tick-mark" style={`--tick-color: ${leftColor}`}></i>
+        </span>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  .gutter-axis {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .gutter-axis__column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-block: var(--space-2);
+    width: 1.5rem;
+  }
+
+  .gutter-axis__column--left {
+    align-items: flex-start;
+  }
+
+  .gutter-axis__column--right {
+    align-items: flex-end;
+  }
+
+  .gutter-axis__tick {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  .gutter-axis__column--right .gutter-axis__tick {
+    flex-direction: row;
+  }
+
+  .gutter-axis__tick-mark {
+    width: 0.625rem;
+    height: 1px;
+    background: var(--tick-color);
+  }
+
+  .gutter-axis__column--right .gutter-axis__tick-mark {
+    margin-left: auto;
+  }
+
+  .gutter-axis__tick-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+</style>

@@ -7,108 +7,140 @@ const { variant = 'hero' } = Astro.props;
 ---
 
 {variant === 'hero' ? (
-  <figure
-    class="reliability-trace reliability-trace--hero"
+  <aside
+    class="trace trace--hero"
     data-reliability-trace
     aria-labelledby="reliability-trace-title"
   >
-    <div class="trace-header">
-      <span id="reliability-trace-title" class="trace-coordinate">RELIABILITY PATH / 01 — ILLUSTRATIVE TRACE</span>
-      <span class="trace-coordinate trace-coordinate--right">VALIDATE BEFORE USE</span>
-    </div>
+    <header class="trace__topbar">
+      <span id="reliability-trace-title" class="trace__title">
+        <span class="trace__title-prefix">▸</span> Reliability trace
+      </span>
+      <span class="trace__status">
+        <span class="trace__status-dot" aria-hidden="true"></span>
+        <span data-trace-status-label>Ready</span>
+      </span>
+    </header>
 
-    <div class="trace-engine" role="region" aria-label="Reliability trace animation">
-      <ol class="trace-steps" data-trace-steps>
-        <li class="trace-step" data-stage="raw" data-active="true">
-          <div class="step-rail" aria-hidden="true"><i class="rail-dot"></i></div>
-          <div class="step-head">
-            <span class="step-label">UNSTRUCTURED OUTPUT</span>
-            <span class="step-badge" data-badge>raw</span>
-          </div>
+    <div class="trace__engine" role="region" aria-label="Reliability trace animation">
+      <ol class="trace__rail" data-trace-rail aria-label="Stages">
+        <li class="trace__step" data-stage="raw" data-active="true">
+          <span class="trace__step-num">01</span>
+          <span class="trace__step-label">Input</span>
+          <span class="trace__step-state" data-step-state>raw</span>
         </li>
-
-        <li class="trace-step" data-stage="validate">
-          <div class="step-rail" aria-hidden="true"><i class="rail-dot"></i></div>
-          <div class="step-head">
-            <span class="step-label">SCHEMA VALIDATION</span>
-            <span class="step-badge" data-badge-validate>check</span>
-          </div>
+        <li class="trace__step" data-stage="validate">
+          <span class="trace__step-num">02</span>
+          <span class="trace__step-label">Validate</span>
+          <span class="trace__step-state" data-step-state>check</span>
         </li>
-
-        <li class="trace-step" data-stage="failed">
-          <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--fail"></i></div>
-          <div class="step-head">
-            <span class="step-label">FAILED</span>
-            <span class="step-badge step-badge--fail" data-badge-fail>invalid</span>
-          </div>
+        <li class="trace__step" data-stage="failed">
+          <span class="trace__step-num">03</span>
+          <span class="trace__step-label">Failed</span>
+          <span class="trace__step-state trace__step-state--fail" data-step-state>invalid</span>
         </li>
-
-        <li class="trace-step" data-stage="intervene">
-          <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--active"></i></div>
-          <div class="step-head">
-            <span class="step-label">CONSTRAINT / RETRY / CONTEXT FIX</span>
-            <span class="step-badge step-badge--active" data-badge-intervene>intervention</span>
-          </div>
+        <li class="trace__step" data-stage="intervene">
+          <span class="trace__step-num">04</span>
+          <span class="trace__step-label">Intervene</span>
+          <span class="trace__step-state trace__step-state--active" data-step-state>fix</span>
         </li>
-
-        <li class="trace-step" data-stage="valid">
-          <div class="step-rail" aria-hidden="true"><i class="rail-dot rail-dot--valid"></i></div>
-          <div class="step-head">
-            <span class="step-label">VALID OUTPUT</span>
-            <span class="step-badge step-badge--valid" data-badge-valid>pass</span>
-          </div>
+        <li class="trace__step" data-stage="valid">
+          <span class="trace__step-num">05</span>
+          <span class="trace__step-label">Output</span>
+          <span class="trace__step-state trace__step-state--valid" data-step-state>pass</span>
         </li>
       </ol>
 
-      <div class="trace-stage">
-        <div class="stage-panel" data-panel="raw" data-panel-active="true">
-          <pre class="step-code"><code data-code-raw></code><span class="cursor" aria-hidden="true"></span></pre>
-          <p class="step-note">Illustrative: model responded with mixed prose + malformed structure.</p>
-        </div>
+      <div class="trace__stage">
+        <article class="trace__panel" data-panel="raw" data-panel-active="true">
+          <header class="trace__panel-header">
+            <span class="trace__panel-tag">raw</span>
+            <h4 class="trace__panel-title">Unstructured model output</h4>
+          </header>
+          <pre class="trace__code"><code data-code-raw></code><span class="trace__cursor" aria-hidden="true"></span></pre>
+          <p class="trace__panel-note">
+            Illustrative: model responded with mixed prose and a malformed structure.
+          </p>
+        </article>
 
-        <div class="stage-panel" data-panel="validate">
-          <div class="validation-row">
-            <code class="mono-small">required: title, level, years</code>
-            <span class="validation-status" data-validation-status>pending</span>
-          </div>
-          <p class="step-note">Gate: does output match product contract?</p>
-        </div>
-
-        <div class="stage-panel" data-panel="failed">
-          <div class="fail-card">
-            <p class="mono-small" data-fail-reason>— missing quotes, dropped fields, prose bleed</p>
-          </div>
-        </div>
-
-        <div class="stage-panel" data-panel="intervene">
-          <ul class="intervention-list" data-intervention-list>
-            <li>Explicit JSON schema</li>
-            <li>Few-shot anchor</li>
-            <li>Context re-injection</li>
+        <article class="trace__panel" data-panel="validate">
+          <header class="trace__panel-header">
+            <span class="trace__panel-tag">check</span>
+            <h4 class="trace__panel-title">Schema validation gate</h4>
+          </header>
+          <ul class="trace__gate">
+            <li><span>title</span><i data-gate="title"></i><b>required · string</b></li>
+            <li><span>level</span><i data-gate="level"></i><b>required · enum</b></li>
+            <li><span>years</span><i data-gate="years"></i><b>required · number</b></li>
+            <li><span>next_steps</span><i data-gate="next_steps"></i><b>required · array</b></li>
           </ul>
-        </div>
+          <p class="trace__panel-note">
+            Gate: does the output match the product contract before use?
+          </p>
+        </article>
 
-        <div class="stage-panel" data-panel="valid">
-          <pre class="step-code step-code--valid"><code data-code-valid></code><span class="cursor cursor--valid" aria-hidden="true"></span></pre>
-          <p class="step-note">Illustrative: now conforms to product contract.</p>
-        </div>
+        <article class="trace__panel" data-panel="failed">
+          <header class="trace__panel-header">
+            <span class="trace__panel-tag trace__panel-tag--fail">invalid</span>
+            <h4 class="trace__panel-title">Observed failure modes</h4>
+          </header>
+          <ul class="trace__failures">
+            <li><span>01</span>Missing quotes around keys</li>
+            <li><span>02</span>Dropped required fields</li>
+            <li><span>03</span>Prose bleed between fields</li>
+          </ul>
+          <p class="trace__panel-note">
+            Each mode observed in production — failure rate not claimed.
+          </p>
+        </article>
+
+        <article class="trace__panel" data-panel="intervene">
+          <header class="trace__panel-header">
+            <span class="trace__panel-tag trace__panel-tag--active">fix</span>
+            <h4 class="trace__panel-title">Constraint / retry / context fix</h4>
+          </header>
+          <ol class="trace__interventions" data-intervention-list>
+            <li data-revealed="false">Explicit JSON schema + few-shot anchor</li>
+            <li data-revealed="false">Context re-injection on every call</li>
+            <li data-revealed="false">Tighter output constraints (enum, types)</li>
+          </ol>
+        </article>
+
+        <article class="trace__panel" data-panel="valid">
+          <header class="trace__panel-header">
+            <span class="trace__panel-tag trace__panel-tag--valid">pass</span>
+            <h4 class="trace__panel-title">Valid output</h4>
+          </header>
+          <pre class="trace__code trace__code--valid"><code data-code-valid></code><span class="trace__cursor trace__cursor--valid" aria-hidden="true"></span></pre>
+          <p class="trace__panel-note">
+            Shape matches the product contract — no fabricated metrics.
+          </p>
+        </article>
       </div>
 
-      <div class="trace-controls">
-        <button type="button" class="trace-replay" data-replay aria-label="Replay reliability trace animation">Replay trace</button>
-        <span class="trace-hint" aria-hidden="true">Pauses on hover / focus · Respects reduced motion</span>
-      </div>
+      <footer class="trace__bottombar">
+        <button type="button" class="trace__replay" data-replay aria-label="Replay reliability trace animation">
+          <span class="trace__replay-mark" aria-hidden="true">↻</span>
+          <span>Replay trace</span>
+        </button>
+        <span class="trace__legend mono-label" aria-hidden="true">
+          Illustrative · not a historical log
+        </span>
+      </footer>
 
-      <div class="sr-only" role="status" aria-live="polite" aria-atomic="true" data-live></div>
+      <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-live></div>
+
       <noscript>
-        <div class="noscript-fallback">
-          <p class="mono-small">No-JS fallback: raw output fails validation, then intervention produces valid output.</p>
-          <pre class="step-code"><code>{`To get senior role you should...
+        <div class="trace__noscript">
+          <p class="mono-label">No-JS fallback: raw output fails validation, intervention produces valid output.</p>
+          <pre class="trace__code"><code>{`To get senior role you should...
 - learn python
+- build things
+
 {
   title: Senior Developer
   level:`}</code></pre>
-          <pre class="step-code step-code--valid"><code>{`{
+          <pre class="trace__code trace__code--valid"><code>{`{
   "title": "Senior Developer",
   "level": "senior",
   "years": 5,
@@ -117,26 +149,20 @@ const { variant = 'hero' } = Astro.props;
         </div>
       </noscript>
     </div>
-
-    <div class="trace-strip-legacy" aria-hidden="true">
-      {['context', 'prompt', 'model', 'validate', 'product'].map((label, index) => (
-        <span class:list={{ active: index >= 3 }}><i></i>{label}</span>
-      ))}
-    </div>
-  </figure>
+  </aside>
 ) : (
-  <div class="reliability-trace reliability-trace--portrait" aria-hidden="true">
+  <div class="trace trace--portrait" aria-hidden="true">
     <svg viewBox="0 0 180 58">
-      <path d="M2 29 H48 V12 H91 V45 H134 V29 H178" class="trace-path" />
-      <rect x="45" y="9" width="6" height="6" class="trace-point" />
-      <rect x="88" y="42" width="6" height="6" class="trace-point trace-point--active" />
-      <rect x="131" y="26" width="6" height="6" class="trace-point" />
+      <path d="M2 29 H48 V12 H91 V45 H134 V29 H178" class="trace__path" />
+      <rect x="45" y="9" width="6" height="6" class="trace__point" />
+      <rect x="88" y="42" width="6" height="6" class="trace__point trace__point--active" />
+      <rect x="131" y="26" width="6" height="6" class="trace__point" />
     </svg>
   </div>
 )}
 
 <script>
-  const traces = document.querySelectorAll('[data-reliability-trace]');
+  const traces = document.querySelectorAll<HTMLElement>('[data-reliability-trace]');
 
   const rawText = `To get senior role you should...
 - learn python
@@ -156,45 +182,35 @@ const { variant = 'hero' } = Astro.props;
   ]
 }`;
 
-  const failReason = 'missing quotes, dropped fields, prose bleed';
-
   for (const root of traces) {
-    const stepsEl = root.querySelector('[data-trace-steps]');
-    if (!(stepsEl instanceof HTMLElement)) continue;
-    const steps = [...stepsEl.querySelectorAll<HTMLElement>('[data-stage]')];
+    const rail = root.querySelector<HTMLElement>('[data-trace-rail]');
+    if (!rail) continue;
+    const steps = [...rail.querySelectorAll<HTMLElement>('.trace__step')];
     const panels = [...root.querySelectorAll<HTMLElement>('[data-panel]')];
     const codeRaw = root.querySelector<HTMLElement>('[data-code-raw]');
     const codeValid = root.querySelector<HTMLElement>('[data-code-valid]');
-    const badgeValidate = root.querySelector<HTMLElement>('[data-badge-validate]');
-    const statusEl = root.querySelector<HTMLElement>('[data-validation-status]');
-    const failReasonEl = root.querySelector<HTMLElement>('[data-fail-reason]');
+    const gates = [...root.querySelectorAll<HTMLElement>('[data-gate]')];
+    const statusLabel = root.querySelector<HTMLElement>('[data-trace-status-label]');
     const live = root.querySelector<HTMLElement>('[data-live]');
     const replayBtn = root.querySelector<HTMLButtonElement>('[data-replay]');
     const interventionList = root.querySelector<HTMLElement>('[data-intervention-list]');
 
-    if (!codeRaw || !codeValid || !statusEl || !live) continue;
+    if (!codeRaw || !codeValid || !live) continue;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let paused = false;
-    let hasPlayed = false;
     let activeRun = 0;
+    let hasPlayed = false;
+    // Pause only on hover (not on focus) and never pause while the replay
+    // button is hovered — this is the R1 fix from the audit.
+    let paused = false;
 
-    const io = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting && !hasPlayed) {
-          hasPlayed = true;
-          play();
-        }
-      }
-    }, { threshold: 0.35 });
+    const isInteractiveChild = (target: EventTarget | null) =>
+      target instanceof HTMLElement && Boolean(target.closest('[data-replay]'));
 
-    io.observe(root);
-
-    root.addEventListener('mouseenter', () => { paused = true; });
+    root.addEventListener('mouseenter', (event) => {
+      if (!isInteractiveChild(event.target)) paused = true;
+    });
     root.addEventListener('mouseleave', () => { paused = false; });
-    root.addEventListener('focusin', () => { paused = true; });
-    root.addEventListener('focusout', () => { paused = false; });
-
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) paused = true;
       else paused = false;
@@ -221,7 +237,6 @@ const { variant = 'hero' } = Astro.props;
         }
         if (runId !== activeRun) return false;
         el.textContent += text[i];
-        // faster for newline heavy typing, with small jitter
         if (!(await wait(speed + Math.random() * 6, runId))) return false;
       }
       return true;
@@ -231,11 +246,8 @@ const { variant = 'hero' } = Astro.props;
       steps.forEach((s, i) => {
         s.dataset.active = String(i <= index);
         s.dataset.current = String(i === index);
-        if (i === index) {
-          s.setAttribute('aria-current', 'step');
-        } else {
-          s.removeAttribute('aria-current');
-        }
+        if (i === index) s.setAttribute('aria-current', 'step');
+        else s.removeAttribute('aria-current');
       });
       panels.forEach((p, i) => {
         p.dataset.panelActive = String(i === index);
@@ -245,10 +257,9 @@ const { variant = 'hero' } = Astro.props;
     const resetVisual = () => {
       codeRaw.textContent = '';
       codeValid.textContent = '';
-      if (statusEl) statusEl.textContent = 'pending';
-      if (statusEl) statusEl.dataset.state = 'pending';
-      if (badgeValidate) badgeValidate.textContent = 'check';
-      if (failReasonEl) failReasonEl.textContent = '—';
+      for (const g of gates) {
+        g.dataset.gate = '';
+      }
       if (interventionList) {
         interventionList.querySelectorAll('li').forEach(li => (li as HTMLElement).dataset.revealed = 'false');
       }
@@ -263,6 +274,19 @@ const { variant = 'hero' } = Astro.props;
       });
       const first = steps[0];
       if (first) first.dataset.active = 'true';
+      if (statusLabel) statusLabel.textContent = 'Ready';
+    };
+
+    const setStatus = (text: string, tone: 'ready' | 'running' | 'fail' | 'pass') => {
+      if (statusLabel) {
+        statusLabel.textContent = text;
+        statusLabel.dataset.tone = tone;
+      }
+    };
+
+    const setGate = (gate: string, state: 'pass' | 'fail') => {
+      const el = gates.find(g => g.dataset.gate === gate);
+      if (el) el.dataset.state = state;
     };
 
     const play = async () => {
@@ -272,80 +296,99 @@ const { variant = 'hero' } = Astro.props;
         // reduced motion: show final state immediately
         codeRaw.textContent = rawText;
         codeValid.textContent = validText;
-        statusEl.textContent = 'FAILED → FIXED';
-        statusEl.dataset.state = 'fail';
-        if (failReasonEl) failReasonEl.textContent = failReason;
+        for (const gate of ['title', 'level', 'years', 'next_steps']) setGate(gate, 'fail');
+        setGate('title', 'pass');
+        setGate('level', 'pass');
+        setGate('years', 'pass');
+        setGate('next_steps', 'pass');
         if (interventionList) interventionList.querySelectorAll('li').forEach(li => (li as HTMLElement).dataset.revealed = 'true');
         setActive(steps.length - 1);
+        setStatus('Complete · pass', 'pass');
         live.textContent = 'Reliability trace: raw output failed validation, intervention applied, valid output produced.';
-        if (replayBtn) replayBtn.style.display = 'none';
         return;
       }
 
       resetVisual();
+      setStatus('Running · raw', 'running');
 
       // Stage 0: raw
       setActive(0);
-      live.textContent = 'Stage 1: unstructured output';
+      live.textContent = 'Stage 1: unstructured model output.';
       root.querySelector<HTMLElement>('[data-panel="raw"]')?.classList.add('is-typing');
       if (!(await typeInto(codeRaw, rawText, runId, 10))) return;
       root.querySelector<HTMLElement>('[data-panel="raw"]')?.classList.remove('is-typing');
-      if (!(await wait(350, runId))) return;
+      if (!(await wait(400, runId))) return;
 
       // Stage 1: validate
       setActive(1);
-      live.textContent = 'Stage 2: schema validation';
-      statusEl.textContent = 'checking…';
-      statusEl.dataset.state = 'checking';
-      if (!(await wait(520, runId))) return;
+      setStatus('Running · validate', 'running');
+      live.textContent = 'Stage 2: schema validation gate.';
+      // show pass → fail cascade for the gates
+      for (const gate of ['title', 'level', 'years', 'next_steps']) {
+        if (runId !== activeRun) return;
+        setGate(gate, 'fail');
+        if (!(await wait(140, runId))) return;
+      }
+      if (!(await wait(380, runId))) return;
 
       // Stage 2: failed
       setActive(2);
-      live.textContent = 'Stage 3: failed — invalid format';
-      statusEl.textContent = 'FAILED';
-      statusEl.dataset.state = 'failed';
-      if (badgeValidate) badgeValidate.textContent = 'fail';
-      if (failReasonEl) failReasonEl.textContent = failReason;
-      const failStep = root.querySelector<HTMLElement>('[data-panel="failed"]');
-      failStep?.classList.add('is-revealed');
-      if (!(await wait(650, runId))) return;
+      setStatus('Failed · invalid', 'fail');
+      live.textContent = 'Stage 3: output failed validation.';
+      if (!(await wait(700, runId))) return;
 
       // Stage 3: intervention
       setActive(3);
-      live.textContent = 'Stage 4: applying constraint, retry, context fix';
+      setStatus('Running · intervene', 'running');
+      live.textContent = 'Stage 4: applying constraint, retry, context fix.';
       if (interventionList) {
         const items = [...interventionList.querySelectorAll<HTMLElement>('li')];
         for (const item of items) {
-          if (!(await wait(180, runId))) return;
+          if (!(await wait(220, runId))) return;
           item.dataset.revealed = 'true';
         }
       }
-      if (!(await wait(500, runId))) return;
+      if (!(await wait(420, runId))) return;
 
-      // Stage 4: valid
+      // Stage 4: valid — gates pass, valid output typed
       setActive(4);
-      live.textContent = 'Stage 5: valid output';
+      setStatus('Running · valid', 'running');
+      live.textContent = 'Stage 5: re-validation and valid output.';
+      for (const gate of ['title', 'level', 'years', 'next_steps']) {
+        if (runId !== activeRun) return;
+        setGate(gate, 'pass');
+        if (!(await wait(110, runId))) return;
+      }
       const validStep = root.querySelector<HTMLElement>('[data-panel="valid"]');
       validStep?.classList.add('is-typing');
-      statusEl.textContent = 'PASS';
-      statusEl.dataset.state = 'pass';
       if (!(await typeInto(codeValid, validText, runId, 9))) return;
       validStep?.classList.remove('is-typing');
       setActive(4);
+      setStatus('Complete · pass', 'pass');
       live.textContent = 'Trace complete: raw output failed, intervention produced valid product output.';
     };
 
     if (replayBtn) {
       replayBtn.addEventListener('click', () => {
+        paused = false; // R1 fix — never pause the replay interaction
         hasPlayed = true;
         play();
       });
     }
 
-    // If user hasn't scrolled and already visible early, ensure play happens
-    // For no-JS or reduced motion, fallback handled above; for motion, we already have observer.
+    // Visibility observer: play once at 30% visibility
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && !hasPlayed) {
+          hasPlayed = true;
+          play();
+        }
+      }
+    }, { threshold: 0.3 });
 
-    // Initial rendered state for JS-enabled but before play: show placeholder
+    io.observe(root);
+
+    // If already in view on mount, play immediately
     if (!reduced) {
       resetVisual();
       root.classList.add('is-enhanced');
@@ -356,266 +399,248 @@ const { variant = 'hero' } = Astro.props;
 </script>
 
 <style>
-  .reliability-trace {
-    margin: 0;
-  }
-
-  .reliability-trace--hero {
-    align-self: center;
-    width: 100%;
-    max-width: 32.5rem;
+  .trace {
     position: relative;
-    border: var(--border-default);
-    border-radius: var(--radius-card);
-    background: var(--color-surface-light);
+    background: var(--color-canvas-soft);
+    color: var(--color-text-on-canvas);
+    border: 1px solid var(--color-rule-on-canvas);
     overflow: hidden;
   }
 
-  .trace-header {
+  .trace--hero {
+    width: 100%;
+  }
+
+  /* Topbar */
+  .trace__topbar {
     display: flex;
-    justify-content: space-between;
-    gap: var(--space-4);
-    padding: var(--space-2) var(--space-3);
-    border-bottom: var(--border-default);
-    background: var(--color-background);
-  }
-
-  .trace-coordinate {
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .trace-coordinate--right {
-    text-align: right;
-  }
-
-  .trace-engine {
-    padding: var(--space-3);
-    background: var(--color-surface-light);
-  }
-
-  /* ——— The path: a compact, stable milestone list ——— */
-  .trace-steps {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: var(--space-1);
-  }
-
-  .trace-step {
-    display: grid;
-    grid-template-columns: 1.5rem minmax(0, 1fr);
-    gap: var(--space-2);
-    align-items: start;
-    min-height: 2rem;
-    padding: var(--space-2);
-    border: 1px solid transparent;
-    border-radius: var(--radius-small);
-    opacity: 0.52;
-    transform: translateY(2px);
-    transition:
-      opacity var(--duration-normal) var(--ease-standard),
-      transform var(--duration-normal) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      background-color var(--duration-fast) var(--ease-standard);
-  }
-
-  .trace-step[data-active='true'] {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* Only the current milestone is emphasized; the list itself never grows. */
-  .trace-step[data-current='true'] {
-    background: var(--color-background);
-    border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-accent));
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 14%, transparent);
-  }
-
-  .step-rail {
-    position: relative;
-    align-self: stretch;
-    display: grid;
-    justify-items: center;
-  }
-
-  .step-rail::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: calc(-1 * var(--space-1));
-    left: 50%;
-    width: 1px;
-    background: var(--color-border);
-  }
-
-  .trace-step:last-child .step-rail::before {
-    display: none;
-  }
-
-  .rail-dot {
-    position: relative;
-    z-index: 1;
-    width: 0.5rem;
-    height: 0.5rem;
-    margin-top: 0.25rem;
-    border: var(--border-default);
-    background: var(--color-background);
-    border-radius: 50%;
-    transition:
-      background-color var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard);
-  }
-
-  .trace-step[data-active='true'] .rail-dot {
-    border-color: var(--color-accent);
-    background: var(--color-background);
-  }
-
-  .rail-dot--fail {
-    border-style: dashed;
-  }
-
-  .trace-step[data-active='true'] .rail-dot--fail {
-    background: #fff;
-    border-color: #c43d3d;
-  }
-
-  .rail-dot--active,
-  .rail-dot--valid {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-  }
-
-  .trace-step[data-active='true'] .rail-dot--active,
-  .trace-step[data-active='true'] .rail-dot--valid {
-    background: var(--color-accent);
-  }
-
-  .trace-step[data-active='true'] .step-rail::before {
-    background: color-mix(in srgb, var(--color-border) 70%, var(--color-accent));
-  }
-
-  .step-head {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-3);
     align-items: center;
     justify-content: space-between;
-    min-width: 0;
-  }
-
-  .step-label {
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas);
+    color: var(--color-text-on-canvas-muted);
     font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.06em;
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-meta);
     text-transform: uppercase;
-    color: var(--color-text-secondary);
-    font-weight: 500;
-    line-height: 1.5;
   }
 
-  .trace-step[data-current='true'] .step-label {
-    color: var(--color-text);
+  .trace__title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
   }
 
-  .step-badge {
-    padding: 0.15rem 0.4rem;
-    border: var(--border-default);
+  .trace__title-prefix {
+    color: var(--color-accent);
+  }
+
+  .trace__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .trace__status-dot {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    background: var(--color-accent);
+    border-radius: 50%;
+    transition: background-color var(--duration-quick) var(--ease-standard);
+  }
+
+  [data-trace-status-label][data-tone='running'] { color: var(--color-accent); }
+  [data-trace-status-label][data-tone='fail'] { color: var(--color-signal-fail); }
+  [data-trace-status-label][data-tone='pass'] { color: var(--color-signal-pass); }
+
+  [data-trace-status-label][data-tone='running'] ~ .trace__status-dot,
+  [data-trace-status-label][data-tone='ready'] ~ .trace__status-dot {
+    background: var(--color-accent);
+  }
+
+  [data-trace-status-label][data-tone='fail'] ~ .trace__status-dot {
+    background: var(--color-signal-fail);
+  }
+
+  [data-trace-status-label][data-tone='pass'] ~ .trace__status-dot {
+    background: var(--color-signal-pass);
+  }
+
+  /* Engine */
+  .trace__engine {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4) var(--space-4);
+  }
+
+  /* Rail */
+  .trace__rail {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--color-rule-on-canvas);
+  }
+
+  .trace__step {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr auto;
+    gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+    color: var(--color-text-on-canvas-muted);
+    background: var(--color-canvas-soft);
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
+  }
+
+  .trace__step:last-child { border-bottom: 0; }
+
+  .trace__step-num {
+    color: var(--color-accent);
     font-family: var(--font-mono);
-    font-size: 0.5625rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+  }
+
+  .trace__step-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--color-text-secondary);
-    background: var(--color-background);
+  }
+
+  .trace__step-state {
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     transition:
-      color var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      background-color var(--duration-fast) var(--ease-standard);
+      color var(--duration-quick) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard);
   }
 
-  .step-badge--fail {
-    color: var(--color-failure-text);
-    border-color: var(--color-failure-border);
-    background: var(--color-failure-surface);
+  .trace__step-state--fail {
+    color: var(--color-signal-fail);
+    border-color: color-mix(in srgb, var(--color-signal-fail) 50%, transparent);
   }
 
-  .step-badge--active {
+  .trace__step-state--active {
     color: var(--color-accent);
-    border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
-    background: var(--color-surface-cool);
+    border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
   }
 
-  .step-badge--valid {
-    color: white;
-    background: var(--color-accent);
-    border-color: var(--color-accent);
+  .trace__step-state--valid {
+    color: var(--color-signal-pass);
+    border-color: color-mix(in srgb, var(--color-signal-pass) 50%, transparent);
   }
 
-  /* ——— The detail stage: stacked panels in a stable-height grid ———
-     Every panel sits in the same grid cell, so the stage is always as tall
-     as the largest panel. Crossfading between panels never changes the
-     trace's outer height. */
-  .trace-stage {
+  .trace__step[data-active='true'] {
+    color: var(--color-text-on-canvas);
+    background: var(--color-canvas);
+  }
+
+  .trace__step[data-current='true'] {
+    background: var(--color-canvas-inset);
+    box-shadow: inset 2px 0 0 var(--color-accent);
+  }
+
+  /* Stage */
+  .trace__stage {
+    position: relative;
     display: grid;
-    margin-top: var(--space-3);
   }
 
-  .stage-panel {
+  .trace__panel {
     grid-area: 1 / 1;
     display: grid;
     gap: var(--space-2);
     opacity: 0;
-    pointer-events: none;
-    transform: translateY(var(--space-2));
     visibility: hidden;
+    pointer-events: none;
+    transform: translateY(4px);
     transition:
-      opacity var(--duration-normal) var(--ease-standard),
-      transform var(--duration-normal) var(--ease-standard);
+      opacity var(--duration-base) var(--ease-standard),
+      transform var(--duration-base) var(--ease-standard);
   }
 
-  .stage-panel[data-panel-active='true'] {
+  .trace__panel[data-panel-active='true'] {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
-    visibility: visible;
   }
 
-  .step-code {
-    margin: 0;
-    padding: var(--space-2);
-    border: var(--border-default);
-    background: var(--color-background);
+  .trace__panel-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .trace__panel-tag {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas-soft);
+    color: var(--color-text-on-canvas-muted);
     font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    line-height: 1.5;
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .trace__panel-tag--fail {
+    color: var(--color-signal-fail);
+    border-color: color-mix(in srgb, var(--color-signal-fail) 50%, transparent);
+  }
+
+  .trace__panel-tag--active {
+    color: var(--color-accent);
+    border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
+
+  .trace__panel-tag--valid {
+    color: var(--color-signal-pass);
+    border-color: color-mix(in srgb, var(--color-signal-pass) 50%, transparent);
+  }
+
+  .trace__panel-title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-text-on-canvas);
+  }
+
+  /* Code blocks */
+  .trace__code {
+    margin: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--color-text-on-canvas);
     white-space: pre-wrap;
     word-break: break-word;
-    /* Small reservation only: prevents the code box collapsing to nothing at the
-       start of the typing animation while letting the full text size it naturally. */
-    min-height: 2.5rem;
-    position: relative;
+    min-height: 9.5rem;
     overflow: hidden;
+    position: relative;
   }
 
-  .step-code--valid {
-    border-color: color-mix(in srgb, var(--color-border) 50%, var(--color-accent));
-    /* Reserve the full 8-line valid payload (0.6875rem font, 1.5 line-height)
-       plus vertical padding and border, so the detail stage keeps a stable
-       height while the valid output types in. */
-    min-height: calc(8 * 0.6875rem * 1.5 + 2 * var(--space-2) + 2 * var(--border-width));
+  .trace__code--valid {
+    border-color: color-mix(in srgb, var(--color-signal-pass) 50%, var(--color-rule-on-canvas));
   }
 
-  .step-code code {
-    font-family: inherit;
-  }
-
-  .cursor {
+  .trace__cursor {
     display: inline-block;
     width: 0.5ch;
     height: 1.1em;
@@ -623,308 +648,283 @@ const { variant = 'hero' } = Astro.props;
     background: var(--color-accent);
     vertical-align: -0.15em;
     opacity: 0;
-    transition: opacity var(--duration-fast) var(--ease-standard);
   }
 
-  .stage-panel.is-typing .cursor {
+  .trace__panel.is-typing .trace__cursor {
     opacity: 1;
-    animation: blink 1s step-end infinite;
+    animation: trace-cursor-blink 1s step-end infinite;
   }
 
-  @keyframes blink {
+  .trace__cursor--valid {
+    background: var(--color-signal-pass);
+  }
+
+  @keyframes trace-cursor-blink {
     0%, 50% { opacity: 1; }
     50.01%, 100% { opacity: 0; }
   }
 
-  .step-note {
+  .trace__panel-note {
     margin: 0;
-    color: var(--color-text-secondary);
-    font-size: 0.6875rem;
-    line-height: 1.5;
-  }
-
-  .validation-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-3);
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-2);
-    border: var(--border-default);
-    background: var(--color-background);
-  }
-
-  .mono-small {
+    color: var(--color-text-on-canvas-muted);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
-    line-height: 1.5;
-    color: var(--color-text-secondary);
+    letter-spacing: 0.02em;
   }
 
-  .validation-status {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 0.2rem 0.45rem;
-    border: var(--border-default);
-    background: var(--color-surface-light);
-    color: var(--color-text-secondary);
-    transition:
-      all var(--duration-normal) var(--ease-standard);
-  }
-
-  .validation-status[data-state='checking'] {
-    color: var(--color-text-secondary);
-    background: var(--color-surface-light);
-  }
-
-  .validation-status[data-state='failed'] {
-    color: var(--color-failure-text);
-    border-color: var(--color-failure-border);
-    background: var(--color-failure-surface);
-  }
-
-  .validation-status[data-state='pass'] {
-    color: white;
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-  }
-
-  .validation-status[data-state='fail'] {
-    color: var(--color-failure-text);
-    background: var(--color-failure-surface);
-  }
-
-  .fail-card {
-    padding: var(--space-2);
-    border: 1px dashed var(--color-failure-border);
-    background: #fdf8f6;
-  }
-
-  .fail-card .mono-small {
-    margin: 0;
-  }
-
-  .intervention-list {
+  /* Gate validation list */
+  .trace__gate {
+    display: grid;
+    gap: 1px;
     margin: 0;
     padding: 0;
     list-style: none;
-    display: grid;
-    gap: var(--space-1);
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-rule-on-canvas);
   }
 
-  .intervention-list li {
-    position: relative;
-    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
-    border: var(--border-default);
-    background: var(--color-background);
+  .trace__gate li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1rem minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-canvas-soft);
+    color: var(--color-text-on-canvas-muted);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
-    color: var(--color-text-secondary);
-    opacity: 0.42;
-    transform: translateX(-4px);
-    transition:
-      opacity var(--duration-normal) var(--ease-standard),
-      transform var(--duration-normal) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard);
+    letter-spacing: 0.02em;
   }
 
-  .intervention-list li::before {
-    content: '+';
+  .trace__gate span {
+    color: var(--color-text-on-canvas);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .trace__gate b {
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .trace__gate i {
+    width: 0.625rem;
+    height: 0.625rem;
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas);
+    transition: background-color var(--duration-quick) var(--ease-standard), border-color var(--duration-quick) var(--ease-standard);
+  }
+
+  [data-gate][data-state='pass'] {
+    background: var(--color-signal-pass);
+    border-color: var(--color-signal-pass);
+  }
+
+  [data-gate][data-state='fail'] {
+    background: var(--color-signal-fail);
+    border-color: var(--color-signal-fail);
+  }
+
+  /* Failure list */
+  .trace__failures {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 2px solid var(--color-signal-fail);
+    background: var(--color-canvas-soft);
+  }
+
+  .trace__failures li {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: var(--space-3);
+    align-items: baseline;
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+  }
+
+  .trace__failures li:last-child { border-bottom: 0; }
+
+  .trace__failures span {
+    color: var(--color-signal-fail);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* Intervention list */
+  .trace__interventions {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: interv;
+  }
+
+  .trace__interventions li {
+    position: relative;
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-7);
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-canvas-soft);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    opacity: 0.4;
+    transform: translateX(-4px);
+    transition:
+      opacity var(--duration-base) var(--ease-standard),
+      transform var(--duration-base) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
+  }
+
+  .trace__interventions li::before {
+    counter-increment: interv;
+    content: counter(interv, decimal-leading-zero);
     position: absolute;
     left: var(--space-3);
     color: var(--color-accent);
-    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
   }
 
-  .intervention-list li[data-revealed='true'] {
+  .trace__interventions li[data-revealed='true'] {
     opacity: 1;
     transform: translateX(0);
-    color: var(--color-text);
-    border-color: color-mix(in srgb, var(--color-border) 50%, var(--color-accent));
+    color: var(--color-text-on-canvas);
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-rule-on-canvas));
   }
 
-  .trace-controls {
+  /* Bottom bar */
+  .trace__bottombar {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3) var(--space-4);
     align-items: center;
     justify-content: space-between;
-    margin-top: var(--space-3);
-    padding-top: var(--space-2);
-    border-top: var(--border-default);
+    gap: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
-  .trace-replay {
-    appearance: none;
+  .trace__replay {
     display: inline-flex;
     align-items: center;
-    min-height: 2.25rem;
-    padding: 0 var(--space-4);
-    border: var(--border-default);
-    background: var(--color-background);
-    color: var(--color-text);
+    gap: var(--space-2);
+    min-height: var(--control-height-sm);
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-accent);
+    background: transparent;
+    color: var(--color-accent);
+    cursor: pointer;
     font-family: var(--font-mono);
     font-size: 0.6875rem;
-    letter-spacing: 0.04em;
+    letter-spacing: var(--tracking-meta);
     text-transform: uppercase;
-    cursor: pointer;
     transition:
-      border-color var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard),
-      background-color var(--duration-fast) var(--ease-standard);
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
   }
 
-  .trace-replay:hover {
-    border-color: var(--color-text);
-    transform: translateY(-1px);
+  .trace__replay:hover,
+  .trace__replay:focus-visible {
+    background: var(--color-accent);
+    color: var(--color-canvas);
   }
 
-  .trace-replay:active {
-    transform: translateY(0);
+  .trace__replay-mark {
+    display: inline-block;
+    transition: transform var(--duration-base) var(--ease-emphasized);
   }
 
-  .trace-replay:focus-visible {
-    outline: 0.1875rem solid var(--color-accent);
-    outline-offset: 2px;
+  .trace__replay:hover .trace__replay-mark {
+    transform: rotate(-90deg);
   }
 
-  .trace-hint {
-    font-family: var(--font-mono);
-    font-size: 0.585rem;
-    color: var(--color-text-secondary);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+  .trace__legend {
+    color: var(--color-text-on-canvas-faint);
   }
 
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  .noscript-fallback {
-    margin-top: var(--space-4);
-    padding-top: var(--space-4);
-    border-top: var(--border-default);
-    display: grid;
-    gap: var(--space-3);
-  }
-
-  .trace-strip-legacy {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    padding-block: var(--space-2);
-    border-top: var(--border-default);
-    background: var(--color-background);
-  }
-
-  .trace-strip-legacy span {
-    position: relative;
-    display: grid;
-    gap: var(--space-2);
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
-    letter-spacing: 0.02em;
-    text-align: center;
-    text-transform: uppercase;
-  }
-
-  .trace-strip-legacy span:not(:last-child)::after {
-    position: absolute;
-    top: 0.1875rem;
-    right: -50%;
-    left: 50%;
-    border-top: var(--border-default);
-    content: '';
-  }
-
-  .trace-strip-legacy i {
-    z-index: 1;
-    width: 0.4375rem;
-    height: 0.4375rem;
-    margin-inline: auto;
-    border: var(--border-default);
-    background: var(--color-background);
-  }
-
-  .trace-strip-legacy .active i {
+  .trace__legend::before {
     border-color: var(--color-accent);
   }
 
-  .trace-strip-legacy .active:last-child i {
-    background: var(--color-accent);
+  .trace__noscript {
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
-  /* Portrait variant – keep simple editorial mark */
-  .reliability-trace--portrait {
+  .trace__noscript .mono-label {
+    color: var(--color-text-on-canvas-muted);
+  }
+
+  /* Portrait variant */
+  .trace--portrait {
     width: min(11.25rem, 55%);
+    background: transparent;
+    border: 0;
   }
 
-  .reliability-trace--portrait svg {
+  .trace--portrait svg {
     display: block;
     width: 100%;
     height: auto;
   }
 
-  .trace-path {
+  .trace__path {
     fill: none;
-    stroke: var(--color-border);
+    stroke: var(--color-rule-on-paper);
     stroke-width: 1.25;
   }
 
-  .trace-point {
-    fill: var(--color-background);
-    stroke: var(--color-border);
+  .trace__point {
+    fill: var(--color-paper);
+    stroke: var(--color-rule-on-paper);
   }
 
-  .trace-point--active {
+  .trace__point--active {
     fill: var(--color-accent);
     stroke: var(--color-accent);
   }
 
-  @media (min-width: 64rem) {
-    .trace-strip-legacy {
-      display: none;
-    }
-  }
-
+  /* Mobile */
   @media (max-width: 30rem) {
-    .trace-header {
-      flex-direction: column;
-      gap: var(--space-1);
+    .trace__topbar {
+      padding-inline: var(--space-3);
     }
-    .trace-coordinate--right {
-      text-align: left;
+
+    .trace__engine {
+      padding: var(--space-3);
     }
-    .trace-engine {
-      padding: var(--space-2);
-    }
-    .trace-step {
-      grid-template-columns: 1rem minmax(0, 1fr);
+
+    .trace__step {
+      grid-template-columns: 2rem 1fr auto;
       gap: var(--space-2);
-      padding: var(--space-2);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cursor { display: none; }
-    .trace-step {
-      transition: none;
-      opacity: 1;
-      transform: none;
+    .trace__cursor,
+    .trace__panel.is-typing .trace__cursor {
+      animation: none;
+      opacity: 0;
     }
-    .stage-panel {
+
+    .trace__interventions li {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .trace__panel,
+    .trace__step,
+    .trace__interventions li {
       transition: none;
     }
   }

@@ -1,3 +1,27 @@
+/* ============================================================
+   Stephen Mensah — Portfolio
+   Visual system: authored computing environment
+   ------------------------------------------------------------
+   The site is an instrument. The aesthetic vocabulary comes from
+   technical panels, instrument readouts and schematic drawings —
+   not from retro, cyberpunk, or AI-art tropes. Everything below
+   is a single coherent system that must remain readable when
+   motion is disabled, when JavaScript is unavailable, and at
+   320 px width.
+   ============================================================ */
+
+/* ----------------------------------------------------------------
+   1. Fonts
+   ----------------------------------------------------------------
+   Two families, two jobs:
+   - Inter Variable → identity, prose, headings, UI labels
+   - IBM Plex Mono → technical readouts, coordinates, status,
+     section metadata, code
+   Both are self-hosted via @fontsource. `font-display: optional`
+   is kept for performance; the system has been verified to
+   fall back to system mono/sans without breaking the layout.
+   ---------------------------------------------------------------- */
+
 @font-face {
   font-family: 'Inter Variable';
   font-style: normal;
@@ -14,92 +38,191 @@
   src: url('@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2') format('woff2');
 }
 
-:root {
-  /* Colour */
-  --color-background: #f7f6f2;
-  --color-surface: color-mix(in srgb, #f7f6f2 70%, #e2e0da);
-  --color-surface-light: color-mix(in srgb, #f7f6f2 90%, white);
-  --color-surface-cool: color-mix(in srgb, #f7f6f2 96%, #2f6fed);
-  --color-text: #121416;
-  --color-text-secondary: #62676d;
-  --color-border: #e2e0da;
-  --color-accent: #2f6fed;
-  --color-accent-on-dark: color-mix(in srgb, #2f6fed 55%, white);
-  --color-failure-text: #8a2e2e;
-  --color-failure-border: #e2b4b4;
-  --color-failure-surface: #fdf2f2;
-  --color-on-dark-secondary: #adb1b5;
-  --color-on-dark-border: #34383c;
+/* ----------------------------------------------------------------
+   2. Design tokens
+   ----------------------------------------------------------------
+   Tokens are grouped by purpose. A human engineer should be able
+   to read this section top to bottom and predict every visible
+   decision in the system.
+   ---------------------------------------------------------------- */
 
-  /* Typography */
+:root {
+  /* 2.1 Environmental colours ------------------------------
+     The site has two environments:
+     - CANVAS  (deep, neutral, instrument dark)
+     - PAPER   (warm, low-glare, readable light)
+     Sections sit on PAPER by default. CANVAS is used for
+     emphatic moments (footer band, contact panel, hero inset)
+     and as the dominant colour of the page footer.
+     ---------------------------------------------- */
+
+  --color-canvas: #14171B;
+  --color-canvas-soft: #1A1E23;
+  --color-canvas-inset: #1F2329;
+
+  --color-paper: #F0EDE6;
+  --color-paper-soft: #E9E4D8;
+  --color-paper-inset: #DDD7C9;
+  --color-paper-tab: #E3DECD;
+
+  /* 2.2 Text ----------------------------------------------- */
+
+  --color-text-on-paper: #0E1116;
+  --color-text-on-paper-muted: #5A5E66;
+  --color-text-on-paper-faint: #8A8C92;
+
+  --color-text-on-canvas: #E7E2D6;
+  --color-text-on-canvas-muted: #A39F95;
+  --color-text-on-canvas-faint: #6F6D69;
+
+  /* 2.3 Borders & rules ------------------------------------ */
+
+  --color-rule-on-paper: #C5BFAF;
+  --color-rule-on-paper-soft: #D7D1BF;
+  --color-rule-on-canvas: #2D3138;
+  --color-rule-on-canvas-soft: #252930;
+
+  /* 2.4 Accent & signal colours -----------------------------
+     AMBER is the controlled accent. It is reserved for:
+     - active state
+     - "signal" moments (a stage is active, a row is current)
+     - deliberate emphasis (not decoration)
+     Signal-pass and signal-fail are used only on the trace
+     surface, never as decoration.
+     ---------------------------------------------- */
+
+  --color-accent: #D69422;
+  --color-accent-deep: #A87214;
+  --color-accent-soft: #F0D9B0;
+  --color-accent-tint: #F4E5C9;
+
+  --color-signal-pass: #2F7A5C;
+  --color-signal-pass-soft: #CFE0D5;
+  --color-signal-fail: #A8553F;
+  --color-signal-fail-soft: #EBD3CB;
+  --color-signal-fail-tint: #F4E4DD;
+
+  /* 2.5 Borders & controls ----------------------------------
+     All borders are 1 px. Corner radii are zero by default —
+     curves are reserved for circular elements (rail dots,
+     status indicators, markers).
+     ---------------------------------------------- */
+
+  --border-width: 1px;
+  --border-width-strong: 2px;
+  --border-hairline: 1px solid var(--color-rule-on-paper);
+  --border-hairline-soft: 1px solid var(--color-rule-on-paper-soft);
+  --border-hairline-canvas: 1px solid var(--color-rule-on-canvas);
+  --border-hairline-canvas-soft: 1px solid var(--color-rule-on-canvas-soft);
+  --border-dotted: 1px dotted var(--color-rule-on-paper-soft);
+  --border-dotted-canvas: 1px dotted var(--color-rule-on-canvas-soft);
+
+  --radius-zero: 0;
+  --radius-control: 2px;
+  --radius-frame: 2px;
+  --radius-pill: 999px;
+
+  --control-height: 2.625rem;
+  --control-height-sm: 2.125rem;
+  --control-height-lg: 3rem;
+
+  /* 2.6 Typography -----------------------------------------
+     Four explicit roles. The system uses Inter for prose and
+     IBM Plex Mono for everything that is "instrument"
+     metadata: section labels, coordinates, status, code.
+     Type sizes use clamp() where they need to scale with the
+     viewport, otherwise static rems for predictability.
+     ---------------------------------------------- */
+
   --font-sans: 'Inter Variable', Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
-  --type-hero: clamp(3rem, 6vw, 5.25rem);
-  --type-feature: clamp(2.25rem, 4.5vw, 3.875rem);
-  --type-case-title: clamp(2rem, 3.8vw, 3.25rem);
-  --type-section: clamp(1.875rem, 2.5vw, 2.5rem);
-  --type-component: clamp(1.25rem, 1.6vw, 1.5rem);
-  --text-display: var(--type-hero);
-  --text-h1: var(--type-feature);
-  --text-h2: var(--type-section);
-  --text-h3: var(--type-component);
-  --text-body-large: clamp(1.125rem, 1.5vw, 1.375rem);
-  --text-body: 1rem;
-  --text-small: 0.875rem;
-  --text-label: 0.75rem;
-  --leading-display: 0.96;
-  --leading-heading: 1.1;
-  --leading-body: 1.65;
 
-  /* Spacing: a four-pixel base with larger editorial intervals */
+  --type-display: clamp(2.5rem, 5.5vw, 4.75rem);
+  --type-feature: clamp(2rem, 3.8vw, 3.25rem);
+  --type-section: clamp(1.625rem, 2.4vw, 2.25rem);
+  --type-component: 1.25rem;
+
+  --text-display: var(--type-display);
+  --text-feature: var(--type-feature);
+  --text-section: var(--type-section);
+  --text-component: var(--type-component);
+  --text-body: 1rem;
+  --text-body-large: clamp(1.0625rem, 1.4vw, 1.1875rem);
+  --text-small: 0.875rem;
+  --text-meta: 0.75rem;
+  --text-micro: 0.6875rem;
+
+  --leading-display: 1;
+  --leading-heading: 1.1;
+  --leading-body: 1.6;
+
+  --tracking-display: -0.04em;
+  --tracking-heading: -0.02em;
+  --tracking-meta: 0.08em;
+  --tracking-button: 0.02em;
+
+  /* 2.7 Spacing & rhythm ------------------------------------
+     A four-pixel base. A small number of named rhythm tokens
+     apply to section blocks so vertical cadence reads as one
+     composition rather than several.
+     ---------------------------------------------- */
+
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
   --space-5: 1.5rem;
   --space-6: 2rem;
-  --space-7: 3rem;
-  --space-8: 4rem;
-  --space-9: 6rem;
-  --space-10: 8rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-9: 4rem;
+  --space-10: 6rem;
 
-  /* Editorial rhythm: supporting, standard and flagship sections */
-  --section-compact: clamp(3.5rem, 6vw, 5rem);
-  --section-tight: clamp(2.75rem, 4.5vw, 3.75rem);
-  --section-standard: clamp(3.5rem, 5.5vw, 5rem);
-  --section-feature: clamp(4rem, 6.5vw, 5.75rem);
-  --section-heading-gap: var(--space-3);
-  --section-content-gap: clamp(var(--space-6), 3vw, var(--space-7));
-  --card-padding: clamp(var(--space-5), 3vw, var(--space-7));
+  --section-block: clamp(4rem, 7vw, 6.5rem);
+  --section-block-tight: clamp(3rem, 5vw, 4.5rem);
+  --section-gap: clamp(2rem, 4vw, 3.5rem);
 
-  /* Width and layout */
-  --width-page: 72rem;
-  --width-content: 48rem;
-  --width-reading: 40rem;
-  --width-narrow: 32rem;
-  --page-gutter: clamp(1.25rem, 4vw, 3rem);
-  --grid-columns: 4;
-  --grid-gap: clamp(1rem, 2vw, 1.5rem);
+  /* 2.8 Layout --------------------------------------------- */
 
-  /* Borders and controls */
-  --border-width: 1px;
-  --border-default: var(--border-width) solid var(--color-border);
-  --radius-small: 0.25rem;
-  --radius-card: 0.375rem;
-  --control-height: 2.75rem;
+  --width-page: 76rem;
+  --width-reading: 38rem;
+  --width-narrow: 30rem;
+  --width-content: 52rem;
+  --page-gutter: clamp(1rem, 3.5vw, 2.5rem);
 
-  /* Motion system — coherent, restrained, editorial */
-  --duration-fast: 140ms;
-  --duration-normal: 220ms;
-  --duration-reveal: 380ms;
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  /* 2.9 Motion ----------------------------------------------
+     Five durations, two easings. Every motion in the system
+     composes these. Nothing animates outside this vocabulary.
+     ---------------------------------------------- */
+
+  --duration-quick: 120ms;
+  --duration-base: 220ms;
+  --duration-reveal: 420ms;
+  --duration-scan: 900ms;
+
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Breakpoint reference: 30rem small, 48rem medium, 64rem large */
-  --breakpoint-small: 30rem;
-  --breakpoint-medium: 48rem;
-  --breakpoint-large: 64rem;
+  /* 2.10 Geometric motifs (signature) -----------------------
+     The site uses TWO geometric motifs, sparingly:
+     - CROSSHAIR MARKS (small + marks at panel corners)
+     - GUTTER TICKS (small mono ticks along page rulers)
+     They communicate: this surface is a viewport / an instrument.
+     ---------------------------------------------- */
+
+  --mark-size: 0.5rem;
+  --mark-stroke: 1px;
+
+  /* 2.11 Z-index ------------------------------------------- */
+
+  --z-header: 50;
+  --z-overlay: 40;
+  --z-skip: 100;
 }
+
+/* ----------------------------------------------------------------
+   3. Base / reset
+   ---------------------------------------------------------------- */
 
 *,
 *::before,
@@ -108,12 +231,14 @@
 }
 
 html {
-  background: var(--color-background);
-  color: var(--color-text);
+  background: var(--color-paper);
+  color: var(--color-text-on-paper);
   font-family: var(--font-sans);
+  font-size: 16px;
   line-height: var(--leading-body);
-  scroll-behavior: smooth;
   text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -123,21 +248,30 @@ body {
 }
 
 section[id] {
-  scroll-margin-top: 6rem;
+  scroll-margin-top: 5.5rem;
 }
 
 h1,
 h2,
 h3,
-p {
-  margin-block-start: 0;
+h4,
+p,
+ul,
+ol,
+dl,
+figure,
+blockquote {
+  margin-block: 0;
 }
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
   text-wrap: balance;
+  font-weight: 600;
 }
 
 p {
@@ -145,13 +279,18 @@ p {
 }
 
 a {
-  color: var(--color-text);
+  color: inherit;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 0.0625em;
   text-underline-offset: 0.2em;
-  text-decoration-thickness: 0.08em;
+  transition:
+    color var(--duration-quick) var(--ease-standard),
+    text-decoration-color var(--duration-quick) var(--ease-standard),
+    opacity var(--duration-quick) var(--ease-standard);
 }
 
 a:hover {
-  text-decoration-thickness: 0.14em;
+  text-decoration-thickness: 0.13em;
 }
 
 button,
@@ -159,22 +298,42 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
-:focus-visible {
-  outline: 0.1875rem solid var(--color-accent);
-  outline-offset: 0.1875rem;
+button {
+  font: inherit;
 }
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-control);
+}
+
+::selection {
+  background: var(--color-accent-tint);
+  color: var(--color-text-on-paper);
+}
+
+/* ----------------------------------------------------------------
+   4. Utilities
+   ---------------------------------------------------------------- */
 
 .skip-link {
   position: fixed;
   top: var(--space-3);
   left: var(--space-3);
-  z-index: 100;
+  z-index: var(--z-skip);
   padding: var(--space-3) var(--space-4);
-  background: var(--color-text);
-  color: var(--color-background);
-  font-size: var(--text-small);
-  font-weight: 600;
+  border: var(--border-hairline);
+  background: var(--color-canvas);
+  color: var(--color-text-on-canvas);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  text-decoration: none;
   transform: translateY(calc(-100% - var(--space-5)));
+  transition: transform var(--duration-base) var(--ease-emphasized);
 }
 
 .skip-link:focus {
@@ -187,130 +346,271 @@ a {
   padding-inline: var(--page-gutter);
 }
 
-.content-grid {
-  display: grid;
-  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
-  gap: var(--grid-gap);
-}
-
-.technical-label {
-  color: var(--color-text-secondary);
+/* Mono technical label — used everywhere a piece of text reads
+   as "instrument metadata": section eyebrows, coordinates,
+   stage numbers, status readouts. Uses the small mono marker
+   dot at left. */
+.mono-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-on-paper-muted);
   font-family: var(--font-mono);
-  font-size: var(--text-label);
+  font-size: var(--text-meta);
   font-weight: 500;
-  letter-spacing: 0.06em;
-  line-height: 1.5;
+  letter-spacing: var(--tracking-meta);
+  line-height: 1;
   text-transform: uppercase;
 }
 
-.technical-label::before {
-  display: inline-block;
+.mono-label::before {
+  content: '';
   width: 0.375rem;
   height: 0.375rem;
-  margin-right: var(--space-2);
   border: 1px solid var(--color-accent);
-  content: '';
-  vertical-align: 0.05em;
+  background: transparent;
 }
 
+.mono-label--inverse {
+  color: var(--color-text-on-canvas-muted);
+}
+
+.mono-label--inverse::before {
+  border-color: var(--color-accent);
+}
+
+/* The crosshair corner mark — a signature geometric motif.
+   Used at the four corners of bounded panels to read as
+   "viewport / instrument frame". */
+.corner-mark {
+  position: absolute;
+  width: var(--mark-size);
+  height: var(--mark-size);
+  pointer-events: none;
+}
+
+.corner-mark::before,
+.corner-mark::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+}
+
+.corner-mark::before {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--mark-stroke);
+}
+
+.corner-mark::after {
+  top: 0;
+  left: 0;
+  width: var(--mark-stroke);
+  height: 100%;
+}
+
+.corner-mark--tl { top: -1px; left: -1px; }
+.corner-mark--tr { top: -1px; right: -1px; }
+.corner-mark--tr::before { left: auto; right: 0; }
+.corner-mark--tr::after { left: auto; right: 0; }
+.corner-mark--bl { bottom: -1px; left: -1px; }
+.corner-mark--bl::before { top: auto; bottom: 0; }
+.corner-mark--bl::after { top: auto; bottom: 0; }
+.corner-mark--br { bottom: -1px; right: -1px; }
+.corner-mark--br::before { top: auto; bottom: 0; left: auto; right: 0; }
+.corner-mark--br::after { top: auto; bottom: 0; left: auto; right: 0; }
+
+/* Buttons */
 .button {
   display: inline-flex;
   min-height: var(--control-height);
   align-items: center;
   justify-content: center;
   padding: var(--space-3) var(--space-5);
-  border: var(--border-width) solid var(--color-text);
-  border-radius: var(--radius-small);
-  background: var(--color-text);
-  color: var(--color-background);
+  border: 1px solid var(--color-text-on-paper);
+  border-radius: var(--radius-control);
+  background: var(--color-text-on-paper);
+  color: var(--color-paper);
   font: 600 var(--text-small) / 1 var(--font-sans);
+  letter-spacing: var(--tracking-button);
   text-decoration: none;
+  cursor: pointer;
   transition:
-    background-color var(--duration-fast) var(--ease-standard),
-    border-color var(--duration-fast) var(--ease-standard),
-    color var(--duration-fast) var(--ease-standard),
-    transform var(--duration-fast) var(--ease-standard),
-    box-shadow var(--duration-normal) var(--ease-standard);
+    background-color var(--duration-quick) var(--ease-standard),
+    border-color var(--duration-quick) var(--ease-standard),
+    color var(--duration-quick) var(--ease-standard);
 }
 
 .button:hover {
   background: transparent;
-  color: var(--color-text);
-  text-decoration: none;
-  transform: translateY(-1px);
+  color: var(--color-text-on-paper);
 }
 
 .button--secondary {
-  border-color: var(--color-border);
+  border-color: var(--color-rule-on-paper);
   background: transparent;
-  color: var(--color-text);
+  color: var(--color-text-on-paper);
 }
 
 .button--secondary:hover {
-  border-color: var(--color-text);
-  color: var(--color-text);
+  border-color: var(--color-text-on-paper);
+  background: var(--color-text-on-paper);
+  color: var(--color-paper);
+}
+
+.button--accent {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-canvas);
+}
+
+.button--accent:hover {
+  background: var(--color-accent-deep);
+  border-color: var(--color-accent-deep);
+  color: var(--color-canvas);
 }
 
 .text-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height-sm);
   font-weight: 600;
+  text-decoration: none;
+  color: inherit;
   transition:
-    color var(--duration-fast) var(--ease-standard),
-    text-decoration-thickness var(--duration-fast) var(--ease-standard),
-    transform var(--duration-fast) var(--ease-standard);
+    color var(--duration-quick) var(--ease-standard),
+    opacity var(--duration-quick) var(--ease-standard);
+}
+
+.text-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.45rem;
+  border-top: 1px solid currentColor;
+  transform: scaleX(1);
+  transform-origin: left;
+  transition: transform var(--duration-base) var(--ease-emphasized);
 }
 
 .text-link:hover {
-  transform: translateX(1px);
+  color: var(--color-accent);
 }
 
-.button:active {
-  transform: translateY(0);
+.text-link:hover::after {
+  transform: scaleX(0);
+  transform-origin: right;
 }
 
-.button:focus-visible {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent);
+.text-link__arrow {
+  margin-left: var(--space-2);
+  color: var(--color-accent);
+  transition: transform var(--duration-base) var(--ease-emphasized);
 }
 
-a {
-  transition:
-    color var(--duration-fast) var(--ease-standard),
-    text-decoration-color var(--duration-fast) var(--ease-standard),
-    text-decoration-thickness var(--duration-fast) var(--ease-standard),
-    opacity var(--duration-fast) var(--ease-standard);
+.text-link:hover .text-link__arrow {
+  transform: translateX(2px);
 }
 
-/* motion-friendly defaults for interactive elements */
+/* Section frame — adds crosshair marks at top corners, plus
+   a small mono header rule. Used to bound major sections. */
+.section-frame {
+  position: relative;
+}
+
+.section-frame::before,
+.section-frame::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  width: var(--mark-size);
+  height: var(--mark-size);
+  pointer-events: none;
+}
+
+.section-frame::before {
+  left: -1px;
+  border-top: var(--mark-stroke) solid var(--color-rule-on-paper);
+  border-left: var(--mark-stroke) solid var(--color-rule-on-paper);
+}
+
+.section-frame::after {
+  right: -1px;
+  border-top: var(--mark-stroke) solid var(--color-rule-on-paper);
+  border-right: var(--mark-stroke) solid var(--color-rule-on-paper);
+}
+
+/* On-canvas section frame */
+.section-frame--canvas::before,
+.section-frame--canvas::after {
+  border-color: var(--color-rule-on-canvas);
+}
+
+/* Hidden but accessible */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ----------------------------------------------------------------
+   5. Motion defaults
+   ---------------------------------------------------------------- */
+
 button,
 [role='button'],
 a,
 input,
 textarea,
-select {
+select,
+.tab,
+.stage {
   transition-timing-function: var(--ease-standard);
 }
 
+/* ----------------------------------------------------------------
+   6. Responsive overrides (token-level)
+   ---------------------------------------------------------------- */
+
 @media (min-width: 48rem) {
   :root {
-    --section-tight: 2.75rem;
-    --grid-columns: 6;
+    --text-meta: 0.75rem;
   }
 }
 
 @media (min-width: 64rem) {
   :root {
-    --grid-columns: 12;
+    --text-meta: 0.8125rem;
   }
 }
 
 @media (max-width: 30rem) {
   :root {
-    --type-section: 1.625rem;
-    --section-compact: 3rem;
-    --section-standard: 4rem;
-    --section-feature: 4.75rem;
-    --section-content-gap: var(--space-6);
+    --section-block: 3.5rem;
+    --section-block-tight: 2.75rem;
+    --text-section: 1.5rem;
+    --text-feature: 1.875rem;
+    --text-display: 2.5rem;
   }
 }
+
+/* ----------------------------------------------------------------
+   7. Reduced motion
+   ----------------------------------------------------------------
+   The clamp below zeroes all transitions and animations
+   system-wide. Individual components add their own reduced
+   blocks only where they need to override behaviour (e.g.
+   cancel an IntersectionObserver-driven reveal).
+   ---------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -325,4 +625,54 @@ select {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* ----------------------------------------------------------------
+   8. Forced colours (Windows High Contrast)
+   ---------------------------------------------------------------- */
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid CanvasText;
+  }
+
+  .mono-label::before {
+    background: CanvasText;
+  }
+}
+
+/* ----------------------------------------------------------------
+   9. Token aliases — backwards-compatibility for the case page
+   ----------------------------------------------------------------
+   The case study at /work/syncareer/ was authored against the
+   previous token system. Rather than rewrite a 1,244-line file
+   to preserve every word of case-study content, the legacy
+   token names are aliased to their new equivalents here.
+   These aliases should be retired when the case page is
+   re-skinned.
+   ---------------------------------------------------------------- */
+
+:root {
+  --color-background: var(--color-paper);
+  --color-surface: var(--color-paper-soft);
+  --color-surface-light: var(--color-paper-soft);
+  --color-surface-cool: color-mix(in srgb, var(--color-accent-tint) 35%, var(--color-paper));
+  --color-text: var(--color-text-on-paper);
+  --color-text-secondary: var(--color-text-on-paper-muted);
+  --color-border: var(--color-rule-on-paper);
+  --color-failure-text: var(--color-signal-fail);
+  --color-failure-border: color-mix(in srgb, var(--color-signal-fail) 35%, var(--color-rule-on-paper));
+  --color-failure-surface: var(--color-signal-fail-tint);
+
+  --type-case-title: var(--text-feature);
+  --text-h2: var(--text-section);
+  --text-h1: var(--text-feature);
+  --text-h3: var(--text-component);
+
+  --border-default: 1px solid var(--color-rule-on-paper);
+  --radius-card: var(--radius-frame);
+
+  --section-heading-gap: var(--space-3);
+  --section-content-gap: var(--section-gap);
+  --section-tight: var(--section-block-tight);
 }

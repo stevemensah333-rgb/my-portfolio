@@ -1,137 +1,165 @@
 ---
 import ReliabilityTrace from './ReliabilityTrace.astro';
+import SectionFrame from './SectionFrame.astro';
 ---
 
 <section id="about" class="about" aria-labelledby="about-title">
-  <div class="page-shell about-layout">
-    <header>
-      <p class="technical-label">About</p>
-      <h2 id="about-title">A little about me.</h2>
-    </header>
+  <SectionFrame coordinate="03 / About" surface="paper">
+    <div class="page-shell about__layout">
+      <header class="about__header">
+        <p class="mono-label">About</p>
+        <h2 id="about-title" class="about__title">A little about me.</h2>
+      </header>
 
-    <div class="about-copy">
-      <p>
-        I'm a Computer Science student at Ashesi University. I'm curious, analytical and attentive,
-        especially when details are easy to miss.
-      </p>
-    </div>
+      <div class="about__copy">
+        <p>
+          I'm a Computer Science student at Ashesi University. I'm curious, analytical and attentive,
+          especially when details are easy to miss.
+        </p>
+      </div>
 
-    <div class="portrait-composition">
-      <picture class="about-portrait">
-        <img
-          src="/images/stephen.png"
-          alt="Stephen Mensah"
-          width="800"
-          height="800"
-          loading="lazy"
-          decoding="async"
-        />
-      </picture>
-      <ReliabilityTrace variant="portrait" />
+      <aside class="about__portrait">
+        <div class="about__portrait-frame">
+          <picture>
+            <img
+              src="/images/stephen.png"
+              alt="Stephen Mensah"
+              width="800"
+              height="800"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+          <span class="about__portrait-mark about__portrait-mark--tl" aria-hidden="true"></span>
+          <span class="about__portrait-mark about__portrait-mark--tr" aria-hidden="true"></span>
+          <span class="about__portrait-mark about__portrait-mark--bl" aria-hidden="true"></span>
+          <span class="about__portrait-mark about__portrait-mark--br" aria-hidden="true"></span>
+        </div>
+        <ReliabilityTrace variant="portrait" />
+      </aside>
     </div>
-  </div>
+  </SectionFrame>
 </section>
 
 <style>
   .about {
-    position: relative;
-    padding-block: var(--section-tight);
-    border-top: var(--border-default);
-    scroll-margin-top: 5rem;
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-rule-on-paper);
   }
 
-  .about-layout {
+  .about__layout {
     display: grid;
-    gap: var(--section-content-gap);
+    gap: var(--space-6);
   }
 
-  header p,
-  header h2 {
+  .about__header {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .about__title {
     margin: 0;
-  }
-
-  header h2 {
-    max-width: 12ch;
-    margin-top: var(--section-heading-gap);
-    font-size: var(--text-h2);
+    font-size: var(--text-section);
     font-weight: 600;
-    letter-spacing: -0.035em;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.1;
   }
 
-  .about-copy {
+  .about__copy {
     max-width: var(--width-reading);
   }
 
-  .about-copy p {
-    margin-bottom: var(--space-5);
-    color: var(--color-text);
+  .about__copy p {
+    margin: 0;
+    color: var(--color-text-on-paper);
     font-size: var(--text-body-large);
     line-height: 1.6;
   }
 
-  .about-copy p:last-child {
-    margin-bottom: 0;
-  }
-
-  .about-portrait {
-    display: block;
-    width: 100%;
-    padding: clamp(0.5rem, 1.5vw, 0.75rem);
-    border: var(--border-default);
-    border-radius: var(--radius-card);
-    background: var(--color-surface-light);
-    box-shadow: 0 1rem 2.5rem rgb(18 20 22 / 6%);
-    transition:
-      transform var(--duration-normal) var(--ease-emphasized),
-      box-shadow var(--duration-normal) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard);
-    will-change: transform;
-  }
-
-  .about-portrait:hover,
-  .portrait-composition:focus-within .about-portrait {
-    transform: translateY(-2px) rotate(0.2deg);
-    border-color: color-mix(in srgb, var(--color-border) 50%, var(--color-accent));
-    box-shadow: 0 1.25rem 3rem rgb(18 20 22 / 8%);
-  }
-
-  .about-portrait img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: calc(var(--radius-card) / 2);
-  }
-
-  .portrait-composition {
+  .about__portrait {
     display: grid;
-    width: min(100%, 20rem);
     gap: var(--space-3);
     justify-items: end;
   }
 
+  .about__portrait-frame {
+    position: relative;
+    width: min(100%, 18rem);
+    padding: var(--space-2);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+  }
+
+  .about__portrait-frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: grayscale(1) contrast(1.05);
+  }
+
+  /* Corner marks — signature geometric motif on the portrait frame */
+  .about__portrait-mark {
+    position: absolute;
+    width: 0.625rem;
+    height: 0.625rem;
+    pointer-events: none;
+  }
+
+  .about__portrait-mark::before,
+  .about__portrait-mark::after {
+    content: '';
+    position: absolute;
+    background: var(--color-accent);
+  }
+
+  .about__portrait-mark::before {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+  }
+
+  .about__portrait-mark::after {
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100%;
+  }
+
+  .about__portrait-mark--tr { top: 0; right: 0; left: auto; }
+  .about__portrait-mark--tr::before { right: 0; left: auto; }
+  .about__portrait-mark--tr::after { right: 0; left: auto; }
+  .about__portrait-mark--bl { bottom: 0; top: auto; }
+  .about__portrait-mark--bl::before { bottom: 0; top: auto; }
+  .about__portrait-mark--bl::after { bottom: 0; top: auto; }
+  .about__portrait-mark--br { bottom: 0; right: 0; top: auto; left: auto; }
+  .about__portrait-mark--br::before { bottom: 0; right: 0; top: auto; left: auto; }
+  .about__portrait-mark--br::after { bottom: 0; right: 0; top: auto; left: auto; }
+
   @media (min-width: 48rem) {
-    .about-layout {
+    .about__layout {
       grid-template-columns: minmax(13rem, 4fr) minmax(0, 8fr);
-      gap: var(--space-8);
+      column-gap: var(--space-7);
+      row-gap: var(--space-6);
       align-items: start;
     }
 
-    .about-copy,
-    .portrait-composition {
+    .about__copy,
+    .about__portrait {
       grid-column: 2;
     }
   }
 
   @media (min-width: 64rem) {
-    .about-layout {
+    .about__layout {
       grid-template-columns: minmax(13rem, 3fr) minmax(18rem, 5fr) minmax(13rem, 16rem);
     }
 
-    .about-copy {
+    .about__copy {
       grid-column: 2;
     }
 
-    .portrait-composition {
+    .about__portrait {
       grid-column: 3;
       width: 100%;
     }
