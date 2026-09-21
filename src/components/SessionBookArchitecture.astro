@@ -1,0 +1,458 @@
+---
+/**
+ * SessionBookArchitecture — inspectable signal path for the SessionBook case.
+ *
+ * Renders the eight-node path a booking travels:
+ *   Caller → Voice Agent → HTTP tool call → SessionBook backend →
+ *   booking / availability logic → response → Voice Agent → spoken response
+ *
+ * Every node is marked by what the repository actually contains today
+ * (`present` / `written` / `in-progress` / `external`), so the diagram
+ * never implies infrastructure that does not exist.
+ *
+ * Uses the shared initTraceTabs controller. No-JS: the diagram stays
+ * visible and every node's detail panel is stacked, so the full content
+ * is reachable without scripting.
+ */
+
+interface ArchNode {
+  id: string;
+  step: string;
+  name: string;
+  owner: string;
+  state: 'present' | 'in-progress' | 'external' | 'written';
+  stateLabel: string;
+  detail: string[];
+  evidence: string;
+}
+
+const nodes: ArchNode[] = [
+  {
+    id: 'caller',
+    step: '01',
+    name: 'Caller',
+    owner: 'Person',
+    state: 'external',
+    stateLabel: 'External actor',
+    detail: [
+      'A person on the phone. Not code that either SessionBook or AssemblyAI builds — the whole system exists to serve them.',
+      'The caller never touches a form or a calendar. They hear options and choose one, which is the constraint that shapes everything downstream on this path.',
+    ],
+    evidence: 'Actor, not an artifact. Not part of the repository.',
+  },
+  {
+    id: 'voice-agent',
+    step: '02',
+    name: 'Voice Agent',
+    owner: 'AssemblyAI (runtime)',
+    state: 'in-progress',
+    stateLabel: 'In progress',
+    detail: [
+      'The conversational agent. It turns the caller\u2019s speech into text, decides what it needs to know next, runs the dialogue, and turns its replies back into speech. It runs on AssemblyAI\u2019s side.',
+      'SessionBook\u2019s job is the agent document — name, voice, prompt, and the list of tools with their URLs — plus the backend those tools call. Today that document is the empty voice_agent/agent.json.',
+    ],
+    evidence: 'voice_agent/agent.json — present in the repo, empty (0 bytes).',
+  },
+  {
+    id: 'http-tool-call',
+    step: '03',
+    name: 'HTTP tool call',
+    owner: 'AssemblyAI executes · SessionBook defines',
+    state: 'in-progress',
+    stateLabel: 'In progress',
+    detail: [
+      'When the agent needs a fact — \u201ccould I book Saturday morning?\u201d — it makes an HTTPS request to a backend endpoint, carrying only the arguments its tool schema allows.',
+      'Intended shape, per the reference: each tool declares a URL, an HTTP method, an argument schema, and a timeout. AssemblyAI performs the request; the caller\u2019s call never holds a WebSocket to SessionBook.',
+    ],
+    evidence: 'app/routers/tools.py — present in the repo, empty (0 bytes); no tool routes wired in main.py.',
+  },
+  {
+    id: 'backend',
+    step: '04',
+    name: 'SessionBook backend',
+    owner: 'SessionBook',
+    state: 'present',
+    stateLabel: 'Present',
+    detail: [
+      'A FastAPI service. The service layer is written and async; the only endpoint served today is /health.',
+      'The availability, booking and lookup functions exist in the service layer but are not yet behind HTTP routes — so what exists is the engine, and the endpoint surface is the next piece to wire.',
+    ],
+    evidence: 'app/main.py — FastAPI app with GET /health.',
+  },
+  {
+    id: 'booking-logic',
+    step: '05',
+    name: 'Booking / availability logic',
+    owner: 'SessionBook',
+    state: 'present',
+    stateLabel: 'Present',
+    detail: [
+      'Two operations are written. check_availability returns the unbooked slots for a given date; book_slot atomically reserves one.',
+      'Reservation takes a row lock (SELECT \u2026 FOR UPDATE), confirms the slot is still free, writes the booking, and returns a confirmation — so two concurrent callers cannot both claim the same slot. Datetimes are timezone-aware, anchored to Africa/Accra (the provider\u2019s zone), and persisted to Postgres 16.',
+    ],
+    evidence: 'app/services/booking_service.py; app/models.py (Provider, Slot, Booking); docker-compose.yml (Postgres 16).',
+  },
+  {
+    id: 'response',
+    step: '06',
+    name: 'Response',
+    owner: 'SessionBook',
+    state: 'written',
+    stateLabel: 'Written · not yet served',
+    detail: [
+      'The backend answers in values an agent can speak, not in status codes. Availability returns slots that already carry a spoken_label (\u201cSaturday, September 5 at 9:00 AM\u201d); a booking returns a confirmation_code plus a full spoken_confirmation sentence.',
+      'These are written as Pydantic shapes and used by the service layer. The HTTP endpoints that would serve them to an agent are not wired yet.',
+    ],
+    evidence: 'app/schemas.py — AvailabilitySlot.spoken_label, BookingConfirmation.spoken_confirmation.',
+  },
+  {
+    id: 'voice-agent-return',
+    step: '07',
+    name: 'Voice Agent',
+    owner: 'AssemblyAI (runtime)',
+    state: 'in-progress',
+    stateLabel: 'In progress',
+    detail: [
+      'The same agent, on the way back. It receives the backend\u2019s response and decides what to say next.',
+      'This is not a second system — it is the return pass through the one agent. Listing it separately keeps the forward and return paths distinct.',
+    ],
+    evidence: 'Same component as step 02.',
+  },
+  {
+    id: 'spoken-response',
+    step: '08',
+    name: 'Spoken response',
+    owner: 'AssemblyAI speaks · SessionBook writes',
+    state: 'in-progress',
+    stateLabel: 'In progress',
+    detail: [
+      'The agent reads its answer aloud. The sentence it reads comes from the backend (spoken_confirmation), so the agent never has to reformat a timestamp or invent a code on air.',
+      'SessionBook owns the wording; the voice that speaks it is AssemblyAI\u2019s text-to-speech.',
+    ],
+    evidence: 'booking_service.py — book_slot builds the spoken_confirmation sentence.',
+  },
+];
+---
+
+<div class="arch" data-arch>
+  <div class="arch__frame">
+    <div
+      class="arch__rail"
+      role="tablist"
+      aria-label="SessionBook architecture — select a node to inspect"
+      aria-orientation="vertical"
+    >
+      {nodes.map((node, idx) => (
+        <button
+          type="button"
+          role="tab"
+          id={`arch-tab-${node.id}`}
+          class="arch__node"
+          data-stage-tab={node.id}
+          aria-controls={`arch-panel-${node.id}`}
+          aria-selected={idx === 0 ? 'true' : 'false'}
+          tabindex={idx === 0 ? '0' : '-1'}
+        >
+          <span class="arch__step">{node.step}</span>
+          <span class="arch__name">{node.name}</span>
+          <span class="arch__badges">
+            <span class:list={['arch__chip', `arch__chip--${node.state}`]}>{node.stateLabel}</span>
+          </span>
+          <span class="arch__owner">{node.owner}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="arch__panels">
+      {nodes.map((node, idx) => (
+        <div
+          role="tabpanel"
+          id={`arch-panel-${node.id}`}
+          aria-labelledby={`arch-tab-${node.id}`}
+          class="arch__panel"
+          data-stage-panel={node.id}
+          data-active={idx === 0 ? 'true' : 'false'}
+          tabindex="0"
+          hidden={idx !== 0}
+        >
+          <header class="arch__panel-head">
+            <p class="mono-label">{node.step} / {node.name}</p>
+            <h3>{node.name}</h3>
+          </header>
+          <div class="arch__meta">
+            <span class="arch__meta-owner">Owner · <strong>{node.owner}</strong></span>
+            <span class:list={['arch__chip', `arch__chip--${node.state}`]}>{node.stateLabel}</span>
+          </div>
+          {node.detail.map((paragraph) => <p class="arch__body">{paragraph}</p>)}
+          <p class="arch__evidence">
+            <span class="mono-label">Evidence</span>
+            {node.evidence}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initTraceTabs } from '../scripts/initTraceTabs';
+
+  const root = document.querySelector<HTMLElement>('[data-arch]');
+  if (root) initTraceTabs(root);
+</script>
+
+<style>
+  .arch__frame {
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  .arch__rail {
+    display: grid;
+    gap: var(--space-6);
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+  }
+
+  .arch__node {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    grid-template-areas:
+      'step name'
+      'step badges'
+      'step owner';
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+    align-items: baseline;
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+    color: var(--color-text-on-paper);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color var(--duration-quick) var(--ease-standard),
+      background-color var(--duration-quick) var(--ease-standard);
+  }
+
+  /* connector arrow drawn between nodes (the "↓" of the signal path) */
+  .arch__node::before {
+    content: '';
+    position: absolute;
+    top: calc(100% + 1px);
+    left: calc(50% - 1px);
+    width: 1px;
+    height: calc(var(--space-6) - 9px);
+    background: var(--color-rule-on-paper);
+  }
+
+  .arch__node::after {
+    content: '';
+    position: absolute;
+    top: calc(100% + var(--space-6) - 12px);
+    left: calc(50% - 3px);
+    width: 7px;
+    height: 7px;
+    border-right: 1px solid var(--color-rule-on-paper);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    transform: rotate(45deg);
+  }
+
+  .arch__node:last-child::before,
+  .arch__node:last-child::after {
+    display: none;
+  }
+
+  .arch__node:hover,
+  .arch__node[data-active='true'] {
+    border-color: var(--color-accent);
+    background: var(--color-paper);
+  }
+
+  .arch__node[data-active='true'] {
+    box-shadow: inset 2px 0 0 var(--color-accent);
+  }
+
+  .arch__node:focus-visible {
+    outline-offset: -3px;
+  }
+
+  .arch__step {
+    grid-area: step;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+  }
+
+  .arch__name {
+    grid-area: name;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+
+  .arch__badges {
+    grid-area: badges;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .arch__owner {
+    grid-area: owner;
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.02em;
+  }
+
+  .arch__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.0625rem 0.375rem;
+    border: 1px solid var(--color-rule-on-paper);
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .arch__chip--present {
+    border-color: var(--color-signal-pass);
+    color: var(--color-signal-pass);
+  }
+
+  .arch__chip--in-progress {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .arch__chip--external {
+    border-style: dotted;
+    border-color: var(--color-rule-on-paper);
+    color: var(--color-text-on-paper-muted);
+  }
+
+  .arch__chip--written {
+    border-style: dashed;
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .arch__panels {
+    padding: var(--space-5);
+  }
+
+  .arch__panel {
+    display: grid;
+    gap: var(--space-3);
+    border-top: 2px solid var(--color-accent);
+  }
+
+  .arch__panel[hidden] {
+    display: none;
+  }
+
+  html:not(.js) .arch__panel,
+  html:not(.js) .arch__panel[hidden] {
+    display: grid;
+    border-top: 1px solid var(--color-rule-on-paper-soft);
+    padding-top: var(--space-4);
+  }
+
+  html:not(.js) .arch__panel + .arch__panel {
+    margin-top: var(--space-4);
+  }
+
+  .arch__panel-head h3 {
+    margin: var(--space-2) 0 0;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .arch__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .arch__meta-owner {
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+  }
+
+  .arch__meta-owner strong {
+    color: var(--color-text-on-paper);
+    font-weight: 600;
+  }
+
+  .arch__body {
+    margin: 0;
+    max-width: var(--width-reading);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .arch__evidence {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule-on-paper-soft);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  @media (min-width: 48rem) {
+    .arch__rail {
+      padding: var(--space-6);
+      gap: var(--space-6);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .arch__frame {
+      grid-template-columns: minmax(15rem, 0.75fr) minmax(0, 1.25fr);
+    }
+
+    .arch__rail {
+      grid-template-columns: 1fr;
+      border-bottom: 0;
+      border-right: 1px solid var(--color-rule-on-paper);
+      padding: var(--space-6);
+    }
+
+    .arch__panels {
+      padding: var(--space-6);
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .arch__rail {
+      padding: var(--space-4);
+      gap: var(--space-6);
+    }
+
+    .arch__node {
+      padding: var(--space-3);
+    }
+  }
+</style>

@@ -1,18 +1,26 @@
 ---
 import { GMAIL_COMPOSE_URL } from '../../config/site';
 import { sessionbook } from '../../data/registry';
-import ProjectSection from '../../components/ProjectSection.astro';
+import {
+  sessionbookMeta,
+  sessionbookPrimer,
+  sessionbookQuestions,
+  sessionbookBoundary,
+} from '../../data/sessionbook';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionFrame from '../../components/SectionFrame.astro';
+import ProjectSection from '../../components/ProjectSection.astro';
+import SessionBookArchitecture from '../../components/SessionBookArchitecture.astro';
+import SessionBookWalkthrough from '../../components/SessionBookWalkthrough.astro';
 
-const title = `${sessionbook.name} — Backend Case Study | Stephen Mensah`;
-const description = `${sessionbook.short} A FastAPI + Postgres service with double-booking protection, timezone correctness, and spoken-output design.`;
+const title = `${sessionbook.name} — Voice-Agent Backend Case Study | Stephen Mensah`;
+const description = `${sessionbook.name} is a FastAPI backend for voice-driven appointment booking using AssemblyAI Voice Agent capabilities: availability, atomic booking, and spoken responses. What the repo verifies, and what is still in progress.`;
 
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'CreativeWork',
-  name: `${sessionbook.name} — Backend Case Study`,
-  headline: sessionbook.claim,
+  name: `${sessionbook.name} — Voice-Agent Backend Case Study`,
+  headline: 'A small backend for a conversation it will never hear',
   description,
   url: new URL(sessionbook.route, Astro.site).href,
   author: {
@@ -23,9 +31,12 @@ const structuredData = {
   about: {
     '@type': 'SoftwareSourceCode',
     name: sessionbook.name,
-    codeRepository: 'https://github.com/stevemensah333-rgb/sessionbook',
+    codeRepository: sessionbookMeta.repoUrl,
   },
 };
+
+const architectureSummary =
+  'Caller → Voice Agent → HTTP tool call → SessionBook backend → booking / availability logic → response → Voice Agent → spoken response';
 ---
 
 <BaseLayout
@@ -35,97 +46,219 @@ const structuredData = {
   ogType="article"
 >
   <article class="case-page">
+    <!-- 00 · Overview -->
     <header id="overview" class="case-hero page-shell" data-workspace-section="top">
       <a class="back-link" href="/#sessionbook">← Back to workspace</a>
 
       <div class="case-opening">
-        <div>
-          <p class="mono-label">Case study · {sessionbook.name}</p>
-          <h1>Concurrency, not the model, is the boundary.</h1>
+        <div class="case-opening__copy">
+          <p class="mono-label">Backend case study · {sessionbook.name} · In development</p>
+          <h1>A small backend for a conversation it will never hear.</h1>
           <p class="case-summary">
-            {sessionbook.claim} This case study states what the repository actually
-            implements — the verified booking engine — and what is honestly in progress.
+            {sessionbook.short} The engine that decides correctness — availability,
+            atomic booking, spoken responses — is written. The voice agent that will
+            talk to it is not wired up yet, and the page says so at every step.
           </p>
         </div>
 
         <aside class="product-record" aria-label={`${sessionbook.name} product record`}>
           <div class="record-heading">
-            <p>Product record · 01</p>
-            <span>{sessionbook.status === 'in-development' ? 'In development' : sessionbook.status}</span>
+            <p>System record · 02</p>
+            <span>In development</span>
           </div>
           <p class="product-record__name">{sessionbook.name}</p>
+          <p class="product-record__position">
+            A backend utility for appointment / booking workflows using AssemblyAI
+            Voice Agent capabilities. Small system, one interesting engineering
+            problem.
+          </p>
           <dl>
-            <div><dt>Type</dt><dd>Backend service</dd></div>
+            <div><dt>Type</dt><dd>Backend utility (not a product)</dd></div>
+            <div><dt>Role</dt><dd>Booking engine behind a voice agent</dd></div>
             <div><dt>Framework</dt><dd>FastAPI</dd></div>
-            <div><dt>Database</dt><dd>Postgres 16</dd></div>
-            <div><dt>Status</dt><dd>{sessionbook.status === 'in-development' ? 'In development — voice agent pending' : sessionbook.status}</dd></div>
-            <div><dt>Evidence</dt><dd><a href="https://github.com/stevemensah333-rgb/sessionbook" target="_blank" rel="noopener">Source repository <span aria-hidden="true">↗</span></a></dd></div>
+            <div><dt>Database</dt><dd>Postgres 16 (local compose)</dd></div>
+            <div><dt>Status</dt><dd>Voice-agent integration in progress</dd></div>
+            <div>
+              <dt>Source</dt>
+              <dd>
+                <a href={sessionbookMeta.repoUrl} target="_blank" rel="noopener">View repository <span aria-hidden="true">↗</span></a>
+              </dd>
+            </div>
+            <div>
+              <dt>Reference</dt>
+              <dd>
+                <a href={sessionbookMeta.tutorialUrl} target="_blank" rel="noopener">AssemblyAI HTTP-tools tutorial <span aria-hidden="true">↗</span></a>
+              </dd>
+            </div>
           </dl>
         </aside>
       </div>
+
+      <p class="case-note">
+        Grounded in the SessionBook repository at commit {sessionbookMeta.repoCommit}
+        ({sessionbookMeta.repoCommitDate}). The
+        <a href={sessionbookMeta.tutorialUrl} target="_blank" rel="noopener">AssemblyAI HTTP-tools tutorial</a>
+        is conceptual reference only — it shapes what is being aimed at, and is never
+        presented as something SessionBook already does.
+      </p>
     </header>
 
-    <SectionFrame coordinate="01 / Trace context" surface="paper" data-workspace-section="sessionbook">
-      <div class="page-shell trace-context">
-        <div class="trace-context__copy">
-          <p class="mono-label">Reliability trace</p>
-          <h2>From caller request to confirmed booking.</h2>
+    <!-- 01 · Primer -->
+    <SectionFrame coordinate="01 / Why this exists" surface="paper" data-workspace-section="primer">
+      <div class="page-shell primer">
+        <div class="primer__intro">
+          <p class="mono-label">Four anchors</p>
+          <h2>The four questions the page answers.</h2>
+        </div>
+        <ol class="primer__grid">
+          {sessionbookPrimer.map((item, idx) => (
+            <li>
+              <p class="mono-label primer__num">{String(idx + 1).padStart(2, '0')}</p>
+              <h3>{item.question}</h3>
+              <p class="primer__answer">{item.answer}</p>
+              <p class="primer__evidence">{item.evidence}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </SectionFrame>
+
+    <!-- 02 · Architecture -->
+    <SectionFrame
+      coordinate="02 / Architecture"
+      surface="paper"
+      data-workspace-section="architecture"
+    >
+      <div class="page-shell architecture">
+        <header class="architecture__intro">
+          <p class="mono-label">Inspect the path</p>
+          <h2>Eight nodes, nothing more.</h2>
           <p>
-            The trace follows the booking service through the same stages as the
-            Syncareer reliability case — request, validation, failure, diagnosis,
-            intervention, output — applied here to the booking-engine domain.
+            {architectureSummary}
           </p>
+          <p class="architecture__note">
+            Only the components that actually exist are shown. There is no queue, no
+            message bus, no external calendar service, no analytics — none of that is
+            in the repository, so none of it appears here.
+          </p>
+          <p class="architecture__legend" aria-label="Legend">
+            <span class="arch-chip arch-chip--present">Present</span>
+            <span class="arch-chip arch-chip--in-progress">In progress</span>
+            <span class="arch-chip arch-chip--written">Written, not served</span>
+            <span class="arch-chip arch-chip--external">External actor</span>
+          </p>
+        </header>
+
+        <SessionBookArchitecture />
+
+        <div class="architecture__rows">
+          <dl class="ownership">
+            <div>
+              <dt>SessionBook owns</dt>
+              <dd>availability and booking logic · timezone correctness · reservation safety · what a confirmation sounds like</dd>
+            </div>
+            <div>
+              <dt>AssemblyAI owns</dt>
+              <dd>transcription · the dialogue · tool invocation · speech</dd>
+            </div>
+            <div>
+              <dt>One distinction</dt>
+              <dd>
+                The stored agent configuration (name, voice, prompt, tool definitions)
+                and the live booking data (slots, bookings) are separate concerns. The
+                agent document describes what can be called; the database holds what is
+                true right now.
+              </dd>
+            </div>
+            <div>
+              <dt>Shared boundary</dt>
+              <dd>plain HTTP requests carrying only what the caller said — name, phone, chosen slot</dd>
+            </div>
+          </dl>
         </div>
       </div>
     </SectionFrame>
 
+    <!-- 03 · Trace (data-driven from the registry) -->
     <ProjectSection
       project={sessionbook}
       anchorId="trace"
-      coordinate="02 / Stage inspector"
+      coordinate="03 / Stage inspector"
       showNarrative={false}
     />
 
-    <SectionFrame coordinate="03 / Evidence & limitations" surface="paper" data-workspace-section="evidence">
+    <!-- 04 · Walkthrough -->
+    <SectionFrame
+      coordinate="04 / Call path"
+      surface="paper"
+      data-workspace-section="flow"
+    >
+      <div class="page-shell flow">
+        <header class="flow__intro">
+          <p class="mono-label">Make the flow inspectable</p>
+          <h2>Tool → request → processing → response.</h2>
+          <p>
+            Four steps, each labelled honest: real implementation excerpts are marked
+            as excerpts, and scripted payloads are marked illustrative. Nothing here is
+            a live capture — no call has ever run.
+          </p>
+        </header>
+
+        <SessionBookWalkthrough />
+      </div>
+    </SectionFrame>
+
+    <!-- 05 · Questions -->
+    <SectionFrame coordinate="05 / Questions" surface="paper" data-workspace-section="questions">
+      <div class="page-shell questions">
+        <header class="questions__intro">
+          <p class="mono-label">Asked directly</p>
+          <h2>Short answers to the questions that matter.</h2>
+        </header>
+        <ol class="questions__list">
+          {sessionbookQuestions.map((item, idx) => (
+            <li>
+              <p class="mono-label questions__num">{String(idx + 1).padStart(2, '0')}</p>
+              <h3>{item.q}</h3>
+              <p>{item.a}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </SectionFrame>
+
+    <!-- 06 · Boundary -->
+    <SectionFrame coordinate="06 / Evidence" surface="paper" data-workspace-section="evidence">
       <div class="page-shell">
-        <div class="outcome-grid">
-          <section class="boundary-panel" aria-labelledby="boundary-title">
-            <p class="mono-label">What this does not prove yet</p>
-            <h2 id="boundary-title">Evidence boundary</h2>
+        <div class="boundary">
+          <section class="boundary-panel" aria-labelledby="sb-known-title">
+            <p class="mono-label">Verified in the repository</p>
+            <h2 id="sb-known-title">What exists now</h2>
             <ul class="boundary-list">
-              <li data-state="known">Booking service implements double-booking protection</li>
-              <li data-state="known">Pydantic contracts at the boundary</li>
-              <li data-state="known">Timezone handling via ZoneInfo</li>
-              <li data-state="known">Spoken-output design for the agent</li>
-              <li data-state="missing">No AssemblyAI voice-agent integration implemented</li>
-              <li data-state="missing">No HTTP routes for availability / booking / lookup yet</li>
-              <li data-state="missing">No migrations or test coverage supplied</li>
-              <li data-state="missing">No deployment, latency, or live-call metrics</li>
+              {sessionbookBoundary.known.map((item) => (
+                <li data-state="known">{item}</li>
+              ))}
             </ul>
           </section>
 
-          <section class="boundary-panel" aria-labelledby="status-title">
-            <p class="mono-label">Current status</p>
-            <h2 id="status-title">What is being built next</h2>
+          <section class="boundary-panel" aria-labelledby="sb-missing-title">
+            <p class="mono-label">Not yet true</p>
+            <h2 id="sb-missing-title">Evidence boundary</h2>
             <ul class="boundary-list">
-              <li data-state="known">Voice-agent JSON configuration</li>
-              <li data-state="known">HTTP tools that point at the booking API</li>
-              <li data-state="known">Alembic migration history</li>
-              <li data-state="known">End-to-end test coverage</li>
+              {sessionbookBoundary.missing.map((item) => (
+                <li data-state="missing">{item}</li>
+              ))}
             </ul>
-            <p class="case-content-note">
-              The planned voice work follows the HTTP-tools shape: a stored agent document
-              whose tools call the booking API directly, so no developer-maintained WebSocket
-              dispatcher is needed. Reference:
-              <a href="https://lablab.ai/ai-tutorials/assemblyai-voice-agent-http-tools" target="_blank" rel="noopener">AssemblyAI voice-agent HTTP-tools tutorial <span aria-hidden="true">↗</span></a>.
-              None of this is implemented yet — when it lands, the case study is updated.
-              Until then, the booking engine is the only verified surface.
+            <p class="boundary-note">
+              UNKNOWN covers everything that depends on real traffic: call volume,
+              latency, success rate, and how the agent behaves in conversation.
             </p>
           </section>
         </div>
       </div>
     </SectionFrame>
 
+    <!-- Contact -->
     <div class="case-content page-shell">
       <section
         id="contact-section"
@@ -134,7 +267,7 @@ const structuredData = {
         data-workspace-section="contact"
       >
         <p class="mono-label">Contact</p>
-        <h2 id="contact-title">Want to talk through the design?</h2>
+        <h2 id="contact-title">Want to talk through the boundary design?</h2>
         <a class="button" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email Stephen</a>
       </section>
     </div>
@@ -146,6 +279,7 @@ const structuredData = {
     border-bottom: var(--border-default);
   }
 
+  /* --- Hero ------------------------------------------------------- */
   .case-hero {
     padding-block: clamp(2.25rem, 4.5vw, 3.5rem);
   }
@@ -169,7 +303,7 @@ const structuredData = {
     color: var(--color-accent);
   }
 
-  .case-hero h1 {
+  .case-opening__copy h1 {
     max-width: 18ch;
     margin-block: var(--space-3) var(--space-4);
     font-size: var(--text-feature);
@@ -184,6 +318,25 @@ const structuredData = {
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-body-large);
     line-height: 1.55;
+  }
+
+  .case-note {
+    max-width: var(--width-reading);
+    margin: var(--space-6) 0 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-meta);
+    line-height: 1.5;
+    border-top: 1px solid var(--color-rule-on-paper-soft);
+    padding-top: var(--space-4);
+  }
+
+  .case-note a {
+    color: var(--color-text-on-paper);
+    font-weight: 600;
+  }
+
+  .case-note a:hover {
+    color: var(--color-accent);
   }
 
   .product-record {
@@ -218,16 +371,17 @@ const structuredData = {
     color: var(--color-accent);
   }
 
-  .product-record h2 {
-    margin-block: var(--space-5) var(--space-4);
+  .product-record__name {
+    margin: var(--space-5) 0 var(--space-2);
     font-size: var(--text-component);
     font-weight: 600;
   }
 
-  .product-record__name {
+  .product-record__position {
     margin: 0 0 var(--space-4);
-    font-size: var(--text-component);
-    font-weight: 600;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
   }
 
   .product-record dl {
@@ -238,10 +392,10 @@ const structuredData = {
 
   .product-record dl div {
     display: grid;
-    grid-template-columns: 5rem minmax(0, 1fr);
+    grid-template-columns: 5.5rem minmax(0, 1fr);
     gap: var(--space-4);
     padding-block: var(--space-3);
-    border-bottom: 1px solid var(--color-rule-on-paper);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
   }
 
   .product-record dd {
@@ -259,17 +413,26 @@ const structuredData = {
     color: var(--color-accent);
   }
 
-  .trace-context {
+  /* --- Primer ----------------------------------------------------- */
+  .primer {
+    display: grid;
+    gap: var(--space-6);
     padding-block: var(--section-block);
   }
 
-  .trace-context__copy {
+  .primer__intro,
+  .architecture__intro,
+  .flow__intro,
+  .questions__intro {
     display: grid;
     gap: var(--space-3);
     max-width: var(--width-content);
   }
 
-  .trace-context__copy h2 {
+  .primer__intro h2,
+  .architecture__intro h2,
+  .flow__intro h2,
+  .questions__intro h2 {
     margin: 0;
     max-width: 22ch;
     font-size: var(--text-section);
@@ -277,7 +440,59 @@ const structuredData = {
     line-height: 1.1;
   }
 
-  .trace-context__copy p:last-child {
+  .primer__grid {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: primer;
+  }
+
+  .primer__grid li {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-5);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  .primer__num {
+    color: var(--color-accent);
+  }
+
+  .primer__grid h3 {
+    margin: 0;
+    font-size: var(--text-component);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .primer__answer {
+    margin: 0;
+    color: var(--color-text-on-paper);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .primer__evidence {
+    margin: 0;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule-on-paper-soft);
+    color: var(--color-text-on-paper-faint);
+    font-size: var(--text-meta);
+    line-height: 1.5;
+  }
+
+  /* --- Architecture ---------------------------------------------- */
+  .architecture {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--section-block);
+  }
+
+  .architecture__intro p {
     margin: 0;
     max-width: var(--width-reading);
     color: var(--color-text-on-paper-muted);
@@ -285,7 +500,139 @@ const structuredData = {
     line-height: 1.55;
   }
 
-  .outcome-grid {
+  .architecture__note {
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+  }
+
+  .architecture__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .arch-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.0625rem 0.5rem;
+    border: 1px solid var(--color-rule-on-paper);
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .arch-chip--present {
+    border-color: var(--color-signal-pass);
+    color: var(--color-signal-pass);
+  }
+
+  .arch-chip--in-progress {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .arch-chip--written {
+    border-style: dashed;
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .arch-chip--external {
+    border-style: dotted;
+  }
+
+  .ownership {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+  }
+
+  .ownership div {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-5);
+    border-left: 2px solid var(--color-accent);
+    background: var(--color-paper-soft);
+  }
+
+  .ownership dt {
+    color: var(--color-text-on-paper);
+    font-weight: 600;
+    font-size: var(--text-small);
+  }
+
+  .ownership dd {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  /* --- Walkthrough ------------------------------------------------- */
+  .flow {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--section-block);
+  }
+
+  .flow__intro p {
+    margin: 0;
+    max-width: var(--width-reading);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
+  }
+
+  /* --- Questions ---------------------------------------------------- */
+  .questions {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--section-block);
+  }
+
+  .questions__list {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .questions__list li {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+    padding: var(--space-5) 0;
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .questions__num {
+    grid-row: span 2;
+    color: var(--color-accent);
+  }
+
+  .questions__list h3 {
+    margin: 0;
+    font-size: var(--text-component);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .questions__list p:last-child {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  /* --- Boundary ----------------------------------------------------- */
+  .boundary {
     display: grid;
     gap: var(--space-5);
     padding-block: var(--space-7);
@@ -294,6 +641,7 @@ const structuredData = {
   .boundary-panel {
     display: grid;
     gap: var(--space-3);
+    align-content: start;
     padding: var(--space-5);
     border: 1px solid var(--color-rule-on-paper);
     background: var(--color-paper-soft);
@@ -319,40 +667,42 @@ const structuredData = {
     border-bottom: 1px solid var(--color-rule-on-paper-soft);
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
+    line-height: 1.45;
   }
 
   .boundary-list li::before {
     position: absolute;
     left: 0;
     color: var(--color-text-on-paper-muted);
-    content: '—';
+    content: '\2014';
     font-family: var(--font-mono);
   }
 
   .boundary-list li[data-state='known']::before {
     color: var(--color-signal-pass);
-    content: '✓';
+    content: '\2713';
   }
 
   .boundary-list li[data-state='missing']::before {
     color: var(--color-signal-fail);
-    content: '×';
+    content: '\00d7';
   }
 
-  .case-content {
-    padding-bottom: var(--space-6);
-  }
-
-  .case-content section {
-    padding-block: var(--space-6);
-    border-top: 1px solid var(--color-rule-on-paper);
-  }
-
-  .case-content-note {
+  .boundary-note {
     margin: var(--space-3) 0 0;
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.5;
+  }
+
+  /* --- Contact ------------------------------------------------------- */
+  .case-content {
+    padding-bottom: var(--space-6);
+  }
+
+  .contact-section {
+    padding-block: var(--space-6);
+    border-top: 1px solid var(--color-rule-on-paper);
   }
 
   .contact-section h2 {
@@ -366,8 +716,17 @@ const structuredData = {
     margin-top: var(--space-3);
   }
 
+  /* --- Responsive ---------------------------------------------------- */
   @media (min-width: 48rem) {
-    .outcome-grid {
+    .primer__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ownership {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .boundary {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
@@ -380,8 +739,16 @@ const structuredData = {
   }
 
   @media (max-width: 30rem) {
-    .case-hero h1 {
+    .case-opening__copy h1 {
       font-size: 1.75rem;
+    }
+
+    .questions__list li {
+      grid-template-columns: 1fr;
+    }
+
+    .questions__num {
+      grid-row: auto;
     }
   }
 </style>

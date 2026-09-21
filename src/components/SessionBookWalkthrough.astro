@@ -1,0 +1,502 @@
+---
+/**
+ * SessionBookWalkthrough — inspect a booking flow, step by step.
+ *
+ * Four steps, each mapped to a form the backend actually reads or writes:
+ *   01 TOOL     — the HTTP-tool definition the voice agent points at
+ *   02 REQUEST  — the JSON an agent would POST (Pydantic-shape, illustrative)
+ *   03 PROCESS  — what the backend does (the written service implementation)
+ *   04 RESPONSE — success, then the non-success case the engine is built for
+ *
+ * Illustrative blocks are labelled inline as ILLUSTRATIVE next to the
+ * artifact, so scripted payloads are never mistaken for real captures.
+ * Uses the shared initTraceTabs controller.
+ */
+
+interface WalkStep {
+  id: string;
+  step: string;
+  label: string;
+  title: string;
+  summary: string;
+  callout?: {
+    title: string;
+    note: string;
+  };
+  codeLabel: string;
+  /** 'illustrative' or 'implementation' — drives the label chip */
+  provenance: 'illustrative' | 'implementation' | 'illustrative-failure';
+  badge: string;
+  code: string;
+  bullets: string[];
+  evidence: string;
+}
+
+const steps: WalkStep[] = [
+  {
+    id: 'tool',
+    step: '01',
+    label: 'TOOL',
+    title: 'What the agent is allowed to call',
+    summary:
+      'One asset tells AssemblyAI what exists and what arguments it takes. It is not implemented yet.',
+    callout: {
+      title: 'Not granted yet',
+      note: 'SessionBook\u2019s tools.py and agent.json are both empty today. This definition shows the intended shape for a booking tool and is marked illustrative.',
+    },
+    codeLabel: 'ILLUSTRATIVE — TOOL DEFINITION (CONCEPTUAL)',
+    provenance: 'illustrative',
+    badge: 'Tool definition',
+    code: `{
+  "name": "book_slot",
+  "description":
+    "Book the open slot the caller chose. Returns a confirmation
+     to read aloud. Answer in spoken words, not raw JSON.",
+  "http": {
+    "url": "{BASE_URL}/tools/book-slot",
+    "http_method": "POST"
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["slot_id", "caller_name", "caller_phone"],
+    "properties": {
+      "slot_id":      { "type": "integer", "$comment": "from check-availability" },
+      "caller_name":  { "type": "string", "minLength": 1, "maxLength": 100 },
+      "caller_phone": { "type": "string", "pattern": "^\\+?[0-9]{7,15}$" }
+    }
+  },
+  "timeout_seconds": 10
+}`,
+    bullets: [
+      'A name, a description the model reads, an argument schema, and the URL to call.',
+      'The tool knows nothing about the calendar. The backend does.',
+      'Reference shape from the AssemblyAI HTTP-tools tutorial, adapted to SessionBook\u2019s service \u2014 not implemented in the repo.',
+    ],
+    evidence: 'voice_agent/agent.json and app/routers/tools.py \u2014 both empty; app/main.py wires only /health.',
+  },
+  {
+    id: 'request',
+    step: '02',
+    label: 'REQUEST',
+    title: 'The JSON that crosses the boundary',
+    summary:
+      'Minimal and constrained. Pydantic validates it before the service layer ever sees it.',
+    callout: {
+      title: 'A schema, not a suggestion',
+      note: 'The request shape is real \u2014 schemas.py defines BookingRequest exactly like this. The field values are illustrative: no call has ever been made.',
+    },
+    codeLabel: 'ILLUSTRATIVE — REQUEST · BookingRequest SHAPE IS REAL',
+    provenance: 'illustrative',
+    badge: 'Request',
+    code: `POST /tools/book-slot
+
+{
+  "slot_id": 21,
+  "caller_name": "Ada Owusu",
+  "caller_phone": "+233201234567"
+}`,
+    bullets: [
+      'Only three fields: which slot, who is calling, and a callback number.',
+      'caller_phone must match ^\\+?[0-9]{7,15}$ \u2014 7 to 15 digits, optional leading +.',
+      'caller_name is bounded 1\u2013100 characters in the schema.',
+    ],
+    evidence: 'app/schemas.py \u2014 BookingRequest (slot_id, caller_name, caller_phone).',
+  },
+  {
+    id: 'process',
+    step: '03',
+    label: 'PROCESS',
+    title: 'What the backend owns, inside the request',
+    summary:
+      'Timing, locking, and one un-ambiguous confirmation code \u2014 the parts that would break a voice booking.',
+    codeLabel: 'IMPLEMENTATION EXCERPT',
+    provenance: 'implementation',
+    badge: 'Backend processing',
+    code: `async def book_slot(db, slot_id, caller_name, caller_phone):
+    async with db.begin():
+        result = await db.execute(
+            select(Slot).where(Slot.id == slot_id).with_for_update()
+        )
+        slot = result.scalar_one_or_none()
+
+        if slot is None:
+            raise ValueError(f"No slot with id {slot_id}")
+        if slot.is_booked:
+            raise SlotAlreadyBookedError(f"Slot {slot_id} is already booked")
+
+        slot.is_booked = True
+        booking = Booking(
+            slot_id=slot.id,
+            caller_name=caller_name,
+            caller_phone=caller_phone,
+            confirmation_code=_generate_confirmation_code(),
+        )
+        db.add(booking)
+
+        try:
+            await db.flush()
+        except IntegrityError:
+            raise SlotAlreadyBookedError(f"Slot {slot_id} is already booked")`,
+    bullets: [
+      'Lock first, then check: the slot row is locked before any read of is_booked, so two callers cannot pass the gate together.',
+      'The unique confirmation code drops 0/O and 1/I so it is safe to read aloud and type back.',
+      'Times are timezone-aware in Africa/Accra \u2014 the provider\u2019s zone, not the caller\u2019s.',
+    ],
+    evidence: 'app/services/booking_service.py \u2014 book_slot, _generate_confirmation_code, PROVIDER_TZ.',
+  },
+  {
+    id: 'response',
+    step: '04',
+    label: 'RESPONSE',
+    title: 'Spoken by design \u2014 and what happens when it fails',
+    summary:
+      'Success answers as an agent speaks. Failure answers as a sentence the agent can turn into the next question.',
+    codeLabel: 'ILLUSTRATIVE — RESPONSE VALUES · SHAPES ARE REAL',
+    provenance: 'illustrative-failure',
+    badge: 'Response + failure',
+    code: `// success \u2014 spoken as-is
+{
+  "confirmation_code": "K7Q3MN",
+  "spoken_confirmation":
+    "You're booked for Saturday, September 5 at 9:00 AM.
+     Your confirmation code is K7Q3MN."
+}
+
+// slot takes two code paths that can fail without raising:
+//  SlotAlreadyBookedError  \u2192  slot already gone on arrival
+//  ValueError              \u2192  no such slot`,
+    bullets: [
+      'Success: A sentence to read and a short code to repeat \u2014 no timestamp to reformat.',
+      'Still missing: a spoken failure sentence. book_slot raises SlotAlreadyBookedError and ValueError but does not yet turn them into words, and no route converts them into an HTTP response.',
+      'That gap matters for voice, for the reason in the reference: an agent that only hears "request failed" apologises; an agent that hears "that slot is taken, here is what remains" keeps the conversation alive.',
+    ],
+    evidence: 'app/schemas.py \u2014 BookingConfirmation. Raises in booking_service.py \u2014 the raised exceptions are not yet caught anywhere.',
+  },
+];
+---
+
+<div class="walk" data-walk>
+  <div class="walk__frame">
+    <div
+      class="walk__rail"
+      role="tablist"
+      aria-label="Booking flow steps"
+      aria-orientation="horizontal"
+    >
+      {steps.map((step, idx) => (
+        <button
+          type="button"
+          role="tab"
+          id={`walk-tab-${step.id}`}
+          class="walk__tab"
+          data-stage-tab={step.id}
+          aria-controls={`walk-panel-${step.id}`}
+          aria-selected={idx === 0 ? 'true' : 'false'}
+          tabindex={idx === 0 ? '0' : '-1'}
+        >
+          <span class="walk__step">{step.step}</span>
+          <span class="walk__label">{step.label}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="walk__panels">
+      {steps.map((step, idx) => (
+        <div
+          role="tabpanel"
+          id={`walk-panel-${step.id}`}
+          aria-labelledby={`walk-tab-${step.id}`}
+          class="walk__panel"
+          data-stage-panel={step.id}
+          data-active={idx === 0 ? 'true' : 'false'}
+          tabindex="0"
+          hidden={idx !== 0}
+        >
+          <header class="walk__head">
+            <p class="mono-label">{step.step} / {step.label}</p>
+            <h3>{step.title}</h3>
+            <p class="walk__summary">{step.summary}</p>
+          </header>
+
+          {step.callout && (
+            <p class="walk__callout"><strong>{step.callout.title}.</strong> {step.callout.note}</p>
+          )}
+
+          <div class="walk__code">
+            <div class="walk__code-meta">
+              <span>{step.codeLabel}</span>
+              <span
+                class:list={[
+                  'walk__code-badge',
+                  step.provenance === 'implementation' ? 'walk__code-badge--impl' : 'walk__code-badge--illustrative',
+                ]}
+              >
+                {step.badge}
+              </span>
+            </div>
+            <pre><code>{step.code}</code></pre>
+          </div>
+
+          <ul class="walk__bullets">
+            {step.bullets.map((bullet) => (
+              <li>
+                <span class="walk__bullet-mark" aria-hidden="true"></span>
+                <p>{bullet}</p>
+              </li>
+            ))}
+          </ul>
+
+          <p class="walk__evidence">
+            <span class="mono-label">Evidence</span>
+            {step.evidence}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initTraceTabs } from '../scripts/initTraceTabs';
+
+  const root = document.querySelector<HTMLElement>('[data-walk]');
+  if (root) initTraceTabs(root);
+</script>
+
+<style>
+  .walk__frame {
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  .walk__rail {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+    scrollbar-width: thin;
+  }
+
+  .walk__tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-height);
+    padding: 0 var(--space-4);
+    border: 0;
+    border-right: 1px solid var(--color-rule-on-paper);
+    background: transparent;
+    color: var(--color-text-on-paper-muted);
+    cursor: pointer;
+    font: inherit;
+    white-space: nowrap;
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
+  }
+
+  .walk__tab:last-child {
+    border-right: 0;
+  }
+
+  .walk__tab:hover {
+    background: color-mix(in srgb, var(--color-paper) 60%, transparent);
+    color: var(--color-text-on-paper);
+  }
+
+  .walk__tab[data-active='true'] {
+    color: var(--color-text-on-paper);
+    background: var(--color-paper);
+  }
+
+  .walk__tab[data-active='true']::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--color-accent);
+  }
+
+  .walk__tab:focus-visible {
+    outline-offset: -3px;
+  }
+
+  .walk__step {
+    display: inline-flex;
+    min-width: 2rem;
+    justify-content: center;
+    padding: 0.15rem 0.35rem;
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+  }
+
+  .walk__tab[data-active='true'] .walk__step {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .walk__label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .walk__panels {
+    padding: var(--space-5);
+  }
+
+  .walk__panel {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .walk__panel[hidden] {
+    display: none !important;
+  }
+
+  html:not(.js) .walk__panel,
+  html:not(.js) .walk__panel[hidden] {
+    display: grid !important;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  html:not(.js) .walk__panel + .walk__panel {
+    margin-top: var(--space-4);
+  }
+
+  html:not(.js) .walk__rail {
+    display: none;
+  }
+
+  .walk__head {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .walk__head h3 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .walk__summary {
+    margin: 0;
+    max-width: var(--width-reading);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .walk__callout {
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    border: 1px dashed var(--color-accent);
+    background: var(--color-accent-tint);
+    color: var(--color-text-on-paper);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .walk__callout strong {
+    font-weight: 600;
+  }
+
+  .walk__code {
+    border: 1px solid var(--color-rule-on-paper-soft);
+    background: var(--color-paper);
+    overflow: hidden;
+  }
+
+  .walk__code-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+  }
+
+  .walk__code-badge {
+    color: var(--color-accent);
+  }
+
+  .walk__code-badge--impl {
+    color: var(--color-signal-pass);
+  }
+
+  .walk__code pre {
+    margin: 0;
+    padding: var(--space-3);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--color-text-on-paper);
+    max-height: 24rem;
+  }
+
+  .walk__bullets {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .walk__bullets li {
+    display: grid;
+    grid-template-columns: var(--space-4) minmax(0, 1fr);
+    gap: var(--space-2);
+    align-items: start;
+  }
+
+  .walk__bullet-mark {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    margin-top: 0.5rem;
+    border: 1px solid var(--color-accent);
+    background: transparent;
+  }
+
+  .walk__bullets p {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .walk__evidence {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule-on-paper-soft);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 30rem) {
+    .walk__panels {
+      padding: var(--space-4);
+    }
+  }
+</style>
