@@ -22,11 +22,18 @@ export function initTraceTabs(root: Element, options: TraceTabOptions = {}): Tra
       tab.tabIndex = active ? 0 : -1;
       tab.dataset.active = String(active);
       tab.dataset.past = String(tabIndex < index);
+      tab.dataset.future = String(tabIndex > index);
     });
     panels.forEach(panel => {
       const active = panel.dataset.stagePanel === id;
       panel.dataset.active = String(active);
       panel.hidden = !active;
+      if (active) {
+        // reveal transformation — panel enters, consistent motion vocabulary
+        panel.classList.remove('reveal-enter');
+        void panel.offsetWidth;
+        panel.classList.add('reveal-enter');
+      }
     });
     const selectedTab = tabs[index];
     if (selectedTab) options.onSelect?.(id, index, tabs.length, selectedTab);

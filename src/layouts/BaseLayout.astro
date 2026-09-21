@@ -2,7 +2,9 @@
 import Analytics from '@vercel/analytics/astro';
 import { default as SpeedInsights } from '@vercel/speed-insights/astro';
 import WorkspaceRail from '../components/WorkspaceRail.astro';
+import BootSequence from '../components/BootSequence.astro';
 import '../styles/global.css';
+import '../styles/interactions.css';
 import interFontURL from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import monoFontURL from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2?url';
 
@@ -81,6 +83,7 @@ const socialImageURL = new URL(image, Astro.site);
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
+    <BootSequence />
     <div class="layout" data-layout>
       <WorkspaceRail />
       <main id="main-content" class="layout__main" tabindex="-1">

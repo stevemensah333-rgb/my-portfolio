@@ -31,41 +31,45 @@ const copy = reliabilityTraceCopy;
     <div class="trace__engine" role="region" aria-label="Reliability trace">
       <ol class="trace__rail" data-trace-rail aria-label="Causal stages">
         <li>
-          <button type="button" class="trace__step" data-stage="raw" data-active="true" aria-current="step">
+          <button type="button" class="trace__step" data-stage="raw" data-active="true" aria-current="step" data-readout="Unstructured model output — fluent bullet with no evidence">
             <span class="trace__step-num">01</span>
             <span class="trace__step-label">Raw</span>
             <span class="trace__step-state" data-step-state>unstructured</span>
           </button>
         </li>
         <li>
-          <button type="button" class="trace__step" data-stage="validate">
+          <button type="button" class="trace__step" data-stage="validate" data-readout="Contract gate — must cite requirement + evidence">
             <span class="trace__step-num">02</span>
             <span class="trace__step-label">Validate</span>
             <span class="trace__step-state" data-step-state>check</span>
           </button>
         </li>
         <li>
-          <button type="button" class="trace__step" data-stage="failed">
+          <button type="button" class="trace__step" data-stage="failed" data-readout="Rewrite refused — no citations, risky claims">
             <span class="trace__step-num">03</span>
             <span class="trace__step-label">Failed</span>
             <span class="trace__step-state trace__step-state--fail" data-step-state>invalid</span>
           </button>
         </li>
         <li>
-          <button type="button" class="trace__step" data-stage="intervene">
+          <button type="button" class="trace__step" data-stage="intervene" data-readout="Intervention — bounded prompts, citations, risk checks">
             <span class="trace__step-num">04</span>
             <span class="trace__step-label">Intervene</span>
             <span class="trace__step-state trace__step-state--active" data-step-state>fix</span>
           </button>
         </li>
         <li>
-          <button type="button" class="trace__step" data-stage="valid">
+          <button type="button" class="trace__step" data-stage="valid" data-readout="Cited output — ready for review, not auto-applied">
             <span class="trace__step-num">05</span>
             <span class="trace__step-label">Valid</span>
             <span class="trace__step-state trace__step-state--valid" data-step-state>pass</span>
           </button>
         </li>
       </ol>
+      <p class="trace__readout">
+        <span class="mono-label mono-label--inverse" data-trace-readout-label>Active · 01</span>
+        <span data-trace-readout-text>Unstructured model output — fluent bullet with no evidence</span>
+      </p>
 
       <div class="trace__stage">
         <article class="trace__panel" data-panel="raw" data-panel-active="true">
@@ -199,6 +203,8 @@ const copy = reliabilityTraceCopy;
     const prevBtn = root.querySelector<HTMLButtonElement>('[data-step-prev]');
     const nextBtn = root.querySelector<HTMLButtonElement>('[data-step-next]');
     const interventionList = root.querySelector<HTMLElement>('[data-intervention-list]');
+    const readoutLabel = root.querySelector<HTMLElement>('[data-trace-readout-label]');
+    const readoutText = root.querySelector<HTMLElement>('[data-trace-readout-text]');
 
     if (!codeRaw || !codeValid || !live) continue;
 
@@ -208,6 +214,8 @@ const copy = reliabilityTraceCopy;
     let hasPlayed = false;
     let paused = false;
     let currentIndex = 0;
+
+    const readouts = steps.map(s => s.dataset.readout ?? '');
 
     document.addEventListener('visibilitychange', () => {
       paused = document.hidden;
@@ -242,6 +250,14 @@ const copy = reliabilityTraceCopy;
       return true;
     };
 
+    const setReadout = (index: number, source: 'active' | 'hover') => {
+      const stepNum = steps[index]?.querySelector('.trace__step-num')?.textContent?.trim() ?? String(index + 1).padStart(2, '0');
+      if (readoutLabel) {
+        readoutLabel.textContent = source === 'hover' ? `Inspect · ${stepNum}` : `Active · ${stepNum}`;
+      }
+      if (readoutText) readoutText.textContent = readouts[index] ?? '';
+    };
+
     const setActive = (index: number) => {
       currentIndex = index;
       steps.forEach((s, i) => {
@@ -252,7 +268,13 @@ const copy = reliabilityTraceCopy;
       });
       panels.forEach((p, i) => {
         p.dataset.panelActive = String(i === index);
+        if (i === index) {
+          p.classList.remove('reveal-enter');
+          void p.offsetWidth;
+          p.classList.add('reveal-enter');
+        }
       });
+      setReadout(index, 'active');
     };
 
     const setStatus = (text: string, tone: 'ready' | 'running' | 'fail' | 'pass') => {
@@ -423,6 +445,11 @@ const copy = reliabilityTraceCopy;
         steps[next]?.focus();
         inspect(next);
       });
+      // hover / focus reveals information without owning it
+      step.addEventListener('pointerenter', () => setReadout(index, 'hover'));
+      step.addEventListener('pointerleave', () => setReadout(currentIndex, 'active'));
+      step.addEventListener('focus', () => setReadout(index, 'hover'));
+      step.addEventListener('blur', () => setReadout(currentIndex, 'active'));
     });
 
     const io = new IntersectionObserver((entries) => {
@@ -592,6 +619,19 @@ const copy = reliabilityTraceCopy;
     background: var(--color-canvas);
   }
 
+  .trace__readout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin: 0;
+    min-height: 1.25rem;
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+  }
+
   .trace__stage {
     position: relative;
     display: grid;
@@ -615,6 +655,21 @@ const copy = reliabilityTraceCopy;
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
+  }
+
+  .trace__panel.reveal-enter {
+    animation: trace-panel-enter var(--duration-reveal) var(--ease-emphasized);
+  }
+
+  @keyframes trace-panel-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .trace__panel-header {

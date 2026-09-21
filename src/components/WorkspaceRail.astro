@@ -38,7 +38,10 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
     <span class="workspace-rail__path mono-label" aria-live="polite" data-workspace-path>00 / 00</span>
   </div>
 
-  <nav aria-label="Primary workspace destinations">
+  <nav aria-label="Primary workspace destinations" class="workspace-rail__nav">
+    <div class="workspace-rail__progress" aria-hidden="true">
+      <span class="workspace-rail__progress-fill" data-workspace-progress></span>
+    </div>
     <ol class="workspace-rail__list" data-workspace-list>
       {destinations.map((dest) => {
         const href = dest.kind === 'home' ? homeHref(dest.section) : dest.section;
@@ -151,9 +154,11 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
   const rail = document.querySelector<HTMLElement>('[data-workspace-rail]');
   const bar = document.querySelector<HTMLElement>('[data-workspace-bar]');
   const pathLabel = rail?.querySelector<HTMLElement>('[data-workspace-path]');
+  const progressFill = rail?.querySelector<HTMLElement>('[data-workspace-progress]');
 
   // --- Section tracking via IntersectionObserver -------------------------
   // Tracks which destination section is in view and reflects it on the rail.
+  // The progress fill reveals structure: where you are in the workspace.
   const homeSections = document.querySelectorAll<HTMLElement>('main [data-workspace-section]');
   const homeLinkLookup = new Map<string, HTMLAnchorElement>();
   rail?.querySelectorAll<HTMLAnchorElement>('[data-workspace-link]').forEach((link) => {
@@ -175,6 +180,10 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
     const total = sectionOrder.filter(Boolean).length;
     if (pathLabel && order >= 0) {
       pathLabel.textContent = `${String(order + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+    }
+    if (progressFill && order >= 0 && total > 0) {
+      const pct = ((order + 1) / total) * 100;
+      progressFill.style.height = `${pct}%`;
     }
     homeLinkLookup.forEach((link, linkId) => {
       if (linkId === id) link.setAttribute('aria-current', 'true');
@@ -498,6 +507,36 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
       color: var(--color-accent);
     }
 
+    .workspace-rail__nav {
+      position: relative;
+      padding-left: var(--space-3);
+    }
+
+    .workspace-rail__progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--color-rule-on-canvas);
+    }
+
+    .workspace-rail__progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1px;
+      height: 12%;
+      background: var(--color-accent);
+      transition: height var(--duration-reveal) var(--ease-emphasized);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .workspace-rail__progress-fill {
+        transition: none;
+      }
+    }
+
     .workspace-rail__list {
       display: grid;
       margin: 0;
@@ -528,11 +567,22 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
       color: var(--color-text-on-canvas);
     }
 
+    .workspace-rail__link:hover .workspace-rail__description,
+    .workspace-rail__link:focus-visible .workspace-rail__description {
+      color: var(--color-text-on-canvas);
+    }
+
     .workspace-rail__index {
       color: var(--color-accent);
       font-family: var(--font-mono);
       font-size: 0.6875rem;
       letter-spacing: 0.04em;
+      transition: color var(--duration-quick) var(--ease-standard);
+    }
+
+    .workspace-rail__link:hover .workspace-rail__index,
+    .workspace-rail__link:focus-visible .workspace-rail__index {
+      color: var(--color-text-on-canvas);
     }
 
     .workspace-rail__label {
@@ -546,6 +596,7 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
       grid-column: 2;
       color: var(--color-text-on-canvas-muted);
       font-size: 0.6875rem;
+      transition: color var(--duration-quick) var(--ease-standard);
     }
 
     .workspace-rail__chev {
