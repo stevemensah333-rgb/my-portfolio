@@ -2,10 +2,10 @@
 import { GMAIL_COMPOSE_URL, PUBLIC_LINKS } from '../config/site';
 import { projects, sessionbook } from '../data/registry';
 import ReliabilityTrace from '../components/ReliabilityTrace.astro';
+import ReliabilityLab from '../components/ReliabilityLab.astro';
 import ProjectSection from '../components/ProjectSection.astro';
 import SyncareerPreview from '../components/SyncareerPreview.astro';
 import KorancoSection from '../components/KorancoSection.astro';
-import SectionFrame from '../components/SectionFrame.astro';
 import TechnicalToolkitSection from '../components/TechnicalToolkitSection.astro';
 import AboutSection from '../components/AboutSection.astro';
 import ExperienceSection from '../components/ExperienceSection.astro';
@@ -102,22 +102,8 @@ const structuredData = {
   <!-- Work · Koranco (ongoing engagement, no inspector) -->
   <KorancoSection />
 
-  <!-- Reliability Lab · the trace engine, exposed as its own workspace -->
-  <section id="reliability-lab" class="reliability-lab" aria-labelledby="reliability-lab-title" data-workspace-section="reliability-lab">
-    <SectionFrame coordinate="Lab / Reliability trace" surface="canvas">
-      <div class="page-shell reliability-lab__layout">
-        <header class="reliability-lab__header">
-          <p class="mono-label">Reliability Lab · instrument</p>
-          <h2 id="reliability-lab-title">A trace engine you can operate.</h2>
-          <p>
-            The Reliability Lab is the same engine that runs on the homepage, opened as its own surface.
-            Inspect stages, replay, and step through each transition. No fabricated metrics.
-          </p>
-        </header>
-        <ReliabilityTrace instanceId="lab" />
-      </div>
-    </SectionFrame>
-  </section>
+  <!-- Reliability Lab · the signature instrument, as its own workspace -->
+  <ReliabilityLab />
 
   <TechnicalToolkitSection />
   <ExperienceSection />
@@ -268,43 +254,6 @@ const structuredData = {
     color: var(--color-accent);
   }
 
-  /* Reliability Lab section */
-  .reliability-lab {
-    background: var(--color-canvas);
-    color: var(--color-text-on-canvas);
-    border-top: 1px solid var(--color-rule-on-canvas);
-    border-bottom: 1px solid var(--color-rule-on-canvas);
-  }
-
-  .reliability-lab__layout {
-    display: grid;
-    gap: var(--space-6);
-    padding-block: var(--section-block);
-  }
-
-  .reliability-lab__header {
-    display: grid;
-    gap: var(--space-3);
-    max-width: var(--width-content);
-  }
-
-  .reliability-lab__header h2 {
-    margin: 0;
-    max-width: 22ch;
-    font-size: var(--text-feature);
-    font-weight: 600;
-    letter-spacing: var(--tracking-heading);
-    line-height: 1.05;
-  }
-
-  .reliability-lab__header p:last-child {
-    max-width: var(--width-reading);
-    margin: 0;
-    color: var(--color-text-on-canvas-muted);
-    font-size: var(--text-body-large);
-    line-height: 1.55;
-  }
-
   /* Responsive layout */
   @media (min-width: 48rem) {
     .hero__grid {
@@ -315,12 +264,6 @@ const structuredData = {
 
     .hero__message {
       grid-column: 2;
-    }
-
-    .reliability-lab__layout {
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-      align-items: start;
-      gap: var(--space-7);
     }
   }
 

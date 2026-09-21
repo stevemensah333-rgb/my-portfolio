@@ -1,0 +1,333 @@
+---
+/**
+ * ParticlePortrait — the portfolio's single particle surface.
+ *
+ * The portrait is sampled into a grid of square data blocks. At rest
+ * the blocks resolve back into the portrait; pointer movement pushes
+ * blocks out of place (amber = displaced), and the structure recovers
+ * on its own. Nothing moves for decoration: the field is static until
+ * a pointer perturbs it, and the frame loop stops the moment the
+ * field settles.
+ *
+ * Constraints honoured:
+ *   - used once (About), never as a background
+ *   - particle count capped (≤ 2600 desktop, ≤ 1200 coarse pointers)
+ *   - reduced motion / no JS / canvas failure → the static <img>
+ *   - the <img> stays in the DOM with its alt text; the canvas is
+ *     aria-hidden and only fades in once the field has resolved
+ *   - 2D canvas only, no dependencies, no WebGL
+ */
+interface Props {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+
+const { src, alt, width, height } = Astro.props;
+---
+
+<div class="pportrait" data-particle-portrait>
+  <img
+    class="pportrait__img"
+    src={src}
+    alt={alt}
+    width={width}
+    height={height}
+    loading="lazy"
+    decoding="async"
+    data-portrait-img
+  />
+  <canvas class="pportrait__canvas" data-portrait-canvas aria-hidden="true" hidden></canvas>
+</div>
+
+<script>
+  type Particle = {
+    hx: number; hy: number;
+    x: number; y: number;
+    vx: number; vy: number;
+    s: number;
+    g: number;
+  };
+
+  const INK = ['#CFCBC2', '#A19D94', '#75726B', '#4A4844', '#1C1D1F'];
+  const ACCENT = '#D69422';
+
+  const roots = document.querySelectorAll<HTMLElement>('[data-particle-portrait]');
+
+  for (const root of roots) {
+    const img = root.querySelector<HTMLImageElement>('[data-portrait-img]');
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-portrait-canvas]');
+    if (!img || !canvas) continue;
+
+    const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const coarseQuery = window.matchMedia('(pointer: coarse)');
+    if (reducedQuery.matches) continue;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) continue;
+
+    let particles: Particle[] = [];
+    let pointer: { x: number; y: number } | null = null;
+    let looping = false;
+    let raf = 0;
+    let built = false;
+    let visible = false;
+    let cssWidth = 0;
+    let cssHeight = 0;
+
+    const STOP_SPEED = 0.02;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, cssWidth, cssHeight);
+      /* batch by ink bucket so fillStyle changes stay rare */
+      for (let g = 0; g < INK.length; g += 1) {
+        ctx.fillStyle = INK[g] ?? '#1C1D1F';
+        for (const p of particles) {
+          if (p.g !== g) continue;
+          const displaced = Math.abs(p.x - p.hx) + Math.abs(p.y - p.hy) > 1.5;
+          if (displaced) continue;
+          ctx.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s);
+        }
+      }
+      /* displaced blocks read as active: the controlled accent */
+      ctx.fillStyle = ACCENT;
+      for (const p of particles) {
+        if (Math.abs(p.x - p.hx) + Math.abs(p.y - p.hy) <= 1.5) continue;
+        ctx.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s);
+      }
+    };
+
+    const step = () => {
+      const radius = 64;
+      const r2 = radius * radius;
+      for (const p of particles) {
+        if (pointer) {
+          const dx = p.x - pointer.x;
+          const dy = p.y - pointer.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < r2 && d2 > 0.01) {
+            const d = Math.sqrt(d2);
+            const force = (1 - d / radius) * 1.9;
+            p.vx += (dx / d) * force;
+            p.vy += (dy / d) * force;
+          }
+        }
+        p.vx += (p.hx - p.x) * 0.055;
+        p.vy += (p.hy - p.y) * 0.055;
+        p.vx *= 0.8;
+        p.vy *= 0.8;
+        p.x += p.vx;
+        p.y += p.vy;
+      }
+    };
+
+    const settled = () => {
+      if (pointer) return false;
+      for (const p of particles) {
+        if (Math.abs(p.vx) + Math.abs(p.vy) > STOP_SPEED) return false;
+        if (Math.abs(p.x - p.hx) + Math.abs(p.y - p.hy) > 0.5) return false;
+      }
+      return true;
+    };
+
+    const frame = () => {
+      step();
+      draw();
+      if (visible && !settled()) {
+        raf = requestAnimationFrame(frame);
+      } else {
+        looping = false;
+      }
+    };
+
+    const kick = () => {
+      if (looping || !built || !visible || document.hidden) return;
+      looping = true;
+      raf = requestAnimationFrame(frame);
+    };
+
+    const build = () => {
+      if (img.naturalWidth === 0) return;
+      const rect = root.getBoundingClientRect();
+      cssWidth = Math.max(1, Math.round(rect.width));
+      cssHeight = Math.max(1, Math.round(rect.height));
+      if (cssWidth < 40 || cssHeight < 40) return;
+
+      const coarse = coarseQuery.matches;
+      const maxParticles = coarse ? 1200 : 2600;
+      let cell = coarse ? 6 : 4;
+      let cols = Math.max(8, Math.floor(cssWidth / cell));
+      let rows = Math.max(8, Math.floor(cssHeight / cell));
+      while (cols * rows > maxParticles && cell < 16) {
+        cell += 1;
+        cols = Math.max(8, Math.floor(cssWidth / cell));
+        rows = Math.max(8, Math.floor(cssHeight / cell));
+      }
+
+      const off = document.createElement('canvas');
+      off.width = cols;
+      off.height = rows;
+      const octx = off.getContext('2d', { willReadFrequently: true });
+      if (!octx) return;
+      octx.drawImage(img, 0, 0, cols, rows);
+      let data: Uint8ClampedArray;
+      try {
+        data = octx.getImageData(0, 0, cols, rows).data;
+      } catch {
+        return; /* tainted or unreadable: keep the static image */
+      }
+
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = Math.round(cssWidth * dpr);
+      canvas.height = Math.round(cssHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const next: Particle[] = [];
+      for (let ry = 0; ry < rows; ry += 1) {
+        for (let rx = 0; rx < cols; rx += 1) {
+          const i = (ry * cols + rx) * 4;
+          const a = data[i + 3] ?? 0;
+          const r = data[i] ?? 255;
+          const g = data[i + 1] ?? 255;
+          const b = data[i + 2] ?? 255;
+          if (a < 8) continue;
+          const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+          if (lum > 0.87) continue; /* background: no block */
+          const ink = 1 - lum;
+          const bucket = Math.min(INK.length - 1, Math.floor(ink * INK.length));
+          const size = cell * Math.min(1, Math.max(0.18, 1.08 - lum));
+          const hx = (rx + 0.5) * (cssWidth / cols);
+          const hy = (ry + 0.5) * (cssHeight / rows);
+          next.push({ hx, hy, x: hx, y: hy, vx: 0, vy: 0, s: size, g: bucket });
+        }
+      }
+      if (next.length === 0) return;
+
+      particles = next;
+      built = true;
+      canvas.hidden = false;
+      root.dataset.resolved = 'true';
+      draw();
+    };
+
+    /* ---- lifecycle -------------------------------------------------- */
+
+    const startWhenReady = () => {
+      if (built || reducedQuery.matches) return;
+      const ready = () => {
+        if (img.naturalWidth > 0) build();
+      };
+      if (img.complete) ready();
+      else img.addEventListener('load', ready, { once: true });
+      img.addEventListener('error', () => { built = false; }, { once: true });
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          visible = entry.isIntersecting;
+          if (visible && !built) startWhenReady();
+          if (visible) kick();
+          else if (looping) {
+            cancelAnimationFrame(raf);
+            looping = false;
+          }
+        }
+      },
+      { rootMargin: '160px' },
+    );
+    observer.observe(root);
+
+    root.addEventListener('pointermove', (event) => {
+      if (!built) return;
+      const rect = root.getBoundingClientRect();
+      pointer = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      kick();
+    });
+    root.addEventListener('pointerdown', (event) => {
+      if (!built) return;
+      const rect = root.getBoundingClientRect();
+      pointer = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      kick();
+    });
+    root.addEventListener('pointerleave', () => {
+      pointer = null;
+      kick();
+    });
+    root.addEventListener('pointercancel', () => {
+      pointer = null;
+      kick();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && looping) {
+        cancelAnimationFrame(raf);
+        looping = false;
+      } else if (!document.hidden) {
+        kick();
+      }
+    });
+
+    let resizeTimer = 0;
+    const resizeObserver = new ResizeObserver(() => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        if (reducedQuery.matches) return;
+        built = false;
+        startWhenReady();
+      }, 160);
+    });
+    resizeObserver.observe(root);
+
+    reducedQuery.addEventListener('change', (event) => {
+      if (event.matches) {
+        cancelAnimationFrame(raf);
+        looping = false;
+        built = false;
+        canvas.hidden = true;
+        delete root.dataset.resolved;
+        observer.disconnect();
+        resizeObserver.disconnect();
+      }
+    });
+  }
+</script>
+
+<style>
+  .pportrait {
+    position: relative;
+    width: 100%;
+  }
+
+  .pportrait__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: grayscale(1) contrast(1.05);
+    transition: opacity var(--duration-reveal) var(--ease-standard);
+  }
+
+  .pportrait[data-resolved='true'] .pportrait__img {
+    opacity: 0;
+  }
+
+  .pportrait__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pportrait__img {
+      transition: none;
+      opacity: 1;
+    }
+
+    .pportrait__canvas {
+      display: none;
+    }
+  }
+</style>

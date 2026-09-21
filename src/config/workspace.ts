@@ -38,7 +38,7 @@ export const destinations: Destination[] = [
     label: 'Reliability Lab',
     section: 'reliability-lab',
     kind: 'home',
-    description: 'The trace engine as an instrument.',
+    description: 'One payload, seven stages, operable.',
     index: '02',
   },
   {
