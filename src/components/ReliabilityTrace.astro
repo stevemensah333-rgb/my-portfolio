@@ -1,4 +1,6 @@
 ---
+import { reliabilityTraceCopy } from '../data/syncareerInvestigation';
+
 interface Props {
   variant?: 'hero' | 'portrait';
   /** Optional id used to disambiguate when multiple traces render on the same page. */
@@ -7,6 +9,7 @@ interface Props {
 
 const { variant = 'hero', instanceId } = Astro.props;
 const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-trace-${variant}`;
+const copy = reliabilityTraceCopy;
 ---
 
 {variant === 'hero' ? (
@@ -17,7 +20,7 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
   >
     <header class="trace__topbar">
       <span id={`${traceId}-title`} class="trace__title">
-        <span class="trace__title-prefix">▸</span> Reliability trace
+        <span class="trace__title-prefix">▸</span> Reliability trace · CV rewrite
       </span>
       <span class="trace__status">
         <span class="trace__status-dot" aria-hidden="true"></span>
@@ -25,32 +28,42 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
       </span>
     </header>
 
-    <div class="trace__engine" role="region" aria-label="Reliability trace animation">
-      <ol class="trace__rail" data-trace-rail aria-label="Stages">
-        <li class="trace__step" data-stage="raw" data-active="true">
-          <span class="trace__step-num">01</span>
-          <span class="trace__step-label">Input</span>
-          <span class="trace__step-state" data-step-state>raw</span>
+    <div class="trace__engine" role="region" aria-label="Reliability trace">
+      <ol class="trace__rail" data-trace-rail aria-label="Causal stages">
+        <li>
+          <button type="button" class="trace__step" data-stage="raw" data-active="true" aria-current="step">
+            <span class="trace__step-num">01</span>
+            <span class="trace__step-label">Raw</span>
+            <span class="trace__step-state" data-step-state>unstructured</span>
+          </button>
         </li>
-        <li class="trace__step" data-stage="validate">
-          <span class="trace__step-num">02</span>
-          <span class="trace__step-label">Validate</span>
-          <span class="trace__step-state" data-step-state>check</span>
+        <li>
+          <button type="button" class="trace__step" data-stage="validate">
+            <span class="trace__step-num">02</span>
+            <span class="trace__step-label">Validate</span>
+            <span class="trace__step-state" data-step-state>check</span>
+          </button>
         </li>
-        <li class="trace__step" data-stage="failed">
-          <span class="trace__step-num">03</span>
-          <span class="trace__step-label">Failed</span>
-          <span class="trace__step-state trace__step-state--fail" data-step-state>invalid</span>
+        <li>
+          <button type="button" class="trace__step" data-stage="failed">
+            <span class="trace__step-num">03</span>
+            <span class="trace__step-label">Failed</span>
+            <span class="trace__step-state trace__step-state--fail" data-step-state>invalid</span>
+          </button>
         </li>
-        <li class="trace__step" data-stage="intervene">
-          <span class="trace__step-num">04</span>
-          <span class="trace__step-label">Intervene</span>
-          <span class="trace__step-state trace__step-state--active" data-step-state>fix</span>
+        <li>
+          <button type="button" class="trace__step" data-stage="intervene">
+            <span class="trace__step-num">04</span>
+            <span class="trace__step-label">Intervene</span>
+            <span class="trace__step-state trace__step-state--active" data-step-state>fix</span>
+          </button>
         </li>
-        <li class="trace__step" data-stage="valid">
-          <span class="trace__step-num">05</span>
-          <span class="trace__step-label">Output</span>
-          <span class="trace__step-state trace__step-state--valid" data-step-state>pass</span>
+        <li>
+          <button type="button" class="trace__step" data-stage="valid">
+            <span class="trace__step-num">05</span>
+            <span class="trace__step-label">Valid</span>
+            <span class="trace__step-state trace__step-state--valid" data-step-state>pass</span>
+          </button>
         </li>
       </ol>
 
@@ -62,71 +75,82 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
           </header>
           <pre class="trace__code"><code data-code-raw></code><span class="trace__cursor" aria-hidden="true"></span></pre>
           <p class="trace__panel-note">
-            Illustrative: model responded with mixed prose and a malformed structure.
+            Illustrative: a fluent bullet the supplied evidence does not support.
           </p>
         </article>
 
         <article class="trace__panel" data-panel="validate">
           <header class="trace__panel-header">
             <span class="trace__panel-tag">check</span>
-            <p class="trace__panel-title">Schema validation gate</p>
+            <p class="trace__panel-title">Proposal contract gate</p>
           </header>
           <ul class="trace__gate">
-            <li><span>title</span><i data-gate="title"></i><b>required · string</b></li>
-            <li><span>level</span><i data-gate="level"></i><b>required · enum</b></li>
-            <li><span>years</span><i data-gate="years"></i><b>required · number</b></li>
-            <li><span>next_steps</span><i data-gate="next_steps"></i><b>required · array</b></li>
+            {copy.gates.map((gate) => (
+              <li>
+                <span>{gate.label}</span>
+                <i data-gate={gate.id}></i>
+                <b>{gate.rule}</b>
+              </li>
+            ))}
           </ul>
           <p class="trace__panel-note">
-            Gate: does the output match the product contract before use?
+            Does the output match parseModelProposal — and cite requirement + evidence?
           </p>
         </article>
 
         <article class="trace__panel" data-panel="failed">
           <header class="trace__panel-header">
             <span class="trace__panel-tag trace__panel-tag--fail">invalid</span>
-            <p class="trace__panel-title">Observed failure modes</p>
+            <p class="trace__panel-title">Why this rewrite is refused</p>
           </header>
           <ul class="trace__failures">
-            <li><span>01</span>Missing quotes around keys</li>
-            <li><span>02</span>Dropped required fields</li>
-            <li><span>03</span>Prose bleed between fields</li>
+            {copy.failures.map((item, i) => (
+              <li><span>{String(i + 1).padStart(2, '0')}</span>{item}</li>
+            ))}
           </ul>
           <p class="trace__panel-note">
-            Each mode observed in production — failure rate not claimed.
+            Failure classes from the evidence-grounding notes. No failure rate is claimed.
           </p>
         </article>
 
         <article class="trace__panel" data-panel="intervene">
           <header class="trace__panel-header">
             <span class="trace__panel-tag trace__panel-tag--active">fix</span>
-            <p class="trace__panel-title">Constraint / retry / context fix</p>
+            <p class="trace__panel-title">What the contract now requires</p>
           </header>
           <ol class="trace__interventions" data-intervention-list>
-            <li data-revealed="false">Explicit JSON schema + cited sources</li>
-            <li data-revealed="false">Context re-injection on every call</li>
-            <li data-revealed="false">Tighter output constraints (enum, types)</li>
+            {copy.interventions.map((item) => (
+              <li data-revealed="false">{item}</li>
+            ))}
           </ol>
         </article>
 
         <article class="trace__panel" data-panel="valid">
           <header class="trace__panel-header">
             <span class="trace__panel-tag trace__panel-tag--valid">pass</span>
-            <p class="trace__panel-title">Valid output</p>
+            <p class="trace__panel-title">Cited output the product can review</p>
           </header>
           <pre class="trace__code trace__code--valid"><code data-code-valid></code><span class="trace__cursor trace__cursor--valid" aria-hidden="true"></span></pre>
           <p class="trace__panel-note">
-            Shape matches the product contract — no fabricated metrics.
+            Fixture accepted by the revised validator. Not a live provider sample.
           </p>
         </article>
       </div>
 
       <footer class="trace__bottombar">
-        <button type="button" class="trace__replay" data-replay aria-label="Replay reliability trace animation">
-          <span class="trace__replay-mark" aria-hidden="true">↻</span>
-          <span>Replay trace</span>
-        </button>
-        <span class="trace__legend mono-label" aria-hidden="true">
+        <div class="trace__controls">
+          <button type="button" class="trace__replay" data-replay aria-label="Replay reliability trace">
+            <span class="trace__replay-mark" aria-hidden="true">↻</span>
+            <span>Replay</span>
+          </button>
+          <button type="button" class="trace__replay trace__replay--ghost" data-step-prev aria-label="Previous stage">
+            ← Prev
+          </button>
+          <button type="button" class="trace__replay trace__replay--ghost" data-step-next aria-label="Next stage">
+            Next →
+          </button>
+        </div>
+        <span class="trace__legend mono-label">
           Illustrative · not a historical log
         </span>
       </footer>
@@ -135,20 +159,9 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
 
       <noscript>
         <div class="trace__noscript">
-          <p class="mono-label">No-JS fallback: raw output fails validation, intervention produces valid output.</p>
-          <pre class="trace__code"><code>{`To get senior role you should...
-- learn python
-- build things
-
-{
-  title: Senior Developer
-  level:`}</code></pre>
-          <pre class="trace__code trace__code--valid"><code>{`{
-  "title": "Senior Developer",
-  "level": "senior",
-  "years": 5,
-  "next_steps": ["ship one AI feature", "add validation"]
-}`}</code></pre>
+          <p class="mono-label">No-JS: raw ungrounded rewrite fails validation; intervention produces a cited proposal.</p>
+          <pre class="trace__code"><code>{copy.raw}</code></pre>
+          <pre class="trace__code trace__code--valid"><code>{copy.valid}</code></pre>
         </div>
       </noscript>
     </div>
@@ -165,25 +178,12 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
 )}
 
 <script>
+  import { reliabilityTraceCopy } from '../data/syncareerInvestigation';
+
   const traces = document.querySelectorAll<HTMLElement>('[data-reliability-trace]');
-
-  const rawText = `To get senior role you should...
-- learn python
-- build things
-
-{
-  title: Senior Developer
-  level:`;
-
-  const validText = `{
-  "title": "Senior Developer",
-  "level": "senior",
-  "years": 5,
-  "next_steps": [
-    "ship one AI feature",
-    "add validation"
-  ]
-}`;
+  const rawText = reliabilityTraceCopy.raw;
+  const validText = reliabilityTraceCopy.valid;
+  const gateIds = reliabilityTraceCopy.gates.map((gate) => gate.id);
 
   for (const root of traces) {
     const rail = root.querySelector<HTMLElement>('[data-trace-rail]');
@@ -196,27 +196,24 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     const statusLabel = root.querySelector<HTMLElement>('[data-trace-status-label]');
     const live = root.querySelector<HTMLElement>('[data-live]');
     const replayBtn = root.querySelector<HTMLButtonElement>('[data-replay]');
+    const prevBtn = root.querySelector<HTMLButtonElement>('[data-step-prev]');
+    const nextBtn = root.querySelector<HTMLButtonElement>('[data-step-next]');
     const interventionList = root.querySelector<HTMLElement>('[data-intervention-list]');
 
     if (!codeRaw || !codeValid || !live) continue;
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let reduced = reducedQuery.matches;
     let activeRun = 0;
     let hasPlayed = false;
-    // Pause only on hover (not on focus) and never pause while the replay
-    // button is hovered — this is the R1 fix from the audit.
     let paused = false;
+    let currentIndex = 0;
 
-    const isInteractiveChild = (target: EventTarget | null) =>
-      target instanceof HTMLElement && Boolean(target.closest('[data-replay]'));
-
-    root.addEventListener('mouseenter', (event) => {
-      if (!isInteractiveChild(event.target)) paused = true;
-    });
-    root.addEventListener('mouseleave', () => { paused = false; });
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) paused = true;
-      else paused = false;
+      paused = document.hidden;
+    });
+    reducedQuery.addEventListener('change', (event) => {
+      reduced = event.matches;
     });
 
     const wait = (ms: number, runId: number) => new Promise<boolean>((resolve) => {
@@ -246,6 +243,7 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     };
 
     const setActive = (index: number) => {
+      currentIndex = index;
       steps.forEach((s, i) => {
         s.dataset.active = String(i <= index);
         s.dataset.current = String(i === index);
@@ -257,16 +255,55 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
       });
     };
 
+    const setStatus = (text: string, tone: 'ready' | 'running' | 'fail' | 'pass') => {
+      if (statusLabel) {
+        statusLabel.textContent = text;
+        statusLabel.dataset.tone = tone;
+      }
+    };
+
+    const setGate = (gate: string, state: 'pass' | 'fail' | '') => {
+      const el = gates.find((g) => g.dataset.gate === gate);
+      if (!el) return;
+      if (state) el.dataset.state = state;
+      else delete el.dataset.state;
+    };
+
+    const setInterventions = (revealed: boolean) => {
+      if (!interventionList) return;
+      interventionList.querySelectorAll('li').forEach((li) => {
+        (li as HTMLElement).dataset.revealed = String(revealed);
+      });
+    };
+
+    const populateStatic = (index: number) => {
+      codeRaw.textContent = index >= 0 ? rawText : '';
+      codeValid.textContent = index >= 4 ? validText : '';
+      for (const gate of gateIds) {
+        if (index >= 4) setGate(gate, 'pass');
+        else if (index >= 1) setGate(gate, 'fail');
+        else setGate(gate, '');
+      }
+      setInterventions(index >= 3);
+      panels.forEach((p) => p.classList.remove('is-typing'));
+      setActive(index);
+      const tones = ['running', 'running', 'fail', 'running', 'pass'] as const;
+      const labels = [
+        'Inspect · raw',
+        'Inspect · validate',
+        'Inspect · failed',
+        'Inspect · intervene',
+        'Inspect · valid',
+      ];
+      setStatus(labels[index] ?? 'Ready', tones[index] ?? 'ready');
+    };
+
     const resetVisual = () => {
       codeRaw.textContent = '';
       codeValid.textContent = '';
-      for (const g of gates) {
-        g.dataset.gate = '';
-      }
-      if (interventionList) {
-        interventionList.querySelectorAll('li').forEach(li => (li as HTMLElement).dataset.revealed = 'false');
-      }
-      steps.forEach(s => {
+      for (const gate of gateIds) setGate(gate, '');
+      setInterventions(false);
+      steps.forEach((s) => {
         s.dataset.active = 'false';
         s.dataset.current = 'false';
         s.removeAttribute('aria-current');
@@ -277,44 +314,37 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
       });
       const first = steps[0];
       if (first) first.dataset.active = 'true';
-      if (statusLabel) statusLabel.textContent = 'Ready';
+      setStatus('Ready', 'ready');
     };
 
-    const setStatus = (text: string, tone: 'ready' | 'running' | 'fail' | 'pass') => {
-      if (statusLabel) {
-        statusLabel.textContent = text;
-        statusLabel.dataset.tone = tone;
+    const inspect = (index: number, announce = true) => {
+      activeRun += 1;
+      populateStatic(index);
+      if (announce) {
+        const names = [
+          'Stage 1: unstructured model output.',
+          'Stage 2: proposal contract gate.',
+          'Stage 3: rewrite refused.',
+          'Stage 4: contract intervention.',
+          'Stage 5: cited output ready for review.',
+        ];
+        live.textContent = names[index] ?? '';
       }
-    };
-
-    const setGate = (gate: string, state: 'pass' | 'fail') => {
-      const el = gates.find(g => g.dataset.gate === gate);
-      if (el) el.dataset.state = state;
     };
 
     const play = async () => {
       const runId = ++activeRun;
 
       if (reduced) {
-        // reduced motion: show final state immediately
-        codeRaw.textContent = rawText;
-        codeValid.textContent = validText;
-        for (const gate of ['title', 'level', 'years', 'next_steps']) setGate(gate, 'fail');
-        setGate('title', 'pass');
-        setGate('level', 'pass');
-        setGate('years', 'pass');
-        setGate('next_steps', 'pass');
-        if (interventionList) interventionList.querySelectorAll('li').forEach(li => (li as HTMLElement).dataset.revealed = 'true');
-        setActive(steps.length - 1);
+        populateStatic(steps.length - 1);
         setStatus('Complete · pass', 'pass');
-        live.textContent = 'Reliability trace: raw output failed validation, intervention applied, valid output produced.';
+        live.textContent = 'Reliability trace: ungrounded rewrite failed validation; intervention produced a cited proposal.';
         return;
       }
 
       resetVisual();
       setStatus('Running · raw', 'running');
 
-      // Stage 0: raw
       setActive(0);
       live.textContent = 'Stage 1: unstructured model output.';
       root.querySelector<HTMLElement>('[data-panel="raw"]')?.classList.add('is-typing');
@@ -322,28 +352,24 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
       root.querySelector<HTMLElement>('[data-panel="raw"]')?.classList.remove('is-typing');
       if (!(await wait(400, runId))) return;
 
-      // Stage 1: validate
       setActive(1);
       setStatus('Running · validate', 'running');
-      live.textContent = 'Stage 2: schema validation gate.';
-      // show pass → fail cascade for the gates
-      for (const gate of ['title', 'level', 'years', 'next_steps']) {
+      live.textContent = 'Stage 2: proposal contract gate.';
+      for (const gate of gateIds) {
         if (runId !== activeRun) return;
         setGate(gate, 'fail');
         if (!(await wait(140, runId))) return;
       }
       if (!(await wait(380, runId))) return;
 
-      // Stage 2: failed
       setActive(2);
       setStatus('Failed · invalid', 'fail');
-      live.textContent = 'Stage 3: output failed validation.';
+      live.textContent = 'Stage 3: rewrite refused.';
       if (!(await wait(700, runId))) return;
 
-      // Stage 3: intervention
       setActive(3);
       setStatus('Running · intervene', 'running');
-      live.textContent = 'Stage 4: applying constraint, retry, context fix.';
+      live.textContent = 'Stage 4: applying the revised contract.';
       if (interventionList) {
         const items = [...interventionList.querySelectorAll<HTMLElement>('li')];
         for (const item of items) {
@@ -353,11 +379,10 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
       }
       if (!(await wait(420, runId))) return;
 
-      // Stage 4: valid — gates pass, valid output typed
       setActive(4);
       setStatus('Running · valid', 'running');
-      live.textContent = 'Stage 5: re-validation and valid output.';
-      for (const gate of ['title', 'level', 'years', 'next_steps']) {
+      live.textContent = 'Stage 5: cited output ready for review.';
+      for (const gate of gateIds) {
         if (runId !== activeRun) return;
         setGate(gate, 'pass');
         if (!(await wait(110, runId))) return;
@@ -368,18 +393,38 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
       validStep?.classList.remove('is-typing');
       setActive(4);
       setStatus('Complete · pass', 'pass');
-      live.textContent = 'Trace complete: raw output failed, intervention produced valid product output.';
+      live.textContent = 'Trace complete: ungrounded rewrite failed; intervention produced a cited proposal.';
     };
 
-    if (replayBtn) {
-      replayBtn.addEventListener('click', () => {
-        paused = false; // R1 fix — never pause the replay interaction
-        hasPlayed = true;
-        play();
-      });
-    }
+    replayBtn?.addEventListener('click', () => {
+      paused = false;
+      hasPlayed = true;
+      play();
+    });
 
-    // Visibility observer: play once at 30% visibility
+    prevBtn?.addEventListener('click', () => {
+      inspect(Math.max(0, currentIndex - 1));
+    });
+    nextBtn?.addEventListener('click', () => {
+      inspect(Math.min(steps.length - 1, currentIndex + 1));
+    });
+
+    steps.forEach((step, index) => {
+      step.addEventListener('click', () => inspect(index));
+      step.addEventListener('keydown', (event) => {
+        if (!(event instanceof KeyboardEvent)) return;
+        let next: number | null = null;
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (index + 1) % steps.length;
+        else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (index - 1 + steps.length) % steps.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = steps.length - 1;
+        if (next === null) return;
+        event.preventDefault();
+        steps[next]?.focus();
+        inspect(next);
+      });
+    });
+
     const io = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         if (entry.isIntersecting && !hasPlayed) {
@@ -391,12 +436,12 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
 
     io.observe(root);
 
-    // If already in view on mount, play immediately
-    if (!reduced) {
+    if (reduced) {
+      populateStatic(steps.length - 1);
+      root.classList.add('is-reduced');
+    } else {
       resetVisual();
       root.classList.add('is-enhanced');
-    } else {
-      root.classList.add('is-reduced');
     }
   }
 </script>
@@ -414,7 +459,6 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     width: 100%;
   }
 
-  /* Topbar */
   .trace__topbar {
     display: flex;
     align-items: center;
@@ -451,34 +495,18 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     height: 0.4375rem;
     background: var(--color-accent);
     border-radius: 50%;
-    transition: background-color var(--duration-quick) var(--ease-standard);
   }
 
   [data-trace-status-label][data-tone='running'] { color: var(--color-accent); }
   [data-trace-status-label][data-tone='fail'] { color: var(--color-signal-fail); }
   [data-trace-status-label][data-tone='pass'] { color: var(--color-signal-pass); }
 
-  [data-trace-status-label][data-tone='running'] ~ .trace__status-dot,
-  [data-trace-status-label][data-tone='ready'] ~ .trace__status-dot {
-    background: var(--color-accent);
-  }
-
-  [data-trace-status-label][data-tone='fail'] ~ .trace__status-dot {
-    background: var(--color-signal-fail);
-  }
-
-  [data-trace-status-label][data-tone='pass'] ~ .trace__status-dot {
-    background: var(--color-signal-pass);
-  }
-
-  /* Engine */
   .trace__engine {
     display: grid;
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4) var(--space-4);
   }
 
-  /* Rail */
   .trace__rail {
     display: grid;
     margin: 0;
@@ -492,16 +520,21 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     grid-template-columns: 2.25rem 1fr auto;
     gap: var(--space-3);
     align-items: center;
+    width: 100%;
     padding: var(--space-2) var(--space-3);
+    border: 0;
     border-bottom: 1px solid var(--color-rule-on-canvas);
     color: var(--color-text-on-canvas-muted);
     background: var(--color-canvas-soft);
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
     transition:
       background-color var(--duration-quick) var(--ease-standard),
       color var(--duration-quick) var(--ease-standard);
   }
 
-  .trace__step:last-child { border-bottom: 0; }
+  .trace__rail li:last-child .trace__step { border-bottom: 0; }
 
   .trace__step-num {
     color: var(--color-accent);
@@ -526,9 +559,6 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     font-size: 0.625rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    transition:
-      color var(--duration-quick) var(--ease-standard),
-      border-color var(--duration-quick) var(--ease-standard);
   }
 
   .trace__step-state--fail {
@@ -556,7 +586,12 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     box-shadow: inset 2px 0 0 var(--color-accent);
   }
 
-  /* Stage */
+  .trace__step:hover,
+  .trace__step:focus-visible {
+    color: var(--color-text-on-canvas);
+    background: var(--color-canvas);
+  }
+
   .trace__stage {
     position: relative;
     display: grid;
@@ -622,7 +657,6 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     color: var(--color-text-on-canvas);
   }
 
-  /* Code blocks */
   .trace__code {
     margin: 0;
     padding: var(--space-3);
@@ -675,7 +709,6 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     letter-spacing: 0.02em;
   }
 
-  /* Gate validation list */
   .trace__gate {
     display: grid;
     gap: 1px;
@@ -728,7 +761,6 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     border-color: var(--color-signal-fail);
   }
 
-  /* Failure list */
   .trace__failures {
     display: grid;
     gap: var(--space-1);
@@ -759,7 +791,6 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     letter-spacing: 0.04em;
   }
 
-  /* Intervention list */
   .trace__interventions {
     display: grid;
     gap: var(--space-1);
@@ -804,7 +835,6 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-rule-on-canvas));
   }
 
-  /* Bottom bar */
   .trace__bottombar {
     display: flex;
     flex-wrap: wrap;
@@ -813,6 +843,12 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     gap: var(--space-3);
     padding-top: var(--space-3);
     border-top: 1px solid var(--color-rule-on-canvas);
+  }
+
+  .trace__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
   }
 
   .trace__replay {
@@ -838,6 +874,18 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
   .trace__replay:focus-visible {
     background: var(--color-accent);
     color: var(--color-canvas);
+  }
+
+  .trace__replay--ghost {
+    border-color: var(--color-rule-on-canvas);
+    color: var(--color-text-on-canvas);
+  }
+
+  .trace__replay--ghost:hover,
+  .trace__replay--ghost:focus-visible {
+    border-color: var(--color-accent);
+    background: transparent;
+    color: var(--color-accent);
   }
 
   .trace__replay-mark {
@@ -868,7 +916,6 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     color: var(--color-text-on-canvas-muted);
   }
 
-  /* Portrait variant */
   .trace--portrait {
     width: min(11.25rem, 55%);
     background: transparent;
@@ -897,7 +944,6 @@ const traceId = instanceId ? `reliability-trace-${instanceId}` : `reliability-tr
     stroke: var(--color-accent);
   }
 
-  /* Mobile */
   @media (max-width: 30rem) {
     .trace__topbar {
       padding-inline: var(--space-3);

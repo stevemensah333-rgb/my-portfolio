@@ -1,8 +1,9 @@
 ---
 import { GMAIL_COMPOSE_URL, PUBLIC_LINKS } from '../config/site';
-import { projects, syncareer, sessionbook } from '../data/registry';
+import { projects, sessionbook } from '../data/registry';
 import ReliabilityTrace from '../components/ReliabilityTrace.astro';
 import ProjectSection from '../components/ProjectSection.astro';
+import SyncareerPreview from '../components/SyncareerPreview.astro';
 import KorancoSection from '../components/KorancoSection.astro';
 import SectionFrame from '../components/SectionFrame.astro';
 import TechnicalToolkitSection from '../components/TechnicalToolkitSection.astro';
@@ -88,24 +89,7 @@ const structuredData = {
     </div>
   </section>
 
-  <!-- Work · Syncareer -->
-  <ProjectSection
-    project={syncareer}
-    anchorId="syncareer"
-    coordinate={`01 / Work · ${syncareer.name}`}
-    showNarrative={true}
-    productFrame={{
-      src1440: '/images/syncareer/synai-context-1440.png',
-      src1800: '/images/syncareer/synai-context-1800.png',
-      src2400: '/images/syncareer/synai-context-2400.png',
-      width: 2400,
-      height: 1302,
-      alt: 'Syncareer SynAI interface showing personalised career guidance based on profile, quick actions and a message input.',
-      label: 'Product surface / SynAI',
-      caption: 'The AI feature combines profile context with career-guidance entry points inside the product.',
-      address: 'syncareer.me',
-    }}
-  />
+  <SyncareerPreview />
 
   <!-- Work · SessionBook -->
   <ProjectSection

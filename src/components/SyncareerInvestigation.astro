@@ -1,0 +1,611 @@
+---
+/**
+ * Full Syncareer engineering investigation.
+ *
+ * Desktop: stage spine + inspector. Each stage is a causal hand-off
+ * from the previous one, not a list of headings.
+ * Mobile / no-JS: sequential readable articles.
+ */
+import { investigationStages } from '../data/syncareerInvestigation';
+
+const first = investigationStages[0];
+---
+
+<section
+  class="investigation"
+  data-syncareer-investigation
+  aria-labelledby="investigation-title"
+>
+  <header class="investigation__intro">
+    <p class="mono-label">Engineering investigation · 07 stages</p>
+    <h2 id="investigation-title">What went in, what failed, what changed.</h2>
+    <p>
+      Each stage receives something from the previous one. Select a stage to
+      inspect the hand-off — input, model output, schema, failure, intervention.
+      Items marked ILLUSTRATIVE are fixtures, not historical logs.
+    </p>
+  </header>
+
+  <div class="investigation__workspace">
+    <div
+      class="investigation__spine"
+      role="tablist"
+      aria-label="Investigation stages"
+      aria-orientation="vertical"
+    >
+      {investigationStages.map((stage, idx) => (
+        <button
+          type="button"
+          role="tab"
+          id={`inv-tab-${stage.id}`}
+          class="investigation__tab"
+          data-stage-tab={stage.id}
+          aria-controls={`stage-${stage.id}`}
+          aria-selected={idx === 0 ? 'true' : 'false'}
+          tabindex={idx === 0 ? 0 : -1}
+        >
+          <span class="investigation__tab-step">{stage.step}</span>
+          <span class="investigation__tab-copy">
+            <span class="investigation__tab-label">{stage.label}</span>
+            <span class="investigation__tab-title">{stage.title}</span>
+          </span>
+          <span class="investigation__tab-tone" data-tone={stage.tone} aria-hidden="true"></span>
+        </button>
+      ))}
+    </div>
+
+    <div class="investigation__inspector">
+      {investigationStages.map((stage, idx) => {
+        const previous = idx > 0 ? investigationStages[idx - 1] : null;
+        return (
+          <article
+            role="tabpanel"
+            id={`stage-${stage.id}`}
+            aria-labelledby={`inv-tab-${stage.id}`}
+            class="investigation__panel"
+            data-stage-panel={stage.id}
+            data-tone={stage.tone}
+            data-active={idx === 0 ? 'true' : 'false'}
+            tabindex="0"
+            hidden={idx !== 0}
+          >
+            <p class="investigation__from" data-from>
+              <span class="mono-label">
+                {previous ? `From ${previous.step} ${previous.label}` : 'Origin'}
+              </span>
+              <span>{stage.receivedFrom}</span>
+            </p>
+
+            <header class="investigation__panel-head">
+              <p class="mono-label">{stage.step} / {stage.label}</p>
+              <h3>{stage.title}</h3>
+              <p>{stage.detail}</p>
+            </header>
+
+            {stage.artifact && stage.artifact.kind === 'code' && stage.artifact.code && (
+              <div class="inv-code" data-tone={stage.tone}>
+                <div class="inv-code__meta">
+                  <span>{stage.artifact.label}</span>
+                </div>
+                <pre><code>{stage.artifact.code}</code></pre>
+              </div>
+            )}
+
+            {stage.artifact && stage.artifact.kind !== 'code' && stage.artifact.items && (
+              <ul class="inv-list" data-kind={stage.artifact.kind}>
+                {stage.artifact.items.map((item) => (
+                  <li>
+                    <span class="mono-label">{item.name}</span>
+                    {item.note && <p>{item.note}</p>}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <dl class="inv-fields">
+              {stage.inspector.map((field) => (
+                <div class="inv-fields__row" data-field={field.key}>
+                  <dt>{field.label}</dt>
+                  <dd>{field.body}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <p class="investigation__handoff">
+              <span class="mono-label">Hands off</span>
+              {stage.handedOff}
+            </p>
+
+            <p class="investigation__evidence">
+              <span class="mono-label">Evidence</span>
+              {stage.evidence}
+            </p>
+          </article>
+        );
+      })}
+
+      <div class="investigation__nav">
+        <button type="button" class="investigation__nav-btn" data-inv-prev>
+          ← Previous
+        </button>
+        <p class="mono-label" data-inv-position>01 / 07 · {first?.label}</p>
+        <button type="button" class="investigation__nav-btn" data-inv-next>
+          Next →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p class="visually-hidden" aria-live="polite" aria-atomic="true" data-inv-live>
+    Stage 01 Input.
+  </p>
+</section>
+
+<script>
+  import { initTraceTabs } from '../scripts/initTraceTabs';
+
+  const root = document.querySelector<HTMLElement>('[data-syncareer-investigation]');
+  if (root) {
+    const stackedQuery = window.matchMedia('(max-width: 63.99rem)');
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-stage-panel]')];
+    const prevBtn = root.querySelector<HTMLButtonElement>('[data-inv-prev]');
+    const nextBtn = root.querySelector<HTMLButtonElement>('[data-inv-next]');
+    const position = root.querySelector<HTMLElement>('[data-inv-position]');
+    const live = root.querySelector<HTMLElement>('[data-inv-live]');
+    const nav = root.querySelector<HTMLElement>('.investigation__nav');
+
+    const ids = tabs.map((tab) => tab.dataset.stageTab ?? '').filter(Boolean);
+    let activeId = ids[0] ?? 'input';
+
+    const applyStacked = () => {
+      const stacked = stackedQuery.matches;
+      root.dataset.layout = stacked ? 'stacked' : 'inspect';
+      if (nav) nav.hidden = stacked;
+      if (stacked) {
+        panels.forEach((panel) => {
+          panel.hidden = false;
+        });
+      } else {
+        panels.forEach((panel) => {
+          panel.hidden = panel.dataset.stagePanel !== activeId;
+        });
+      }
+    };
+
+    const announce = (id: string, index: number) => {
+      const tab = tabs[index];
+      const label = tab?.querySelector('.investigation__tab-label')?.textContent?.trim() ?? id;
+      if (position) {
+        position.textContent = `${String(index + 1).padStart(2, '0')} / ${String(ids.length).padStart(2, '0')} · ${label}`;
+      }
+      if (live) live.textContent = `Stage ${String(index + 1).padStart(2, '0')} ${label}.`;
+    };
+
+    const controller = initTraceTabs(root, {
+      onSelect: (id, index) => {
+        activeId = id;
+        announce(id, index);
+        if (stackedQuery.matches) {
+          panels.forEach((panel) => {
+            panel.hidden = false;
+          });
+          const panel = panels.find((p) => p.dataset.stagePanel === id);
+          panel?.scrollIntoView({ block: 'start', behavior: 'instant' });
+        }
+      },
+    });
+
+    const move = (delta: number) => {
+      const index = ids.indexOf(activeId);
+      const next = ids[(index + delta + ids.length) % ids.length];
+      if (next) controller?.select(next);
+      const tab = tabs.find((t) => t.dataset.stageTab === next);
+      tab?.focus({ preventScroll: true });
+    };
+
+    prevBtn?.addEventListener('click', () => move(-1));
+    nextBtn?.addEventListener('click', () => move(1));
+
+    applyStacked();
+    stackedQuery.addEventListener('change', applyStacked);
+
+    const openHash = () => {
+      const hash = window.location.hash.replace('#stage-', '').replace('#', '');
+      if (ids.includes(hash)) controller?.select(hash);
+    };
+    openHash();
+    window.addEventListener('hashchange', openHash);
+  }
+</script>
+
+<style>
+  .investigation {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .investigation__intro {
+    display: grid;
+    gap: var(--space-3);
+    max-width: var(--width-content);
+  }
+
+  .investigation__intro h2 {
+    margin: 0;
+    max-width: 22ch;
+    font-size: var(--text-section);
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .investigation__intro p:last-child {
+    margin: 0;
+    max-width: var(--width-reading);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
+  }
+
+  .investigation__workspace {
+    display: grid;
+    gap: var(--space-5);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  .investigation__spine {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+  }
+
+  .investigation__tab {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 11rem;
+    min-height: 3.25rem;
+    padding: var(--space-2) var(--space-3);
+    border: 0;
+    border-right: 1px solid var(--color-rule-on-paper);
+    background: transparent;
+    color: var(--color-text-on-paper-muted);
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    scroll-snap-align: start;
+  }
+
+  .investigation__tab-step {
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+  }
+
+  .investigation__tab-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .investigation__tab-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .investigation__tab-title {
+    overflow: hidden;
+    color: var(--color-text-on-paper);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .investigation__tab-tone {
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  .investigation__tab-tone[data-tone='failure'] {
+    border-color: var(--color-signal-fail);
+    background: var(--color-signal-fail);
+  }
+
+  .investigation__tab-tone[data-tone='technical'] {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  .investigation__tab-tone[data-tone='valid'] {
+    border-color: var(--color-signal-pass);
+    background: var(--color-signal-pass);
+  }
+
+  .investigation__tab[data-active='true'],
+  .investigation__tab[aria-selected='true'] {
+    background: var(--color-paper);
+    color: var(--color-text-on-paper);
+    box-shadow: inset 0 -2px 0 var(--color-accent);
+  }
+
+  .investigation__tab[data-past='true'] .investigation__tab-step {
+    color: var(--color-text-on-paper);
+  }
+
+  .investigation__inspector {
+    display: grid;
+    min-width: 0;
+  }
+
+  .investigation__panel {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    scroll-margin-top: 5.5rem;
+  }
+
+  .investigation__panel[hidden] {
+    display: none !important;
+  }
+
+  html:not(.js) .investigation__panel,
+  html:not(.js) .investigation__panel[hidden],
+  .investigation[data-layout='stacked'] .investigation__panel,
+  .investigation[data-layout='stacked'] .investigation__panel[hidden] {
+    display: grid !important;
+  }
+
+  html:not(.js) .investigation__spine,
+  .investigation[data-layout='stacked'] .investigation__spine {
+    display: none;
+  }
+
+  html:not(.js) .investigation__nav,
+  .investigation[data-layout='stacked'] .investigation__nav {
+    display: none;
+  }
+
+  .investigation[data-layout='stacked'] .investigation__panel + .investigation__panel {
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .investigation__panel[data-tone='failure'] {
+    box-shadow: inset 3px 0 0 var(--color-signal-fail);
+  }
+
+  .investigation__panel[data-tone='valid'] {
+    box-shadow: inset 3px 0 0 var(--color-signal-pass);
+  }
+
+  .investigation__panel[data-tone='technical'] {
+    box-shadow: inset 3px 0 0 var(--color-accent);
+  }
+
+  .investigation__from {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-3);
+    border: 1px dashed var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .investigation__panel-head h3 {
+    margin: var(--space-2) 0 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .investigation__panel-head p:last-child {
+    max-width: 42rem;
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .inv-code {
+    border: 1px solid var(--color-rule-on-paper-soft);
+    overflow: hidden;
+  }
+
+  .inv-code[data-tone='failure'] {
+    border-color: color-mix(in srgb, var(--color-signal-fail) 40%, var(--color-rule-on-paper));
+  }
+
+  .inv-code[data-tone='valid'] {
+    border-color: color-mix(in srgb, var(--color-signal-pass) 40%, var(--color-rule-on-paper));
+  }
+
+  .inv-code__meta {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+  }
+
+  .inv-code pre {
+    margin: 0;
+    padding: var(--space-3);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    max-height: 18rem;
+  }
+
+  .inv-list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .inv-list li {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    border: 1px solid var(--color-rule-on-paper-soft);
+    background: var(--color-paper);
+  }
+
+  .inv-list p {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.45;
+  }
+
+  .inv-list[data-kind='fixes'] li {
+    padding-left: var(--space-7);
+    position: relative;
+  }
+
+  .inv-list[data-kind='fixes'] li::before {
+    content: '+';
+    position: absolute;
+    left: var(--space-3);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .inv-fields {
+    display: grid;
+    margin: 0;
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .inv-fields__row {
+    display: grid;
+    gap: var(--space-2);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .inv-fields dt {
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+  }
+
+  .inv-fields dd {
+    margin: 0;
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .investigation__handoff,
+  .investigation__evidence {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .investigation__nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    border-top: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
+  }
+
+  .investigation__nav-btn {
+    min-height: var(--control-height-sm);
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+    color: var(--color-text-on-paper);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+  }
+
+  .investigation__nav-btn:hover,
+  .investigation__nav-btn:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 48rem) {
+    .inv-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .inv-fields__row {
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+      gap: var(--space-4);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .investigation__workspace {
+      grid-template-columns: 17.5rem minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .investigation__spine {
+      display: grid;
+      overflow: visible;
+      border-bottom: 0;
+      border-right: 1px solid var(--color-rule-on-paper);
+    }
+
+    .investigation__tab {
+      min-width: 0;
+      min-height: 4.25rem;
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-on-paper);
+      grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+    }
+
+    .investigation__tab[data-active='true'],
+    .investigation__tab[aria-selected='true'] {
+      box-shadow: inset 2px 0 0 var(--color-accent);
+    }
+
+    .investigation__tab-title {
+      white-space: normal;
+    }
+
+    .inv-list[data-kind='checks'],
+    .inv-list[data-kind='modes'] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .investigation__panel {
+      padding: var(--space-4);
+    }
+  }
+</style>
