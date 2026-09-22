@@ -293,7 +293,10 @@ const initialItemId = primaryToolkitItems[0]?.id;
                   hidden={!isInitial}
                 >
                   <header class="toolkit__panel-header">
-                    <p class="mono-label mono-label--bare">Selected</p>
+                    <p class="mono-label mono-label--bare">
+                      <span class="toolkit__panel-step" aria-hidden="true">{String(item.featuredOrder ?? '').padStart(2, '0')}</span>
+                      Selected
+                    </p>
                     <strong class="toolkit__panel-name">{item.name}</strong>
                   </header>
                   <dl class="toolkit__panel-grid">
@@ -455,7 +458,7 @@ const initialItemId = primaryToolkitItems[0]?.id;
   }
 
   .toolkit__body {
-    gap: var(--space-6);
+    gap: var(--space-5);
   }
 
   .toolkit__header {
@@ -620,6 +623,13 @@ const initialItemId = primaryToolkitItems[0]?.id;
     font-weight: 600;
     letter-spacing: -0.015em;
     color: var(--color-text-on-paper);
+  }
+
+  /* The detail carries the same index the selected row shows, so
+     capability → where used → evidence reads as one numbered record. */
+  .toolkit__panel-step {
+    margin-right: var(--space-2);
+    color: var(--color-accent-text);
   }
 
   .toolkit__panel-grid {
