@@ -1,45 +1,59 @@
 ---
+/**
+ * ABOUT — the quiet register.
+ *
+ * Deliberately the least structured section on the page: one column
+ * of prose at a comfortable measure, a portrait offset into the
+ * margin, and no instrument vocabulary at all. It is the only place
+ * where the visual system steps back, which is what makes it read
+ * as a person rather than as another panel.
+ *
+ * Copy unchanged.
+ */
 import ParticlePortrait from './ParticlePortrait.astro';
 import SectionFrame from './SectionFrame.astro';
 ---
 
 <section id="about" class="about" aria-labelledby="about-title" data-workspace-section="about">
-  <SectionFrame coordinate="05 / About" surface="paper">
-    <div class="page-shell about__layout">
-      <header class="about__header">
-        <p class="mono-label">About</p>
-        <h2 id="about-title" class="about__title">A little about me.</h2>
-      </header>
+  <SectionFrame coordinate="05 · About" surface="paper" density="default">
+    <div class="page-shell region-grid">
+      <aside class="region-rail">
+        <div class="region-index">
+          <span class="region-index__no">05</span>
+          <span class="region-index__rule"></span>
+          <span class="region-index__name">The engineer</span>
+        </div>
 
-      <div class="about__copy">
-        <p>
-          I'm a Computer Science student at Ashesi University in Berekuso, Ghana. I spend a lot
-          of build time chasing the problems that only show up at the boundary — between a model
-          and a contract, between a request and a database row, between what a system promises
-          and what it actually does.
-        </p>
-        <p>
-          Syncareer is my current shipped product: a free career workspace for students whose
-          AI help has to cite evidence before it applies. SessionBook is a backend I'm building
-          toward voice-agent booking, where the interesting problem is keeping concurrency,
-          timezones and spoken confirmation honest.
-        </p>
-      </div>
-
-      <div class="about__portrait">
-        <div class="about__portrait-frame">
+        <div class="about__portrait">
           <ParticlePortrait
             src="/images/stephen.png"
             alt="Stephen Mensah"
             width={800}
             height={800}
             srcset="/images/stephen-480.webp 480w, /images/stephen-800.webp 800w"
-            sizes="(min-width: 64rem) 16rem, (min-width: 48rem) 18rem, min(100vw - 2rem, 18rem)"
+            sizes="(min-width: 60rem) 11.5rem, min(100vw - 2rem, 14rem)"
           />
-          <span class="about__portrait-mark about__portrait-mark--tl" aria-hidden="true"></span>
-          <span class="about__portrait-mark about__portrait-mark--tr" aria-hidden="true"></span>
-          <span class="about__portrait-mark about__portrait-mark--bl" aria-hidden="true"></span>
-          <span class="about__portrait-mark about__portrait-mark--br" aria-hidden="true"></span>
+        </div>
+      </aside>
+
+      <div class="region-body about__body">
+        <header class="about__header">
+          <h2 id="about-title" class="about__title">A little about me.</h2>
+        </header>
+
+        <div class="about__copy">
+          <p>
+            I'm a Computer Science student at Ashesi University in Berekuso, Ghana. I spend a lot
+            of build time chasing the problems that only show up at the boundary — between a model
+            and a contract, between a request and a database row, between what a system promises
+            and what it actually does.
+          </p>
+          <p>
+            Syncareer is my current shipped product: a free career workspace for students whose
+            AI help has to cite evidence before it applies. SessionBook is a backend I'm building
+            toward voice-agent booking, where the interesting problem is keeping concurrency,
+            timezones and spoken confirmation honest.
+          </p>
         </div>
       </div>
     </div>
@@ -48,23 +62,20 @@ import SectionFrame from './SectionFrame.astro';
 
 <style>
   .about {
-    background: var(--color-paper);
-    border-top: 1px solid var(--color-rule-on-paper);
+    background: var(--color-sheet);
   }
 
-  .about__layout {
-    display: grid;
-    gap: var(--space-6);
+  .about__body {
+    gap: var(--space-5);
   }
 
-  .about__header {
-    display: grid;
-    gap: var(--space-3);
-  }
-
+  /* About is the one heading in the system allowed to be larger than
+     a section title — it is a human statement, not a label. Still
+     well below the feature scale used by projects. */
   .about__title {
     margin: 0;
-    font-size: var(--text-section);
+    max-width: 18ch;
+    font-size: clamp(1.625rem, 2.6vw, 2.25rem);
     font-weight: 600;
     letter-spacing: var(--tracking-heading);
     line-height: 1.1;
@@ -72,7 +83,7 @@ import SectionFrame from './SectionFrame.astro';
 
   .about__copy {
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-5);
     max-width: var(--width-reading);
   }
 
@@ -80,91 +91,23 @@ import SectionFrame from './SectionFrame.astro';
     margin: 0;
     color: var(--color-text-on-paper);
     font-size: var(--text-body-large);
-    line-height: 1.6;
+    line-height: 1.7;
   }
 
+  /* The portrait sits in the margin column, small and squared, with
+     one hairline. No corner marks: this is the section where the
+     instrument vocabulary is switched off. */
   .about__portrait {
-    display: grid;
-    gap: var(--space-3);
-    justify-items: end;
-  }
-
-  .about__portrait-frame {
-    position: relative;
-    width: min(100%, 18rem);
+    width: min(100%, 14rem);
     padding: var(--space-2);
     border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper-soft);
+    background: var(--color-sheet-soft);
   }
 
-  /* Corner marks — signature geometric motif on the portrait frame */
-  .about__portrait-mark {
-    position: absolute;
-    width: 0.625rem;
-    height: 0.625rem;
-    pointer-events: none;
-  }
-
-  .about__portrait-mark::before,
-  .about__portrait-mark::after {
-    content: '';
-    position: absolute;
-    background: var(--color-accent);
-  }
-
-  .about__portrait-mark::before {
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 1px;
-  }
-
-  .about__portrait-mark::after {
-    top: 0;
-    left: 0;
-    width: 1px;
-    height: 100%;
-  }
-
-  .about__portrait-mark--tr { top: 0; right: 0; left: auto; }
-  .about__portrait-mark--tr::before { right: 0; left: auto; }
-  .about__portrait-mark--tr::after { right: 0; left: auto; }
-  .about__portrait-mark--bl { bottom: 0; top: auto; }
-  .about__portrait-mark--bl::before { bottom: 0; top: auto; }
-  .about__portrait-mark--bl::after { bottom: 0; top: auto; }
-  .about__portrait-mark--br { bottom: 0; right: 0; top: auto; left: auto; }
-  .about__portrait-mark--br::before { bottom: 0; right: 0; top: auto; left: auto; }
-  .about__portrait-mark--br::after { bottom: 0; right: 0; top: auto; left: auto; }
-
-  @media (min-width: 48rem) {
-    .about__layout {
-      grid-template-columns: minmax(13rem, 4fr) minmax(0, 8fr);
-      column-gap: var(--space-7);
-      row-gap: var(--space-6);
-      align-items: start;
-    }
-
-    .about__copy,
+  @media (min-width: 60rem) {
     .about__portrait {
-      grid-column: 2;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .about__layout {
-      /* Minimums must fit at exactly 64rem (1024px) alongside the
-         17rem workspace rail and page gutters — only the portrait
-         column keeps a floor; the text columns shrink freely. */
-      grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) minmax(13rem, 16rem);
-    }
-
-    .about__copy {
-      grid-column: 2;
-    }
-
-    .about__portrait {
-      grid-column: 3;
       width: 100%;
+      max-width: var(--rail-col);
     }
   }
 </style>

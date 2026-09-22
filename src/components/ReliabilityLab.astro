@@ -28,24 +28,33 @@ const total = String(labStages.length).padStart(2, '0');
 
 <section
   id="reliability-lab"
-  class="lab"
+  class="lab on-deck"
   data-reliability-lab
   aria-labelledby="reliability-lab-title"
   data-workspace-section="reliability-lab"
 >
-  <SectionFrame coordinate="02 / Lab · Reliability" surface="canvas">
+  <SectionFrame
+    coordinate="02 · Lab / Reliability"
+    status="Instrument"
+    surface="canvas"
+    density="major"
+  >
     <div class="page-shell lab__shell">
       <header class="lab__header">
-        <p class="mono-label mono-label--inverse">{labCopy.eyebrow}</p>
-        <h2 id="reliability-lab-title" class="lab__title">{labCopy.title}</h2>
-        <p class="lab__intro">{labCopy.intro}</p>
+        <div class="lab__header-rail">
+          <div class="region-index">
+            <span class="region-index__no">02</span>
+            <span class="region-index__rule"></span>
+            <span class="region-index__name">{labCopy.eyebrow}</span>
+          </div>
+        </div>
+        <div class="lab__header-copy">
+          <h2 id="reliability-lab-title" class="lab__title">{labCopy.title}</h2>
+          <p class="lab__intro">{labCopy.intro}</p>
+        </div>
       </header>
 
       <div class="lab__bench">
-        <span class="corner-mark corner-mark--tl lab__mark-corner" aria-hidden="true"></span>
-        <span class="corner-mark corner-mark--tr lab__mark-corner" aria-hidden="true"></span>
-        <span class="corner-mark corner-mark--bl lab__mark-corner" aria-hidden="true"></span>
-        <span class="corner-mark corner-mark--br lab__mark-corner" aria-hidden="true"></span>
 
         <!-- Pipeline: stage nodes + the payload travelling the track -->
         <div class="lab__railscroll">
@@ -564,37 +573,48 @@ const total = String(labStages.length).padStart(2, '0');
 
 <style>
   .lab {
-    background: var(--color-canvas);
+    background: var(--color-deck);
     color: var(--color-text-on-canvas);
-    border-top: 1px solid var(--color-rule-on-canvas);
-    border-bottom: 1px solid var(--color-rule-on-canvas);
 
-    /* Signal tones read at ~3:1 on the dark canvas: fine as fills and
-       marks, too weak for small text. These mixes lift them to AA for
-       the words; pure signals stay on squares and borders. */
-    --lab-fail: color-mix(in srgb, var(--color-signal-fail) 70%, var(--color-text-on-canvas));
-    --lab-pass: color-mix(in srgb, var(--color-signal-pass) 70%, var(--color-text-on-canvas));
+    /* Signal tones read at ~3:1 on the deck as fills. The bright
+       faces below are verified ≥ 4.5:1 for text on deck, deck-soft
+       and deck-inset; pure signals stay on marks and borders. */
+    --lab-fail: var(--color-signal-fail-bright);
+    --lab-pass: var(--color-signal-pass-bright);
   }
 
   .lab__shell {
     display: grid;
     gap: var(--space-6);
-    padding-block: var(--section-block);
   }
 
+  /* The lab is the one region whose header sits ABOVE its own rail
+     rather than beside it: the bench below needs the full measure,
+     so the index runs as a lead-in line instead of a margin column. */
   .lab__header {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .lab__header-rail {
+    max-width: 16rem;
+  }
+
+  .lab__header-copy {
     display: grid;
     gap: var(--space-3);
     max-width: var(--width-content);
   }
 
+  /* The lab title is the second feature-scale heading on the page.
+     It earns it: this is the site's signature instrument. */
   .lab__title {
     margin: 0;
-    max-width: 24ch;
+    max-width: 18ch;
     font-size: var(--text-feature);
     font-weight: 600;
-    letter-spacing: var(--tracking-heading);
-    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+    line-height: 1.02;
   }
 
   .lab__intro {
@@ -607,17 +627,26 @@ const total = String(labStages.length).padStart(2, '0');
 
   /* --- bench --------------------------------------------------------- */
 
+  /* The bench is a real boundary — everything inside it is the
+     running instrument — so it keeps its frame, with a copper
+     registration tick at the leading corner. */
   .lab__bench {
     position: relative;
     display: grid;
     gap: var(--space-5);
     padding: var(--space-5);
-    border: 1px solid var(--color-rule-on-canvas);
-    background: var(--color-canvas-soft);
+    border: 1px solid var(--color-rule-on-canvas-strong);
+    background: var(--color-deck-soft);
   }
 
-  .lab__mark-corner {
-    color: var(--color-rule-on-canvas);
+  .lab__bench::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 3rem;
+    height: 2px;
+    background: var(--color-accent);
   }
 
   .lab__railscroll {
@@ -687,11 +716,15 @@ const total = String(labStages.length).padStart(2, '0');
     text-transform: uppercase;
   }
 
+  /* ARC NODE — the same circle the hero trace uses for a stage.
+     One motif, two instruments: a reader who learns the mark in the
+     hero already knows how to read the lab rail. */
   .lab__node-mark {
-    width: 0.625rem;
-    height: 0.625rem;
-    border: 1px solid var(--color-rule-on-canvas);
-    background: var(--color-canvas);
+    width: var(--node-size);
+    height: var(--node-size);
+    border: 1px solid var(--color-rule-on-canvas-strong);
+    border-radius: 50%;
+    background: var(--color-deck);
     transition:
       background-color var(--duration-quick) var(--ease-standard),
       border-color var(--duration-quick) var(--ease-standard);
@@ -699,12 +732,12 @@ const total = String(labStages.length).padStart(2, '0');
 
   .lab__node:hover,
   .lab__node:focus-visible {
-    background: var(--color-canvas-inset);
+    background: var(--color-deck-inset);
     color: var(--color-text-on-canvas);
   }
 
   .lab__node[aria-selected='true'] {
-    background: var(--color-canvas-inset);
+    background: var(--color-deck-inset);
     color: var(--color-text-on-canvas);
     box-shadow: inset 0 -2px 0 var(--color-accent);
   }
@@ -716,6 +749,7 @@ const total = String(labStages.length).padStart(2, '0');
   .lab__node[aria-selected='true'] .lab__node-mark {
     border-color: var(--color-accent);
     background: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 28%, transparent);
   }
 
   /* passed stages: the mark fills with the stage tone */
@@ -725,24 +759,28 @@ const total = String(labStages.length).padStart(2, '0');
   }
 
   .lab__node[data-past='true'][data-tone='failure'] .lab__node-mark {
-    border-color: var(--color-signal-fail);
-    background: var(--color-signal-fail);
+    border-color: var(--lab-fail);
+    background: var(--lab-fail);
   }
 
   .lab__node[data-past='true'][data-tone='valid'] .lab__node-mark {
-    border-color: var(--color-signal-pass);
-    background: var(--color-signal-pass);
+    border-color: var(--lab-pass);
+    background: var(--lab-pass);
   }
 
   .lab__node[data-past='true'][data-tone='valid'] .lab__node-label {
     color: var(--lab-pass);
   }
 
+  /* Future stages read as "not yet reached" through a hollow mark and
+     a fainter label — not `opacity`, which would drag the text under
+     the contrast floor. */
   .lab__node[data-future='true'] {
-    opacity: 0.8;
+    color: var(--color-text-on-canvas-faint);
   }
 
   .lab__node[data-future='true'] .lab__node-mark {
+    border-color: var(--color-rule-on-canvas);
     background: transparent;
   }
 
@@ -839,13 +877,13 @@ const total = String(labStages.length).padStart(2, '0');
   .lab__btn:hover,
   .lab__btn:focus-visible {
     background: var(--color-accent);
-    color: var(--color-canvas);
+    color: var(--color-on-accent);
   }
 
   .lab__btn--run[data-state='running'],
   .lab__btn--run[data-state='paused'] {
     background: var(--color-accent);
-    color: var(--color-canvas);
+    color: var(--color-on-accent);
   }
 
   .lab__btn--ghost {
@@ -1042,7 +1080,7 @@ const total = String(labStages.length).padStart(2, '0');
     font-style: normal;
     font-size: 0.5rem;
     line-height: 1;
-    color: var(--color-canvas);
+    color: var(--color-on-accent);
   }
 
   .lab__checkmark[data-mark='fail'] {

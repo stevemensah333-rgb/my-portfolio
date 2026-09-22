@@ -3,113 +3,151 @@ import { credentials } from '../data/credentials';
 import SectionFrame from './SectionFrame.astro';
 ---
 
-<section id="evidence" class="evidence" aria-labelledby="evidence-title" data-workspace-section="evidence">
-  <SectionFrame coordinate="06 / Evidence" surface="paper">
-    <div class="page-shell evidence__layout">
-      <header class="evidence__header">
-        <p class="mono-label">Selected credentials &amp; recognition</p>
-        <h2 id="evidence-title" class="evidence__title">Evidence</h2>
-        <p class="evidence__intro">A few things that are easier to show than describe.</p>
-      </header>
+<!--
+  EVIDENCE — the archival register.
 
-      <div class="evidence__grid" data-credential-evidence>
-        <div class="evidence__index">
-          <p class="mono-label evidence__index-label" id="evidence-index-label">Index</p>
-          <ol class="evidence__list" role="tablist" aria-labelledby="evidence-index-label">
-            {credentials.map((credential, index) => {
-              const type = credential.evidenceImage ? 'image' : credential.evidenceDocument ? 'document' : 'record';
-              return (
-                <li role="presentation">
-                  <button
-                    type="button"
-                    role="tab"
-                    id={`evidence-tab-${credential.id}`}
-                    class="evidence__trigger"
-                    data-credential-trigger={credential.id}
-                    data-evidence-type={type}
-                    aria-controls={`credential-preview-${credential.id}`}
-                    aria-selected={index === 0 ? 'true' : 'false'}
-                    tabindex={index === 0 ? '0' : '-1'}
+  This section is deliberately the only part of the page set on the
+  DECK environment while still being a reading surface. That single
+  choice does most of the work: the page goes quiet, the artifacts
+  are lit, and the section reads as a plate drawer rather than as
+  more content.
+
+  Everything else supports that:
+  - the index is a numbered accession list, not a menu of buttons;
+  - the selected record opens in a mounted PLATE — a bordered well
+    with the artifact centred on it and a caption strip beneath;
+  - metadata is set as a record header (accession / issuer / result)
+    in mono, because it is catalogue data.
+
+  No badges, no trophies, no achievement cards. The interaction and
+  the content model are unchanged.
+-->
+<section id="evidence" class="evidence on-deck" aria-labelledby="evidence-title" data-workspace-section="evidence">
+  <SectionFrame coordinate="06 · Evidence" status="Archive" surface="canvas" density="default">
+    <div class="page-shell region-grid">
+      <aside class="region-rail">
+        <div class="region-index">
+          <span class="region-index__no">06</span>
+          <span class="region-index__rule"></span>
+          <span class="region-index__name">Archive</span>
+          <span class="region-index__note">{credentials.length} records. Each links to its source artifact.</span>
+        </div>
+      </aside>
+
+      <div class="region-body evidence__body">
+        <header class="evidence__header">
+          <h2 id="evidence-title" class="region-title">Evidence</h2>
+          <p class="region-lede">A few things that are easier to show than describe.</p>
+        </header>
+
+        <div class="evidence__drawer" data-credential-evidence>
+          <div class="evidence__index">
+            <p class="evidence__index-label" id="evidence-index-label">Accession index</p>
+            <ol class="evidence__list" role="tablist" aria-labelledby="evidence-index-label">
+              {credentials.map((credential, index) => {
+                const type = credential.evidenceImage ? 'image' : credential.evidenceDocument ? 'document' : 'record';
+                return (
+                  <li role="presentation">
+                    <button
+                      type="button"
+                      role="tab"
+                      id={`evidence-tab-${credential.id}`}
+                      class="evidence__trigger"
+                      data-credential-trigger={credential.id}
+                      data-evidence-type={type}
+                      aria-controls={`credential-preview-${credential.id}`}
+                      aria-selected={index === 0 ? 'true' : 'false'}
+                      tabindex={index === 0 ? '0' : '-1'}
+                    >
+                      <span class="evidence__trigger-index" aria-hidden="true">{String(index + 1).padStart(3, '0')}</span>
+                      <span class="evidence__trigger-copy">
+                        <span class="evidence__trigger-name">{credential.name}</span>
+                        <span class="evidence__trigger-meta">{type} · {credential.issuer ?? 'record'}</span>
+                      </span>
+                      <span class="evidence__trigger-result">{credential.result}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+
+          <div class="evidence__panels">
+            {credentials.map((credential, index) => (
+              <article
+                id={`credential-preview-${credential.id}`}
+                class="evidence__panel"
+                role="tabpanel"
+                aria-labelledby={`evidence-tab-${credential.id}`}
+                data-credential-panel={credential.id}
+                data-active={index === 0 ? 'true' : 'false'}
+                tabindex="0"
+                hidden={index !== 0}
+              >
+                <header class="evidence__record-head">
+                  <span class="evidence__record-no">{String(index + 1).padStart(3, '0')}</span>
+                  <span class="evidence__record-name">{credential.name}</span>
+                  <span class="evidence__record-result">{credential.result}</span>
+                </header>
+
+                {credential.evidenceImage && credential.evidenceAlt && credential.evidenceWidth && credential.evidenceHeight ? (
+                  <a
+                    class="evidence__plate"
+                    href={credential.evidenceImage}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={`Open full-size evidence for ${credential.name}`}
                   >
-                    <span class="evidence__trigger-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                    <span class="evidence__trigger-copy">
-                      <span class="evidence__trigger-name">{credential.name}</span>
-                      <span class="evidence__trigger-meta mono-label">{type} · {credential.issuer ?? 'record'}</span>
+                    <span class="evidence__plate-well">
+                      <img
+                        src={credential.evidenceImage}
+                        alt={credential.evidenceAlt}
+                        width={credential.evidenceWidth}
+                        height={credential.evidenceHeight}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </span>
-                    <span class="evidence__trigger-result">{credential.result}</span>
-                    <span class="evidence__trigger-mark" aria-hidden="true"></span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
+                    <span class="evidence__plate-strip">
+                      <span class="evidence__plate-kind">Artifact · {credential.evidenceWidth}×{credential.evidenceHeight}</span>
+                      <span class="evidence__plate-open">Open full size <span aria-hidden="true">↗</span></span>
+                    </span>
+                  </a>
+                ) : (
+                  <div class="evidence__text-record">
+                    <p class="mono-label mono-label--inverse mono-label--bare">Evidence record</p>
+                    <p class="evidence__result">{credential.result}</p>
+                  </div>
+                )}
 
-        <div class="evidence__panels">
-          {credentials.map((credential, index) => (
-            <article
-              id={`credential-preview-${credential.id}`}
-              class="evidence__panel"
-              role="tabpanel"
-              aria-labelledby={`evidence-tab-${credential.id}`}
-              data-credential-panel={credential.id}
-              data-active={index === 0 ? 'true' : 'false'}
-              tabindex="0"
-              hidden={index !== 0}
-            >
-              {credential.evidenceImage && credential.evidenceAlt && credential.evidenceWidth && credential.evidenceHeight ? (
-                <a
-                  class="evidence__image-link"
-                  href={credential.evidenceImage}
-                  target="_blank"
-                  rel="noopener"
-                  aria-label={`Open full-size evidence for ${credential.name}`}
-                >
-                  <img
-                    src={credential.evidenceImage}
-                    alt={credential.evidenceAlt}
-                    width={credential.evidenceWidth}
-                    height={credential.evidenceHeight}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <span class="evidence__image-caption mono-label">
-                    Open full-size evidence <span aria-hidden="true">↗</span>
-                  </span>
-                </a>
-              ) : (
-                <div class="evidence__text-record">
-                  <p class="mono-label">Evidence record</p>
-                  <h3>{credential.name}</h3>
-                  <p class="evidence__result">{credential.result}</p>
-                </div>
-              )}
-              {(credential.issuer || credential.detail) && (
-                <dl class="evidence__meta">
-                  {credential.issuer && (
-                    <div>
-                      <dt class="mono-label">Issuer</dt>
-                      <dd>{credential.issuer}</dd>
-                    </div>
-                  )}
-                  {credential.detail && (
-                    <div>
-                      <dt class="mono-label">Detail</dt>
-                      <dd>{credential.detail}</dd>
-                    </div>
-                  )}
-                </dl>
-              )}
-              {credential.evidenceDocument && (
-                <a class="text-link" href={credential.evidenceDocument} target="_blank" rel="noopener">
-                  View document
-                  <span class="text-link__arrow" aria-hidden="true">↗</span>
-                </a>
-              )}
-            </article>
-          ))}
+                {(credential.issuer || credential.detail) && (
+                  <dl class="evidence__meta">
+                    {credential.issuer && (
+                      <div>
+                        <dt>Issuer</dt>
+                        <dd>{credential.issuer}</dd>
+                      </div>
+                    )}
+                    {credential.detail && (
+                      <div>
+                        <dt>Detail</dt>
+                        <dd>{credential.detail}</dd>
+                      </div>
+                    )}
+                  </dl>
+                )}
+
+                {credential.evidenceDocument && (
+                  <a class="text-link" href={credential.evidenceDocument} target="_blank" rel="noopener">
+                    View document
+                    <span class="text-link__arrow" aria-hidden="true">↗</span>
+                  </a>
+                )}
+              </article>
+            ))}
+          </div>
+          <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-evidence-status></p>
         </div>
-        <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-evidence-status></p>
       </div>
     </div>
   </SectionFrame>
@@ -192,90 +230,90 @@ import SectionFrame from './SectionFrame.astro';
 
 <style>
   .evidence {
-    background: var(--color-paper);
-    border-top: 1px solid var(--color-rule-on-paper);
+    background: var(--color-deck);
+    color: var(--color-text-on-canvas);
   }
 
-  .evidence__layout {
-    display: grid;
+  .evidence__body {
     gap: var(--space-6);
   }
 
   .evidence__header {
     display: grid;
     gap: var(--space-3);
-    max-width: var(--width-reading);
   }
 
-  .evidence__title {
-    margin: 0;
-    font-size: var(--text-section);
-    font-weight: 600;
-    letter-spacing: var(--tracking-heading);
-    line-height: 1.1;
-  }
+  /* --- the drawer ------------------------------------------------ */
+  /* Index and plate are one bounded object, because a drawer IS a
+     boundary. It is the only container in the section. */
 
-  .evidence__intro {
-    margin: 0;
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-body-large);
-  }
-
-  .evidence__grid {
+  .evidence__drawer {
     display: grid;
-    gap: var(--space-5);
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper);
+    border: 1px solid var(--color-rule-on-canvas-strong);
+    background: var(--color-deck-soft);
   }
 
-  /* Index list */
+  /* --- accession index ------------------------------------------- */
+
   .evidence__index {
     display: grid;
-    gap: var(--space-2);
+    align-content: start;
+    background: var(--color-deck-deep);
   }
 
   .evidence__index-label {
-    padding: var(--space-2) var(--space-4);
-    border-bottom: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper-soft);
-    color: var(--color-text-on-paper-muted);
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+    color: var(--color-text-on-canvas-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: 500;
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
   }
 
   .evidence__list {
     display: grid;
-    gap: 1px;
     margin: 0;
     padding: 0;
     list-style: none;
-    background: var(--color-rule-on-paper-soft);
+  }
+
+  .evidence__list li + li .evidence__trigger {
+    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
   .evidence__trigger {
     display: grid;
-    grid-template-columns: 2.25rem minmax(0, 1fr) auto auto;
-    align-items: center;
+    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+    align-items: start;
     gap: var(--space-2) var(--space-3);
     width: 100%;
     min-height: var(--control-height);
-    padding: var(--space-2) var(--space-4);
+    padding: var(--space-3) var(--space-4);
     border: 0;
-    background: var(--color-paper);
-    color: var(--color-text-on-paper);
+    border-left: 2px solid transparent;
+    background: transparent;
+    color: var(--color-text-on-canvas-muted);
     font: inherit;
     text-align: left;
     cursor: pointer;
     transition:
       background-color var(--duration-quick) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard),
       color var(--duration-quick) var(--ease-standard);
   }
 
+  /* Accession numbers are three digits — the register reads as a
+     catalogue rather than as a four-item menu. */
   .evidence__trigger-index {
-    color: var(--color-accent-text);
+    color: var(--color-text-on-canvas-faint);
     font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.04em;
-    align-self: start;
-    margin-top: 0.2rem;
+    font-size: var(--text-micro);
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    transition: color var(--duration-quick) var(--ease-standard);
   }
 
   .evidence__trigger-copy {
@@ -285,93 +323,60 @@ import SectionFrame from './SectionFrame.astro';
   }
 
   .evidence__trigger-name {
-    font-weight: 600;
     font-size: var(--text-small);
+    font-weight: 600;
+    line-height: 1.35;
   }
 
+  /* Catalogue metadata is always visible here — an archive does not
+     hide its own labels behind hover. */
   .evidence__trigger-meta {
-    color: var(--color-text-on-paper-faint);
-    font-size: 0.625rem;
-    opacity: 0;
-    transform: translateY(2px);
-    transition:
-      opacity var(--duration-quick) var(--ease-standard),
-      transform var(--duration-quick) var(--ease-standard),
-      color var(--duration-quick) var(--ease-standard);
-  }
-
-  .evidence__trigger-meta::before {
-    display: none;
-  }
-
-  .evidence__trigger:hover .evidence__trigger-meta,
-  .evidence__trigger:focus-visible .evidence__trigger-meta,
-  .evidence__trigger[aria-selected='true'] .evidence__trigger-meta {
-    opacity: 1;
-    transform: translateY(0);
-    color: var(--color-text-on-paper-muted);
-  }
-
-  @media (hover: none) {
-    .evidence__trigger-meta {
-      opacity: 1;
-      transform: none;
-    }
+    color: var(--color-text-on-canvas-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
   .evidence__trigger-result {
-    color: var(--color-text-on-paper-muted);
+    color: var(--color-text-on-canvas-muted);
     font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.04em;
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+    line-height: 1.4;
     text-align: right;
-    align-self: start;
-    margin-top: 0.2rem;
     transition: color var(--duration-quick) var(--ease-standard);
-  }
-
-  .evidence__trigger:hover .evidence__trigger-result,
-  .evidence__trigger:focus-visible .evidence__trigger-result {
-    color: var(--color-accent-text);
-  }
-
-  .evidence__trigger-mark {
-    width: 0.5rem;
-    height: 0.5rem;
-    border: 1px solid var(--color-rule-on-paper);
-    background: transparent;
-    transition: all var(--duration-quick) var(--ease-standard);
-    align-self: start;
-    margin-top: 0.4rem;
   }
 
   .evidence__trigger:hover,
   .evidence__trigger:focus-visible {
-    background: var(--color-paper-soft);
+    background: var(--color-deck-soft);
+    color: var(--color-text-on-canvas);
   }
 
   .evidence__trigger[aria-selected='true'] {
-    background: var(--color-paper-soft);
-    color: var(--color-text-on-paper);
-    box-shadow: inset 2px 0 0 var(--color-accent);
+    background: var(--color-deck-soft);
+    border-left-color: var(--color-accent);
+    color: var(--color-text-on-canvas);
   }
 
-  .evidence__trigger[aria-selected='true'] .evidence__trigger-mark {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
+  .evidence__trigger[aria-selected='true'] .evidence__trigger-index,
+  .evidence__trigger[aria-selected='true'] .evidence__trigger-result {
+    color: var(--color-accent-text);
   }
 
-  /* Panels */
+  /* --- the plate -------------------------------------------------- */
+
   .evidence__panels {
     position: relative;
     padding: var(--space-5);
-    background: var(--color-paper-soft);
-    border-top: 1px solid var(--color-rule-on-paper);
+    border-top: 1px solid var(--color-rule-on-canvas-strong);
   }
 
   .evidence__panel {
     display: grid;
     gap: var(--space-4);
+    align-content: start;
   }
 
   .evidence__panel[hidden] {
@@ -381,11 +386,9 @@ import SectionFrame from './SectionFrame.astro';
   @keyframes evidence-enter {
     from {
       opacity: 0;
-      transform: translateY(4px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 
@@ -393,90 +396,196 @@ import SectionFrame from './SectionFrame.astro';
     animation: evidence-enter var(--duration-base) var(--ease-standard);
   }
 
-  .evidence__image-link {
+  /* Record header — accession no., name, result on one ruled line. */
+  .evidence__record-head {
     display: grid;
-    gap: var(--space-2);
-    color: var(--color-text-on-paper);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
   }
 
-  .evidence__image-link img {
+  .evidence__record-no {
+    color: var(--color-accent-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.06em;
+  }
+
+  .evidence__record-name {
+    font-size: var(--text-component);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  .evidence__record-result {
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+    text-align: right;
+  }
+
+  /* PLATE: the artifact mounted in a recessed well with a caption
+     strip. The well is what makes it read as archival — the image
+     is an object sitting on a surface, not a content block. */
+  .evidence__plate {
+    display: grid;
+    gap: 0;
+    color: inherit;
+    text-decoration: none;
+    border: 1px solid var(--color-rule-on-canvas);
+    transition: border-color var(--duration-quick) var(--ease-standard);
+  }
+
+  .evidence__plate:hover,
+  .evidence__plate:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  .evidence__plate-well {
+    display: block;
+    padding: var(--space-4);
+    background: var(--color-deck-deep);
+  }
+
+  .evidence__plate-well img {
     display: block;
     width: 100%;
     height: auto;
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper);
+    border: 1px solid var(--color-rule-on-canvas);
   }
 
-  .evidence__image-caption {
-    color: var(--color-text-on-paper-muted);
-    text-align: right;
+  .evidence__plate-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-top: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck-inset);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .evidence__plate-kind {
+    color: var(--color-text-on-canvas-faint);
+  }
+
+  .evidence__plate-open {
+    color: var(--color-accent-text);
   }
 
   .evidence__text-record {
     display: grid;
     gap: var(--space-2);
-  }
-
-  .evidence__text-record h3 {
-    margin: var(--space-2) 0 0;
-    font-size: 1.125rem;
-    font-weight: 600;
+    padding: var(--space-5);
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck-deep);
   }
 
   .evidence__result {
     margin: 0;
-    color: var(--color-text-on-paper-muted);
+    color: var(--color-text-on-canvas);
     font-size: var(--text-body-large);
   }
 
+  /* Catalogue data, set as a register. */
   .evidence__meta {
     display: grid;
-    gap: var(--space-3);
+    gap: 0;
     margin: 0;
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--color-rule-on-paper);
   }
 
   .evidence__meta > div {
     display: grid;
     grid-template-columns: 5rem minmax(0, 1fr);
     gap: var(--space-3);
+    padding-block: var(--space-2);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+  }
+
+  .evidence__meta > div:first-child {
+    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
   .evidence__meta dt {
-    color: var(--color-text-on-paper-muted);
+    color: var(--color-text-on-canvas-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
   }
 
   .evidence__meta dd {
     margin: 0;
+    color: var(--color-text-on-canvas);
     font-size: var(--text-small);
-    color: var(--color-text-on-paper);
   }
 
+  /* --- responsive -------------------------------------------------- */
+
   @media (min-width: 48rem) {
-    .evidence__grid {
+    .evidence__drawer {
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     }
 
     .evidence__panels {
       border-top: 0;
-      border-left: 1px solid var(--color-rule-on-paper);
+      border-left: 1px solid var(--color-rule-on-canvas-strong);
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .evidence__panels {
+      padding: var(--space-3);
+    }
+
+    .evidence__plate-well {
+      padding: var(--space-2);
+    }
+
+    .evidence__record-head {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .evidence__record-result {
+      grid-column: 2;
+      text-align: left;
+    }
+
+    .evidence__trigger {
+      grid-template-columns: 2rem minmax(0, 1fr);
+      padding-inline: var(--space-3);
+    }
+
+    .evidence__trigger-result {
+      grid-column: 2;
+      text-align: left;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .evidence__panel,
-    .evidence__trigger {
+    .evidence__trigger,
+    .evidence__plate {
       transition: none;
+      animation: none;
     }
   }
 
-  /* Progressive enhancement: without JS, all credential panels show. */
+  /* Progressive enhancement: without JS, all records show stacked. */
   html:not(.js) .evidence__panel,
   html:not(.js) .evidence__panel[hidden] {
     display: grid !important;
     animation: none;
+    padding-bottom: var(--space-5);
     margin-bottom: var(--space-5);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
   }
 
   html:not(.js) .evidence__index {

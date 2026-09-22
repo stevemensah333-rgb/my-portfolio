@@ -17,16 +17,27 @@ import SectionFrame from './SectionFrame.astro';
   data-workspace-section="koranco"
   data-workspace-dest="work"
 >
-  <SectionFrame coordinate="03 / Work · Koranco" surface="paper">
-    <div class="page-shell koranco__layout">
-      <header class="koranco__header">
-        <div class="koranco__head-row">
-          <p class="mono-label">Project · 03 · In-progress engagement</p>
-          <p class="mono-label koranco__status">
-            <span class="koranco__status-dot" aria-hidden="true"></span>
-            In development
-          </p>
+  <SectionFrame
+    coordinate="01.3 · Work / Koranco"
+    status="In development"
+    surface="paper"
+    density="tight"
+  >
+    <div class="page-shell region-grid koranco__layout">
+      <aside class="region-rail koranco__rail">
+        <div class="region-index">
+          <span class="region-index__no">01.3</span>
+          <span class="region-index__rule"></span>
+          <span class="region-index__name">In-progress engagement</span>
         </div>
+        <p class="koranco__status">
+          <span class="koranco__status-dot" aria-hidden="true"></span>
+          In development
+        </p>
+      </aside>
+
+      <div class="region-body koranco__body">
+      <header class="koranco__header">
         <h2 id="koranco-title" class="koranco__title">Koranco Farms</h2>
         <p class="koranco__short">An Ashesi Innovation Lab engagement around farm operational data.</p>
         <p class="koranco__claim">
@@ -71,38 +82,39 @@ import SectionFrame from './SectionFrame.astro';
           when they are verified.
         </p>
       </aside>
+      </div>
     </div>
   </SectionFrame>
 </section>
 
 <style>
   .koranco {
-    background: var(--color-paper);
-    border-top: 1px solid var(--color-rule-on-paper);
+    background: var(--color-sheet-soft);
   }
 
-  .koranco__layout {
-    display: grid;
-    gap: var(--space-6);
+  .koranco__rail {
+    gap: var(--space-5);
+  }
+
+  .koranco__body {
+    gap: var(--space-5);
   }
 
   .koranco__header {
     display: grid;
-    gap: var(--space-3);
-  }
-
-  .koranco__head-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
+    gap: var(--space-4);
   }
 
   .koranco__status {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    color: var(--color-text-on-paper-muted);
+    margin: 0;
+    color: var(--color-accent-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
   .koranco__status-dot {
@@ -116,50 +128,55 @@ import SectionFrame from './SectionFrame.astro';
     margin: 0;
     font-size: var(--text-feature);
     font-weight: 600;
-    letter-spacing: var(--tracking-heading);
-    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+    line-height: 1.02;
   }
 
   .koranco__short {
-    max-width: var(--width-reading);
-    margin: var(--space-2) 0 0;
+    max-width: 32rem;
+    margin: 0;
     color: var(--color-text-on-paper);
     font-size: var(--text-body-large);
-    line-height: 1.4;
+    line-height: 1.45;
   }
 
   .koranco__claim {
     max-width: var(--width-reading);
     margin: 0;
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-accent);
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-body);
-    line-height: 1.55;
+    line-height: 1.6;
   }
 
+  /* Three columns of an open register, not three cards. Each is
+     headed by a rule; the "verified outcomes" column is the only
+     one that changes ground, because its content (nothing proven
+     yet) is the honest boundary and deserves the emphasis. */
   .koranco__columns {
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-5);
   }
 
   .koranco__panel {
     display: grid;
     gap: var(--space-2);
     align-content: start;
-    padding: var(--space-5);
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule-on-paper-strong);
   }
 
   .koranco__panel h3 {
     margin: 0;
     font-size: var(--text-component);
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
   }
 
   .koranco__list {
     display: grid;
-    gap: var(--space-2);
+    gap: var(--space-3);
     margin: var(--space-2) 0 0;
     padding: 0;
     list-style: none;
@@ -167,7 +184,7 @@ import SectionFrame from './SectionFrame.astro';
 
   .koranco__list li {
     position: relative;
-    padding-left: var(--space-4);
+    padding-left: var(--space-5);
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.55;
@@ -177,15 +194,18 @@ import SectionFrame from './SectionFrame.astro';
     content: '';
     position: absolute;
     left: 0;
-    top: 0.6em;
-    width: 0.35rem;
-    height: 0.35rem;
-    border: 1px solid var(--color-accent);
-    background: transparent;
+    top: 0.72em;
+    width: 0.625rem;
+    height: 1px;
+    background: var(--color-accent);
   }
 
   .koranco__panel--verified {
-    background: var(--color-paper-soft);
+    padding: var(--space-4);
+    border: 1px solid var(--color-rule-on-paper);
+    border-top-width: 2px;
+    border-top-color: var(--color-text-on-paper);
+    background: var(--color-sheet-inset);
   }
 
   .koranco__none {
@@ -198,9 +218,8 @@ import SectionFrame from './SectionFrame.astro';
   .koranco__boundary {
     display: grid;
     gap: var(--space-2);
-    padding-block: var(--space-5);
+    padding-top: var(--space-4);
     border-top: 1px solid var(--color-rule-on-paper);
-    border-bottom: 1px solid var(--color-rule-on-paper);
   }
 
   .koranco__boundary p {
@@ -211,9 +230,15 @@ import SectionFrame from './SectionFrame.astro';
     line-height: 1.55;
   }
 
+  .koranco__boundary p {
+    font-size: var(--text-small);
+  }
+
   @media (min-width: 48rem) {
     .koranco__columns {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--space-6);
+      align-items: start;
     }
   }
 </style>

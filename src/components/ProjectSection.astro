@@ -27,6 +27,10 @@ interface Props {
   anchorId: string;
   /** Coordinate label for the section frame. */
   coordinate: string;
+  /** Rail index shown in the margin. Defaults to the project's order
+      within the registry; pass a sub-address (e.g. "01.2") when the
+      project sits inside a numbered workspace. */
+  railIndex?: string;
   /** Show the narrative rail. */
   showNarrative?: boolean;
   /** Optional pre-illustration to slot above the inspector. */
@@ -49,12 +53,14 @@ const {
   inspectorOnly = false,
   anchorId,
   coordinate,
+  railIndex,
   showNarrative = false,
   productFrame,
 } = Astro.props as Props;
 
 const narrativeStates = project.narrativeStates ?? [];
 const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
+const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
 ---
 
 <section
@@ -63,20 +69,29 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
   aria-labelledby={`${anchorId}-title`}
   data-workspace-section={anchorId}
 >
-  <SectionFrame coordinate={coordinate} surface="paper">
+  <SectionFrame
+    coordinate={coordinate}
+    status={project.status.replace(/-/g, ' ')}
+    surface="paper"
+    density="default"
+  >
     {!inspectorOnly && (
-      <header class="page-shell project__header">
-        <div class="project__head-row">
-          <p class="mono-label">
-            Project · {String(projectOrder).padStart(2, '0')}
-          </p>
+      <header class="page-shell region-grid project__header">
+        <div class="region-rail project__rail">
+          <div class="region-index">
+            <span class="region-index__no">{indexLabel}</span>
+            <span class="region-index__rule"></span>
+            <span class="region-index__name">Project</span>
+          </div>
           <p
-            class:list={['mono-label', 'project__status', `project__status--${project.status}`]}
+            class:list={['project__status', `project__status--${project.status}`]}
           >
             <span aria-hidden="true" class="project__status-dot"></span>
             {project.status.replace(/-/g, ' ')}
           </p>
         </div>
+
+        <div class="region-body project__headbody">
         <h2 id={`${anchorId}-title`} class="project__title">{project.name}</h2>
         <p class="project__short">{project.short}</p>
         <p class="project__claim">{project.claim}</p>
@@ -119,6 +134,7 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
             </div>
           )}
         </dl>
+        </div>
       </header>
     )}
 
@@ -439,28 +455,31 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
 
 <style>
   .project {
-    background: var(--color-paper);
-    border-top: 1px solid var(--color-rule-on-paper);
+    background: var(--color-sheet);
   }
 
   .project__header {
-    display: grid;
-    gap: var(--space-3);
-    padding-bottom: var(--space-6);
+    padding-bottom: var(--section-gap);
   }
 
-  .project__head-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
+  .project__rail {
+    gap: var(--space-5);
+  }
+
+  .project__headbody {
+    gap: var(--space-4);
   }
 
   .project__status {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
+    margin: 0;
     color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
   .project__status-dot {
@@ -494,24 +513,28 @@ const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
     margin: 0;
     font-size: var(--text-feature);
     font-weight: 600;
-    letter-spacing: var(--tracking-heading);
-    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+    line-height: 1.02;
   }
 
   .project__short {
-    max-width: var(--width-reading);
-    margin: var(--space-2) 0 0;
+    max-width: 32rem;
+    margin: 0;
     color: var(--color-text-on-paper);
     font-size: var(--text-body-large);
-    line-height: 1.4;
+    line-height: 1.45;
   }
 
+  /* The claim is hung on a copper rule — same treatment as Syncareer,
+     so "what this project argues" is a recognisable slot. */
   .project__claim {
     max-width: var(--width-reading);
     margin: 0;
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-accent);
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-body);
-    line-height: 1.55;
+    line-height: 1.6;
   }
 
   .project__meta {

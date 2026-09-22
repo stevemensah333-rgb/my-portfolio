@@ -105,8 +105,8 @@ const structuredData = {
       </div>
     </header>
 
-    <section class="case-trace-band" data-workspace-section="trace" data-workspace-dest="work">
-    <SectionFrame coordinate="01 / Causal path" surface="canvas">
+    <section class="case-trace-band on-deck" data-workspace-section="trace" data-workspace-dest="work">
+    <SectionFrame coordinate="01 · Causal path" status="Instrument" surface="canvas" density="default">
       <div class="page-shell case-trace">
         <div class="case-trace__copy">
           <p class="mono-label">Reliability trace</p>
@@ -122,13 +122,13 @@ const structuredData = {
     </SectionFrame>
     </section>
 
-    <SectionFrame coordinate="02 / Investigation" surface="paper" data-workspace-section="syncareer" data-workspace-dest="work">
+    <SectionFrame coordinate="02 · Investigation" surface="paper" data-workspace-section="syncareer" data-workspace-dest="work">
       <div class="page-shell case-investigation">
         <SyncareerInvestigation />
       </div>
     </SectionFrame>
 
-    <SectionFrame coordinate="03 / Decisions" surface="paper" data-workspace-section="decisions" data-workspace-dest="work">
+    <SectionFrame coordinate="03 · Decisions" surface="paper" data-workspace-section="decisions" data-workspace-dest="work">
       <div class="page-shell case-decisions">
         <header class="case-decisions__intro">
           <p class="mono-label">What Stephen actually built</p>
@@ -152,7 +152,7 @@ const structuredData = {
       </div>
     </SectionFrame>
 
-    <SectionFrame coordinate="04 / Product surfaces" surface="paper" data-workspace-section="surfaces" data-workspace-dest="work">
+    <SectionFrame coordinate="04 · Product surfaces" surface="paper" data-workspace-section="surfaces" data-workspace-dest="work">
       <div class="page-shell case-surfaces">
         <header class="case-surfaces__intro">
           <p class="mono-label">The product around the contract</p>
@@ -185,7 +185,7 @@ const structuredData = {
       </div>
     </SectionFrame>
 
-    <SectionFrame coordinate="05 / Evidence & limitations" surface="paper" data-workspace-section="evidence" data-workspace-dest="work">
+    <SectionFrame coordinate="05 · Evidence & limitations" surface="paper" data-workspace-section="evidence" data-workspace-dest="work">
       <div class="page-shell">
         <div class="outcome-grid">
           <section class="boundary-panel" aria-labelledby="boundary-known-title">
@@ -342,10 +342,19 @@ const structuredData = {
     margin-top: var(--space-6);
   }
 
+  /* PRE-EXISTING BUG, fixed here: the band used SectionFrame
+     surface="canvas" (which sets on-canvas TEXT colours) but never
+     painted a deck background, so the heading rendered near-white on
+     cream — roughly 1.3:1. The band now carries the deck it was
+     always styled for. */
+  .case-trace-band {
+    background: var(--color-deck);
+    color: var(--color-text-on-canvas);
+  }
+
   .case-trace {
     display: grid;
     gap: var(--space-6);
-    padding-block: var(--section-block);
   }
 
   .case-trace__copy {
@@ -359,7 +368,8 @@ const structuredData = {
     max-width: 22ch;
     font-size: var(--text-section);
     font-weight: 600;
-    line-height: 1.1;
+    letter-spacing: var(--tracking-heading);
+    line-height: var(--leading-heading);
     color: var(--color-text-on-canvas);
   }
 
