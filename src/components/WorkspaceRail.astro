@@ -29,13 +29,15 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
     <span class="workspace-rail__brand-mark" aria-hidden="true">SM</span>
     <span class="workspace-rail__brand-text">
       <span class="workspace-rail__brand-name">Stephen Mensah</span>
-      <span class="workspace-rail__brand-role mono-label">Engineering workspace</span>
+      <span class="workspace-rail__brand-role mono-label mono-label--bare">Engineering workspace</span>
     </span>
   </div>
 
+  <!-- Header stacks — label over the live readout — so the copper
+       path never has to share a line with the heading in a 15rem rail. -->
   <div class="workspace-rail__header">
     <span class="mono-label workspace-rail__heading">Workspaces</span>
-    <span class="workspace-rail__path mono-label" data-workspace-path>00 / 00</span>
+    <span class="workspace-rail__path mono-label mono-label--bare" data-workspace-path>00 / 00</span>
   </div>
 
   <nav aria-label="Primary workspace destinations" class="workspace-rail__nav">
@@ -56,9 +58,11 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
               target={isExternal ? '_blank' : undefined}
               rel={isExternal ? 'noopener noreferrer' : undefined}
             >
+              <!-- Desktop rows stay a pure index — number, name, edge.
+                   The one-line captions live in the mobile drawer,
+                   where they orient instead of crowd. -->
               <span class="workspace-rail__index" aria-hidden="true">{dest.index}</span>
               <span class="workspace-rail__label">{dest.label}</span>
-              <span class="workspace-rail__description mono-label">{dest.description}</span>
               <span class="workspace-rail__chev" aria-hidden="true">›</span>
             </a>
           </li>
@@ -474,20 +478,26 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
       grid-template-rows: auto auto 1fr auto;
       align-content: start;
       gap: var(--space-4);
-      width: 17rem;
-      flex: 0 0 17rem;
+      /* The rail is a control surface, not a sidebar: narrower than the
+         old 17rem so it reads as an instrument edge bolted to the
+         canvas, not as a second website. */
+      width: 15rem;
+      flex: 0 0 15rem;
       min-height: 100vh;
-      padding: var(--space-5) 0 var(--space-5) var(--page-gutter);
+      padding: var(--space-5) 0 var(--space-4) var(--page-gutter);
       background: var(--color-canvas);
       color: var(--color-text-on-canvas);
       border-right: 1px solid var(--color-rule-on-canvas);
     }
 
+    /* The brand stacks — mark, then name, then role — so nothing has
+       to wrap in the narrower rail. It reads as an instrument's name
+       plate, not a site header. */
     .workspace-rail__brand {
-      display: flex;
-      align-items: center;
+      display: grid;
+      justify-items: start;
       gap: var(--space-3);
-      padding-bottom: var(--space-3);
+      padding-bottom: var(--space-4);
       border-bottom: 1px solid var(--color-rule-on-canvas);
     }
 
@@ -507,6 +517,7 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
       display: grid;
       gap: 2px;
       min-width: 0;
+      width: 100%;
     }
 
     .workspace-rail__brand-name {
@@ -517,13 +528,13 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
 
     .workspace-rail__brand-role {
       color: var(--color-text-on-canvas-muted);
+      letter-spacing: 0.06em;
+      white-space: nowrap;
     }
 
     .workspace-rail__header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: var(--space-3);
+      display: grid;
+      gap: var(--space-1);
       padding-bottom: var(--space-2);
     }
 
@@ -533,6 +544,7 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
 
     .workspace-rail__path {
       color: var(--color-accent-text);
+      white-space: nowrap;
     }
 
     .workspace-rail__nav {
@@ -577,12 +589,15 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
       border-bottom: 1px solid var(--color-rule-on-canvas);
     }
 
+    /* Rows are compact index lines: number, name, edge. No captions,
+       no wrapping — the caption layer lives in the mobile drawer. */
     .workspace-rail__link {
       display: grid;
-      grid-template-columns: 2rem minmax(0, 1fr) auto;
-      gap: var(--space-2) var(--space-3);
-      align-items: baseline;
-      padding: var(--space-3) 0;
+      grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+      gap: var(--space-3);
+      align-items: center;
+      min-height: 2.75rem;
+      padding: var(--space-2) 0;
       color: var(--color-text-on-canvas-muted);
       text-decoration: none;
       transition:
@@ -592,11 +607,6 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
 
     .workspace-rail__link:hover,
     .workspace-rail__link:focus-visible {
-      color: var(--color-text-on-canvas);
-    }
-
-    .workspace-rail__link:hover .workspace-rail__description,
-    .workspace-rail__link:focus-visible .workspace-rail__description {
       color: var(--color-text-on-canvas);
     }
 
@@ -615,21 +625,12 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
 
     .workspace-rail__label {
       grid-column: 2;
-      font-size: 0.9375rem;
+      font-size: 0.875rem;
       font-weight: 600;
       letter-spacing: -0.01em;
     }
 
-    .workspace-rail__description {
-      grid-column: 2;
-      color: var(--color-text-on-canvas-muted);
-      font-size: 0.6875rem;
-      transition: color var(--duration-quick) var(--ease-standard);
-    }
-
     .workspace-rail__chev {
-      grid-row: span 2;
-      align-self: center;
       color: var(--color-accent-text);
       font-family: var(--font-mono);
       font-size: 0.875rem;
@@ -646,13 +647,13 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
       transform: translateX(0);
     }
 
+    /* ACTIVE — the rail's selected state borrows the lab's active-stage
+       vocabulary: a copper edge, a copper index, full-contrast label,
+       and a recessed ground. No wash, no chevron — one meaning. */
     .workspace-rail__link[aria-current='true'] {
       color: var(--color-text-on-canvas);
-      background: linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--color-accent) 14%, transparent) 0,
-        transparent 60%
-      );
+      background: var(--color-canvas-inset);
+      box-shadow: inset 2px 0 0 var(--color-accent);
     }
 
     .workspace-rail__link[aria-current='true'] .workspace-rail__chev {

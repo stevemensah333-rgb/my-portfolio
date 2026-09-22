@@ -45,7 +45,12 @@
 
    Two environments, one accent, one geometry.
 
-   DECK  — a deep blue-slate. Cool, non-black, faintly atmospheric.
+   The two environments are the same material in two states:
+   warm paper and warm charcoal. No blue, no grey — both grounds
+   carry the same warm undertone, so a light→dark change reads as
+   a mode change of one surface, not a theme swap.
+
+   DECK  — a deep warm charcoal. Non-black, faintly atmospheric.
            Used for the identity band, the live instruments and the
            closing surface. This is where the system RUNS.
    SHEET — a warm pressed-linen ground. Used for the read surfaces:
@@ -70,11 +75,11 @@
      LIGHTER, so depth reads as "surfaced toward the viewer".
      ---------------------------------------------- */
 
-  --color-deck-deep: #0A0E11;
-  --color-deck: #101519;
-  --color-deck-soft: #161C21;
-  --color-deck-inset: #1C242A;
-  --color-deck-raised: #232C34;
+  --color-deck-deep: #0B0C0D;
+  --color-deck: #111314;
+  --color-deck-soft: #17191A;
+  --color-deck-inset: #1D2021;
+  --color-deck-raised: #25282A;
 
   /* 2.2 Environment: SHEET (warm, pressed, documented) ------------
      high < base < soft < inset. Sheet surfaces get DARKER as they
@@ -111,9 +116,9 @@
   --color-text-on-paper-muted: #3D4349;  /* 8.1:1 on sheet, 6.6:1 on inset */
   --color-text-on-paper-faint: #53595F;  /* 5.8:1 on sheet, 4.7:1 on inset */
 
-  --color-text-on-canvas: #E9E6DE;
-  --color-text-on-canvas-muted: #A2A9AE;
-  --color-text-on-canvas-faint: #8C9498;
+  --color-text-on-canvas: #EAE7DF;
+  --color-text-on-canvas-muted: #A6A39B;  /* 7.4:1 on deck, 6.9:1 on inset */
+  --color-text-on-canvas-faint: #8F8C85;  /* 5.6:1 on deck, 5.1:1 on inset */
 
   /* 2.4 Rules -----------------------------------------------------
      Rules carry the geometry, so there are three weights, not one:
@@ -125,9 +130,9 @@
   --color-rule-on-paper: #C3BAA4;
   --color-rule-on-paper-soft: #D6CFBC;
   --color-rule-on-paper-strong: #7E7660;
-  --color-rule-on-canvas: #273038;
-  --color-rule-on-canvas-soft: #1E262C;
-  --color-rule-on-canvas-strong: #5B6875;
+  --color-rule-on-canvas: #2B2E30;
+  --color-rule-on-canvas-soft: #202324;
+  --color-rule-on-canvas-strong: #5D6164;  /* ~3:1 on deck — the edge step */
 
   /* 2.5 Accent & signal -------------------------------------------
      COPPER is the single accent. Two faces:
@@ -152,7 +157,7 @@
      4.5:1 against it by default (deck lands at 4.48). This is the one
      value that does, on both, and it is a constant — it must NOT be
      re-mapped per surface. */
-  --color-on-accent: #0A0E11;
+  --color-on-accent: #0B0C0D;
 
   --color-signal-pass: #2C6249;
   --color-signal-pass-bright: #8FBFA5;

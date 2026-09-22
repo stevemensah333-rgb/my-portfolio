@@ -33,22 +33,27 @@ const total = String(labStages.length).padStart(2, '0');
   aria-labelledby="reliability-lab-title"
   data-workspace-section="reliability-lab"
 >
+  <!-- Instrumentation runs at the concentrated rhythm, not the
+     block-major air reserved for the identity band and the close. -->
   <SectionFrame
     coordinate="02 · Lab / Reliability"
     status="Instrument"
     surface="canvas"
-    density="major"
+    density="default"
   >
     <div class="page-shell lab__shell">
-      <header class="lab__header">
-        <div class="lab__header-rail">
+      <!-- The header sits on the shared region grid: the index is a
+         margin apparatus like every other section, and the bench below
+         gets the full measure. One composition, both environments. -->
+      <header class="lab__header region-grid">
+        <aside class="region-rail">
           <div class="region-index">
             <span class="region-index__no">02</span>
             <span class="region-index__rule"></span>
             <span class="region-index__name">{labCopy.eyebrow}</span>
           </div>
-        </div>
-        <div class="lab__header-copy">
+        </aside>
+        <div class="region-body lab__header-copy">
           <h2 id="reliability-lab-title" class="lab__title">{labCopy.title}</h2>
           <p class="lab__intro">{labCopy.intro}</p>
         </div>
@@ -585,25 +590,11 @@ const total = String(labStages.length).padStart(2, '0');
 
   .lab__shell {
     display: grid;
-    gap: var(--space-6);
-  }
-
-  /* The lab is the one region whose header sits ABOVE its own rail
-     rather than beside it: the bench below needs the full measure,
-     so the index runs as a lead-in line instead of a margin column. */
-  .lab__header {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  .lab__header-rail {
-    max-width: 16rem;
+    gap: var(--space-5);
   }
 
   .lab__header-copy {
-    display: grid;
     gap: var(--space-3);
-    max-width: var(--width-content);
   }
 
   /* The lab title is the second feature-scale heading on the page.
