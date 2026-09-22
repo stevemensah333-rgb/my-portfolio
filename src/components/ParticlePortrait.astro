@@ -55,8 +55,12 @@ const { src, alt, width, height, srcset, sizes } = Astro.props;
     g: number;
   };
 
-  const INK = ['#CFCBC2', '#A19D94', '#75726B', '#4A4844', '#1C1D1F'];
-  const ACCENT = '#D69422';
+  /* Canvas cannot read CSS custom properties, so the ramp is
+     mirrored here by hand. These are the sheet/deck greys and the
+     copper accent from global.css §2 — keep them in sync if the
+     palette moves. */
+  const INK = ['#DAD2BD', '#A8A18E', '#7E7660', '#3D4349', '#15181C'];
+  const ACCENT = '#C2632F';
 
   const roots = document.querySelectorAll<HTMLElement>('[data-particle-portrait]');
 
@@ -115,7 +119,7 @@ const { src, alt, width, height, srcset, sizes } = Astro.props;
       ctx.clearRect(0, 0, cssWidth, cssHeight);
       displacedCount = 0;
       for (let g = 0; g < INK.length; g += 1) {
-        ctx.fillStyle = INK[g] ?? '#1C1D1F';
+        ctx.fillStyle = INK[g] ?? '#15181C';
         for (const p of particles) {
           if (p.g !== g) continue;
           const displaced = Math.abs(p.x - p.hx) + Math.abs(p.y - p.hy) > 1.5;

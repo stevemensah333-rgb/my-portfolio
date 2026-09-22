@@ -33,10 +33,11 @@ const year = new Date().getFullYear();
 </footer>
 
 <style>
+  /* The footer is the deepest surface on the page — below the
+     contact terminus. It closes the environment. */
   .site-footer {
-    background: var(--color-canvas);
+    background: var(--color-deck-deep);
     color: var(--color-text-on-canvas);
-    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
   .site-footer__inner {
@@ -57,6 +58,7 @@ const year = new Date().getFullYear();
     width: 1.875rem;
     height: 1.875rem;
     border: 1px solid var(--color-accent);
+    background: transparent;
     color: var(--color-accent-text);
     font-family: var(--font-mono);
     font-size: 0.625rem;

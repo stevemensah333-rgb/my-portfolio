@@ -41,85 +41,134 @@
 /* ----------------------------------------------------------------
    2. Design tokens
    ----------------------------------------------------------------
-   Tokens are grouped by purpose. A human engineer should be able
-   to read this section top to bottom and predict every visible
-   decision in the system.
+   THE VISUAL GRAMMAR — "field notebook / instrument deck"
+
+   Two environments, one accent, one geometry.
+
+   DECK  — a deep blue-slate. Cool, non-black, faintly atmospheric.
+           Used for the identity band, the live instruments and the
+           closing surface. This is where the system RUNS.
+   SHEET — a warm pressed-linen ground. Used for the read surfaces:
+           project write-ups, experience, evidence, prose. This is
+           where the system is DOCUMENTED.
+
+   The accent is COPPER — an oxidised metal tone, not a brand blue
+   and not a UI amber. It only ever marks: active state, causal
+   emphasis, and the one control that matters in a region.
+
+   Geometry rule: 90° by default. The only curve in the system is a
+   circle (status dots, arc markers). No rounded cards.
+
+   Every token below is either a colour with a verified contrast
+   pairing, a measure on the 4px grid, or a named motion value.
+   Nothing here is decorative-by-default.
    ---------------------------------------------------------------- */
 
 :root {
-  /* 2.1 Environmental colours ------------------------------
-     The site has two environments:
-     - CANVAS  (deep, neutral, instrument dark)
-     - PAPER   (warm, low-glare, readable light)
-     Sections sit on PAPER by default. CANVAS is used for
-     emphatic moments (footer band, contact panel, hero inset)
-     and as the dominant colour of the page footer.
+  /* 2.1 Environment: DECK (deep, cool, running) -------------------
+     Four steps. deep < base < soft < inset. Panels stack by getting
+     LIGHTER, so depth reads as "surfaced toward the viewer".
      ---------------------------------------------- */
 
-  --color-canvas: #14171B;
-  --color-canvas-soft: #1A1E23;
-  --color-canvas-inset: #1F2329;
+  --color-deck-deep: #0A0E11;
+  --color-deck: #101519;
+  --color-deck-soft: #161C21;
+  --color-deck-inset: #1C242A;
+  --color-deck-raised: #232C34;
 
-  --color-paper: #F0EDE6;
-  --color-paper-soft: #E9E4D8;
-  --color-paper-inset: #DDD7C9;
-  --color-paper-tab: #E3DECD;
-
-  /* 2.2 Text -----------------------------------------------
-     Faint tones are tuned to clear 4.5:1 against their own
-     environment (paper faint on paper / paper-soft, canvas
-     faint on canvas / canvas-soft), so tertiary labels stay
-     readable without losing the three-step hierarchy. */
-
-  --color-text-on-paper: #0E1116;
-  --color-text-on-paper-muted: #5A5E66;
-  --color-text-on-paper-faint: #63656C;
-
-  --color-text-on-canvas: #E7E2D6;
-  --color-text-on-canvas-muted: #A39F95;
-  --color-text-on-canvas-faint: #93918C;
-
-  /* 2.3 Borders & rules ------------------------------------ */
-
-  --color-rule-on-paper: #C5BFAF;
-  --color-rule-on-paper-soft: #D7D1BF;
-  --color-rule-on-canvas: #2D3138;
-  --color-rule-on-canvas-soft: #252930;
-
-  /* 2.4 Accent & signal colours -----------------------------
-     AMBER is the controlled accent. It is reserved for:
-     - active state
-     - "signal" moments (a stage is active, a row is current)
-     - deliberate emphasis (not decoration)
-     Signal-pass and signal-fail are used only on the trace
-     surface, never as decoration.
+  /* 2.2 Environment: SHEET (warm, pressed, documented) ------------
+     high < base < soft < inset. Sheet surfaces get DARKER as they
+     recess, the inverse of deck — so the two environments read as
+     materially different, not as "light mode / dark mode".
      ---------------------------------------------- */
 
-  --color-accent: #D69422;
-  --color-accent-deep: #A87214;
-  --color-accent-soft: #F0D9B0;
-  --color-accent-tint: #F4E5C9;
+  --color-sheet-high: #F3EFE4;
+  --color-sheet: #EDE7D9;
+  --color-sheet-soft: #E5DECD;
+  --color-sheet-inset: #DAD2BD;
 
-  /* Text-safe variants. Amber and the signal tones are strong
-     as fills and marks but pass only ~2–3:1 as small text on
-     the opposite environment. `*-text` tokens are re-mapped on
-     dark surfaces (see the remap block below) so every piece of
-     accent / signal TEXT clears 4.5:1 without changing the fills. */
-  --color-accent-ink: #845A0E;
+  /* Legacy names — the whole component layer is authored against
+     these. Re-pointing them here is what carries the new palette
+     through every file without recolouring components one by one. */
+  --color-canvas: var(--color-deck);
+  --color-canvas-soft: var(--color-deck-soft);
+  --color-canvas-inset: var(--color-deck-inset);
+  --color-paper: var(--color-sheet);
+  --color-paper-soft: var(--color-sheet-soft);
+  --color-paper-inset: var(--color-sheet-inset);
+  --color-paper-tab: var(--color-sheet-soft);
+
+  /* 2.3 Text ------------------------------------------------------
+     Three steps per environment. Every faint tone below clears
+     4.5:1 against its own environment AND against that
+     environment's inset step (verified, see AUDIT contrast table).
+     ---------------------------------------------- */
+
+  /* Three steps, and the ordering holds on every sheet tone. `faint`
+     is the floor: verified >= 4.5:1 even on `--color-sheet-inset`,
+     the darkest ground it is ever set on. */
+  --color-text-on-paper: #15181C;        /* 14.4:1 on sheet */
+  --color-text-on-paper-muted: #3D4349;  /* 8.1:1 on sheet, 6.6:1 on inset */
+  --color-text-on-paper-faint: #53595F;  /* 5.8:1 on sheet, 4.7:1 on inset */
+
+  --color-text-on-canvas: #E9E6DE;
+  --color-text-on-canvas-muted: #A2A9AE;
+  --color-text-on-canvas-faint: #8C9498;
+
+  /* 2.4 Rules -----------------------------------------------------
+     Rules carry the geometry, so there are three weights, not one:
+       hair    — grouping inside a panel
+       rule    — the standard boundary
+       edge    — a structural division between regions (3:1)
+     ---------------------------------------------- */
+
+  --color-rule-on-paper: #C3BAA4;
+  --color-rule-on-paper-soft: #D6CFBC;
+  --color-rule-on-paper-strong: #7E7660;
+  --color-rule-on-canvas: #273038;
+  --color-rule-on-canvas-soft: #1E262C;
+  --color-rule-on-canvas-strong: #5B6875;
+
+  /* 2.5 Accent & signal -------------------------------------------
+     COPPER is the single accent. Two faces:
+       --color-accent      the mark/fill face (deck + sheet)
+       --color-accent-ink  the text-safe face on SHEET
+     On deck surfaces `--color-accent-text` re-maps to the bright
+     face (see the deck remap block). Signal green/rust appear only
+     on trace surfaces where pass/fail is the actual subject.
+     ---------------------------------------------- */
+
+  --color-accent: #C2632F;
+  --color-accent-bright: #E0743D;
+  --color-accent-deep: #A24E1F;
+  --color-accent-soft: #E6C3A6;
+  --color-accent-tint: #EFE0D2;
+
+  --color-accent-ink: #8A4415;
   --color-accent-text: var(--color-accent-ink);
-  --color-signal-pass-text: #2A6B52;
-  --color-signal-fail-text: #96482F;
 
-  --color-signal-pass: #2F7A5C;
-  --color-signal-pass-soft: #CFE0D5;
-  --color-signal-fail: #A8553F;
-  --color-signal-fail-soft: #EBD3CB;
-  --color-signal-fail-tint: #F4E4DD;
+  /* The text/icon colour for anything sitting ON a copper fill.
+     Copper is a mid-tone, so neither the deck nor the sheet clears
+     4.5:1 against it by default (deck lands at 4.48). This is the one
+     value that does, on both, and it is a constant — it must NOT be
+     re-mapped per surface. */
+  --color-on-accent: #0A0E11;
 
-  /* 2.5 Borders & controls ----------------------------------
-     All borders are 1 px. Corner radii are zero by default —
-     curves are reserved for circular elements (rail dots,
-     status indicators, markers).
+  --color-signal-pass: #2C6249;
+  --color-signal-pass-bright: #8FBFA5;
+  --color-signal-pass-soft: #C9DCD0;
+  --color-signal-pass-tint: #DDE7DF;
+  --color-signal-pass-text: var(--color-signal-pass);
+
+  --color-signal-fail: #95323C;
+  --color-signal-fail-bright: #E5A196;
+  --color-signal-fail-soft: #E4C8C3;
+  --color-signal-fail-tint: #F1DFDB;
+  --color-signal-fail-text: var(--color-signal-fail);
+
+  /* 2.6 Borders & controls ----------------------------------------
+     Radius is zero everywhere except true circles. A container that
+     wants to look "soft" is the wrong container.
      ---------------------------------------------- */
 
   --border-width: 1px;
@@ -132,53 +181,67 @@
   --border-dotted-canvas: 1px dotted var(--color-rule-on-canvas-soft);
 
   --radius-zero: 0;
-  --radius-control: 2px;
-  --radius-frame: 2px;
+  --radius-control: 0;
+  --radius-frame: 0;
   --radius-pill: 999px;
 
   --control-height: 2.625rem;
   --control-height-sm: 2.125rem;
   --control-height-lg: 3rem;
 
-  /* 2.6 Typography -----------------------------------------
-     Four explicit roles. The system uses Inter for prose and
-     IBM Plex Mono for everything that is "instrument"
-     metadata: section labels, coordinates, status, code.
-     Type sizes use clamp() where they need to scale with the
-     viewport, otherwise static rems for predictability.
+  /* 2.7 Typography -------------------------------------------------
+     SIX roles, distinguished by weight, tracking, case and family —
+     not by size alone. Size only separates the top two.
+
+       identity   Inter 600, tight negative tracking, display size
+       feature    Inter 600, negative tracking, section openers
+       section    Inter 600, small — headings do NOT shout
+       body       Inter 400, generous leading
+       interface  Inter 600, small caps-ish, tight — buttons, labels
+       metadata   Plex Mono 500, uppercase, +tracking — coordinates,
+                  status, stage numbers, evidence labels
+       code       Plex Mono 500, no tracking — payloads only
+
+     Note the deliberate compression: `--text-section` is now much
+     closer to body size than before. Section hierarchy comes from
+     the mono eyebrow + rule + spacing, not from a big heading.
      ---------------------------------------------- */
 
   --font-sans: 'Inter Variable', Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
 
-  --type-display: clamp(2.5rem, 5.5vw, 4.75rem);
-  --type-feature: clamp(2rem, 3.8vw, 3.25rem);
-  --type-section: clamp(1.625rem, 2.4vw, 2.25rem);
-  --type-component: 1.25rem;
+  --type-display: clamp(2.75rem, 6.2vw, 5.25rem);
+  --type-feature: clamp(1.875rem, 3.4vw, 2.875rem);
+  --type-section: clamp(1.375rem, 1.9vw, 1.75rem);
+  --type-component: 1.0625rem;
 
   --text-display: var(--type-display);
   --text-feature: var(--type-feature);
   --text-section: var(--type-section);
   --text-component: var(--type-component);
   --text-body: 1rem;
-  --text-body-large: clamp(1.0625rem, 1.4vw, 1.1875rem);
+  --text-body-large: clamp(1.0625rem, 1.3vw, 1.125rem);
   --text-small: 0.875rem;
   --text-meta: 0.75rem;
   --text-micro: 0.6875rem;
 
-  --leading-display: 1;
-  --leading-heading: 1.1;
-  --leading-body: 1.6;
+  --leading-display: 0.94;
+  --leading-heading: 1.08;
+  --leading-body: 1.62;
 
-  --tracking-display: -0.04em;
-  --tracking-heading: -0.02em;
-  --tracking-meta: 0.08em;
-  --tracking-button: 0.02em;
+  --tracking-display: -0.045em;
+  --tracking-heading: -0.022em;
+  --tracking-meta: 0.11em;
+  --tracking-button: 0.01em;
 
-  /* 2.7 Spacing & rhythm ------------------------------------
-     A four-pixel base. A small number of named rhythm tokens
-     apply to section blocks so vertical cadence reads as one
-     composition rather than several.
+  /* 2.8 Spacing & rhythm -------------------------------------------
+     Four-pixel base. The three SECTION rhythms below are the whole
+     vertical-density system: a section picks one and the page reads
+     as composed rather than as a uniform scroll.
+
+       block-major   an idea that deserves air (hero, lab, contact)
+       block         the default read section
+       block-tight   supporting / compact information
      ---------------------------------------------- */
 
   --space-1: 0.25rem;
@@ -192,22 +255,28 @@
   --space-9: 4rem;
   --space-10: 6rem;
 
-  --section-block: clamp(4rem, 7vw, 6.5rem);
-  --section-block-tight: clamp(3rem, 5vw, 4.5rem);
-  --section-gap: clamp(2rem, 4vw, 3.5rem);
+  --section-block-major: clamp(4.5rem, 8vw, 7.5rem);
+  --section-block: clamp(3.25rem, 5.5vw, 5rem);
+  --section-block-tight: clamp(2.5rem, 3.6vw, 3.25rem);
+  --section-gap: clamp(1.75rem, 3vw, 2.75rem);
 
-  /* 2.8 Layout --------------------------------------------- */
+  /* 2.9 Layout ------------------------------------------------------
+     `--rail-col` is the signature grid move: every major section on
+     SHEET opens with a narrow metadata column and an offset content
+     column. It is what makes the page asymmetric without any
+     section needing its own bespoke layout.
+     ---------------------------------------------- */
 
   --width-page: 76rem;
-  --width-reading: 38rem;
-  --width-narrow: 30rem;
-  --width-content: 52rem;
-  --page-gutter: clamp(1rem, 3.5vw, 2.5rem);
+  --width-reading: 36rem;
+  --width-narrow: 28rem;
+  --width-content: 50rem;
+  --page-gutter: clamp(1.125rem, 3.5vw, 2.5rem);
 
-  /* 2.9 Motion ----------------------------------------------
-     Five durations, two easings. Every motion in the system
-     composes these. Nothing animates outside this vocabulary.
-     ---------------------------------------------- */
+  --rail-col: 11.5rem;
+  --rail-gap: clamp(1.5rem, 3vw, 3rem);
+
+  /* 2.10 Motion ------------------------------------------------------ */
 
   --duration-quick: 120ms;
   --duration-base: 220ms;
@@ -217,26 +286,45 @@
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* 2.10 Geometric motifs (signature) -----------------------
-     The site uses TWO geometric motifs, sparingly:
-     - CROSSHAIR MARKS (small + marks at panel corners)
-     - GUTTER TICKS (small mono ticks along page rulers)
-     They communicate: this surface is a viewport / an instrument.
+  /* 2.11 Geometric motifs (signature) ---------------------------------
+     FOUR motifs, and only four. Every geometric decision on the site
+     is one of these:
+       1. CORNER REGISTRATION — L-marks at panel corners
+       2. GUTTER TICKS        — measured axis along a region edge
+       3. INDEX RULE          — a copper rule + mono index opening a
+                                section, sitting in the rail column
+       4. ARC NODE            — a circle: status, stage node, marker
      ---------------------------------------------- */
 
-  --mark-size: 0.5rem;
-  --mark-stroke: 1px;
+  --mark-length: 3rem;
+  --mark-stroke: 2px;
+  --node-size: 0.5rem;
 
-  /* 2.11 Z-index ------------------------------------------- */
+  /* 2.12 Z-index ------------------------------------------------- */
 
   --z-header: 50;
   --z-overlay: 40;
   --z-skip: 100;
 }
 
-/* Dark-surface contexts re-map the text-signal tokens to the
-   on-canvas side of each pair. Fills, borders and marks keep the
-   pure signal colours; only TEXT changes. */
+/* DECK CONTEXTS.
+   Every dark surface on the site is listed here, and the list is the
+   single place a surface declares "I am a deck". Two things are
+   re-mapped:
+
+   1. The signal/accent TEXT tokens flip to the bright face of each
+      pair. Fills, borders and marks keep the base colours; each
+      bright face is verified >= 4.5:1 on deck, deck-soft and
+      deck-inset.
+   2. The `on-paper` text and rule tokens are re-pointed at their
+      `on-canvas` equivalents. This is what lets the shared grammar
+      (`.region-index`, `.mono-label`, `.region-lede`, ...) be written
+      once against the paper tokens and still be legible on a deck —
+      without every component re-declaring a `.on-deck` override, and
+      without a section silently shipping 1.8:1 text because someone
+      forgot one.
+
+   ADD ANY NEW DARK SURFACE TO THIS LIST. */
 .hero,
 .trace,
 .lab,
@@ -245,10 +333,19 @@
 .workspace-rail,
 .workspace-bar,
 .boot,
-.case-trace-band {
-  --color-accent-text: var(--color-accent);
-  --color-signal-fail-text: color-mix(in srgb, var(--color-signal-fail) 70%, var(--color-text-on-canvas));
-  --color-signal-pass-text: color-mix(in srgb, var(--color-signal-pass) 70%, var(--color-text-on-canvas));
+.case-trace-band,
+.on-deck {
+  --color-accent-text: var(--color-accent-bright);
+  --color-signal-fail-text: var(--color-signal-fail-bright);
+  --color-signal-pass-text: var(--color-signal-pass-bright);
+
+  --color-text-on-paper: var(--color-text-on-canvas);
+  --color-text-on-paper-muted: var(--color-text-on-canvas-muted);
+  --color-text-on-paper-faint: var(--color-text-on-canvas-faint);
+
+  --color-rule-on-paper: var(--color-rule-on-canvas);
+  --color-rule-on-paper-soft: var(--color-rule-on-canvas-soft);
+  --color-rule-on-paper-strong: var(--color-rule-on-canvas-strong);
 }
 
 /* ----------------------------------------------------------------
@@ -342,12 +439,25 @@ button {
 }
 
 :focus-visible {
-  /* accent-deep keeps the ring ≥3:1 on both environments
-     (paper 3.5:1, canvas 4.3:1); the brighter amber only
-     clears 2.2:1 on paper. */
+  /* accent-deep clears 4.67:1 on sheet and 4.48:1 on deck, so the
+     ring is visible in both environments without changing colour. */
   outline: 2px solid var(--color-accent-deep);
   outline-offset: 2px;
   border-radius: var(--radius-control);
+}
+
+/* On deck surfaces the ring uses the bright copper face — deep copper
+   on near-black is legible but the bright face reads as the same
+   "this is selected" signal used by the instruments. */
+.hero :focus-visible,
+.trace :focus-visible,
+.lab :focus-visible,
+.contact :focus-visible,
+.site-footer :focus-visible,
+.workspace-rail :focus-visible,
+.workspace-bar :focus-visible,
+.on-deck :focus-visible {
+  outline-color: var(--color-accent-bright);
 }
 
 ::selection {
@@ -388,10 +498,13 @@ button {
   padding-inline: var(--page-gutter);
 }
 
-/* Mono technical label — used everywhere a piece of text reads
-   as "instrument metadata": section eyebrows, coordinates,
-   stage numbers, status readouts. Uses the small mono marker
-   dot at left. */
+/* METADATA role — every piece of text that is instrument metadata
+   rather than prose: section eyebrows, coordinates, stage numbers,
+   status readouts, evidence labels.
+
+   The leading mark is a short copper RULE, not a dot or a box. It is
+   the smallest instance of the index-rule motif, so a label and a
+   section opener are visibly the same idea at two scales. */
 .mono-label {
   display: inline-flex;
   align-items: center;
@@ -407,10 +520,10 @@ button {
 
 .mono-label::before {
   content: '';
-  width: 0.375rem;
-  height: 0.375rem;
-  border: 1px solid var(--color-accent);
-  background: transparent;
+  flex: 0 0 auto;
+  width: 0.75rem;
+  height: 1px;
+  background: var(--color-accent);
 }
 
 .mono-label--inverse {
@@ -418,62 +531,209 @@ button {
 }
 
 .mono-label--inverse::before {
-  border-color: var(--color-accent);
+  background: var(--color-accent-bright);
 }
 
-/* The crosshair corner mark — a signature geometric motif.
-   Used at the four corners of bounded panels to read as
-   "viewport / instrument frame". */
-.corner-mark {
-  position: absolute;
-  width: var(--mark-size);
-  height: var(--mark-size);
-  pointer-events: none;
+/* Bare variant — no leading rule. For labels already inside a framed
+   or ruled context, where a second mark would be noise. */
+.mono-label--bare::before {
+  display: none;
 }
 
-.corner-mark::before,
-.corner-mark::after {
+/* ----------------------------------------------------------------
+   4b. Section grammar
+   ----------------------------------------------------------------
+   The composition primitive used by every major region.
+
+   `.region`       vertical rhythm — one of three densities
+   `.region-grid`  the asymmetric two-column frame: a narrow
+                   metadata rail + an offset content column
+   `.region-rail`  the metadata column (index, eyebrow, aside notes)
+   `.region-body`  the content column
+   `.region-index` the copper index rule + number that opens a region
+
+   This is what stops the page reading as one long document: the
+   metadata physically leaves the reading column and becomes a
+   margin apparatus, and each region chooses its own density.
+   ---------------------------------------------------------------- */
+
+/* `--region-pad` is published so a region's own children (notably
+   the SectionFrame index rule) can position against the region's
+   leading edge instead of guessing at it. */
+.region {
+  --region-pad: var(--section-block);
+  padding-block: var(--region-pad);
+}
+
+.region--major {
+  --region-pad: var(--section-block-major);
+}
+
+.region--tight {
+  --region-pad: var(--section-block-tight);
+}
+
+.region-grid {
+  display: grid;
+  gap: var(--space-5);
+}
+
+@media (min-width: 60rem) {
+  .region-grid {
+    grid-template-columns: var(--rail-col) minmax(0, 1fr);
+    column-gap: var(--rail-gap);
+    align-items: start;
+  }
+
+  /* The rail column is sticky so the region's identity stays with the
+     reader through long content. It is metadata only — nothing here
+     is required to understand the body. */
+  .region-rail {
+    position: sticky;
+    top: var(--space-6);
+  }
+}
+
+.region-rail {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+.region-body {
+  display: grid;
+  gap: var(--section-gap);
+  align-content: start;
+  min-width: 0;
+}
+
+/* The index: a mono number, a copper rule, then the region name.
+   Reads as a chapter mark on a technical drawing. */
+.region-index {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+.region-index__no {
+  display: block;
+  color: var(--color-accent-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: var(--tracking-meta);
+  line-height: 1;
+}
+
+.region-index__rule {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--color-rule-on-paper-strong);
+}
+
+.region-index__name {
+  display: block;
+  color: var(--color-text-on-paper-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: var(--tracking-meta);
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.region-index__note {
+  display: block;
+  max-width: 22ch;
+  color: var(--color-text-on-paper-faint);
+  font-size: var(--text-micro);
+  line-height: 1.5;
+}
+
+.on-deck .region-index__rule {
+  background: var(--color-rule-on-canvas-strong);
+}
+
+.on-deck .region-index__name {
+  color: var(--color-text-on-canvas-muted);
+}
+
+.on-deck .region-index__note {
+  color: var(--color-text-on-canvas-faint);
+}
+
+/* SECTION role — headings are small and quiet. Hierarchy is carried
+   by the index rule, the rail offset and spacing, not by size. */
+.region-title {
+  margin: 0;
+  max-width: 24ch;
+  font-size: var(--text-section);
+  font-weight: 600;
+  letter-spacing: var(--tracking-heading);
+  line-height: var(--leading-heading);
+  text-wrap: balance;
+}
+
+.region-lede {
+  max-width: var(--width-reading);
+  margin: 0;
+  color: var(--color-text-on-paper-muted);
+  font-size: var(--text-body-large);
+  line-height: 1.55;
+}
+
+.on-deck .region-lede {
+  color: var(--color-text-on-canvas-muted);
+}
+
+/* An ENVIRONMENT SEAM — the transition between a sheet region and a
+   deck region. A 1px edge plus a copper tick at the rail position,
+   so environment changes are marked rather than just happening. */
+.seam {
+  position: relative;
+  height: 0;
+  border-top: 1px solid var(--color-rule-on-paper-strong);
+}
+
+.seam::after {
   content: '';
   position: absolute;
-  background: currentColor;
-}
-
-.corner-mark::before {
-  top: 0;
+  top: -1px;
   left: 0;
-  width: 100%;
-  height: var(--mark-stroke);
+  width: clamp(3rem, 12vw, 8rem);
+  height: 3px;
+  background: var(--color-accent);
 }
 
-.corner-mark::after {
-  top: 0;
-  left: 0;
-  width: var(--mark-stroke);
-  height: 100%;
+.seam--deck {
+  border-top-color: var(--color-rule-on-canvas-strong);
 }
 
-.corner-mark--tl { top: -1px; left: -1px; }
-.corner-mark--tr { top: -1px; right: -1px; }
-.corner-mark--tr::before { left: auto; right: 0; }
-.corner-mark--tr::after { left: auto; right: 0; }
-.corner-mark--bl { bottom: -1px; left: -1px; }
-.corner-mark--bl::before { top: auto; bottom: 0; }
-.corner-mark--bl::after { top: auto; bottom: 0; }
-.corner-mark--br { bottom: -1px; right: -1px; }
-.corner-mark--br::before { top: auto; bottom: 0; left: auto; right: 0; }
-.corner-mark--br::after { top: auto; bottom: 0; left: auto; right: 0; }
+/* REMOVED: `.corner-mark` (four-crosshair panel frame).
+   It was the old system's way of saying "this is an instrument", and
+   it ended up on every bounded box, which made the marks noise rather
+   than notation. The replacement is a single directional registration
+   tick at the leading corner (see `.region::before`, `.lab__bench::before`,
+   `.button::before`) — one mark, one meaning, and it now also encodes
+   direction rather than just decorating a corner. */
 
-/* Buttons */
+/* INTERFACE role — controls.
+   A button is a bounded rectangle with a leading copper tick. The
+   tick grows on hover: the state change is directional, so it reads
+   as "this will take you somewhere" rather than as a colour flash. */
 .button {
+  position: relative;
   display: inline-flex;
   min-height: var(--control-height);
   align-items: center;
   justify-content: center;
-  padding: var(--space-3) var(--space-5);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
   border: 1px solid var(--color-text-on-paper);
   border-radius: var(--radius-control);
   background: var(--color-text-on-paper);
-  color: var(--color-paper);
+  color: var(--color-sheet-high);
   font: 600 var(--text-small) / 1 var(--font-sans);
   letter-spacing: var(--tracking-button);
   text-decoration: none;
@@ -484,33 +744,87 @@ button {
     color var(--duration-quick) var(--ease-standard);
 }
 
+.button::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 0.75rem;
+  height: 1px;
+  background: var(--color-accent-bright);
+  transition: width var(--duration-base) var(--ease-emphasized);
+}
+
+.button:hover::before,
+.button:focus-visible::before {
+  width: 1.5rem;
+}
+
 .button:hover {
   background: transparent;
   color: var(--color-text-on-paper);
 }
 
+.button:hover::before {
+  background: var(--color-accent);
+}
+
 .button--secondary {
-  border-color: var(--color-rule-on-paper);
+  border-color: var(--color-rule-on-paper-strong);
   background: transparent;
   color: var(--color-text-on-paper);
+}
+
+.button--secondary::before {
+  background: var(--color-accent);
 }
 
 .button--secondary:hover {
   border-color: var(--color-text-on-paper);
   background: var(--color-text-on-paper);
-  color: var(--color-paper);
+  color: var(--color-sheet-high);
+}
+
+.button--secondary:hover::before {
+  background: var(--color-accent-bright);
 }
 
 .button--accent {
-  border-color: var(--color-accent-deep);
+  border-color: var(--color-accent);
   background: var(--color-accent);
-  color: var(--color-canvas);
+  color: var(--color-on-accent);
 }
 
-.button--accent:hover {
+.button--accent::before {
+  background: var(--color-on-accent);
+}
+
+.button--accent:hover,
+.button--accent:focus-visible {
   background: var(--color-accent-deep);
   border-color: var(--color-accent-deep);
-  color: var(--color-canvas);
+  color: var(--color-sheet-high);
+}
+
+.button--accent:hover::before,
+.button--accent:focus-visible::before {
+  background: var(--color-sheet-high);
+}
+
+/* On deck, the outline button borrows the deck rule + deck text. */
+.on-deck .button--secondary,
+.hero .button--secondary,
+.contact .button--secondary,
+.lab .button--secondary {
+  border-color: var(--color-rule-on-canvas-strong);
+  color: var(--color-text-on-canvas);
+}
+
+.on-deck .button--secondary:hover,
+.hero .button--secondary:hover,
+.contact .button--secondary:hover,
+.lab .button--secondary:hover {
+  border-color: var(--color-text-on-canvas);
+  background: var(--color-text-on-canvas);
+  color: var(--color-deck-deep);
 }
 
 .text-link {
@@ -526,25 +840,39 @@ button {
     opacity var(--duration-quick) var(--ease-standard);
 }
 
+/* The rule under a text link becomes copper and thickens on hover —
+   the link resolves rather than disappearing. */
 .text-link::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0.45rem;
-  border-top: 1px solid currentColor;
-  transform: scaleX(1);
-  transform-origin: left;
-  transition: transform var(--duration-base) var(--ease-emphasized);
+  bottom: 0.4rem;
+  height: 1px;
+  background: var(--color-rule-on-paper-strong);
+  transition:
+    background-color var(--duration-quick) var(--ease-standard),
+    height var(--duration-quick) var(--ease-standard);
 }
 
-.text-link:hover {
+.on-deck .text-link::after,
+.hero .text-link::after,
+.contact .text-link::after,
+.lab .text-link::after,
+.trace .text-link::after,
+.site-footer .text-link::after {
+  background: var(--color-rule-on-canvas-strong);
+}
+
+.text-link:hover,
+.text-link:focus-visible {
   color: var(--color-accent-text);
 }
 
-.text-link:hover::after {
-  transform: scaleX(0);
-  transform-origin: right;
+.text-link:hover::after,
+.text-link:focus-visible::after {
+  height: 2px;
+  background: var(--color-accent-text);
 }
 
 .text-link__arrow {
@@ -557,39 +885,8 @@ button {
   transform: translateX(2px);
 }
 
-/* Section frame — adds crosshair marks at top corners, plus
-   a small mono header rule. Used to bound major sections. */
-.section-frame {
-  position: relative;
-}
-
-.section-frame::before,
-.section-frame::after {
-  content: '';
-  position: absolute;
-  top: -1px;
-  width: var(--mark-size);
-  height: var(--mark-size);
-  pointer-events: none;
-}
-
-.section-frame::before {
-  left: -1px;
-  border-top: var(--mark-stroke) solid var(--color-rule-on-paper);
-  border-left: var(--mark-stroke) solid var(--color-rule-on-paper);
-}
-
-.section-frame::after {
-  right: -1px;
-  border-top: var(--mark-stroke) solid var(--color-rule-on-paper);
-  border-right: var(--mark-stroke) solid var(--color-rule-on-paper);
-}
-
-/* On-canvas section frame */
-.section-frame--canvas::before,
-.section-frame--canvas::after {
-  border-color: var(--color-rule-on-canvas);
-}
+/* Section frame — see SectionFrame.astro. The seam, index rule and
+   density live with the component; nothing global is needed here. */
 
 /* Hidden but accessible */
 .visually-hidden {

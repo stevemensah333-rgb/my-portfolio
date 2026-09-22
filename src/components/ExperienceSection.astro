@@ -37,50 +37,70 @@ const experiences = [
 ];
 ---
 
-<section id="experience" class="experience" aria-labelledby="experience-title" data-workspace-section="experience">
-  <SectionFrame coordinate="04 / Experience" surface="paper-soft">
-    <div class="page-shell experience__layout">
-      <header class="experience__header">
-        <p class="mono-label">Experience</p>
-        <h2 id="experience-title" class="experience__title">Where I've worked</h2>
-      </header>
+<!--
+  EXPERIENCE — chronological and structured.
 
-      <ol class="experience__list">
-        {experiences.map((entry, index) => {
-          return (
-            <li class="experience__item">
-              <details class="experience__entry" name="experience-entry">
-                <summary class="experience__trigger">
-                  <span class="experience__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                  <span class="experience__heading">
-                    <span class="experience__role">{entry.role}</span>
-                    <span class="experience__org">{entry.organisation}</span>
-                  </span>
-                  <span class="experience__dates mono-label">{entry.dates}</span>
-                  <span class="experience__indicator" aria-hidden="true">+</span>
-                </summary>
-                <div class="experience__panel">
-                  <p>{entry.description}</p>
-                  <p class="experience__meta mono-label">{entry.meta}</p>
-                </div>
-              </details>
-            </li>
-          );
-        })}
-      </ol>
+  The disclosure behaviour is unchanged. What changed:
+  - the entries hang off a single continuous SPINE with an arc node
+    per role, so the list reads as a sequence in time rather than as
+    four independent rows;
+  - dates are promoted into the row's own metadata column at width,
+    so the chronology is scannable without opening anything;
+  - the open state fills its node and runs a copper rule down the
+    disclosed panel, which is the same open/inspect vocabulary the
+    trace and toolkit use.
+
+  Content is untouched.
+-->
+<section id="experience" class="experience" aria-labelledby="experience-title" data-workspace-section="experience">
+  <SectionFrame coordinate="04 · Experience" surface="paper" density="tight">
+    <div class="page-shell region-grid">
+      <aside class="region-rail">
+        <div class="region-index">
+          <span class="region-index__no">04</span>
+          <span class="region-index__rule"></span>
+          <span class="region-index__name">Chronology</span>
+          <span class="region-index__note">{experiences.length} roles. Open any one for detail.</span>
+        </div>
+      </aside>
+
+      <div class="region-body">
+        <header class="experience__header">
+          <h2 id="experience-title" class="region-title">Where I've worked</h2>
+        </header>
+
+        <ol class="experience__list">
+          {experiences.map((entry, index) => {
+            return (
+              <li class="experience__item">
+                <details class="experience__entry" name="experience-entry">
+                  <summary class="experience__trigger">
+                    <span class="experience__node" aria-hidden="true"></span>
+                    <span class="experience__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                    <span class="experience__heading">
+                      <span class="experience__role">{entry.role}</span>
+                      <span class="experience__org">{entry.organisation}</span>
+                    </span>
+                    <span class="experience__dates">{entry.dates}</span>
+                    <span class="experience__indicator" aria-hidden="true"></span>
+                  </summary>
+                  <div class="experience__panel">
+                    <p>{entry.description}</p>
+                    <p class="experience__meta">{entry.meta}</p>
+                  </div>
+                </details>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     </div>
   </SectionFrame>
 </section>
 
 <style>
   .experience {
-    background: var(--color-paper-soft);
-    border-top: 1px solid var(--color-rule-on-paper);
-  }
-
-  .experience__layout {
-    display: grid;
-    gap: var(--space-7);
+    background: var(--color-sheet-soft);
   }
 
   .experience__header {
@@ -88,29 +108,36 @@ const experiences = [
     gap: var(--space-3);
   }
 
-  .experience__title {
-    margin: 0;
-    font-size: var(--text-section);
-    font-weight: 600;
-    letter-spacing: var(--tracking-heading);
-    line-height: 1.1;
-  }
-
+  /* THE SPINE — one line through the whole chronology. */
   .experience__list {
+    position: relative;
     margin: 0;
     padding: 0;
     list-style: none;
-    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .experience__list::before {
+    content: '';
+    position: absolute;
+    top: var(--space-5);
+    bottom: var(--space-5);
+    left: 0.25rem;
+    width: 1px;
+    background: var(--color-rule-on-paper-strong);
   }
 
   .experience__item {
     border-bottom: 1px solid var(--color-rule-on-paper);
   }
 
+  .experience__item:first-child {
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
   .experience__trigger {
     display: grid;
     width: 100%;
-    grid-template-columns: 2.25rem minmax(0, 1fr) auto 1rem;
+    grid-template-columns: 0.5rem 2rem minmax(0, 1fr) 0.875rem;
     gap: var(--space-2) var(--space-4);
     align-items: center;
     padding: var(--space-4) 0;
@@ -120,37 +147,64 @@ const experiences = [
     text-align: left;
     cursor: pointer;
     list-style: none;
-    transition: background-color var(--duration-quick) var(--ease-standard);
+    transition: color var(--duration-quick) var(--ease-standard);
   }
 
   .experience__trigger::-webkit-details-marker {
     display: none;
   }
 
-  .experience__trigger:hover {
-    background: color-mix(in srgb, var(--color-paper-soft) 30%, var(--color-paper));
-  }
-
   .experience__trigger:focus-visible {
     outline-offset: -2px;
   }
 
+  /* ARC NODE on the spine. Fills when the entry is open — the same
+     "reached / inspecting" signal the trace uses. */
+  .experience__node {
+    position: relative;
+    z-index: 1;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-rule-on-paper-strong);
+    background: var(--color-sheet-soft);
+    transition:
+      background-color var(--duration-base) var(--ease-standard),
+      border-color var(--duration-base) var(--ease-standard);
+  }
+
+  .experience__trigger:hover .experience__node {
+    border-color: var(--color-accent);
+  }
+
+  .experience__entry[open] .experience__node {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
   .experience__index {
-    color: var(--color-accent-text);
+    color: var(--color-text-on-paper-faint);
     font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.04em;
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+    transition: color var(--duration-quick) var(--ease-standard);
+  }
+
+  .experience__entry[open] .experience__index,
+  .experience__trigger:hover .experience__index {
+    color: var(--color-accent-text);
   }
 
   .experience__heading {
     display: grid;
-    gap: var(--space-1);
+    gap: 2px;
     min-width: 0;
   }
 
   .experience__role {
     font-size: 1rem;
     font-weight: 600;
+    letter-spacing: -0.01em;
     color: var(--color-text-on-paper);
   }
 
@@ -159,16 +213,43 @@ const experiences = [
     font-size: var(--text-small);
   }
 
+  /* Dates are METADATA: mono, muted, and at width they occupy their
+     own column so the chronology is a scannable edge. */
   .experience__dates {
-    color: var(--color-accent-text);
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     white-space: nowrap;
   }
 
+  /* Disclosure marker: plus → cross, same as the toolkit. */
   .experience__indicator {
-    color: var(--color-accent-text);
-    font-size: 1.125rem;
-    font-weight: 400;
-    transition: transform var(--duration-quick) var(--ease-standard);
+    position: relative;
+    justify-self: end;
+    width: 0.75rem;
+    height: 0.75rem;
+    transition: transform var(--duration-base) var(--ease-emphasized);
+  }
+
+  .experience__indicator::before,
+  .experience__indicator::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    background: var(--color-accent);
+  }
+
+  .experience__indicator::before {
+    width: 100%;
+    height: 1px;
+  }
+
+  .experience__indicator::after {
+    width: 1px;
+    height: 100%;
   }
 
   .experience__entry[open] .experience__indicator {
@@ -177,10 +258,10 @@ const experiences = [
 
   .experience__panel {
     position: relative;
-    max-width: 42rem;
-    margin: 0 0 var(--space-4) calc(2.25rem + var(--space-4));
+    max-width: 40rem;
+    margin: 0 0 var(--space-5) calc(0.5rem + 2rem + (var(--space-4) * 2));
     padding-left: var(--space-4);
-    border-left: 2px solid var(--color-accent);
+    border-left: 1px solid var(--color-accent);
     animation: exp-enter var(--duration-reveal) var(--ease-emphasized);
   }
 
@@ -195,23 +276,6 @@ const experiences = [
     }
   }
 
-  .experience__panel::before {
-    content: '';
-    position: absolute;
-    left: -2px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--color-accent);
-    transform: scaleY(0);
-    transform-origin: top;
-    transition: transform var(--duration-reveal) var(--ease-emphasized);
-  }
-
-  .experience__entry[open] .experience__panel::before {
-    transform: scaleY(1);
-  }
-
   .experience__panel p {
     margin: 0;
     color: var(--color-text-on-paper-muted);
@@ -220,33 +284,44 @@ const experiences = [
   }
 
   .experience__meta {
-    margin-top: var(--space-3);
-    color: var(--color-text-on-paper-muted);
+    margin-top: var(--space-3) !important;
+    color: var(--color-text-on-paper-faint) !important;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro) !important;
+    letter-spacing: 0.05em;
+    line-height: 1.5 !important;
+  }
+
+  @media (min-width: 48rem) {
+    .experience__trigger {
+      grid-template-columns: 0.5rem 2rem minmax(0, 1fr) auto 0.875rem;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .experience__panel {
       animation: none;
     }
-    .experience__panel::before {
+
+    .experience__node,
+    .experience__indicator {
       transition: none;
-      transform: scaleY(1);
     }
   }
 
   @media (max-width: 36rem) {
     .experience__trigger {
-      grid-template-columns: 1.75rem minmax(0, 1fr) 1rem;
+      grid-template-columns: 0.5rem 1.75rem minmax(0, 1fr) 0.875rem;
       gap: var(--space-2) var(--space-3);
     }
 
     .experience__dates {
-      grid-column: 2;
+      grid-column: 3;
       white-space: normal;
     }
 
     .experience__panel {
-      margin-left: calc(1.75rem + var(--space-3));
+      margin-left: calc(0.5rem + 1.75rem + (var(--space-3) * 2));
     }
   }
 </style>

@@ -2,127 +2,112 @@
 /*
   GutterAxis.astro
   ----------------
-  The second signature geometric motif: a vertical axis of small
-  mono ticks along one or both edges of the page. Communicates
-  "this surface has coordinates / is measured".
+  Signature motif #2: a measured vertical axis.
 
-  Used sparingly: at the hero, at the start of major sections.
+  Previously this was an absolutely-positioned overlay that floated
+  ticks along both page edges — decoration that happened to look
+  technical. It is now a real layout element: a narrow column that
+  a region places in its grid, carrying an origin label, evenly
+  measured ticks, and an optional terminal label.
+
+  It says one thing: this region has an origin and an extent.
 
   Props
   -----
-  position?  : 'left' (default) | 'right' | 'both'
-  ticks?     : number of ticks to draw (default 8)
-  surface?   : 'paper' (default) | 'canvas'
-  labels?    : optional array of mono labels rendered next to
-               each tick (paper surfaces only by default)
+  ticks?    : number of tick marks (default 6)
+  surface?  : 'paper' (default) | 'canvas'
+  origin?   : short mono label at the top of the axis
+  terminus? : short mono label at the foot of the axis
 */
 
 interface Props {
-  position?: 'left' | 'right' | 'both';
   ticks?: number;
   surface?: 'paper' | 'canvas';
-  labels?: string[];
-  ariaHidden?: boolean;
+  origin?: string;
+  terminus?: string;
 }
 
-const {
-  position = 'left',
-  ticks = 8,
-  surface = 'paper',
-  labels = [],
-  ariaHidden = true,
-} = Astro.props;
-
+const { ticks = 6, surface = 'paper', origin, terminus } = Astro.props;
 const tickArray = Array.from({ length: ticks }, (_, i) => i);
-const leftColor = surface === 'canvas' ? 'var(--color-rule-on-canvas)' : 'var(--color-rule-on-paper)';
-const textColor = surface === 'canvas' ? 'var(--color-text-on-canvas-muted)' : 'var(--color-text-on-paper-muted)';
 ---
 
-<div
-  class:list={['gutter-axis', `gutter-axis--${position}`, `gutter-axis--${surface}`]}
-  aria-hidden={ariaHidden ? 'true' : undefined}
->
-  {position !== 'right' && (
-    <div class="gutter-axis__column gutter-axis__column--left">
-      {tickArray.map((i) => (
-        <span class="gutter-axis__tick">
-          <i class="gutter-axis__tick-mark" style={`--tick-color: ${leftColor}`}></i>
-          {labels[i] && (
-            <span class="gutter-axis__tick-label" style={`color: ${textColor}`}>
-              {labels[i]}
-            </span>
-          )}
-        </span>
-      ))}
-    </div>
-  )}
-  {position !== 'left' && (
-    <div class="gutter-axis__column gutter-axis__column--right">
-      {tickArray.map((i) => (
-        <span class="gutter-axis__tick">
-          {labels[i] && (
-            <span class="gutter-axis__tick-label" style={`color: ${textColor}`}>
-              {labels[i]}
-            </span>
-          )}
-          <i class="gutter-axis__tick-mark" style={`--tick-color: ${leftColor}`}></i>
-        </span>
-      ))}
-    </div>
-  )}
+<div class:list={['axis', `axis--${surface}`]} aria-hidden="true">
+  {origin && <span class="axis__cap">{origin}</span>}
+  <div class="axis__scale">
+    <span class="axis__spine"></span>
+    {tickArray.map((i) => (
+      <span class:list={['axis__tick', i % 2 === 0 && 'axis__tick--major']}></span>
+    ))}
+  </div>
+  {terminus && <span class="axis__cap axis__cap--end">{terminus}</span>}
 </div>
 
 <style>
-  .gutter-axis {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    display: flex;
-    justify-content: space-between;
+  .axis {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: var(--space-3);
+    justify-items: start;
+    min-height: 100%;
   }
 
-  .gutter-axis__column {
+  .axis__cap {
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: 500;
+    letter-spacing: var(--tracking-meta);
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .axis__cap--end {
+    align-self: end;
+  }
+
+  .axis__scale {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-block: var(--space-2);
-    width: 1.5rem;
-  }
-
-  .gutter-axis__column--left {
-    align-items: flex-start;
-  }
-
-  .gutter-axis__column--right {
-    align-items: flex-end;
-  }
-
-  .gutter-axis__tick {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
     width: 100%;
+    min-height: 6rem;
+    padding-block: var(--space-1);
   }
 
-  .gutter-axis__column--right .gutter-axis__tick {
-    flex-direction: row;
+  .axis__spine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    background: var(--color-rule-on-paper);
   }
 
-  .gutter-axis__tick-mark {
-    width: 0.625rem;
+  .axis__tick {
+    width: 0.375rem;
     height: 1px;
-    background: var(--tick-color);
+    background: var(--color-rule-on-paper);
   }
 
-  .gutter-axis__column--right .gutter-axis__tick-mark {
-    margin-left: auto;
+  /* Every other tick is longer and copper — the measure reads as
+     graduated rather than as a row of identical dashes. */
+  .axis__tick--major {
+    width: 0.75rem;
+    background: var(--color-accent);
   }
 
-  .gutter-axis__tick-label {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    line-height: 1;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+  .axis--canvas .axis__cap {
+    color: var(--color-text-on-canvas-faint);
+  }
+
+  .axis--canvas .axis__spine,
+  .axis--canvas .axis__tick {
+    background: var(--color-rule-on-canvas);
+  }
+
+  .axis--canvas .axis__tick--major {
+    background: var(--color-accent);
   }
 </style>

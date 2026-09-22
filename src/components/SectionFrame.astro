@@ -2,25 +2,40 @@
 /*
   SectionFrame.astro
   -------------------
-  A bounded section panel with two signature geometric motifs:
-    - CROSSHAIR MARKS at the top corners (small + marks)
-    - an optional mono "coordinate" label anchored at the top-left
+  The region wrapper. It does three jobs and nothing else:
 
-  The frame is visually invisible by default — it only adds the
-  marks. Use it as a wrapper around any block that should read
-  as a "viewport / instrument panel".
+    1. RHYTHM     — applies one of three vertical densities, so the
+                    page reads as composed rather than as a uniform
+                    scroll (`density` prop).
+    2. SEAM       — draws the boundary between this region and the
+                    one above: a structural 1px edge plus a short
+                    copper tick at the gutter. Environment changes
+                    (sheet → deck) are marked, not incidental.
+    3. INDEX RULE — the signature opener: a mono coordinate, a rule
+                    that runs to the page edge, and an optional
+                    right-hand status. This is the same motif as the
+                    `.mono-label` leading tick, at region scale.
+
+  Everything else (layout, asymmetry, content) belongs to the
+  section that uses this.
 
   Props
   -----
-  coordinate?    : optional mono text label (e.g. "01 / HERO")
-  surface?       : 'paper' (default) | 'canvas' | 'inset'
-  label?         : optional aria-label for the wrapping region
-  as?            : element tag (default 'div')
+  coordinate?  : mono coordinate label (e.g. "01 · WORK / SYNCAREER")
+  status?      : optional short mono text, right-aligned on the rule
+  surface?     : 'paper' (default) | 'canvas' | 'inset'
+  density?     : 'default' | 'major' | 'tight'
+  seam?        : draw the top seam (default true)
+  label?       : aria-label for the wrapping region
+  as?          : element tag (default 'div')
 */
 
 interface SectionFrameProps {
   coordinate?: string;
+  status?: string;
   surface?: 'paper' | 'canvas' | 'inset';
+  density?: 'default' | 'major' | 'tight';
+  seam?: boolean;
   label?: string;
   as?: 'div' | 'section' | 'article' | 'aside' | 'header' | 'footer' | 'nav';
   class?: string;
@@ -31,7 +46,10 @@ interface SectionFrameProps {
 
 const {
   coordinate,
+  status,
   surface = 'paper',
+  density = 'default',
+  seam = true,
   label,
   as: Tag = 'div',
   class: className,
@@ -40,99 +58,137 @@ const {
   'data-workspace-dest': workspaceDest,
 } = Astro.props as SectionFrameProps;
 
-const surfaceClass = surface === 'canvas' ? 'section-frame--canvas' : surface === 'inset' ? 'section-frame--inset' : '';
+const isDeck = surface === 'canvas';
 ---
 
 <Tag
-  class:list={['section-frame', surfaceClass, className]}
+  class:list={[
+    'section-frame',
+    'region',
+    density === 'major' && 'region--major',
+    density === 'tight' && 'region--tight',
+    isDeck && 'section-frame--canvas',
+    surface === 'inset' && 'section-frame--inset',
+    className,
+  ]}
   role={label && Tag === 'div' ? 'region' : undefined}
   aria-label={label}
   id={id}
   data-workspace-section={workspaceSection}
   data-workspace-dest={workspaceDest}
 >
+  {seam && <span class="section-frame__seam" aria-hidden="true"></span>}
+
   {coordinate && (
-    <span class="section-frame__coordinate mono-label" aria-hidden="true">
-      {coordinate}
-    </span>
+    <div class="page-shell section-frame__index" aria-hidden="true">
+      <span class="section-frame__coordinate">{coordinate}</span>
+      <span class="section-frame__rule"></span>
+      {status && <span class="section-frame__status">{status}</span>}
+    </div>
   )}
-  <span class="section-frame__mark section-frame__mark--tl" aria-hidden="true"></span>
-  <span class="section-frame__mark section-frame__mark--tr" aria-hidden="true"></span>
+
   <slot />
 </Tag>
 
 <style>
   .section-frame {
     position: relative;
-    padding-top: var(--space-7);
   }
 
-  .section-frame__coordinate {
+  /* The seam: a structural edge with a copper tick anchored to the
+     page gutter. One tick, one edge — this is the only thing that
+     separates regions, so it has to be deliberate. */
+  .section-frame__seam {
     position: absolute;
-    top: calc(var(--space-3) * -1);
-    left: 0;
-    padding: var(--space-1) var(--space-2);
-    background: var(--color-paper);
-    color: var(--color-text-on-paper-muted);
-    transform: translateY(-50%);
-    z-index: 1;
-  }
-
-  .section-frame--canvas .section-frame__coordinate {
-    background: var(--color-canvas);
-    color: var(--color-text-on-canvas-muted);
-  }
-
-  .section-frame--inset .section-frame__coordinate {
-    background: var(--color-paper-inset);
-  }
-
-  .section-frame__mark {
-    position: absolute;
-    top: 0;
-    width: 0.625rem;
-    height: 0.625rem;
+    inset: 0 0 auto 0;
+    height: 3px;
     pointer-events: none;
   }
 
-  .section-frame__mark::before,
-  .section-frame__mark::after {
+  .section-frame__seam::before {
     content: '';
     position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: var(--color-rule-on-paper-strong);
+  }
+
+  .section-frame__seam::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: clamp(3.5rem, 14vw, 9rem);
+    height: 3px;
+    background: var(--color-accent);
+  }
+
+  .section-frame--canvas .section-frame__seam::before {
+    background: var(--color-rule-on-canvas-strong);
+  }
+
+  /* The index rule — coordinate, rule, status. The rule is what
+     carries the eye across; the coordinate anchors it at the gutter,
+     matching the seam tick above it. */
+  /* The index rule is pulled UP so it registers against the seam
+     rather than floating in the region's leading whitespace. The
+     region's density padding then applies below it, where it is
+     doing real work (separating the rule from the content). */
+  .section-frame__index {
+    display: grid;
+    grid-template-columns: auto minmax(var(--space-4), 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: calc(var(--region-pad, var(--section-block)) * -1 + var(--space-4));
+    padding-bottom: var(--section-gap);
+  }
+
+  .section-frame__coordinate,
+  .section-frame__status {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: 500;
+    letter-spacing: var(--tracking-meta);
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .section-frame__coordinate {
+    color: var(--color-text-on-paper-muted);
+  }
+
+  .section-frame__status {
+    color: var(--color-accent-text);
+  }
+
+  .section-frame__rule {
+    height: 1px;
     background: var(--color-rule-on-paper);
   }
 
-  .section-frame__mark::before {
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 1px;
+  .section-frame--canvas .section-frame__coordinate {
+    color: var(--color-text-on-canvas-muted);
   }
 
-  .section-frame__mark::after {
-    top: 0;
-    left: 0;
-    width: 1px;
-    height: 100%;
-  }
-
-  .section-frame__mark--tr {
-    right: 0;
-    left: auto;
-  }
-
-  .section-frame__mark--tr::before {
-    right: 0;
-    left: auto;
-  }
-
-  .section-frame__mark--tr::after {
-    right: 0;
-    left: auto;
-  }
-
-  .section-frame--canvas .section-frame__mark::before,
-  .section-frame--canvas .section-frame__mark::after {
+  .section-frame--canvas .section-frame__rule {
     background: var(--color-rule-on-canvas);
+  }
+
+  @media (max-width: 34rem) {
+    .section-frame__index {
+      grid-template-columns: auto minmax(var(--space-3), 1fr);
+      padding-bottom: var(--space-5);
+    }
+
+    .section-frame__status {
+      display: none;
+    }
+
+    /* At narrow widths the coordinate can exceed the gutter; let it
+       wrap rather than force a horizontal scroll. */
+    .section-frame__coordinate {
+      white-space: normal;
+    }
   }
 </style>
