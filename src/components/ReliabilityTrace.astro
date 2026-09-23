@@ -117,11 +117,12 @@ const copy = causalTrace;
           </header>
           <ul class="trace__failures">
             {copy.failureClasses.map((mode) => (
-              <li><span>{mode.name}</span>{mode.note && <b>{mode.note}</b>}</li>
+              <li><span>{mode.name}</span></li>
             ))}
           </ul>
           <p class="trace__panel-note">
-            Failure classes from the evidence-grounding notes. No failure rate is claimed.
+            The three classes named here are explained once, in the Syncareer case study. No failure
+            rate is claimed.
           </p>
         </article>
 

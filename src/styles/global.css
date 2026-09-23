@@ -1293,48 +1293,17 @@ article.case-page .contact-section .button { margin-top: var(--space-3); }
 
 .section-frame__status { opacity: 0.62; }
 
-article.case-page .case-decisions__list li {
-  padding: var(--space-3) 0;
-  border: 0;
-  border-top: 1px solid var(--color-rule-on-paper);
-  background: transparent;
-}
-article.case-page .case-decisions__list li:last-child {
-  border-bottom: 1px solid var(--color-rule-on-paper);
-}
-article.case-page .case-decisions__list .mono-label { opacity: 0.72; }
-article.case-page .case-decisions__list p:last-child { max-width: 32rem; }
-article.case-page .case-surfaces__grid,
+/* The evidence boundary: the record takes the larger share of the field.
+   (Page-scoped styles in a case page stay authoritative for anything
+   unique to that case.) */
 article.case-page .outcome-grid {
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
   align-items: start;
 }
 
-article.case-page .investigation__workspace { border-color: var(--color-rule-on-paper-strong); }
-article.case-page .investigation__spine { border: 0; }
-article.case-page .investigation__tab { border-right-color: var(--color-rule-on-paper-soft); }
-article.case-page .investigation__from {
-  padding: var(--space-2) 0;
-  border: 0;
-  border-bottom: 1px solid var(--color-rule-on-paper-soft);
-  background: transparent;
-}
-article.case-page .inv-list li {
-  padding: var(--space-2) 0;
-  border: 0;
-  border-bottom: 1px solid var(--color-rule-on-paper-soft);
-  background: transparent;
-}
-article.case-page .investigation__handoff,
-article.case-page .investigation__evidence,
-article.case-page .investigation__from { opacity: 0.78; }
-article.case-page .investigation__evidence { padding-top: var(--space-2); }
-article.case-page .investigation__readout,
-article.case-page .case-decisions__stack,
 article.case-page .product-record dt { opacity: 0.76; }
 
 @media (max-width: 47.99rem) {
-  article.case-page .case-surfaces__grid,
   article.case-page .outcome-grid { grid-template-columns: 1fr; }
   section#capabilities .toolkit__detail {
     border-left: 0;

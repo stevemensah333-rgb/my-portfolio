@@ -21,8 +21,10 @@ export const syncareer: Project = {
   name: 'Syncareer',
   short: 'Opportunity-first career workspace: saved opportunity → tailored CV → interview prep → outcome.',
   status: 'live',
+  // Product-level claim. The engineering narrative lives in
+  // syncareerInvestigation.ts and is rendered by /work/syncareer/ (§5).
   claim:
-    'A free career workspace for students and graduates. Its AI help is evidence-grounded — bounded tasks, cited requirements and evidence, validated output — because a career claim has to trace back to something real.',
+    'A free career workspace for African students and recent graduates. Everything an application needs — from the saved opportunity to the recorded outcome — is held in one record.',
   evidence: [
     {
       kind: 'product',
@@ -33,11 +35,6 @@ export const syncareer: Project = {
       kind: 'code',
       label: 'Source repository',
       href: 'https://github.com/stevemensah333-rgb/syncareer',
-    },
-    {
-      kind: 'document',
-      label: 'Seed funding secured',
-      href: 'https://syncareer.me/',
     },
     {
       kind: 'artifact-image',
