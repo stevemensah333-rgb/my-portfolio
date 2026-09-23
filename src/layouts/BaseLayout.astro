@@ -1,6 +1,7 @@
 ---
 import Analytics from '@vercel/analytics/astro';
 import { default as SpeedInsights } from '@vercel/speed-insights/astro';
+import { ClientRouter } from 'astro:transitions';
 import WorkspaceRail from '../components/WorkspaceRail.astro';
 import '../styles/global.css';
 import '../styles/interactions.css';
@@ -60,6 +61,7 @@ const socialImageURL = new URL(image, Astro.site);
 <!doctype html>
 <html lang="en" data-area={activeArea}>
   <head>
+    <ClientRouter fallback="animate" />
     <script is:inline>document.documentElement.classList.add('js');</script>
     <!-- Legacy anchor routes: the old single-page anchors now live on
          real routes. Old /#section URLs are mapped to their new homes
@@ -124,13 +126,23 @@ const socialImageURL = new URL(image, Astro.site);
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
       <WorkspaceRail />
-      <div class="shell__field">
+      <div class="shell__field" transition:animate="fade">
         <main id="main-content" class="shell__main" tabindex="-1">
           <slot />
         </main>
         <slot name="footer" />
       </div>
     </div>
+    <script is:inline>
+      // Continuity: after a view transition the <html> is swapped — the
+      // inline `classList.add('js')` above already ran, but keep it here
+      // for any transition that bypasses the head script. No global store.
+      (function () {
+        var apply = function () { document.documentElement.classList.add('js'); };
+        document.addEventListener('astro:page-load', apply);
+        document.addEventListener('astro:after-swap', apply);
+      })();
+    </script>
   </body>
 </html>
 

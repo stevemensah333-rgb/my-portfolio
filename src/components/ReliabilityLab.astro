@@ -255,6 +255,20 @@ const total = String(labStages.length).padStart(2, '0');
     const live = root.querySelector<HTMLElement>('[data-lab-live]');
 
     if (rail && tabs.length > 0 && panels.length === tabs.length) {
+      const STORAGE_KEY = 'workspace:lab-stage';
+      const readStoredStage = () => {
+        try {
+          return sessionStorage.getItem(STORAGE_KEY);
+        } catch {
+          return null;
+        }
+      };
+      const writeStoredStage = (id: string) => {
+        try {
+          sessionStorage.setItem(STORAGE_KEY, id);
+        } catch {}
+      };
+
       const stageIds = tabs.map((tab) => tab.dataset.stageTab ?? '');
       const panelById = new Map(panels.map((panel) => [panel.dataset.stagePanel ?? '', panel]));
       const verticalRail = window.matchMedia('(max-width: 57.99rem)');
@@ -302,13 +316,22 @@ const total = String(labStages.length).padStart(2, '0');
         if (options.announce && live) live.textContent = `Stage ${step}, ${label}. ${panel.dataset.stageState ?? ''}.`;
         if (options.updateHash) {
           history.replaceState(null, '', `${location.pathname}${location.search}#lab-${id}`);
+          writeStoredStage(id);
+        } else if (options.announce) {
+          // Preserve Lab stage across view-transition navigations where
+          // the hash may not be present (session-scoped, not a URL).
+          writeStoredStage(id);
         }
       };
 
       const indexFromHash = () => stageIds.indexOf(location.hash.replace(/^#lab-/, ''));
       const hashIndex = location.hash.startsWith('#lab-') ? indexFromHash() : -1;
+      const storedId = readStoredStage();
+      const storedIndex = storedId ? stageIds.indexOf(storedId) : -1;
       const markedIndex = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
-      updateStage(hashIndex >= 0 ? hashIndex : Math.max(0, markedIndex));
+      const initialIndex =
+        hashIndex >= 0 ? hashIndex : storedIndex >= 0 ? storedIndex : Math.max(0, markedIndex);
+      updateStage(initialIndex);
 
       tabs.forEach((tab, index) => {
         tab.addEventListener('click', () => updateStage(index, { announce: true, updateHash: true }));
@@ -332,7 +355,10 @@ const total = String(labStages.length).padStart(2, '0');
 
       window.addEventListener('hashchange', () => {
         const index = indexFromHash();
-        if (location.hash.startsWith('#lab-') && index >= 0) updateStage(index, { announce: true });
+        if (location.hash.startsWith('#lab-') && index >= 0) {
+          updateStage(index, { announce: true });
+          writeStoredStage(stageIds[index] ?? '');
+        }
       });
     }
   }
