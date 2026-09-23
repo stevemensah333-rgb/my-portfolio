@@ -1,4 +1,20 @@
 ---
+/**
+ * EXPERIENCE — compact expandable records.
+ *
+ * Not a timeline: no spine, no nodes, no run of the eye down a
+ * drawn line. The section is a short ledger of records — each row
+ * states role, organisation and dates; opening it discloses the
+ * description and metadata in place. One record opens at a time:
+ * `name` on <details> makes that native, with a small script as a
+ * fallback for engines that predate `name` support. Without
+ * JavaScript the records simply open independently — same content,
+ * looser discipline.
+ *
+ * Content mirrors the WORK EXPERIENCE section of the public résumé
+ * (public/Stephen-Mensah-Resume.pdf). When the résumé changes,
+ * update this array — roles, organisations, dates and descriptions.
+ */
 import SectionFrame from './SectionFrame.astro';
 
 const experiences = [
@@ -37,32 +53,15 @@ const experiences = [
 ];
 ---
 
-<!--
-  EXPERIENCE — chronological and structured.
-
-  The disclosure behaviour is unchanged. What changed:
-  - the entries hang off a single continuous SPINE with an arc node
-    per role, so the list reads as a sequence in time rather than as
-    four independent rows;
-  - dates are promoted into the row's own metadata column at width,
-    so the chronology is scannable without opening anything;
-  - the open state fills its node and runs a copper rule down the
-    disclosed panel, which is the same open/inspect vocabulary the
-    trace and toolkit use.
-
-  Content mirrors the WORK EXPERIENCE section of the public résumé
-  (public/Stephen-Mensah-Resume.pdf). When the résumé changes, update
-  this array — roles, organisations, dates and descriptions.
--->
-<section id="experience" class="experience" aria-labelledby="experience-title" data-workspace-section="experience">
+<section id="experience" class="experience" aria-labelledby="experience-title" data-workspace-section="experience" data-workspace-label="Experience">
   <SectionFrame coordinate="04.2 · Profile / Experience" surface="paper" density="default">
     <div class="page-shell region-grid">
       <aside class="region-rail">
         <div class="region-index">
           <span class="region-index__no">04.2</span>
           <span class="region-index__rule"></span>
-          <span class="region-index__name">Chronology</span>
-          <span class="region-index__note">{experiences.length} roles. Open any one for detail.</span>
+          <span class="region-index__name">Experience</span>
+          <span class="region-index__note">{experiences.length} records. Open one at a time.</span>
         </div>
       </aside>
 
@@ -77,7 +76,6 @@ const experiences = [
               <li class="experience__item">
                 <details class="experience__entry" name="experience-entry">
                   <summary class="experience__trigger">
-                    <span class="experience__node" aria-hidden="true"></span>
                     <span class="experience__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
                     <span class="experience__heading">
                       <span class="experience__role">{entry.role}</span>
@@ -100,6 +98,24 @@ const experiences = [
   </SectionFrame>
 </section>
 
+<script>
+  // Progressive fallback: if the engine has no exclusive <details
+  // name, close siblings when one opens so the "one record open"
+  // discipline holds anyway. Native `name` behaviour is left alone.
+  if (typeof HTMLDetailsElement !== 'undefined' && !('name' in HTMLDetailsElement.prototype)) {
+    const entries = [...document.querySelectorAll<HTMLDetailsElement>('.experience__entry')];
+    for (const entry of entries) {
+      entry.addEventListener('toggle', () => {
+        if (entry.open) {
+          for (const other of entries) {
+            if (other !== entry) other.open = false;
+          }
+        }
+      });
+    }
+  }
+</script>
+
 <style>
   .experience {
     background: var(--color-sheet-soft);
@@ -110,22 +126,11 @@ const experiences = [
     gap: var(--space-3);
   }
 
-  /* THE SPINE — one line through the whole chronology. */
   .experience__list {
-    position: relative;
+    display: grid;
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  .experience__list::before {
-    content: '';
-    position: absolute;
-    top: var(--space-5);
-    bottom: var(--space-5);
-    left: 0.25rem;
-    width: 1px;
-    background: var(--color-rule-on-paper-strong);
   }
 
   .experience__item {
@@ -133,16 +138,17 @@ const experiences = [
   }
 
   .experience__item:first-child {
-    border-top: 1px solid var(--color-rule-on-paper);
+    border-top: 1px solid var(--color-rule-on-paper-strong);
   }
 
+  /* Narrow default: the row is two lines — role + organisation, then
+     dates underneath — with the marker held centred to the right. */
   .experience__trigger {
     display: grid;
     width: 100%;
-    grid-template-columns: 0.5rem 2rem minmax(0, 1fr) 0.875rem;
-    gap: var(--space-2) var(--space-4);
-    align-items: center;
-    padding: var(--space-4) 0;
+    grid-template-columns: 1.75rem minmax(0, 1fr) 0.75rem;
+    gap: var(--space-1) var(--space-3);
+    padding: var(--space-3) 0;
     background: transparent;
     color: var(--color-text-on-paper);
     font: inherit;
@@ -152,36 +158,35 @@ const experiences = [
     transition: color var(--duration-quick) var(--ease-standard);
   }
 
+  .experience__index {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: start;
+    padding-top: 0.35rem;
+  }
+
+  .experience__heading {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .experience__dates {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .experience__indicator {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
   .experience__trigger::-webkit-details-marker {
     display: none;
   }
 
   .experience__trigger:focus-visible {
     outline-offset: -2px;
-  }
-
-  /* ARC NODE on the spine. Fills when the entry is open — the same
-     "reached / inspecting" signal the trace uses. */
-  .experience__node {
-    position: relative;
-    z-index: 1;
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    border: 1px solid var(--color-rule-on-paper-strong);
-    background: var(--color-sheet-soft);
-    transition:
-      background-color var(--duration-base) var(--ease-standard),
-      border-color var(--duration-base) var(--ease-standard);
-  }
-
-  .experience__trigger:hover .experience__node {
-    border-color: var(--color-accent);
-  }
-
-  .experience__entry[open] .experience__node {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
   }
 
   .experience__index {
@@ -215,18 +220,19 @@ const experiences = [
     font-size: var(--text-small);
   }
 
-  /* Dates are METADATA: mono, muted, and at width they occupy their
-     own column so the chronology is a scannable edge. */
+  /* Dates are metadata read in the same glance as the role — mono,
+     quiet. Placement (under the role at width, beside it on wide
+     rows) is handled by the grid rules above. */
   .experience__dates {
     color: var(--color-text-on-paper-faint);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    white-space: nowrap;
   }
 
-  /* Disclosure marker: plus → cross, same as the toolkit. */
+  /* Disclosure marker: plus → cross, the same quiet affordance the
+     evidence drawer and capabilities index use. */
   .experience__indicator {
     position: relative;
     justify-self: end;
@@ -258,10 +264,14 @@ const experiences = [
     transform: rotate(45deg);
   }
 
+  .experience__entry[open] .experience__trigger {
+    color: var(--color-text-on-paper);
+  }
+
   .experience__panel {
     position: relative;
-    max-width: 40rem;
-    margin: 0 0 var(--space-5) calc(0.5rem + 2rem + (var(--space-4) * 2));
+    max-width: 44rem;
+    margin: 0 0 var(--space-4) calc(1.75rem + var(--space-3));
     padding-left: var(--space-4);
     border-left: 1px solid var(--color-accent);
     animation: exp-enter var(--duration-reveal) var(--ease-emphasized);
@@ -295,8 +305,34 @@ const experiences = [
   }
 
   @media (min-width: 48rem) {
+    /* One line per record: index · role/org · dates · marker. */
     .experience__trigger {
-      grid-template-columns: 0.5rem 2rem minmax(0, 1fr) auto 0.875rem;
+      grid-template-columns: 2rem minmax(0, 1fr) auto 0.75rem;
+      align-items: center;
+      padding-block: var(--space-4);
+      gap: 0 var(--space-4);
+    }
+
+    .experience__index,
+    .experience__indicator {
+      grid-row: 1;
+      align-self: center;
+      padding-top: 0;
+    }
+
+    .experience__dates {
+      grid-row: 1;
+      grid-column: 3;
+      justify-self: end;
+      white-space: nowrap;
+    }
+
+    .experience__indicator {
+      grid-column: 4;
+    }
+
+    .experience__panel {
+      margin-left: calc(2rem + var(--space-4));
     }
   }
 
@@ -305,25 +341,8 @@ const experiences = [
       animation: none;
     }
 
-    .experience__node,
     .experience__indicator {
       transition: none;
-    }
-  }
-
-  @media (max-width: 36rem) {
-    .experience__trigger {
-      grid-template-columns: 0.5rem 1.75rem minmax(0, 1fr) 0.875rem;
-      gap: var(--space-2) var(--space-3);
-    }
-
-    .experience__dates {
-      grid-column: 3;
-      white-space: normal;
-    }
-
-    .experience__panel {
-      margin-left: calc(0.5rem + 1.75rem + (var(--space-3) * 2));
     }
   }
 </style>

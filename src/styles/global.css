@@ -1073,31 +1073,14 @@ section#reliability-lab .lab__bench { border-color: var(--color-rule-on-canvas-s
 section#reliability-lab .lab__boundary,
 section#reliability-lab .lab__keys { opacity: 0.72; }
 
-section#capabilities .toolkit__index { padding-top: var(--space-2); border-top: 2px solid var(--color-rule-on-paper-strong); }
-section#capabilities .toolkit__primary-header h3 { font-size: var(--text-component); }
-section#capabilities .toolkit__trigger { min-height: 3rem; font-size: 1rem; }
-section#capabilities .detail-panel,
-section#capabilities .toolkit__detail {
-  border: 0;
-  border-left: 2px solid var(--color-rule-on-paper-strong);
-  background: transparent;
-}
-section#capabilities .toolkit__panel {
-  padding: var(--space-3) 0 var(--space-3) var(--space-5);
-}
-section#capabilities .toolkit__panel-header { padding-bottom: var(--space-2); border-bottom: 0; }
-section#capabilities .toolkit__panel-grid { gap: var(--space-4); }
-section#capabilities .toolkit__panel-note { opacity: 0.78; }
-
 @media (min-width: 64rem) {
-  /* About is prose: the writing measure dominates the field. */
-  section#about .region-grid {
-    grid-template-columns: minmax(10rem, 0.7fr) minmax(0, 3.3fr);
-    column-gap: var(--space-8);
-  }
-  section#about .about__body { max-width: 48rem; }
+  /* Profile composition: the writing columns dominate, the rails
+     stay margins. (Capabilities composes its own index/viewport
+     split inside its component — it is a swapping viewport, not a
+     static two-column text field.) */
 
-  /* Chronology is a long visual spine, not another balanced panel. */
+  /* Experience records read as a ledger beside the rail, not a
+     centered panel — the body keeps the larger share of the field. */
   section#experience .region-grid {
     grid-template-columns: minmax(10rem, 0.65fr) minmax(0, 3.35fr);
     column-gap: var(--space-8);
@@ -1305,11 +1288,6 @@ article.case-page .product-record dt { opacity: 0.76; }
 
 @media (max-width: 47.99rem) {
   article.case-page .outcome-grid { grid-template-columns: 1fr; }
-  section#capabilities .toolkit__detail {
-    border-left: 0;
-    border-top: 1px solid var(--color-rule-on-paper-strong);
-  }
-  section#capabilities .toolkit__panel { padding: var(--space-4) 0 0; }
 }
 
 .section-frame.section-frame .section-frame__status { opacity: 0.62; }
