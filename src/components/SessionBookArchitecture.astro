@@ -3,7 +3,7 @@
  * SessionBookArchitecture — inspectable signal path for the SessionBook case.
  *
  * Interaction design (selected as strongest):
- * - Reveals structure: 8 nodes, what exists vs in-progress, ownership.
+ * - Reveals structure: 8 nodes, what exists vs external actors, ownership.
  * - Reveals causality: signal travels from caller through backend to spoken response.
  * - Reveals transformation: each node receives and hands off; evidence shows what is real.
  * - Hover reveals information: readout shows owner + state + one-line summary, never owns info.
@@ -18,7 +18,7 @@ interface ArchNode {
   step: string;
   name: string;
   owner: string;
-  state: 'present' | 'in-progress' | 'external' | 'written';
+  state: 'present' | 'external';
   stateLabel: string;
   detail: string[];
   evidence: string;
@@ -518,21 +518,10 @@ const nodes: ArchNode[] = [
     color: var(--color-signal-pass-text);
   }
 
-  .arch__chip--in-progress {
-    border-color: var(--color-accent);
-    color: var(--color-accent-text);
-  }
-
   .arch__chip--external {
     border-style: dotted;
     border-color: var(--color-rule-on-paper);
     color: var(--color-text-on-paper-muted);
-  }
-
-  .arch__chip--written {
-    border-style: dashed;
-    border-color: var(--color-accent);
-    color: var(--color-accent-text);
   }
 
   /* track: reveals causality — where payload is in 8-node path */

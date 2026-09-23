@@ -53,7 +53,6 @@ import SectionFrame from './SectionFrame.astro';
                       id={`evidence-tab-${credential.id}`}
                       class="evidence__trigger"
                       data-credential-trigger={credential.id}
-                      data-evidence-type={type}
                       aria-controls={`credential-preview-${credential.id}`}
                       aria-selected={index === 0 ? 'true' : 'false'}
                       tabindex={index === 0 ? '0' : '-1'}

@@ -36,10 +36,3 @@
     animation: none;
   }
 }
-
-/* --- focus + reduced motion guards --------------------------- */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    scroll-behavior: auto !important;
-  }
-}

@@ -56,7 +56,6 @@ const isCurrent = (dest: Destination) => dest.id === currentId;
               class="workspace-rail__link"
               href={destHref(dest)}
               aria-current={isCurrent(dest) ? 'page' : undefined}
-              data-workspace-link={dest.id}
             >
               <span class="workspace-rail__index" aria-hidden="true">{dest.index}</span>
               <span class="workspace-rail__label">{dest.label}</span>
@@ -75,7 +74,6 @@ const isCurrent = (dest: Destination) => dest.id === currentId;
             <a
               class="workspace-rail__link"
               href={destHref(dest)}
-              data-workspace-link={dest.id}
               target={dest.external ? '_blank' : undefined}
               rel={dest.external ? 'noopener noreferrer' : undefined}
             >
@@ -104,7 +102,7 @@ const isCurrent = (dest: Destination) => dest.id === currentId;
 </aside>
 
 <!-- ================= MOBILE: the control ================= -->
-<div class="workspace-control" data-workspace-control>
+<div class="workspace-control">
   <div class="workspace-control__bar">
     <a class="workspace-control__brand" href="/" aria-label="Stephen Mensah — home">
       <span class="workspace-control__mark" aria-hidden="true">SM</span>

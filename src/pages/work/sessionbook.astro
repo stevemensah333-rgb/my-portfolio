@@ -47,7 +47,7 @@ const architectureSummary =
 >
   <article class="case-page">
     <!-- 00 · Overview -->
-    <header id="overview" class="case-hero page-shell" data-workspace-section="top" data-workspace-dest="work">
+    <header id="overview" class="case-hero page-shell" data-workspace-section="top">
       <a class="back-link" href="/work/">← Back to the work archive</a>
 
       <div class="case-opening">
@@ -106,7 +106,7 @@ const architectureSummary =
     </header>
 
     <!-- 01 · Primer -->
-    <SectionFrame coordinate="01 · Why this exists" surface="paper" data-workspace-section="primer" data-workspace-dest="work">
+    <SectionFrame coordinate="01 · Why this exists" surface="paper" data-workspace-section="primer">
       <div class="page-shell primer">
         <div class="primer__intro">
           <p class="mono-label">Four anchors</p>
@@ -129,7 +129,7 @@ const architectureSummary =
     <SectionFrame
       coordinate="02 · Architecture"
       surface="paper"
-      data-workspace-section="architecture" data-workspace-dest="work"
+      data-workspace-section="architecture"
     >
       <div class="page-shell architecture">
         <header class="architecture__intro">
@@ -191,7 +191,7 @@ const architectureSummary =
     <SectionFrame
       coordinate="04 · Call path"
       surface="paper"
-      data-workspace-section="flow" data-workspace-dest="work"
+      data-workspace-section="flow"
     >
       <div class="page-shell flow">
         <header class="flow__intro">
@@ -209,7 +209,7 @@ const architectureSummary =
     </SectionFrame>
 
     <!-- 05 · Questions -->
-    <SectionFrame coordinate="05 · Questions" surface="paper" data-workspace-section="questions" data-workspace-dest="work">
+    <SectionFrame coordinate="05 · Questions" surface="paper" data-workspace-section="questions">
       <div class="page-shell questions">
         <header class="questions__intro">
           <p class="mono-label">Asked directly</p>
@@ -228,7 +228,7 @@ const architectureSummary =
     </SectionFrame>
 
     <!-- 06 · Boundary -->
-    <SectionFrame coordinate="06 · Evidence" surface="paper" data-workspace-section="evidence" data-workspace-dest="work">
+    <SectionFrame coordinate="06 · Evidence" surface="paper" data-workspace-section="evidence">
       <div class="page-shell">
         <div class="boundary">
           <section class="boundary-panel" aria-labelledby="sb-known-title">
@@ -422,17 +422,6 @@ const architectureSummary =
   .arch-chip--present {
     border-color: var(--color-signal-pass);
     color: var(--color-signal-pass-text);
-  }
-
-  .arch-chip--in-progress {
-    border-color: var(--color-accent);
-    color: var(--color-accent-text);
-  }
-
-  .arch-chip--written {
-    border-style: dashed;
-    border-color: var(--color-accent);
-    color: var(--color-accent-text);
   }
 
   .arch-chip--external {

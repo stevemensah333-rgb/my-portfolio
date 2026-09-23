@@ -41,7 +41,6 @@ interface SectionFrameProps {
   class?: string;
   id?: string;
   'data-workspace-section'?: string;
-  'data-workspace-dest'?: string;
   /** Human label the workspace rail shows while this region is in view. */
   'data-workspace-label'?: string;
 }
@@ -57,7 +56,6 @@ const {
   class: className,
   id,
   'data-workspace-section': workspaceSection,
-  'data-workspace-dest': workspaceDest,
   'data-workspace-label': workspaceLabel,
 } = Astro.props as SectionFrameProps;
 
@@ -78,7 +76,6 @@ const isDeck = surface === 'canvas';
   aria-label={label}
   id={id}
   data-workspace-section={workspaceSection}
-  data-workspace-dest={workspaceDest}
   data-workspace-label={workspaceLabel}
 >
   {seam && <span class="section-frame__seam" aria-hidden="true"></span>}

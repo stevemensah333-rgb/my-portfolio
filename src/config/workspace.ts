@@ -78,8 +78,6 @@ export const utilityDestinations: Destination[] = [
   },
 ];
 
-export const destinations: Destination[] = [...primaryDestinations, ...utilityDestinations];
-
 /** Route-based "current" destination, derived from the pathname. */
 export const destinationForPath = (pathname: string): string | null => {
   if (pathname === '/') return 'home';

@@ -79,15 +79,12 @@
    DARK (DECK) — deep charcoal. Where something is operated:
      instruments, traces, payloads, and the shell's control rail.
      Panels get LIGHTER as they surface toward the viewer:
-     deep < base < soft < inset < raised.
+     deep < base < soft < inset.
 
    Both grounds carry the same warm undertone, so moving between
    them reads as a change of job rather than a theme swap.
 
-   Geometry: 90 degrees is the default. A single small radius
-   (`--radius-contain`) exists for *containment* — a frame that
-   holds a captured artifact or a read-out — and is used
-   selectively, never as a default card treatment.
+   Geometry: 90 degrees is the default; controls stay square.
    ---------------------------------------------------------------- */
 
 :root {
@@ -97,14 +94,11 @@
   --color-deck: #101315;
   --color-deck-soft: #161A1C;
   --color-deck-inset: #1C2123;
-  --color-deck-raised: #242A2C;
 
   /* 2.2 Environment: LIGHT — information ----------------------
      Surfaces get DARKER as they recess: high < base < soft < inset.
      `raised` is the one step in the other direction — the face a
-     sheet shows when it is lifted toward the viewer on hover or
-     focus. It mirrors `--color-deck-raised`, so both environments
-     now have a named top face and no component has to invent one. */
+     sheet shows when it is lifted toward the viewer on hover or focus. */
 
   --color-sheet-raised: #FFFDF8;
   --color-sheet-high: #FCF9F2;
@@ -117,11 +111,9 @@
      through every file without recolouring components one by one. */
   --color-canvas: var(--color-deck);
   --color-canvas-soft: var(--color-deck-soft);
-  --color-canvas-inset: var(--color-deck-inset);
   --color-paper: var(--color-sheet);
   --color-paper-soft: var(--color-sheet-soft);
   --color-paper-inset: var(--color-sheet-inset);
-  --color-paper-tab: var(--color-sheet-soft);
 
   /* 2.3 Text ---------------------------------------------------
      Three steps per environment. Every faint tone clears 4.5:1
@@ -136,7 +128,7 @@
 
   --color-text-on-canvas: #EAE7DF;
   --color-text-on-canvas-muted: #A8A59D;
-  /* ≥4.5:1 on every deck step including deck-raised (4.70:1). */
+  /* ≥4.5:1 on every deck step in use. */
   --color-text-on-canvas-faint: #96928A;
 
   /* 2.4 Rules --------------------------------------------------
@@ -154,11 +146,6 @@
   --color-rule-on-canvas-soft: #1E2224;
   --color-rule-on-canvas-strong: #5F6366;
 
-  --edge-hair: 1px solid var(--color-rule-on-paper);
-  --edge-rule: 1px solid var(--color-rule-on-paper-strong);
-  --edge-hair-canvas: 1px solid var(--color-rule-on-canvas);
-  --edge-rule-canvas: 1px solid var(--color-rule-on-canvas-strong);
-
   /* 2.5 Accent & signal ----------------------------------------
      ORANGE means: active, selected, system status, attention.
      Two faces — `ink` is the text-safe face on LIGHT, `bright`
@@ -170,7 +157,6 @@
   --color-accent: #C2632F;
   --color-accent-bright: #E28044;
   --color-accent-deep: #A24E1F;
-  --color-accent-soft: #E6C3A6;
   --color-accent-tint: #F0E2D4;
 
   --color-accent-ink: #8A4415;
@@ -182,45 +168,22 @@
 
   --color-signal-pass: #2C6249;
   --color-signal-pass-bright: #8FBFA5;
-  --color-signal-pass-soft: #C9DCD0;
   --color-signal-pass-tint: #DDE7DF;
   --color-signal-pass-text: var(--color-signal-pass);
 
   --color-signal-fail: #95323C;
   --color-signal-fail-bright: #E5A196;
-  --color-signal-fail-soft: #E4C8C3;
-  --color-signal-fail-tint: #F1DFDB;
   --color-signal-fail-text: var(--color-signal-fail);
 
-  /* 2.6 Borders, geometry, containment --------------------------
-     Radius is zero by default. `--radius-contain` exists for
-     captured artifacts and instrument read-outs — containment,
-     not softness — and is applied selectively.
+  /* 2.6 Borders and geometry -----------------------------------
+     Controls stay square; the shared case/archive edge is a hairline.
      ------------------------------------------------------------ */
-
-  --border-width: 1px;
-  --border-width-strong: 2px;
-  --border-hairline: 1px solid var(--color-rule-on-paper);
-  --border-hairline-soft: 1px solid var(--color-rule-on-paper-soft);
-  --border-hairline-canvas: 1px solid var(--color-rule-on-canvas);
-  --border-hairline-canvas-soft: 1px solid var(--color-rule-on-canvas-soft);
-  --border-dotted: 1px dotted var(--color-rule-on-paper-soft);
-  --border-dotted-canvas: 1px dotted var(--color-rule-on-canvas-soft);
-
-  --radius-zero: 0;
   --radius-control: 0;
-  --radius-frame: 0;
-  --radius-contain: 3px;
-  --radius-pill: 999px;
+  --border-default: 1px solid var(--color-rule-on-paper);
 
   --control-height: 2.625rem;
   --control-height-sm: 2.125rem;
-  --control-height-lg: 3rem;
 
-  /* Registration mark — the one directional tick that opens a
-     bounded area. One mark, one meaning. */
-  --mark-length: 2.25rem;
-  --mark-stroke: 2px;
   --node-size: 0.5rem;
 
   /* Status dot — the small circle that carries a project's or a
@@ -248,17 +211,10 @@
     'Segoe UI', sans-serif;
   --font-instrument: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
 
-  /* Legacy alias — components import the content family as
-     `--font-sans`. */
-  --font-sans: var(--font-content);
   --font-mono: var(--font-instrument);
-
-  --type-display: clamp(2.5rem, 5.4vw, 4.5rem);
   --type-statement: clamp(1.75rem, 3.1vw, 2.625rem);
   --type-title: clamp(1.125rem, 1.5vw, 1.375rem);
   --type-component: 1.0625rem;
-
-  --text-display: var(--type-display);
   --text-feature: var(--type-statement);
   --text-section: var(--type-title);
   --text-component: var(--type-component);
@@ -306,9 +262,8 @@
   --region-pad: clamp(2.5rem, 4vw, 3.5rem);
   --section-gap: clamp(1.5rem, 2.4vw, 2.25rem);
 
-  /* Legacy aliases for the three static rhythms. */
+  /* Case-page rhythms. */
   --section-block: clamp(2.5rem, 4vw, 3.5rem);
-  --section-block-major: clamp(3.5rem, 5.6vw, 4.9rem);
   --section-block-tight: clamp(1.75rem, 2.8vw, 2.4rem);
 
   /* 2.9 Layout — the shell --------------------------------------
@@ -322,7 +277,6 @@
 
   --width-page: 78rem;
   --width-reading: 36rem;
-  --width-narrow: 28rem;
   --width-content: 52rem;
   --page-gutter: clamp(1.125rem, 3.5vw, 2.5rem);
 
@@ -334,7 +288,6 @@
   --duration-quick: 120ms;
   --duration-base: 220ms;
   --duration-reveal: 420ms;
-  --duration-scan: 900ms;
 
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
@@ -342,7 +295,6 @@
   /* 2.11 Z-index ------------------------------------------------- */
 
   --z-header: 50;
-  --z-overlay: 40;
   --z-skip: 100;
 }
 
@@ -617,14 +569,6 @@ button {
   display: none;
 }
 
-/* INSTRUMENT type utility — numbers and technical strings that are
-   not labels (values inside prose, dl values, coordinates). */
-.instrument-value {
-  font-family: var(--font-instrument);
-  font-size: var(--text-instrument);
-  letter-spacing: 0.04em;
-}
-
 /* ----------------------------------------------------------------
    4b. Region grammar
    ----------------------------------------------------------------
@@ -754,34 +698,6 @@ button {
   line-height: 1.55;
 }
 
-/* An ENVIRONMENT SEAM — the transition between regions. A
-   structural 1px edge plus a registration tick at the gutter, so
-   a change of surface is marked rather than merely happening.
-   Neutral: an environment change is structure, not a state. */
-.seam {
-  position: relative;
-  height: 0;
-  border-top: 1px solid var(--color-rule-on-paper-strong);
-}
-
-.seam::after {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 0;
-  width: clamp(2.5rem, 8vw, 5rem);
-  height: 2px;
-  background: var(--color-rule-on-paper-strong);
-}
-
-.seam--deck {
-  border-top-color: var(--color-rule-on-canvas-strong);
-}
-
-.seam--deck::after {
-  background: var(--color-rule-on-canvas-strong);
-}
-
 /* INTERFACE role — controls.
    A button is a bounded rectangle with a leading tick. The tick
    grows on hover: the state change is directional, so it reads as
@@ -834,26 +750,6 @@ button {
   background: var(--color-accent);
 }
 
-.button--secondary {
-  border-color: var(--color-rule-on-paper-strong);
-  background: transparent;
-  color: var(--color-text-on-paper);
-}
-
-.button--secondary::before {
-  background: var(--color-accent);
-}
-
-.button--secondary:hover {
-  border-color: var(--color-text-on-paper);
-  background: var(--color-text-on-paper);
-  color: var(--color-sheet-high);
-}
-
-.button--secondary:hover::before {
-  background: var(--color-sheet-high);
-}
-
 /* ACCENT — the one action in a region that matters. Attention is
    one of the four meanings of orange. */
 .button--accent {
@@ -876,20 +772,6 @@ button {
 .button--accent:hover::before,
 .button--accent:focus-visible::before {
   background: var(--color-sheet-high);
-}
-
-/* On deck, the outline button borrows the deck rule + deck text. */
-.on-deck .button--secondary,
-.lab .button--secondary {
-  border-color: var(--color-rule-on-canvas-strong);
-  color: var(--color-text-on-canvas);
-}
-
-.on-deck .button--secondary:hover,
-.lab .button--secondary:hover {
-  border-color: var(--color-text-on-canvas);
-  background: var(--color-text-on-canvas);
-  color: var(--color-deck-deep);
 }
 
 .text-link {
@@ -967,9 +849,7 @@ button,
 a,
 input,
 textarea,
-select,
-.tab,
-.stage {
+select {
   transition-timing-function: var(--ease-standard);
 }
 
@@ -979,7 +859,6 @@ select,
 
 @media (max-width: 30rem) {
   :root {
-    --type-display: 2.375rem;
     --type-statement: 1.75rem;
     --type-title: 1.25rem;
     --page-gutter: 1.125rem;
@@ -1099,40 +978,6 @@ select,
   .lab__bench {
     view-transition-name: none !important;
   }
-}
-
-/* ----------------------------------------------------------------
-   9. Token aliases — backwards compatibility for the case pages
-   ----------------------------------------------------------------
-   The case studies were authored against the previous token
-   system. Rather than rewrite three content-heavy files to
-   preserve every word, the legacy names are aliased here. These
-   retire section by section as each page is re-skinned.
-   ---------------------------------------------------------------- */
-
-:root {
-  --color-background: var(--color-paper);
-  --color-surface: var(--color-paper-soft);
-  --color-surface-light: var(--color-paper-soft);
-  --color-surface-cool: color-mix(in srgb, var(--color-accent-tint) 35%, var(--color-paper));
-  --color-text: var(--color-text-on-paper);
-  --color-text-secondary: var(--color-text-on-paper-muted);
-  --color-border: var(--color-rule-on-paper);
-  --color-failure-text: var(--color-signal-fail);
-  --color-failure-border: color-mix(in srgb, var(--color-signal-fail) 35%, var(--color-rule-on-paper));
-  --color-failure-surface: var(--color-signal-fail-tint);
-
-  --type-case-title: var(--text-feature);
-  --text-h2: var(--text-section);
-  --text-h1: var(--text-feature);
-  --text-h3: var(--text-component);
-
-  --border-default: 1px solid var(--color-rule-on-paper);
-  --radius-card: var(--radius-frame);
-
-  --section-heading-gap: var(--space-3);
-  --section-content-gap: var(--section-gap);
-  --section-tight: var(--section-block-tight);
 }
 
 /* Scoped component styles stay authoritative for their internal
@@ -1345,8 +1190,6 @@ article.case-page .contact-section .button { margin-top: var(--space-3); }
    secondary ones are quieter rather than competing with the
    subject.
    ------------------------------------------------------------------ */
-
-.section-frame__status { opacity: 0.62; }
 
 /* The evidence boundary: the record takes the larger share of the field.
    (Page-scoped styles in a case page stay authoritative for anything
