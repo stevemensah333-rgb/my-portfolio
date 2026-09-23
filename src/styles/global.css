@@ -1079,3 +1079,92 @@ section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
   section#syncareer .sync-preview__product { margin-inline: 0; }
   section#evidence .evidence__panels { padding: var(--space-4); }
 }
+
+/* ------------------------------------------------------------------
+   Scale, asymmetry and rhythm pass
+   ------------------------------------------------------------------
+   A few sections now use an explicit composition rather than inheriting
+   the same two-column document shape. The rules are intentionally
+   section-qualified so their internal states remain component-owned.
+*/
+
+@media (min-width: 60rem) {
+  /* SYNCareer: the artifact spans the full measure; the supporting
+     failure and inspection trail then split 70 / 30 beneath it. */
+  section#syncareer .sync-preview__body {
+    grid-template-columns: minmax(0, 1.65fr) minmax(12rem, 0.75fr);
+    column-gap: clamp(var(--space-6), 4vw, var(--space-9));
+    row-gap: clamp(var(--space-5), 3vw, var(--space-7));
+  }
+  section#syncareer .sync-preview__header,
+  section#syncareer .sync-preview__product,
+  section#syncareer .sync-preview__actions { grid-column: 1 / -1; }
+  section#syncareer .sync-preview__problem { grid-column: 1; align-self: start; }
+  section#syncareer .sync-preview__trail-block,
+  section#syncareer .sync-preview__boundary { grid-column: 2; align-self: start; }
+  section#syncareer .sync-preview__boundary { margin-top: var(--space-4); }
+
+  /* Lab: one dominant viewport with a deliberately shorter control
+     register. The instrument remains dense without becoming uniform. */
+  section#reliability-lab .lab__bench {
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.28fr);
+  }
+  section#reliability-lab .lab__railscroll,
+  section#reliability-lab .lab__viewport { grid-column: 1 / -1; }
+  section#reliability-lab .lab__readout { grid-column: 1; }
+  section#reliability-lab .lab__transport {
+    grid-column: 2;
+    grid-row: 3;
+    align-self: end;
+    padding-top: var(--space-3);
+  }
+  section#reliability-lab .lab__position { margin-left: 0; width: 100%; }
+
+  /* The tool index is a capability register first; the selected record
+     is a narrower readout rather than a co-equal panel. */
+  section#toolkit .toolkit__index {
+    grid-template-columns: minmax(0, 1.55fr) minmax(14rem, 0.75fr);
+    column-gap: clamp(var(--space-6), 4vw, var(--space-9));
+  }
+
+  /* Open, quiet portrait rail; the writing owns the measure. */
+  section#about .region-grid {
+    grid-template-columns: minmax(10rem, 0.7fr) minmax(0, 3.3fr);
+    column-gap: var(--space-8);
+  }
+  section#about .about__body { max-width: 48rem; }
+
+  /* Chronology is a long visual spine, not another balanced panel. */
+  section#experience .region-grid {
+    grid-template-columns: minmax(10rem, 0.65fr) minmax(0, 3.35fr);
+    column-gap: var(--space-8);
+  }
+
+  /* Evidence gives the actual record the larger share of the field. */
+  section#evidence .evidence__drawer {
+    grid-template-columns: minmax(12rem, 0.65fr) minmax(0, 1.65fr);
+  }
+}
+
+/* Small compositional breaks on the sheet: the artifact can touch the
+   content measure while labels remain on the original axis. */
+@media (min-width: 75rem) {
+  section#syncareer .sync-preview__product {
+    margin-inline: calc(-1 * var(--space-8));
+  }
+  section#evidence .evidence__panels {
+    padding-inline: var(--space-7);
+  }
+}
+
+/* On mobile, keep the order and dominant objects, but turn every
+   horizontal relationship into a clean vertical one. */
+@media (max-width: 59.99rem) {
+  section#syncareer .sync-preview__body { gap: var(--space-7); }
+  section#syncareer .sync-preview__product { margin-inline: 0; }
+  section#syncareer .sync-preview__problem { max-width: 100%; }
+  section#reliability-lab .lab__bench { gap: var(--space-4); }
+  section#reliability-lab .lab__transport { padding-top: var(--space-3); }
+  section#about .about__body,
+  section#experience .region-body { max-width: none; }
+}
