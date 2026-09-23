@@ -1,0 +1,672 @@
+---
+/**
+ * InvestigationSystem — the canonical seven-stage Syncareer system.
+ *
+ * Composition (deliberately not a stack of equal cards):
+ *   MAP    a single connected route: 01 → 02 → 03 → 04 → 05 → 06 → 07,
+ *          each node linking to its stage below.
+ *   SPINE  the stages themselves run down one continuous rule. Every stage
+ *          names what it receives and what it hands on, so the reader is
+ *          always inside one system rather than in seven panels.
+ *   SLABS  artifacts render as dark instrument slabs inside the light page:
+ *          a payload is something you inspect, not something you read.
+ *
+ * Facts are explained ONCE per stage (see the data module). This component
+ * adds no narrative of its own — labels, hand-offs and citations only.
+ *
+ * Interaction: links and CSS `:target` only. No JavaScript is required, and
+ * none is used; the Lab is where this system becomes operable. Keyboard,
+ * touch, zoom, no-JS and reduced motion all get the same content.
+ */
+import { investigationStages } from '../data/syncareerInvestigation';
+
+const stages = investigationStages;
+const total = String(stages.length).padStart(2, '0');
+---
+
+<section class="system" aria-labelledby="investigation-title" data-system>
+  <header class="system__header">
+    <p class="mono-label">The system · {total} stages, one payload</p>
+    <h2 id="investigation-title">One payload, seven stages.</h2>
+    <p class="system__intro">
+      Each stage receives what the one before it produced. Read down, or jump to a stage from the
+      map: the contract code, the checks and the refusal are read from the Syncareer repository,
+      and the two model texts are fixtures, stamped where they appear.
+    </p>
+  </header>
+
+  <dl class="system__spec" aria-label="Where this pipeline runs">
+    <div><dt>Endpoint</dt><dd>POST /functions/v1/career-guidance · v2 body</dd></div>
+    <div><dt>Task examined</dt><dd>cv.rewrite_bullet — one selected requirement, one to seven evidence items</dd></div>
+    <div><dt>Provider</dt><dd>Lovable AI gateway; model selection stays server-side</dd></div>
+  </dl>
+
+  <nav class="system__map" aria-label="Jump to a stage">
+    <ol>
+      {stages.map((stage) => (
+        <li data-tone={stage.tone}>
+          <a href={`#stage-${stage.id}`}>
+            <span class="system__map-step">{stage.step}</span>
+            <span class="system__map-label">{stage.label}</span>
+            <span class="system__map-summary">{stage.summary}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+
+  <ol class="system__stages">
+    {stages.map((stage, index) => {
+      const next = stages[index + 1];
+      const artifact = stage.artifact;
+      return (
+        <li class="system__stage" data-tone={stage.tone}>
+          <article class="system__node" id={`stage-${stage.id}`} aria-labelledby={`stage-${stage.id}-title`}>
+            <header class="system__node-head">
+              <p class="system__node-mark">
+                <span class="system__node-step">{stage.step}</span>
+                <span class="system__node-label">{stage.label}</span>
+              </p>
+              <h3 class="system__node-title" id={`stage-${stage.id}-title`}>{stage.title}</h3>
+            </header>
+
+            <div class="system__node-body">
+              <p class="system__detail">{stage.detail}</p>
+
+              {artifact && artifact.kind === 'code' && (
+                <figure class="system__slab on-deck" data-illustrative={artifact.illustrative ? 'true' : undefined}>
+                  <figcaption class="system__slab-label mono-label mono-label--inverse">
+                    {artifact.label}
+                  </figcaption>
+                  <pre><code>{artifact.code}</code></pre>
+                </figure>
+              )}
+
+              {artifact && artifact.kind === 'checks' && (
+                <div class="system__checks">
+                  <p class="mono-label">{artifact.label}</p>
+                  <ol>
+                    {artifact.items.map((item) => (
+                      <li>
+                        <span class="system__checks-name">{item.name}</span>
+                        {item.note && <span class="system__checks-note">{item.note}</span>}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {artifact && artifact.kind === 'refusal' && (
+                <div class="system__record">
+                  <p class="mono-label">{artifact.label}</p>
+                  <dl>
+                    {artifact.items.map((item) => (
+                      <div>
+                        <dt>{item.name}</dt>
+                        <dd>{item.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
+
+              {artifact && artifact.kind === 'compare' && (
+                <div class="system__compare">
+                  <p class="mono-label">{artifact.label}</p>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th scope="col">Contract</th>
+                        <th scope="col">Before</th>
+                        <th scope="col">Revised</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {artifact.items.map((item) => (
+                        <tr>
+                          <th scope="row">{item.name}</th>
+                          <td>{item.before}</td>
+                          <td>{item.after}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <p class="system__handoff">
+                <span class="mono-label">
+                  {next ? `Hands on → ${next.step} ${next.label}` : 'Hands on → the user'}
+                </span>
+                <span>{stage.handedOff}</span>
+              </p>
+
+              <p class="system__cite">
+                <span class="mono-label">Read from</span>
+                <span>{stage.evidence}</span>
+              </p>
+            </div>
+          </article>
+        </li>
+      );
+    })}
+  </ol>
+
+  <p class="system__lab">
+    <span class="mono-label mono-label--bare">Operate it</span>
+    <a class="text-link" href="/lab/">
+      Run this pipeline in the Reliability Lab
+      <span class="text-link__arrow" aria-hidden="true">→</span>
+    </a>
+  </p>
+</section>
+
+<style>
+  .system {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .system__header {
+    display: grid;
+    gap: var(--space-3);
+    max-width: var(--width-content);
+  }
+
+  .system__header h2 {
+    margin: 0;
+    max-width: 28ch;
+    font-size: var(--text-section);
+    font-weight: 600;
+    line-height: 1.15;
+  }
+
+  .system__intro {
+    max-width: var(--width-reading);
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
+  }
+
+  /* System spec — the four facts that say where this pipeline runs.
+     A defined strip, not a card: two rules and a row of values. */
+  .system__spec {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding-block: var(--space-3);
+    border-block: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .system__spec div {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .system__spec dt {
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .system__spec dd {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument);
+    line-height: 1.5;
+  }
+
+  /* The map: one route, seven nodes. It is the same object as the spine
+     below, read at index scale. */
+  .system__map ol {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-rule-on-paper);
+    list-style: none;
+  }
+
+  .system__map li {
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .system__map a {
+    display: grid;
+    grid-template-columns: 2.5rem 9rem minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: baseline;
+    padding: var(--space-3) 0;
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--duration-quick) var(--ease-standard);
+  }
+
+  .system__map a:hover,
+  .system__map a:focus-visible {
+    color: var(--color-accent-text);
+  }
+
+  .system__map-step {
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: var(--tracking-instrument);
+  }
+
+  .system__map-label {
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .system__map-summary {
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.4;
+  }
+
+  /* Tone is structural here, not decorative: the two nodes where the
+     system breaks and where it is repaired are marked, and marked by
+     more than colour (mark + label weight). */
+  .system__map li[data-tone='failure'] .system__map-label,
+  .system__node[data-tone='failure'] .system__node-label {
+    color: var(--color-signal-fail-text);
+  }
+
+  .system__map li[data-tone='valid'] .system__map-label {
+    color: var(--color-signal-pass-text);
+  }
+
+  .system__map li[data-tone='technical'] .system__map-step {
+    color: var(--color-accent-text);
+  }
+
+  /* The stages: one continuous spine down the left of a single column. */
+  .system__stages {
+    display: grid;
+    gap: var(--space-7);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .system__stage {
+    position: relative;
+    padding-left: var(--space-6);
+  }
+
+  /* The spine. Drawn per stage so it runs unbroken through the gaps
+     between stages — the payload never leaves the system. */
+  .system__stage::before {
+    content: '';
+    position: absolute;
+    top: 0.3rem;
+    bottom: calc(var(--space-7) * -1);
+    left: 0;
+    width: 1px;
+    background: var(--color-rule-on-paper);
+  }
+
+  .system__stage:last-child::before {
+    bottom: 0;
+  }
+
+  .system__stage::after {
+    content: '';
+    position: absolute;
+    top: 0.35rem;
+    left: calc(var(--node-size) / -2);
+    width: var(--node-size);
+    height: var(--node-size);
+    border: 1px solid var(--color-rule-on-paper-strong);
+    background: var(--color-paper);
+  }
+
+  .system__stage[data-tone='failure']::after {
+    border-color: var(--color-signal-fail);
+    background: var(--color-signal-fail);
+  }
+
+  .system__stage[data-tone='technical']::after {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  .system__stage[data-tone='valid']::after {
+    border-color: var(--color-signal-pass);
+    background: var(--color-signal-pass);
+  }
+
+  .system__node {
+    display: grid;
+    gap: var(--space-4);
+    scroll-margin-top: 5.5rem;
+    /* The mark below is a colour change only — the edge and the padding
+       exist in every state, so linking to a stage never shifts the page. */
+    padding-left: var(--space-4);
+    box-shadow: inset 3px 0 0 transparent;
+    background-image: linear-gradient(
+      color-mix(in srgb, var(--color-accent-tint) 40%, transparent),
+      color-mix(in srgb, var(--color-accent-tint) 40%, transparent)
+    );
+    background-repeat: no-repeat;
+    background-size: 0 100%;
+    background-position: left top;
+  }
+
+  /* Reaching a stage from the map (or any link to it) marks it the way
+     this system marks state: an accent edge, no animation. */
+  .system__node:target {
+    box-shadow: inset 3px 0 0 var(--color-accent);
+    background-size: min(100%, calc(var(--width-reading) + var(--space-8))) 100%;
+  }
+
+  .system__node-head {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .system__node-mark {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin: 0;
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .system__node-step {
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .system__node-label {
+    color: var(--color-text-on-paper-muted);
+  }
+
+  .system__node-title {
+    margin: 0;
+    max-width: 30ch;
+    font-size: var(--text-section);
+    font-weight: 600;
+    line-height: 1.15;
+  }
+
+  .system__node-body {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .system__detail {
+    max-width: var(--width-reading);
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.6;
+  }
+
+  /* Dark slab: a payload under inspection, inside the light page.
+     Same instrument language as the Lab, used at component scale. */
+  .system__slab {
+    margin: 0;
+    max-width: 46rem;
+    border: 1px solid var(--color-rule-on-canvas-strong);
+    background: var(--color-deck-soft);
+  }
+
+  .system__slab[data-illustrative='true'] {
+    border-style: dashed;
+  }
+
+  .system__slab-label {
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .system__slab pre {
+    margin: 0;
+    padding: var(--space-4);
+    overflow-x: auto;
+    color: var(--color-text-on-canvas);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument);
+    line-height: 1.6;
+  }
+
+  .system__checks,
+  .system__record,
+  .system__compare {
+    display: grid;
+    gap: var(--space-3);
+    max-width: 46rem;
+  }
+
+  .system__checks ol {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-rule-on-paper);
+    list-style: none;
+  }
+
+  .system__checks li {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-2);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .system__checks-name {
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .system__checks-note {
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.45;
+  }
+
+  .system__record dl {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    margin: 0;
+    border-top: 1px solid var(--color-signal-fail);
+  }
+
+  .system__record dl div {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-2);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .system__record dt {
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .system__record dd {
+    margin: 0;
+    font-size: var(--text-small);
+    line-height: 1.45;
+  }
+
+  .system__compare table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-small);
+    text-align: left;
+  }
+
+  .system__compare th,
+  .system__compare td {
+    padding: var(--space-3) var(--space-3) var(--space-3) 0;
+    vertical-align: top;
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .system__compare thead th {
+    border-bottom: 1px solid var(--color-rule-on-paper-strong);
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .system__compare tbody th {
+    width: 7rem;
+    font-weight: 600;
+  }
+
+  .system__compare tbody td {
+    color: var(--color-text-on-paper-muted);
+  }
+
+  .system__handoff,
+  .system__cite {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    max-width: var(--width-reading);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .system__cite {
+    color: var(--color-text-on-paper-faint);
+    font-size: var(--text-instrument-sm);
+  }
+
+  .system__lab {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3);
+    max-width: var(--width-content);
+    margin: 0;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+  }
+
+  .system__lab .mono-label {
+    color: var(--color-text-on-paper-faint);
+  }
+
+  @media (min-width: 48rem) {
+    .system__spec {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-5);
+    }
+
+    .system__stage {
+      padding-left: var(--space-7);
+    }
+
+    .system__record dl div {
+      grid-template-columns: 6rem minmax(0, 1fr);
+      gap: var(--space-4);
+      align-items: baseline;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .system__map a {
+      grid-template-columns: 2.5rem 10rem minmax(0, 1fr);
+      gap: var(--space-5);
+    }
+
+    .system__stages {
+      gap: var(--space-8);
+    }
+
+    .system__stage::before {
+      bottom: calc(var(--space-8) * -1);
+    }
+  }
+
+  @media (max-width: 40rem) {
+    /* Equal inset on both sides, so the code slab sits inside the column
+       instead of running out of the right edge. */
+    .system__node {
+      padding-right: var(--space-4);
+    }
+
+    /* Code wraps instead of scrolling horizontally: a scroll container that
+       is not focusable is hard to reach by keyboard, and wrapping loses
+       nothing on a narrow screen. */
+    .system__slab pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .system__map a {
+      grid-template-columns: 2.25rem minmax(0, 1fr);
+      row-gap: var(--space-1);
+    }
+
+    .system__map-summary {
+      grid-column: 2;
+    }
+
+    .system__stage {
+      padding-left: var(--space-5);
+    }
+
+    .system__compare table,
+    .system__compare tbody,
+    .system__compare tr,
+    .system__compare th,
+    .system__compare td {
+      display: block;
+      width: auto;
+    }
+
+    .system__compare thead {
+      display: none;
+    }
+
+    .system__compare tbody th {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .system__compare tbody td::before {
+      color: var(--color-text-on-paper-faint);
+      font-family: var(--font-instrument);
+      font-size: var(--text-instrument-sm);
+      letter-spacing: var(--tracking-instrument);
+      text-transform: uppercase;
+    }
+
+    .system__compare tbody td:first-of-type::before {
+      content: 'Before · ';
+    }
+
+    .system__compare tbody td:last-of-type::before {
+      content: 'Revised · ';
+    }
+  }
+</style>

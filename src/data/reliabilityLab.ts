@@ -17,7 +17,6 @@
 
 import {
   investigationStages,
-  evidenceBoundary,
   type InvestigationStage,
   type InvestigationStageId,
 } from './syncareerInvestigation';
@@ -113,12 +112,12 @@ export const labCopy = {
   replay: 'Replay',
   prev: '← Step',
   next: 'Step →',
-  caseLinkLabel: 'Open the full investigation',
 } as const;
 
 export const labBoundary = {
   intro:
-    'Evidence boundary, stated inside the instrument: the request contract, the validation checks and the failure classes are real — tracked source in the Syncareer repository. The two model texts are illustrative fixtures, because previous live outputs were never captured.',
-  known: evidenceBoundary.known,
-  missing: evidenceBoundary.missing,
+    'Every contract, check and refusal in this instrument is tracked source in the Syncareer repository. The two model texts are illustrative fixtures.',
+  pointer:
+    'The full evidence boundary — what exists, what was never measured, and what is not deployed yet — is stated once, in the case study.',
+  pointerLabel: 'Read the evidence boundary',
 } as const;

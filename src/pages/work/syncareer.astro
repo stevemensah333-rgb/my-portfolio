@@ -1,18 +1,33 @@
 ---
+/**
+ * /work/syncareer — the canonical Syncareer case study.
+ *
+ * Structure (AGENTS.md §5): 01 PRODUCT → 02 FAILURE → 03 INVESTIGATION →
+ * 04 INTERVENTION → 05 RESULT, with the seven-stage system inside 03.
+ *
+ * Density rule: every fact is explained once, on the section that owns it
+ * (see the doc comment in src/data/syncareerInvestigation.ts). The other
+ * sections reference or visualise it — stage 04 points back to 02, stage 06
+ * points forward to 04, and the deployment status lives only in 05.
+ *
+ * Composition: large artifact + short explanation, asymmetric fields, dark
+ * slabs for anything being inspected. No JavaScript gates any of it.
+ */
 import { GMAIL_COMPOSE_URL } from '../../config/site';
 import { syncareer } from '../../data/registry';
 import {
   evidenceBoundary,
-  investigationDecisions,
+  failureRecord,
+  interventionRecord,
   syncareerProduct,
 } from '../../data/syncareerInvestigation';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionFrame from '../../components/SectionFrame.astro';
 import ProductFrame from '../../components/ProductFrame.astro';
-import SyncareerInvestigation from '../../components/SyncareerInvestigation.astro';
+import InvestigationSystem from '../../components/InvestigationSystem.astro';
 
 const title = `${syncareer.name} — Career Workspace Case Study | Stephen Mensah`;
-const description = `${syncareer.name} is an opportunity-first career workspace: saved opportunity → tailored CV → interview preparation → outcome. How its AI help was grounded in cited evidence — and what is still unverified.`;
+const description = `${syncareer.name} is an opportunity-first career workspace: saved opportunity → evidence → CV → interview → outcome. How its CV assistant was rebuilt to cite requirement and evidence — and what is still unverified.`;
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -36,8 +51,10 @@ const structuredData = {
 
 // Evidence links travel with the project record (single source).
 const recordLinks = syncareer.evidence.filter(
-  (ev) => ev.kind === 'product' || ev.kind === 'code' || ev.kind === 'document',
+  (ev) => ev.kind === 'product' || ev.kind === 'code',
 );
+
+const [dashboard, opportunities] = syncareerProduct.surfaces;
 ---
 
 <BaseLayout
@@ -50,48 +67,53 @@ const recordLinks = syncareer.evidence.filter(
   imageHeight={1302}
   ogType="article"
 >
-  <article class="case-page">
-    <!-- 01 PRODUCT · opening record -->
-    <header id="overview" class="case-hero page-shell" data-workspace-section="top" data-workspace-dest="work">
+  <article class="case-page case-syncareer">
+    <!-- ── 01 PRODUCT · the product and its largest artifact ────────── -->
+    <header
+      id="product"
+      class="case-hero page-shell"
+      data-workspace-section="product"
+      data-workspace-dest="work"
+      data-workspace-label="Product"
+    >
       <a class="back-link" href="/work/">← Back to the work archive</a>
 
       <div class="case-opening">
-        <div>
-          <p class="mono-label">Case study · {syncareer.name} · Live</p>
+        <div class="case-opening__copy">
+          <p class="mono-label mono-label--state">Case study · {syncareer.name} · Live</p>
           <h1>A real product, with AI help that has to cite its evidence.</h1>
-          <p class="case-summary">
-            {syncareer.short}
-          </p>
+          <p class="case-summary">{syncareer.claim}</p>
+          <p class="case-scope">{syncareerProduct.scope}</p>
         </div>
 
         <aside class="product-record" aria-label={`${syncareer.name} product record`}>
           <div class="record-heading">
             <p>Product record · 01</p>
-            <span>Built product</span>
+            <span>Live</span>
           </div>
           <p class="product-record__name">{syncareer.name}</p>
           <dl>
-            <div><dt>Product</dt><dd>Career workspace (free to use)</dd></div>
-            <div><dt>AI feature</dt><dd>Contextual assistant + interview practice</dd></div>
-            <div><dt>AI path</dt><dd>career-guidance v2 · Lovable AI gateway</dd></div>
-            <div><dt>Tracked model</dt><dd>google/gemini-2.5-flash</dd></div>
+            {syncareerProduct.record.map((row) => (
+              <div>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
             {recordLinks.map((ev) => (
-              'href' in ev ? (
-                <div>
-                  <dt>Evidence</dt>
-                  <dd>
-                    <a href={ev.href} target="_blank" rel="noopener">
-                      {ev.label} <span aria-hidden="true">↗</span>
-                    </a>
-                  </dd>
-                </div>
-              ) : null
+              <div>
+                <dt>Evidence</dt>
+                <dd>
+                  <a href={ev.href} target="_blank" rel="noopener">
+                    {ev.label} <span aria-hidden="true">↗</span>
+                  </a>
+                </dd>
+              </div>
             ))}
           </dl>
         </aside>
       </div>
 
-      <div class="case-product-hero">
+      <div class="case-hero__artifact">
         <ProductFrame
           src1440="/images/syncareer/synai-context-1440.png"
           src1800="/images/syncareer/synai-context-1800.png"
@@ -100,21 +122,33 @@ const recordLinks = syncareer.evidence.filter(
           height={1302}
           alt="Syncareer SynAI interface showing a personalised introduction using Stephen's degree, interests and profile skills, with career guidance, CV tips, interview preparation and skill-gap actions."
           label="01 / AI feature and context"
-          caption="SynAI makes the product context visible: degree, interests and profile skills inform the career-guidance interface."
+          caption="SynAI makes the context visible before it offers anything: degree, interests and profile skills, with career guidance, CV tips, interview preparation and skill-gap actions."
+          sizes="(min-width: 64rem) min(78rem, calc(100vw - 14rem)), calc(100vw - 2.25rem)"
           priority={true}
         />
       </div>
     </header>
 
-    <!-- 01 PRODUCT · surfaces -->
-    <SectionFrame coordinate="01 · Product" status="Live product" surface="paper" data-workspace-section="product" data-workspace-dest="work">
-      <div class="page-shell case-surfaces">
-        <header class="case-surfaces__intro">
-          <p class="mono-label">The product around the contract</p>
-          <h2>Opportunity, CV, interview — one workspace.</h2>
-          <p class="case-surfaces__lede">{syncareer.claim}</p>
-        </header>
-        <div class="case-surfaces__grid">
+    <!-- ── 01 PRODUCT · the workspace the assistant runs inside ─────── -->
+    <section
+      class="case-surfaces"
+      aria-labelledby="surfaces-title"
+      data-workspace-section="product-surfaces"
+      data-workspace-dest="work"
+      data-workspace-label="Product surfaces"
+    >
+      <div class="page-shell case-surfaces__grid">
+        <div class="case-surfaces__intro">
+          <p class="mono-label">The workspace around the assistant</p>
+          <h2 id="surfaces-title">Opportunity, evidence, CV, interview — one record.</h2>
+          <p class="case-surfaces__lede">
+            The assistant is one surface inside a product that already worked. These are the
+            screens the application record lives on: what is in progress, what is saved, and
+            where CV tailoring starts.
+          </p>
+        </div>
+
+        <div class="case-surfaces__frame case-surfaces__frame--wide">
           <ProductFrame
             src1440="/images/syncareer/dashboard-1440.png"
             src1800="/images/syncareer/dashboard-1800.png"
@@ -122,10 +156,14 @@ const recordLinks = syncareer.evidence.filter(
             width={2400}
             height={1302}
             alt="Syncareer dashboard showing career readiness, application, CV strength and interview progress."
-            label="02 / Dashboard"
-            caption="Readiness, applications, CV strength and interview progress in one place."
-            address="syncareer.me/dashboard"
+            label={dashboard.label}
+            caption={dashboard.caption}
+            address={dashboard.address}
+            sizes="(min-width: 64rem) 42rem, calc(100vw - 2.25rem)"
           />
+        </div>
+
+        <div class="case-surfaces__frame case-surfaces__frame--narrow">
           <ProductFrame
             src1440="/images/syncareer/opportunities-1440.png"
             src1800="/images/syncareer/opportunities-1800.png"
@@ -133,85 +171,173 @@ const recordLinks = syncareer.evidence.filter(
             width={2400}
             height={1303}
             alt="Syncareer opportunities interface showing job search, match score, and interview / CV tailoring actions."
-            label="03 / Opportunities"
-            caption="Saved opportunities feed CV tailoring and interview practice. Match scores are product UI, not a claimed hiring probability."
-            address="syncareer.me/opportunities"
+            label={opportunities.label}
+            caption={opportunities.caption}
+            address={opportunities.address}
+            sizes="(min-width: 64rem) 26rem, calc(100vw - 2.25rem)"
           />
         </div>
       </div>
-    </SectionFrame>
+    </section>
 
-    <!-- 02 FAILURE -->
-    <SectionFrame coordinate="02 · Failure" surface="paper" data-workspace-section="failure" data-workspace-dest="work">
-      <div class="page-shell case-failure">
-        <header class="case-failure__intro">
-          <p class="mono-label">The specific failure</p>
-          <h2>The assistant saw a bullet. It could not see the evidence.</h2>
-          <p class="case-failure__detail">{syncareerProduct.problem}</p>
-          <p class="case-failure__pointer">
-            The failure classes — and the fix — are inspected stage by stage in the
-            investigation below.
-          </p>
-        </header>
-      </div>
-    </SectionFrame>
+    <!-- ── 02 FAILURE · the one canonical explanation ───────────────── -->
+    <SectionFrame
+      id="failure"
+      coordinate="02 · Failure"
+      status="Documented, not captured"
+      surface="paper"
+      density="default"
+      as="section"
+      label="Failure"
+      data-workspace-section="failure"
+      data-workspace-dest="work"
+      data-workspace-label="Failure"
+    >
+      <div class="page-shell failure">
+        <div class="failure__statement">
+          <h2>{failureRecord.statement}</h2>
+          <p class="failure__explain">{failureRecord.explanation}</p>
+          <p class="failure__impact">{failureRecord.impact}</p>
+        </div>
 
-    <!-- 03 INVESTIGATION (canonical explanation) -->
-    <SectionFrame coordinate="03 · Investigation" surface="paper" data-workspace-section="investigation" data-workspace-dest="work">
-      <div class="page-shell case-investigation">
-        <SyncareerInvestigation />
-      </div>
-    </SectionFrame>
+        <div class="failure__classes">
+          <p class="mono-label">Observed failure classes</p>
+          <ol>
+            {failureRecord.classes.map((item, index) => (
+              <li>
+                <span class="failure__num" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <h3>{item.name}</h3>
+                <p>{item.note}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
 
-    <!-- 04 INTERVENTION -->
-    <SectionFrame coordinate="04 · Intervention" surface="paper" data-workspace-section="intervention" data-workspace-dest="work">
-      <div class="page-shell case-decisions">
-        <header class="case-decisions__intro">
-          <p class="mono-label">What Stephen actually built</p>
-          <h2>The engineering decisions that mattered.</h2>
-          <p class="case-decisions__lede">{syncareerProduct.built}</p>
-        </header>
-        <ul class="case-decisions__list">
-          {investigationDecisions.map((item) => (
-            <li>
-              <p class="mono-label">{item.label}</p>
-              <p>{item.body}</p>
-            </li>
-          ))}
-        </ul>
-        <p class="case-decisions__stack">
-          React + Vite frontend on Supabase (Auth, Postgres with row-level security,
-          database functions, edge functions), hosted on Lovable Cloud — no custom
-          API server. Authorization is enforced server-side; route guards are UX only.
-          Interview generation runs in deployed-only functions, so its exact prompts
-          cannot be audited from the repository.
+        <p class="failure__known">
+          <span class="mono-label">How this is known</span>
+          <span>{failureRecord.known}</span>
         </p>
       </div>
     </SectionFrame>
 
-    <!-- 05 RESULT -->
-    <SectionFrame coordinate="05 · Result" surface="paper" data-workspace-section="result" data-workspace-dest="work">
+    <!-- ── 03 INVESTIGATION · the seven-stage system ────────────────── -->
+    <SectionFrame
+      id="investigation"
+      coordinate="03 · Investigation"
+      status="01 → 07 · one payload"
+      surface="paper"
+      density="major"
+      as="section"
+      label="Investigation"
+      data-workspace-section="investigation"
+      data-workspace-dest="work"
+      data-workspace-label="Investigation"
+    >
       <div class="page-shell">
+        <InvestigationSystem />
+      </div>
+    </SectionFrame>
+
+    <!-- ── 04 INTERVENTION · what changed ───────────────────────────── -->
+    <SectionFrame
+      id="intervention"
+      coordinate="04 · Intervention"
+      status="Four documented responses"
+      surface="paper"
+      density="default"
+      as="section"
+      label="Intervention"
+      data-workspace-section="intervention"
+      data-workspace-dest="work"
+      data-workspace-label="Intervention"
+    >
+      <div class="page-shell region-grid">
+        <aside class="region-rail">
+          <div class="region-index">
+            <span class="region-index__no">04</span>
+            <span class="region-index__rule"></span>
+            <span class="region-index__name">What changed</span>
+          </div>
+          <p class="region-index__note">A contract, not a new AI stack.</p>
+        </aside>
+
+        <div class="region-body intervention">
+          <h2 class="intervention__title">The repair is a contract.</h2>
+          <p class="intervention__lede">{interventionRecord.lede}</p>
+
+          <ol class="intervention__responses">
+            {interventionRecord.responses.map((item, index) => (
+              <li>
+                <p class="intervention__mark">
+                  <span class="mono-label mono-label--bare">{String(index + 1).padStart(2, '0')}</span>
+                  <span class="intervention__name">{item.name}</span>
+                </p>
+                <p class="intervention__note">{item.note}</p>
+              </li>
+            ))}
+          </ol>
+
+          <p class="intervention__stack">{interventionRecord.stack}</p>
+
+          <p class="intervention__pointer">
+            <a class="text-link" href="#result">
+              Deployment status and the evidence boundary
+              <span class="text-link__arrow" aria-hidden="true">→</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </SectionFrame>
+
+    <!-- ── 05 RESULT · the evidence that exists ─────────────────────── -->
+    <SectionFrame
+      id="result"
+      coordinate="05 · Result"
+      status="No measured rate"
+      surface="paper"
+      density="default"
+      as="section"
+      label="Result"
+      data-workspace-section="result"
+      data-workspace-dest="work"
+      data-workspace-label="Result"
+    >
+      <div class="page-shell result">
+        <div class="result__intro">
+          <h2>What this shows — and what it does not.</h2>
+          <p class="result__statement">{evidenceBoundary.statement}</p>
+        </div>
+
         <div class="outcome-grid">
-          <section class="boundary-panel" aria-labelledby="boundary-known-title">
-            <p class="mono-label">Verified in the repository</p>
-            <h2 id="boundary-known-title">What this shows</h2>
+          <section class="boundary-panel boundary-panel--known" aria-labelledby="result-verified">
+            <p class="mono-label">In tracked source</p>
+            <h3 id="result-verified">Verified</h3>
             <ul class="boundary-list">
               {evidenceBoundary.known.map((item) => (
-                <li data-state="known">{item}</li>
+                <li data-state="known">
+                  {item.text}
+                  <span class="result__cite">{item.cite}</span>
+                </li>
               ))}
             </ul>
           </section>
 
-          <section class="boundary-panel" aria-labelledby="boundary-title">
-            <p class="mono-label">What this does not prove yet</p>
-            <h2 id="boundary-title">Evidence boundary</h2>
-            <ul class="boundary-list">
-              {evidenceBoundary.missing.map((item) => (
-                <li data-state="missing">{item}</li>
-              ))}
-            </ul>
-          </section>
+          <div class="result__side">
+            <section class="boundary-panel boundary-panel--missing" aria-labelledby="result-unmeasured">
+              <p class="mono-label">Never measured · not supplied</p>
+              <h3 id="result-unmeasured">Not measured</h3>
+              <ul class="boundary-list">
+                {evidenceBoundary.missing.map((item) => (
+                  <li data-state="missing">{item.text}</li>
+                ))}
+              </ul>
+            </section>
+
+            <aside class="result__numbers" aria-label={evidenceBoundary.numbers.label}>
+              <p class="mono-label">{evidenceBoundary.numbers.label}</p>
+              <p>{evidenceBoundary.numbers.body}</p>
+            </aside>
+          </div>
         </div>
       </div>
     </SectionFrame>
@@ -232,22 +358,35 @@ const recordLinks = syncareer.evidence.filter(
 </BaseLayout>
 
 <style>
-  .product-record__name {
-    margin: 0 0 var(--space-4);
-    font-size: var(--text-component);
-    font-weight: 600;
+  /* In-page anchors land below the sticky mobile control. */
+  :global(.case-syncareer section[id]) {
+    scroll-margin-top: 4.5rem;
   }
 
-  .case-product-hero {
-    margin-top: var(--space-6);
+  /* ── 01 PRODUCT ──────────────────────────────────────────────────── */
+
+  .case-scope {
+    max-width: var(--width-reading);
+    margin: var(--space-4) 0 0;
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-rule-on-paper-strong);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.6;
   }
 
-  /* --- 01 · Product surfaces ------------------------------------- */
+  .case-hero__artifact {
+    margin-top: clamp(var(--space-6), 4vw, var(--space-8));
+  }
 
   .case-surfaces {
-    display: grid;
-    gap: var(--space-6);
     padding-block: var(--section-block);
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .case-surfaces__grid {
+    display: grid;
+    gap: clamp(var(--space-6), 4vw, var(--space-8));
   }
 
   .case-surfaces__intro {
@@ -257,166 +396,316 @@ const recordLinks = syncareer.evidence.filter(
 
   .case-surfaces__intro h2 {
     margin: 0;
-    max-width: 22ch;
+    max-width: 26ch;
     font-size: var(--text-section);
     font-weight: 600;
-    line-height: 1.1;
   }
 
   .case-surfaces__lede {
-    margin: 0;
     max-width: var(--width-reading);
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.6;
+  }
+
+  /* ── 02 FAILURE ──────────────────────────────────────────────────── */
+
+  .failure {
+    display: grid;
+    gap: clamp(var(--space-6), 4vw, var(--space-8));
+  }
+
+  .failure__statement {
+    display: grid;
+    gap: var(--space-3);
+    padding-left: var(--space-5);
+    border-left: 3px solid var(--color-signal-fail);
+  }
+
+  .failure__statement h2 {
+    margin: 0;
+    max-width: 20ch;
+    font-size: var(--text-feature);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .failure__explain,
+  .failure__impact {
+    max-width: var(--width-reading);
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.6;
+  }
+
+  .failure__explain {
+    font-size: var(--text-body);
+  }
+
+  .failure__impact {
+    color: var(--color-text-on-paper);
+  }
+
+  .failure__classes {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .failure__classes ol {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+    list-style: none;
+  }
+
+  .failure__classes li {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .failure__num {
+    color: var(--color-signal-fail-text);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: var(--tracking-instrument);
+  }
+
+  .failure__classes h3 {
+    margin: 0;
+    font-size: var(--text-component);
+  }
+
+  .failure__classes p {
+    max-width: 34rem;
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .failure__known {
+    display: grid;
+    gap: var(--space-2);
+    max-width: 44rem;
+    margin: 0;
+    color: var(--color-text-on-paper-faint);
+    font-size: var(--text-small);
+    line-height: 1.6;
+  }
+
+  /* ── 04 INTERVENTION ─────────────────────────────────────────────── */
+
+  .intervention {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .intervention__title {
+    margin: 0;
+    max-width: 26ch;
+    font-size: var(--text-section);
+    font-weight: 600;
+    line-height: 1.15;
+  }
+
+  .intervention__lede {
+    max-width: var(--width-reading);
+    margin: 0;
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-body-large);
     line-height: 1.55;
   }
 
-  .case-surfaces__grid {
+  .intervention__responses {
     display: grid;
-    gap: var(--space-6);
-  }
-
-  /* --- 02 · Failure ------------------------------------------------ */
-
-  .case-failure {
-    padding-block: var(--section-block);
-  }
-
-  .case-failure__intro {
-    display: grid;
-    gap: var(--space-3);
-    max-width: 44rem;
-    padding: var(--space-5) var(--space-5) var(--space-5) var(--space-6);
-    border-left: 3px solid var(--color-signal-fail);
-    background: var(--color-signal-fail-tint);
-  }
-
-  .case-failure__intro .mono-label {
-    color: var(--color-signal-fail-text);
-  }
-
-  .case-failure__intro h2 {
-    margin: 0;
-    max-width: 24ch;
-    font-size: var(--text-component);
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    line-height: 1.25;
-  }
-
-  .case-failure__detail {
-    margin: 0;
-    max-width: var(--width-reading);
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-small);
-    line-height: 1.6;
-  }
-
-  .case-failure__pointer {
-    margin: 0;
-    color: var(--color-text-on-paper-faint);
-    font-size: var(--text-small);
-    line-height: 1.55;
-  }
-
-  /* --- 03 · Investigation ------------------------------------------ */
-
-  .case-investigation {
-    padding-block: var(--section-block);
-  }
-
-  /* --- 04 · Intervention ------------------------------------------- */
-
-  .case-decisions {
-    display: grid;
-    gap: var(--space-6);
-    padding-block: var(--section-block);
-  }
-
-  .case-decisions__intro {
-    display: grid;
-    gap: var(--space-3);
-  }
-
-  .case-decisions__intro h2 {
-    margin: 0;
-    max-width: 22ch;
-    font-size: var(--text-section);
-    font-weight: 600;
-    line-height: 1.1;
-  }
-
-  .case-decisions__lede {
-    margin: 0;
-    max-width: var(--width-reading);
-    padding-left: var(--space-4);
-    border-left: 2px solid var(--color-accent);
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-body);
-    line-height: 1.6;
-  }
-
-  .case-decisions__list {
-    display: grid;
-    gap: var(--space-4);
+    gap: 0;
     margin: 0;
     padding: 0;
+    border-top: 2px solid var(--color-rule-on-paper-strong);
     list-style: none;
   }
 
-  .case-decisions__list li {
+  .intervention__responses li {
     display: grid;
     gap: var(--space-2);
-    padding: var(--space-5);
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper);
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
   }
 
-  .case-decisions__list p:last-child {
+  .intervention__mark {
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+    margin: 0;
+  }
+
+  .intervention__mark .mono-label {
+    color: var(--color-accent-text);
+  }
+
+  .intervention__name {
+    font-size: var(--text-component);
+    font-weight: 600;
+  }
+
+  .intervention__note {
+    max-width: 42rem;
     margin: 0;
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
-    line-height: 1.55;
+    line-height: 1.6;
   }
 
-  .case-decisions__stack {
-    margin: 0;
+  .intervention__stack {
     max-width: var(--width-reading);
+    margin: 0;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-rule-on-paper);
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
+    line-height: 1.6;
+  }
+
+  .intervention__pointer {
+    margin: 0;
+  }
+
+  /* ── 05 RESULT ───────────────────────────────────────────────────── */
+
+  .result {
+    display: grid;
+    gap: clamp(var(--space-6), 3.5vw, var(--space-8));
+  }
+
+  .result__intro {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .result__intro h2 {
+    margin: 0;
+    max-width: 30ch;
+    font-size: var(--text-section);
+    font-weight: 600;
+    line-height: 1.15;
+  }
+
+  .result__statement {
+    max-width: var(--width-content);
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-body-large);
     line-height: 1.55;
   }
 
-  /* --- 05 · Result -------------------------------------------------- */
+  .result__cite {
+    display: block;
+    margin-top: var(--space-1);
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: 0.04em;
+  }
 
+  .result .boundary-panel h3 {
+    margin: 0;
+    font-size: var(--text-component);
+  }
+
+  /* The two halves of the boundary are deliberately unlike each other: what
+     exists is a plain record, what does not exist is marked as an absence. */
   .outcome-grid {
     display: grid;
-    gap: var(--space-5);
-    padding-block: var(--space-7);
+    gap: clamp(var(--space-5), 4vw, var(--space-7));
   }
 
-  
+  .result__side {
+    display: grid;
+    gap: clamp(var(--space-4), 3vw, var(--space-6));
+    align-content: start;
+  }
 
-  @media (min-width: 48rem) {
-    .case-decisions__list {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+  .boundary-panel--missing {
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-signal-fail);
+  }
+
+  .result__numbers {
+    display: grid;
+    gap: var(--space-2);
+    max-width: 40rem;
+    margin: 0;
+    padding-left: var(--space-5);
+    border-left: 2px solid var(--color-accent);
+  }
+
+  .result__numbers p:last-child {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.6;
+  }
+
+  /* ── Wider compositions ──────────────────────────────────────────── */
+
+  @media (min-width: 56rem) {
+    /* Asymmetric, open: the intro column is offset against the two
+       artifact frames, and neither frame is the same size as the other. */
     .case-surfaces__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+      align-items: start;
     }
+
+    .case-surfaces__intro {
+      grid-column: 1 / -1;
+      max-width: var(--width-content);
+    }
+
+    .case-surfaces__grid > .case-surfaces__frame--narrow {
+      margin-top: var(--space-8);
+    }
+
+    .failure {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      align-items: start;
+    }
+
+    .failure__classes {
+      margin-top: var(--space-6);
+    }
+
+    .failure__known {
+      grid-column: 1 / -1;
+      justify-self: end;
+      max-width: 34rem;
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-rule-on-paper);
+    }
+
+    .intervention__responses li {
+      grid-template-columns: minmax(12rem, 0.8fr) minmax(0, 2fr);
+      column-gap: var(--space-6);
+      align-items: baseline;
+    }
+
+    /* Verified is the long record; the absences and the numbers caveat stack
+       beside it, so the section reads as one field rather than two columns. */
     .outcome-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+      align-items: start;
     }
   }
-
-  
 
   @media (max-width: 30rem) {
-    .case-decisions__list {
-      grid-template-columns: 1fr;
-    }
-    .case-failure__intro {
-      padding: var(--space-4);
+    .failure__statement {
+      padding-left: var(--space-4);
     }
   }
 </style>
