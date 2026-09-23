@@ -1,11 +1,20 @@
 ---
-import { projects } from '../../data/registry';
+import { projects, syncareer } from '../../data/registry';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import SectionFrame from '../../components/SectionFrame.astro';
 
 const title = 'Work — Project Archive | Stephen Mensah';
 const description =
-  'The project archive: Syncareer, an evidence-grounded career workspace; SessionBook, a voice-agent booking backend; and a farm management system built for Koranco Farms. Each with its case study and evidence boundary.';
+  'A project archive for inspecting Stephen Mensah\'s real engineering work, its visual artifacts, and the evidence behind each case study.';
+
+const imageArtifacts = syncareer.evidence.filter((item) => item.kind === 'artifact-image');
+const archiveEntries = projects.map((project, index) => ({
+  project,
+  index,
+  isFlagship: project.id === 'syncareer',
+}));
+
+const responsiveAsset = (href: string, width: 1440 | 1800 | 2400, format: 'png' | 'webp') =>
+  href.replace(/-2400\.png$/, `-${width}.${format}`);
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -18,50 +27,353 @@ const structuredData = {
     name: 'Stephen Mensah',
     url: new URL('/', Astro.site).href,
   },
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: projects.map((project, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: project.name,
+      url: new URL(project.route, Astro.site).href,
+    })),
+  },
 };
+
+const phases = [
+  { index: '01', label: 'Cluster' },
+  { index: '02', label: 'Separate' },
+  { index: '03', label: 'Reveal' },
+  { index: '04', label: 'Inspect' },
+];
 ---
 
-<BaseLayout {title} {description} {structuredData}>
-  <article class="archive">
-    <header class="archive-hero page-shell" data-workspace-section="top" data-workspace-dest="work">
-      <p class="mono-label">Work · Archive</p>
-      <h1>Three projects, one discipline.</h1>
-      <p class="archive-lede">
-        Each project is a case study with its evidence stated and its boundary marked:
-        what is verified in a repository, and what remains UNKNOWN. Syncareer is the
-        flagship.
-      </p>
+<BaseLayout
+  {title}
+  {description}
+  {structuredData}
+  image="/images/syncareer/synai-context-2400.png"
+  imageAlt="Syncareer SynAI interface showing personalised career guidance based on profile, quick actions and a message input."
+  imageWidth={2400}
+  imageHeight={1302}
+  area="work"
+>
+  <article class="archive" data-archive>
+    <header
+      class="archive-hero page-shell"
+      data-workspace-section="top"
+      data-workspace-dest="work"
+      data-workspace-label="Archive"
+    >
+      <div class="archive-hero__rule" aria-hidden="true">
+        <span class="mono-label">02 · Work</span>
+        <span class="archive-hero__rule-line"></span>
+        <span class="mono-label mono-label--bare">Project archive</span>
+      </div>
+
+      <div class="archive-hero__grid">
+        <div class="archive-hero__copy">
+          <p class="mono-label mono-label--state">Evidence-led projects</p>
+          <h1>From a cluster to a set of cases.</h1>
+          <p class="archive-hero__lede">
+            The work starts as a physical stack. Scroll through it to separate the artifacts,
+            reveal their shape, and choose the case you want to inspect.
+          </p>
+          <a class="text-link" href="#archive-cluster">
+            Enter the archive <span class="text-link__arrow" aria-hidden="true">↓</span>
+          </a>
+        </div>
+
+        <aside class="archive-hero__logic" aria-label="Archive interaction sequence">
+          <p class="mono-label mono-label--bare">Scroll sequence</p>
+          <ol>
+            {phases.map((phase) => (
+              <li>
+                <span>{phase.index}</span>
+                <span>{phase.label}</span>
+              </li>
+            ))}
+          </ol>
+        </aside>
+      </div>
     </header>
 
-    <SectionFrame coordinate="02 · Work / Index" surface="paper" data-workspace-section="index" data-workspace-dest="work">
-      <div class="page-shell">
-        <ol class="archive-list">
-          {projects.map((project, index) => (
-            <li class="archive-row">
-              <a class="archive-row__link" href={project.route} aria-labelledby={`archive-${project.id}-title`}>
-                <span class="archive-row__index" aria-hidden="true">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <span class="archive-row__body">
-                  <span class="archive-row__name-row">
-                    <h2 id={`archive-${project.id}-title`} class="archive-row__name">{project.name}</h2>
-                    <span class:list={['archive-row__status', `archive-row__status--${project.status}`]}>
-                      <span class="archive-row__status-dot" aria-hidden="true"></span>
-                      {project.status.replace(/-/g, ' ')}
+    <section
+      id="archive-cluster"
+      class="archive-stage"
+      data-archive-stage
+      data-workspace-section="archive"
+      data-workspace-dest="work"
+      data-workspace-label="Project archive"
+      aria-labelledby="archive-stage-title"
+    >
+      <div class="archive-stage__sticky">
+        <div class="archive-stage__topline page-shell">
+          <p class="mono-label mono-label--bare">02 / Work / Archive</p>
+          <div class="archive-stage__readout">
+            <span class="archive-stage__readout-label">State</span>
+            <span data-archive-state aria-live="polite">Cluster</span>
+          </div>
+        </div>
+
+        <div class="archive-stage__heading page-shell">
+          <div>
+            <h2 id="archive-stage-title">A deliberate pile of engineering artifacts.</h2>
+            <p>
+              Keep scrolling. The offsets loosen, the flagship comes forward, and every card
+              resolves into a direct route to its case study.
+            </p>
+          </div>
+          <div class="archive-stage__meter" aria-hidden="true">
+            <span data-archive-progress></span>
+          </div>
+        </div>
+
+        <div class="archive-stage__workspace page-shell" data-archive-visual>
+          <ol class="archive-stage__phases" aria-label="Archive scroll sequence">
+            {phases.map((phase, phaseIndex) => (
+              <li data-archive-phase={phaseIndex} data-active={phaseIndex === 0 ? 'true' : undefined}>
+                <span>{phase.index}</span>
+                <span>{phase.label}</span>
+              </li>
+            ))}
+          </ol>
+
+          <ol class="archive-stage__cards" data-archive-cards aria-label="Projects">
+            {archiveEntries.map(({ project, index, isFlagship }) => (
+              <li
+                class:list={['archive-card', isFlagship && 'archive-card--flagship']}
+                data-archive-card
+                data-card-index={index}
+              >
+                <a
+                  class="archive-card__link"
+                  href={project.route}
+                  aria-labelledby={`archive-card-${project.id}-title`}
+                >
+                  <span class="archive-card__surface">
+                    <span class="archive-card__header">
+                      <span class="archive-card__kind">
+                        {isFlagship ? 'Flagship case' : 'Project record'}
+                      </span>
+                      <span class:list={['archive-card__status', `archive-card__status--${project.status}`]}>
+                        <span class="archive-card__status-dot" aria-hidden="true"></span>
+                        {project.status.replace(/-/g, ' ')}
+                      </span>
+                    </span>
+
+                    {isFlagship ? (
+                      <span class="archive-card__screens" aria-label={`${project.name} visual artifacts`}>
+                        {imageArtifacts.map((artifact, artifactIndex) => (
+                          <span
+                            class:list={[
+                              'archive-card__screen',
+                              artifactIndex === 0 && 'archive-card__screen--primary',
+                            ]}
+                          >
+                            <picture>
+                              <source
+                                type="image/webp"
+                                srcset={`${responsiveAsset(artifact.href, 1440, 'webp')} 1440w, ${responsiveAsset(artifact.href, 1800, 'webp')} 1800w, ${responsiveAsset(artifact.href, 2400, 'webp')} 2400w`}
+                                sizes={artifactIndex === 0 ? '(min-width: 48rem) 51vw, 88vw' : '(min-width: 48rem) 15vw, 35vw'}
+                              />
+                              <img
+                                src={artifact.href}
+                                srcset={`${responsiveAsset(artifact.href, 1440, 'png')} 1440w, ${responsiveAsset(artifact.href, 1800, 'png')} 1800w, ${responsiveAsset(artifact.href, 2400, 'png')} 2400w`}
+                                sizes={artifactIndex === 0 ? '(min-width: 48rem) 51vw, 88vw' : '(min-width: 48rem) 15vw, 35vw'}
+                                width="2400"
+                                height="1302"
+                                alt={artifact.alt}
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            </picture>
+                          </span>
+                        ))}
+                      </span>
+                    ) : (
+                      <span class="archive-card__record" aria-hidden="true">
+                        <span class="archive-card__record-index">{String(index + 1).padStart(2, '0')}</span>
+                        <span class="archive-card__record-label">System record</span>
+                        <span class="archive-card__record-name">{project.name}</span>
+                        <span class="archive-card__record-rule"></span>
+                        <span class="archive-card__record-stack">
+                          {project.stack.slice(0, 3).map((item) => <span>{item}</span>)}
+                        </span>
+                      </span>
+                    )}
+
+                    <span class="archive-card__body">
+                      <span class="archive-card__index">{String(index + 1).padStart(2, '0')}</span>
+                      <span class="archive-card__name-wrap">
+                        <h3 id={`archive-card-${project.id}-title`}>{project.name}</h3>
+                        <span class="archive-card__short">{project.short}</span>
+                      </span>
+                    </span>
+
+                    <span class="archive-card__footer">
+                      <span class="archive-card__stack mono-label mono-label--bare">
+                        {project.stack.slice(0, isFlagship ? 4 : 3).join(' · ')}
+                      </span>
+                      <span class="archive-card__inspect">
+                        Inspect <span aria-hidden="true">↗</span>
+                      </span>
                     </span>
                   </span>
-                  <span class="archive-row__short">{project.short}</span>
-                  <span class="archive-row__stack mono-label">{project.stack.join(' · ')}</span>
-                </span>
-                <span class="archive-row__chev" aria-hidden="true">→</span>
-              </a>
-            </li>
-          ))}
-        </ol>
+                </a>
+              </li>
+            ))}
+          </ol>
+
+          <p class="archive-stage__caption">
+            <span class="mono-label mono-label--bare">Scroll to separate</span>
+            <span aria-hidden="true">↓</span>
+          </p>
+        </div>
       </div>
-    </SectionFrame>
+    </section>
+
+    <footer
+      class="archive-end page-shell"
+      data-workspace-section="inspect"
+      data-workspace-dest="work"
+      data-workspace-label="Inspect"
+    >
+      <p class="mono-label">03 · Inspect</p>
+      <div class="archive-end__copy">
+        <h2>Choose an artifact to inspect.</h2>
+        <p>
+          Each project keeps its own route, evidence boundary, and technical record. The stack
+          is only the index; the case study is where the decisions are explained.
+        </p>
+      </div>
+    </footer>
   </article>
 </BaseLayout>
+
+<script>
+  const archive = document.querySelector<HTMLElement>('[data-archive]');
+  const stage = archive?.querySelector<HTMLElement>('[data-archive-stage]');
+  const visual = archive?.querySelector<HTMLElement>('[data-archive-visual]');
+  const sticky = archive?.querySelector<HTMLElement>('.archive-stage__sticky');
+  const cards = Array.from(archive?.querySelectorAll<HTMLElement>('[data-archive-card]') ?? []);
+  const phaseItems = Array.from(archive?.querySelectorAll<HTMLElement>('[data-archive-phase]') ?? []);
+  const stateReadout = archive?.querySelector<HTMLElement>('[data-archive-state]');
+  const progressReadout = archive?.querySelector<HTMLElement>('[data-archive-progress]');
+
+  if (stage && visual && sticky && cards.length > 0) {
+    const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const desktopQuery = window.matchMedia('(min-width: 48rem)');
+    const phaseLabels = ['Cluster', 'Separate', 'Reveal', 'Inspect'];
+    const clusterLayouts = [
+      { x: 0, y: 0, rotation: -2 },
+      { x: 0.028, y: -0.05, rotation: 3.5 },
+      { x: -0.03, y: 0.045, rotation: -4.5 },
+    ];
+    let frame = 0;
+    let previousPhase = -1;
+    let focusedCard: HTMLElement | null = null;
+
+    const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+    const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount;
+
+    const getProgress = () => {
+      if (reducedQuery.matches) return 1;
+      const travel = Math.max(stage.offsetHeight - sticky.offsetHeight, 1);
+      const stageTop = stage.getBoundingClientRect().top;
+      return clamp(-stageTop / travel, 0, 1);
+    };
+
+    const updatePhase = (progress: number) => {
+      const phase = progress < 0.16 ? 0 : progress < 0.43 ? 1 : progress < 0.76 ? 2 : 3;
+      if (phase === previousPhase) return;
+      previousPhase = phase;
+      stage.dataset.archivePhase = phaseLabels[phase].toLowerCase();
+      if (stateReadout) stateReadout.textContent = phaseLabels[phase];
+      phaseItems.forEach((item, index) => {
+        item.dataset.active = index === phase ? 'true' : 'false';
+      });
+    };
+
+    const update = () => {
+      frame = 0;
+      const progress = getProgress();
+      const width = visual.clientWidth;
+      const height = visual.clientHeight;
+      const desktop = desktopQuery.matches;
+
+      cards.forEach((card, index) => {
+        const layout = clusterLayouts[index] ?? clusterLayouts[clusterLayouts.length - 1];
+        const cardProgress = reducedQuery.matches
+          ? 1
+          : clamp((progress - (0.08 + index * 0.075)) / 0.67, 0, 1);
+        const clusterX = layout.x * width;
+        const clusterY = layout.y * height;
+        const clusterRotation = layout.rotation;
+
+        const finalPositions = desktop
+          ? [
+              { x: -0.18 * width, y: 0.01 * height, rotation: -1 },
+              { x: 0.29 * width, y: -0.19 * height, rotation: 1.5 },
+              { x: 0.29 * width, y: 0.22 * height, rotation: -1.25 },
+            ]
+          : [
+              { x: 0, y: -0.15 * height, rotation: -0.8 },
+              { x: 0, y: 0.07 * height, rotation: 1.2 },
+              { x: 0, y: 0.28 * height, rotation: -1 },
+            ];
+        const finalPosition = finalPositions[index] ?? finalPositions[finalPositions.length - 1];
+        const x = lerp(clusterX, finalPosition.x, cardProgress);
+        const y = lerp(clusterY, finalPosition.y, cardProgress);
+        const rotation = lerp(clusterRotation, finalPosition.rotation, cardProgress);
+        const lift = lerp(3 + (cards.length - index) * 2, 12 + (cards.length - index) * 3, cardProgress);
+
+        card.style.setProperty('--card-x', `${x}px`);
+        card.style.setProperty('--card-y', `${y}px`);
+        card.style.setProperty('--card-rotation', `${rotation}deg`);
+        card.style.setProperty('--card-lift', `${lift}px`);
+        card.style.setProperty('--card-progress', cardProgress.toFixed(3));
+        card.style.zIndex = focusedCard === card ? '40' : String(Math.round(10 + cardProgress * 10 - index));
+      });
+
+      if (progressReadout) progressReadout.style.width = `${progress * 100}%`;
+      updatePhase(progress);
+    };
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(update);
+    };
+
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
+    reducedQuery.addEventListener('change', requestUpdate);
+    desktopQuery.addEventListener('change', requestUpdate);
+    requestUpdate();
+
+    cards.forEach((card) => {
+      const link = card.querySelector<HTMLAnchorElement>('a');
+      if (!link) return;
+
+      // Links already provide the native Enter and touch paths. Space is
+      // added here because cards are the primary keyboard objects in the scene.
+      link.addEventListener('focusin', () => {
+        focusedCard = card;
+        card.style.zIndex = '40';
+      });
+
+      link.addEventListener('focusout', () => {
+        if (focusedCard !== card) return;
+        focusedCard = null;
+        requestUpdate();
+      });
+
+      link.addEventListener('keydown', (event) => {
+        if (event.code !== 'Space') return;
+        event.preventDefault();
+        link.click();
+      });
+    });
+  }
+</script>
 
 <style>
   .archive {
@@ -70,150 +382,697 @@ const structuredData = {
 
   .archive-hero {
     display: grid;
+    gap: clamp(var(--space-6), 5vw, var(--space-9));
+    padding-block: clamp(2rem, 6vw, 5.5rem) clamp(3rem, 7vw, 6.5rem);
+  }
+
+  .archive-hero__rule {
+    display: grid;
+    grid-template-columns: auto minmax(2rem, 1fr) auto;
     gap: var(--space-3);
-    padding-block: clamp(2rem, 3.5vw, 3rem);
+    align-items: center;
+  }
+
+  .archive-hero__rule-line {
+    height: 1px;
+    background: var(--color-rule-on-paper);
+  }
+
+  .archive-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(12rem, 0.5fr);
+    gap: clamp(var(--space-7), 8vw, var(--space-10));
+    align-items: end;
+  }
+
+  .archive-hero__copy {
+    display: grid;
+    gap: var(--space-5);
+    max-width: 52rem;
   }
 
   .archive-hero h1 {
-    max-width: 16ch;
+    max-width: 12ch;
     margin: 0;
-    font-size: var(--text-feature);
+    font-size: clamp(3.25rem, 8vw, 7.5rem);
+    line-height: 0.94;
   }
 
-  .archive-lede {
-    max-width: var(--width-reading);
+  .archive-hero__lede {
+    max-width: 38rem;
     margin: 0;
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-body-large);
     line-height: 1.55;
   }
 
-  /* Ruled index rows, not cards: one container-less list where the
-     link is the row. Same vocabulary as the evidence accession index. */
-  .archive-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
+  .archive-hero__logic {
+    align-self: end;
+    padding-top: var(--space-4);
     border-top: 1px solid var(--color-rule-on-paper-strong);
   }
 
-  .archive-row {
-    border-bottom: 1px solid var(--color-rule-on-paper);
-  }
-
-  .archive-row:first-child .archive-row__link {
-    padding-block: var(--space-6);
-  }
-
-  .archive-row:first-child .archive-row__name {
-    font-family: var(--font-display);
-    font-size: var(--text-section);
-    font-weight: 600;
-    letter-spacing: var(--tracking-display);
-  }
-
-  .archive-row__link {
+  .archive-hero__logic ol {
     display: grid;
-    grid-template-columns: 3rem minmax(0, 1fr) auto;
+    gap: 0;
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .archive-hero__logic li {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .archive-hero__logic li span:first-child {
+    color: var(--color-accent-text);
+  }
+
+  .archive-stage {
+    position: relative;
+    min-height: 340vh;
+    background: var(--color-paper-soft);
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+  }
+
+  .archive-stage__sticky {
+    position: sticky;
+    top: var(--shell-control);
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    height: calc(100svh - var(--shell-control));
+    min-height: 42rem;
+    padding-block: var(--space-5) var(--space-6);
+  }
+
+  .archive-stage__topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: var(--space-4);
-    align-items: start;
-    padding-block: var(--space-4);
+  }
+
+  .archive-stage__readout {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: baseline;
+    color: var(--color-accent-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .archive-stage__readout-label {
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .archive-stage__heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.42fr);
+    gap: var(--space-6);
+    align-items: end;
+    padding-block: var(--space-4) var(--space-3);
+  }
+
+  .archive-stage__heading h2 {
+    max-width: 25ch;
+    margin: 0;
+    font-size: clamp(1.25rem, 2.2vw, 2rem);
+  }
+
+  .archive-stage__heading p {
+    max-width: 38rem;
+    margin-top: var(--space-2);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .archive-stage__meter {
+    align-self: end;
+    height: 2px;
+    margin-bottom: var(--space-2);
+    background: var(--color-rule-on-paper);
+  }
+
+  .archive-stage__meter span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--color-accent);
+    transition: width var(--duration-quick) linear;
+  }
+
+  .archive-stage__workspace {
+    position: relative;
+    min-height: 0;
+  }
+
+  .archive-stage__workspace::before,
+  .archive-stage__workspace::after {
+    position: absolute;
+    z-index: 0;
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  .archive-stage__workspace::before {
+    top: 0;
+    left: 0;
+    content: 'ARTIFACT FIELD';
+  }
+
+  .archive-stage__workspace::after {
+    right: 0;
+    bottom: 0;
+    content: 'NORMAL SCROLL / NO DRAG';
+  }
+
+  .archive-stage__phases {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 5;
+    display: flex;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .archive-stage__phases li {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: var(--space-2);
+    align-items: center;
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color var(--duration-quick) var(--ease-standard);
+  }
+
+  .archive-stage__phases li span:first-child {
+    color: var(--color-text-on-paper-muted);
+  }
+
+  .archive-stage__phases li[data-active='true'],
+  .archive-stage__phases li[data-active='true'] span:first-child {
+    color: var(--color-accent-text);
+  }
+
+  .archive-stage__cards {
+    position: absolute;
+    inset: var(--space-6) 0 var(--space-5);
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .archive-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(28rem, 35vw);
+    opacity: 1;
+    transform: translate3d(calc(-50% + var(--card-x, 0px)), calc(-50% + var(--card-y, 0px)), 0)
+      rotate(var(--card-rotation, 0deg));
+    transform-origin: center center;
+    transition: opacity var(--duration-base) var(--ease-standard);
+    will-change: transform;
+  }
+
+  .archive-card--flagship {
+    width: min(51rem, 59vw);
+  }
+
+  .archive-card__link {
+    display: block;
     color: inherit;
     text-decoration: none;
   }
 
-  .archive-row__index {
-    padding-top: var(--space-2);
-    color: var(--color-accent-text);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.05em;
-  }
-
-  .archive-row__body {
+  .archive-card__surface {
     display: grid;
-    gap: var(--space-2);
-    min-width: 0;
+    gap: var(--space-4);
+    min-height: 100%;
+    padding: clamp(var(--space-4), 2vw, var(--space-6));
+    border: 1px solid var(--color-rule-on-paper-strong);
+    background: var(--color-sheet-high);
+    box-shadow: 0 var(--card-lift, 5px) 0 rgb(21 24 28 / 10%);
+    transition:
+      box-shadow var(--duration-base) var(--ease-emphasized),
+      background-color var(--duration-quick) var(--ease-standard),
+      transform var(--duration-base) var(--ease-emphasized);
   }
 
-  .archive-row__name-row {
+  .archive-card__link:hover .archive-card__surface,
+  .archive-card__link:focus-visible .archive-card__surface {
+    background: #fffdf8;
+    box-shadow: 0 calc(var(--card-lift, 5px) + 5px) 0 rgb(21 24 28 / 16%);
+    transform: translateY(-3px);
+  }
+
+  .archive-card__header,
+  .archive-card__footer {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--space-2) var(--space-4);
-  }
-
-  .archive-row__name {
-    margin: 0;
-    font-size: var(--text-component);
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    line-height: 1.15;
-  }
-
-  .archive-row__status {
-    display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .archive-card__kind,
+  .archive-card__status,
+  .archive-card__inspect {
     color: var(--color-text-on-paper-muted);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
+    line-height: 1.3;
     text-transform: uppercase;
   }
 
-  .archive-row__status-dot {
-    width: 0.4375rem;
-    height: 0.4375rem;
+  .archive-card__kind {
+    color: var(--color-accent-text);
+  }
+
+  .archive-card__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .archive-card__status-dot {
+    width: 0.4rem;
+    height: 0.4rem;
     border-radius: 50%;
     background: var(--color-accent);
   }
 
-  .archive-row__status--live .archive-row__status-dot,
-  .archive-row__status--mvp .archive-row__status-dot {
+  .archive-card__status--live .archive-card__status-dot,
+  .archive-card__status--mvp .archive-card__status-dot {
     background: var(--color-signal-pass);
   }
 
-  .archive-row__short {
-    max-width: 46rem;
+  .archive-card__screens {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17%;
+    gap: var(--space-2);
+    min-height: 0;
+  }
+
+  .archive-card__screen {
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-inset);
+  }
+
+  .archive-card__screen--primary {
+    grid-row: span 2;
+  }
+
+  .archive-card__screen picture,
+  .archive-card__screen img {
+    display: block;
+    width: 100%;
+  }
+
+  .archive-card__screen img {
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+  }
+
+  .archive-card__screen--primary img {
+    aspect-ratio: 2400 / 1302;
+  }
+
+  .archive-card__screen:not(.archive-card__screen--primary) img {
+    aspect-ratio: 2400 / 1302;
+  }
+
+  .archive-card__record {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-2) var(--space-4);
+    align-items: baseline;
+    min-height: clamp(10rem, 16vw, 15rem);
+    padding: var(--space-4);
+    border: 1px solid var(--color-rule-on-paper);
+    background:
+      linear-gradient(var(--color-rule-on-paper-soft) 1px, transparent 1px) 0 0 / 100% 2rem,
+      var(--color-paper-soft);
+  }
+
+  .archive-card__record-index {
+    grid-row: span 2;
+    color: var(--color-accent-text);
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 7vw, 6.25rem);
+    font-weight: 600;
+    line-height: 0.8;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .archive-card__record-label,
+  .archive-card__record-stack {
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .archive-card__record-name {
+    grid-column: 2;
+    color: var(--color-text-on-paper);
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.2vw, 2.75rem);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .archive-card__record-rule {
+    grid-column: 2;
+    height: 1px;
+    background: var(--color-rule-on-paper-strong);
+  }
+
+  .archive-card__record-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    grid-column: 2;
+    color: var(--color-text-on-paper-faint);
+    line-height: 1.4;
+  }
+
+  .archive-card__record-stack span + span::before {
+    margin-right: var(--space-3);
+    color: var(--color-rule-on-paper-strong);
+    content: '/';
+  }
+
+  .archive-card__body {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: start;
+  }
+
+  .archive-card__index {
+    color: var(--color-accent-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.08em;
+  }
+
+  .archive-card__name-wrap {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .archive-card h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 3vw, 2.8rem);
+    font-weight: 600;
+    letter-spacing: var(--tracking-display);
+    line-height: 0.98;
+  }
+
+  .archive-card--flagship h3 {
+    font-size: clamp(2rem, 4.4vw, 4.25rem);
+  }
+
+  .archive-card__short {
+    max-width: 52ch;
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
+    line-height: 1.45;
+  }
+
+  .archive-card__footer {
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .archive-card__stack {
+    max-width: 68%;
+    color: var(--color-text-on-paper-faint);
+    line-height: 1.4;
+  }
+
+  .archive-card__stack::before {
+    display: none;
+  }
+
+  .archive-card__inspect {
+    flex: 0 0 auto;
+    color: var(--color-accent-text);
+  }
+
+  .archive-stage__caption {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    margin: 0;
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .archive-stage__caption > span:last-child {
+    color: var(--color-accent-text);
+    font-size: var(--text-small);
+  }
+
+  .archive-end {
+    display: grid;
+    grid-template-columns: minmax(10rem, 0.45fr) minmax(0, 1.55fr);
+    gap: var(--rail-gap);
+    padding-block: clamp(3rem, 7vw, 7rem);
+  }
+
+  .archive-end__copy {
+    display: grid;
+    gap: var(--space-4);
+    max-width: var(--width-reading);
+  }
+
+  .archive-end h2 {
+    margin: 0;
+    font-size: clamp(1.5rem, 3vw, 2.6rem);
+  }
+
+  .archive-end p:last-child {
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-body-large);
     line-height: 1.55;
   }
 
-  .archive-row__stack {
-    color: var(--color-text-on-paper-faint);
+  @media (max-width: 63.99rem) {
+    .archive-stage__sticky {
+      min-height: 38rem;
+    }
   }
 
-  .archive-row__chev {
-    padding-top: var(--space-2);
-    color: var(--color-accent-text);
-    font-family: var(--font-mono);
-    opacity: 0;
-    transform: translateX(-4px);
-    transition:
-      opacity var(--duration-quick) var(--ease-standard),
-      transform var(--duration-quick) var(--ease-standard);
-  }
+  @media (max-width: 47.99rem) {
+    .archive-hero__grid,
+    .archive-stage__heading,
+    .archive-end {
+      grid-template-columns: 1fr;
+    }
 
-  .archive-row__link:hover .archive-row__chev,
-  .archive-row__link:focus-visible .archive-row__chev {
-    opacity: 1;
-    transform: translateX(0);
-  }
+    .archive-hero__logic {
+      max-width: 22rem;
+    }
 
-  .archive-row__link:hover .archive-row__name,
-  .archive-row__link:focus-visible .archive-row__name {
-    color: var(--color-accent-text);
+    .archive-stage {
+      min-height: 390vh;
+    }
+
+    .archive-stage__sticky {
+      min-height: 38rem;
+      padding-block: var(--space-4) var(--space-5);
+    }
+
+    .archive-stage__heading {
+      gap: var(--space-3);
+    }
+
+    .archive-stage__heading p {
+      max-width: 34rem;
+    }
+
+    .archive-stage__meter {
+      margin-top: var(--space-2);
+    }
+
+    .archive-stage__phases {
+      right: auto;
+      left: 0;
+      gap: var(--space-2);
+      max-width: 100%;
+      overflow-x: auto;
+      padding-bottom: var(--space-2);
+    }
+
+    .archive-stage__phases li {
+      flex: 0 0 auto;
+    }
+
+    .archive-stage__cards {
+      inset: var(--space-7) 0 var(--space-5);
+    }
+
+    .archive-card,
+    .archive-card--flagship {
+      width: min(100%, 31rem);
+    }
+
+    .archive-card__surface {
+      gap: var(--space-3);
+      padding: var(--space-4);
+    }
+
+    .archive-card__screens {
+      grid-template-columns: minmax(0, 1fr) 22%;
+    }
+
+    .archive-card__record {
+      min-height: 9.5rem;
+    }
+
+    .archive-card h3,
+    .archive-card--flagship h3 {
+      font-size: clamp(1.8rem, 8vw, 3rem);
+    }
+
+    .archive-card__short {
+      font-size: 0.8125rem;
+    }
   }
 
   @media (max-width: 30rem) {
-    .archive-row__link {
-      grid-template-columns: 2rem minmax(0, 1fr);
+    .archive-hero__rule {
+      grid-template-columns: auto minmax(1rem, 1fr);
     }
 
-    .archive-row__chev {
+    .archive-hero__rule .mono-label:last-child {
       display: none;
+    }
+
+    .archive-hero h1 {
+      font-size: clamp(3rem, 16vw, 4.5rem);
+    }
+
+    .archive-stage__sticky {
+      min-height: 36rem;
+    }
+
+    .archive-stage__topline {
+      align-items: start;
+    }
+
+    .archive-stage__readout {
+      display: grid;
+      gap: 0.1rem;
+      justify-items: end;
+    }
+
+    .archive-stage__cards {
+      inset-inline: calc(var(--page-gutter) * -0.25);
+    }
+
+    .archive-card__footer {
+      align-items: end;
+    }
+
+    .archive-card__stack {
+      max-width: 62%;
+    }
+
+    .archive-card__inspect {
+      font-size: 0.625rem;
+    }
+  }
+
+  /* No-JS is a readable archive, not a frozen animation frame. */
+  :global(html:not(.js)) .archive-stage {
+    min-height: 0;
+  }
+
+  :global(html:not(.js)) .archive-stage__sticky {
+    position: static;
+    display: block;
+    height: auto;
+    min-height: 0;
+    padding-block: var(--space-6);
+  }
+
+  :global(html:not(.js)) .archive-stage__heading {
+    margin-bottom: var(--space-6);
+  }
+
+  :global(html:not(.js)) .archive-stage__workspace {
+    min-height: 0;
+  }
+
+  :global(html:not(.js)) .archive-stage__phases,
+  :global(html:not(.js)) .archive-stage__caption,
+  :global(html:not(.js)) .archive-stage__meter {
+    display: none;
+  }
+
+  :global(html:not(.js)) .archive-stage__cards {
+    position: static;
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  :global(html:not(.js)) .archive-card,
+  :global(html:not(.js)) .archive-card--flagship {
+    position: static;
+    width: 100%;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .archive-stage__meter span,
+    .archive-stage__phases li,
+    .archive-card__surface {
+      transition: none;
+    }
+
+    .archive-card__surface,
+    .archive-card__link:hover .archive-card__surface,
+    .archive-card__link:focus-visible .archive-card__surface {
+      transform: none;
     }
   }
 </style>
