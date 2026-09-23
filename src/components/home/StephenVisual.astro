@@ -1,7 +1,13 @@
 ---
-/** Stable, accessible boundary for a future renderer. No GLB is fetched here. */
+/**
+ * Home avatar slot. The photograph is the no-JS and failure baseline; the
+ * renderer mounts into [data-stephen-renderer] only when the stage is on
+ * screen. The square stage reserves its aspect before anything loads, so the
+ * model can never shift layout. State is reported in the caption line and,
+ * once revealed, in the single note below the portrait.
+ */
 ---
-<figure class="stephen" data-stephen-visual data-model-src="/assets/models/stephen.glb">
+<figure class="stephen" data-stephen-visual data-state="photo" data-model-src="/assets/models/stephen.glb">
   <details class="stephen__note">
     <summary aria-label="A note from Stephen">
       <span class="stephen__stage">
@@ -19,15 +25,42 @@
       </span>
       <span class="stephen__prompt"><span>A note from Stephen</span><span class="stephen__toggle" aria-hidden="true">+</span></span>
     </summary>
-    <p class="stephen__message">I care about what happens after the model responds. That’s where I like to work.</p>
+    <p class="stephen__message" data-stephen-message>I care about what happens after the model responds. That’s where I like to work.</p>
   </details>
-  <figcaption class="stephen__caption">Portrait / static view</figcaption>
+  <figcaption class="stephen__caption" data-stephen-caption aria-live="polite">Portrait / static view</figcaption>
 </figure>
 
 <script>
   import { initStephenVisual } from '../../scripts/stephenVisual';
+  import type { StephenVisualState } from '../../scripts/stephenVisual';
+  import { createStephenRenderer } from '../../scripts/stephenRenderer';
+
+  /** One instrument-style line per state; the markup ships the no-JS line. */
+  const CAPTIONS: Record<StephenVisualState, string> = {
+    photo: 'Portrait / static view',
+    loading: '3D view / loading',
+    live: '3D view / live · generated stand-in',
+    held: '3D view / held · reduced motion',
+    fallback: 'Portrait / 3D unavailable',
+    missing: 'Portrait / model not deployed',
+  };
+  /** The note stays Stephen's identity line unless a state has its own. */
+  const NOTES: Partial<Record<StephenVisualState, string>> = {
+    live: 'A generated stand-in, rendered live in your browser and held still when you ask for less motion.',
+    held: 'A generated stand-in. It stays still because your system prefers reduced motion.',
+    fallback: 'The 3D view could not load here. The photograph stays, and nothing on this page depends on the model.',
+    missing: 'The model file is not part of this deployment. The photograph stays, and nothing on this page depends on it.',
+  };
+
   document.querySelectorAll<HTMLElement>('[data-stephen-visual]').forEach(root => {
-    initStephenVisual(root);
+    const caption = root.querySelector<HTMLElement>('[data-stephen-caption]');
+    const message = root.querySelector<HTMLElement>('[data-stephen-message]');
+    const baseNote = message?.textContent ?? '';
+    initStephenVisual(root, createStephenRenderer, (state) => {
+      root.dataset.state = state;
+      if (caption) caption.textContent = CAPTIONS[state];
+      if (message) message.textContent = NOTES[state] ?? baseNote;
+    });
   });
 </script>
 
@@ -41,11 +74,14 @@
     display: block;
     position: relative;
     overflow: hidden;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1 / 1; /* reserved before any model request: no layout shift */
     background: var(--color-sheet-inset);
     border: 1px solid var(--color-rule-on-paper);
   }
-  .stephen__portrait { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .stephen__portrait { display: block; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.45s ease; }
+  /* The render replaces the photograph only after its first frame exists. */
+  .stephen[data-state='live'] .stephen__portrait,
+  .stephen[data-state='held'] .stephen__portrait { opacity: 0; }
   .stephen__renderer { position: absolute; inset: 0; pointer-events: none; }
   .stephen__marker {
     position: absolute; top: 1rem; left: 1rem;
@@ -74,5 +110,20 @@
     font: 500 0.625rem var(--font-instrument);
     text-transform: uppercase; letter-spacing: 0.08em;
     color: var(--color-text-on-paper-faint);
+  }
+  /* A quiet pulse only while the model is actually in flight. */
+  .stephen[data-state='loading'] .stephen__caption::after {
+    content: '';
+    display: inline-block;
+    width: 0.375rem; height: 0.375rem;
+    margin-left: 0.5rem;
+    background: var(--color-accent);
+    border-radius: 50%;
+    animation: stephen-pulse 1.1s ease-in-out infinite;
+  }
+  @keyframes stephen-pulse { 50% { opacity: 0.25; } }
+  @media (prefers-reduced-motion: reduce) {
+    .stephen__portrait { transition: none; }
+    .stephen[data-state='loading'] .stephen__caption::after { animation: none; }
   }
 </style>
