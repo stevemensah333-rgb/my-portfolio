@@ -15,36 +15,6 @@ export const syncareerProduct = {
     'The CV assistant used to send only the selected bullet. The server could polish wording. It could not see the job requirement, and it could not tell job keywords from candidate evidence.',
   built:
     'A request/response contract that allowlists context, validates model JSON, requires requirement and evidence citations, and refuses to apply anything automatically.',
-  pitchResult:
-    'Delivered a pitch for Syncareer to potential investors, securing seed funding to further develop the platform.',
-} as const;
-
-/** ReliabilityTrace 5-step causal path (raw → validate → fail → intervene → valid). */
-export const reliabilityTraceCopy = {
-  raw: `Results-driven engineer with 5 years of Kubernetes experience
-who transformed deployments at Acme Corp,
-improving speed by 40%.`,
-  valid: `{
-  "kind": "rewrite",
-  "text": "Built Python and SQL queries to analyse 1,200 sales records.",
-  "sourceContextIds": ["requirement-2", "evidence-1"]
-}`,
-  gates: [
-    { id: 'json_shape', label: 'json_shape', rule: 'object · kind, text, ids' },
-    { id: 'kind_rewrite', label: 'kind', rule: 'must be "rewrite"' },
-    { id: 'citations', label: 'sourceContextIds', rule: 'non-empty subset' },
-    { id: 'grounding', label: 'grounding', rule: 'requirement-* + evidence-*' },
-  ],
-  failures: [
-    'Invented employer, tenure and a 40% metric',
-    'Copied Kubernetes from the job, not the CV',
-    'No requirement-* or evidence-* citations',
-  ],
-  interventions: [
-    'Allowlisted context items with hard size limits',
-    'parseModelProposal before any quota is consumed',
-    'Factual-risk checks; accept / reject / undo — never auto-apply',
-  ],
 } as const;
 
 export type InvestigationStageId =
@@ -393,7 +363,49 @@ export const investigationDecisions = [
   },
 ] as const;
 
+/**
+ * Causal trace — the condensed homepage view of the investigation.
+ *
+ * DERIVED from `investigationStages`, never independently authored, so the
+ * 5-step trace on the homepage and the 7-stage investigation on the case
+ * study cannot drift apart (AGENTS.md §5: one canonical content record,
+ * multiple representations). The trace shows the same canonical fixtures,
+ * checks, failure classes and fixes — condensed, not re-explained.
+ */
+const stageById = (id: InvestigationStageId) =>
+  investigationStages.find((stage) => stage.id === id);
+
+const slug = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+
+export const causalTrace = {
+  /** 02 MODEL OUTPUT — the illustrative ungrounded rewrite. */
+  raw: stageById('model-output')?.artifact?.code ?? '',
+  /** 07 OUTPUT AFTERWARD — the illustrative cited proposal. */
+  valid: stageById('output')?.artifact?.code ?? '',
+  /** 03 VALIDATION — the canonical contract checks. */
+  gates:
+    (stageById('validation')?.artifact?.items ?? []).map((item) => ({
+      id: slug(item.name),
+      label: item.name,
+      rule: item.note ?? '',
+    })),
+  /** 04 FAILURE — the canonical observed failure classes. */
+  failureClasses:
+    (stageById('failure')?.artifact?.items ?? []).map((item) => ({
+      name: item.name,
+      note: item.note ?? '',
+    })),
+  /** 06 INTERVENTION — the canonical engineering response. */
+  interventions:
+    (stageById('intervention')?.artifact?.items ?? []).map((item) => item.name),
+} as const;
+
 export const evidenceBoundary = {
+
   known: [
     'Observed failure classes identified',
     'Revised request/response contract implemented in tracked source',

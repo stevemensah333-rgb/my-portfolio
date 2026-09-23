@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: 'https://stephen-mensah-portfolio.vercel.app',
   redirects: {
-    '/about': '/#about',
+    '/about': '/profile/#about',
     '/contact': '/#contact',
     '/case-study': '/work/syncareer/',
   },

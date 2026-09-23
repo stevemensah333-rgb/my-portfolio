@@ -48,7 +48,7 @@ const architectureSummary =
   <article class="case-page">
     <!-- 00 · Overview -->
     <header id="overview" class="case-hero page-shell" data-workspace-section="top" data-workspace-dest="work">
-      <a class="back-link" href="/#sessionbook">← Back to workspace</a>
+      <a class="back-link" href="/work/">← Back to the work archive</a>
 
       <div class="case-opening">
         <div class="case-opening__copy">
@@ -146,8 +146,6 @@ const architectureSummary =
           <p class="architecture__legend">
             <span class="visually-hidden">Legend: </span>
             <span class="arch-chip arch-chip--present">Present</span>
-            <span class="arch-chip arch-chip--in-progress">In progress</span>
-            <span class="arch-chip arch-chip--written">Written, not served</span>
             <span class="arch-chip arch-chip--external">External actor</span>
           </p>
         </header>
@@ -187,7 +185,6 @@ const architectureSummary =
       project={sessionbook}
       anchorId="trace"
       coordinate="03 · Stage inspector"
-      showNarrative={false}
     />
 
     <!-- 04 · Walkthrough -->
@@ -216,7 +213,7 @@ const architectureSummary =
       <div class="page-shell questions">
         <header class="questions__intro">
           <p class="mono-label">Asked directly</p>
-          <h2>Short answers to the questions that matter.</h2>
+          <h2>The questions the anchors did not cover.</h2>
         </header>
         <ol class="questions__list">
           {sessionbookQuestions.map((item, idx) => (
@@ -278,51 +275,6 @@ const architectureSummary =
 </BaseLayout>
 
 <style>
-  .case-page {
-    border-bottom: var(--border-default);
-  }
-
-  /* --- Hero ------------------------------------------------------- */
-  .case-hero {
-    padding-block: clamp(2.25rem, 4.5vw, 3.5rem);
-  }
-
-  .case-opening {
-    display: grid;
-    gap: clamp(var(--space-5), 2.5vw, var(--space-6));
-  }
-
-  .back-link {
-    display: inline-flex;
-    min-height: 2rem;
-    align-items: center;
-    margin-bottom: var(--space-4);
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-small);
-    text-decoration: none;
-  }
-
-  .back-link:hover {
-    color: var(--color-accent-text);
-  }
-
-  .case-opening__copy h1 {
-    max-width: 18ch;
-    margin-block: var(--space-3) var(--space-4);
-    font-size: var(--text-feature);
-    font-weight: 650;
-    letter-spacing: -0.045em;
-    line-height: 1.04;
-  }
-
-  .case-summary {
-    max-width: var(--width-reading);
-    margin: 0;
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-body-large);
-    line-height: 1.55;
-  }
-
   .case-note {
     max-width: var(--width-reading);
     margin: var(--space-6) 0 0;
@@ -342,38 +294,6 @@ const architectureSummary =
     color: var(--color-accent-text);
   }
 
-  .product-record {
-    position: relative;
-    align-self: end;
-    padding: var(--space-5);
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper-soft);
-    overflow: hidden;
-  }
-
-  .record-heading {
-    display: flex;
-    gap: var(--space-4);
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .record-heading p,
-  .record-heading span,
-  .product-record dt {
-    margin: 0;
-    color: var(--color-text-on-paper-muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .record-heading span {
-    color: var(--color-accent-text);
-  }
-
   .product-record__name {
     margin: var(--space-5) 0 var(--space-2);
     font-size: var(--text-component);
@@ -385,35 +305,6 @@ const architectureSummary =
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.5;
-  }
-
-  .product-record dl {
-    display: grid;
-    margin: 0;
-    border-top: 1px solid var(--color-rule-on-paper);
-  }
-
-  .product-record dl div {
-    display: grid;
-    grid-template-columns: 5.5rem minmax(0, 1fr);
-    gap: var(--space-4);
-    padding-block: var(--space-3);
-    border-bottom: 1px solid var(--color-rule-on-paper-soft);
-  }
-
-  .product-record dd {
-    margin: 0;
-    font-size: var(--text-small);
-  }
-
-  .product-record a {
-    font-weight: 600;
-    color: var(--color-text-on-paper);
-    text-decoration: none;
-  }
-
-  .product-record a:hover {
-    color: var(--color-accent-text);
   }
 
   /* --- Primer ----------------------------------------------------- */
@@ -641,82 +532,11 @@ const architectureSummary =
     padding-block: var(--space-7);
   }
 
-  .boundary-panel {
-    display: grid;
-    gap: var(--space-3);
-    align-content: start;
-    padding: var(--space-5);
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper-soft);
-  }
-
-  .boundary-panel h2 {
-    margin: 0;
-    font-size: var(--text-component);
-    font-weight: 600;
-  }
-
-  .boundary-list {
-    display: grid;
-    margin: var(--space-3) 0 0;
-    padding: 0;
-    border-top: 1px solid var(--color-rule-on-paper);
-    list-style: none;
-  }
-
-  .boundary-list li {
-    position: relative;
-    padding: var(--space-3) 0 var(--space-3) var(--space-5);
-    border-bottom: 1px solid var(--color-rule-on-paper-soft);
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-small);
-    line-height: 1.45;
-  }
-
-  .boundary-list li::before {
-    position: absolute;
-    left: 0;
-    color: var(--color-text-on-paper-muted);
-    content: '\2014';
-    font-family: var(--font-mono);
-  }
-
-  .boundary-list li[data-state='known']::before {
-    color: var(--color-signal-pass-text);
-    content: '\2713';
-  }
-
-  .boundary-list li[data-state='missing']::before {
-    color: var(--color-signal-fail-text);
-    content: '\00d7';
-  }
-
   .boundary-note {
     margin: var(--space-3) 0 0;
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.5;
-  }
-
-  /* --- Contact ------------------------------------------------------- */
-  .case-content {
-    padding-bottom: var(--space-6);
-  }
-
-  .contact-section {
-    padding-block: var(--space-6);
-    border-top: 1px solid var(--color-rule-on-paper);
-  }
-
-  .contact-section h2 {
-    margin-block: var(--space-2) var(--space-4);
-    font-size: var(--text-section);
-    font-weight: 600;
-    line-height: 1.1;
-  }
-
-  .contact-section .button {
-    margin-top: var(--space-3);
   }
 
   /* --- Responsive ---------------------------------------------------- */
@@ -734,22 +554,12 @@ const architectureSummary =
     }
   }
 
-  @media (min-width: 64rem) {
-    .case-opening {
-      grid-template-columns: minmax(0, 7fr) minmax(19rem, 5fr);
-      align-items: end;
-    }
-  }
+  
 
   @media (max-width: 30rem) {
-    .case-opening__copy h1 {
-      font-size: 1.75rem;
-    }
-
     .questions__list li {
       grid-template-columns: 1fr;
     }
-
     .questions__num {
       grid-row: auto;
     }

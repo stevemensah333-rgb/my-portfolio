@@ -17,6 +17,12 @@
  *
  * The evidence boundary is stated inside the instrument, and every
  * illustrative payload carries its own ILLUSTRATIVE stamp.
+ *
+ * Division of labour (AGENTS.md §5): the case study at /work/syncareer/
+ * EXPLAINS each stage; the Lab lets the visitor INSPECT it. The Lab
+ * therefore renders only the inspectable payload — artifact, delta,
+ * hand-off, evidence — never the long explanatory prose, which lives
+ * once, in SyncareerInvestigation.
  */
 import { labStages, labCopy, labBoundary } from '../data/reliabilityLab';
 import { syncareer } from '../data/registry';
@@ -36,7 +42,7 @@ const total = String(labStages.length).padStart(2, '0');
   <!-- Instrumentation runs at the concentrated rhythm, not the
      block-major air reserved for the identity band and the close. -->
   <SectionFrame
-    coordinate="02 · Lab / Reliability"
+    coordinate="03 · Lab / Reliability"
     status="Instrument"
     surface="canvas"
     density="default"
@@ -48,13 +54,13 @@ const total = String(labStages.length).padStart(2, '0');
       <header class="lab__header region-grid">
         <aside class="region-rail">
           <div class="region-index">
-            <span class="region-index__no">02</span>
+            <span class="region-index__no">03</span>
             <span class="region-index__rule"></span>
             <span class="region-index__name">{labCopy.eyebrow}</span>
           </div>
         </aside>
         <div class="region-body lab__header-copy">
-          <h2 id="reliability-lab-title" class="lab__title">{labCopy.title}</h2>
+          <h1 id="reliability-lab-title" class="lab__title">{labCopy.title}</h1>
           <p class="lab__intro">{labCopy.intro}</p>
         </div>
       </header>
@@ -147,7 +153,6 @@ const total = String(labStages.length).padStart(2, '0');
               </header>
 
               <h3 class="lab__panel-title">{stage.title}</h3>
-              <p class="lab__panel-detail">{stage.detail}</p>
 
               <div class="lab__payload">
                 {stage.artifact?.kind === 'code' && stage.artifact.code && (
@@ -987,14 +992,6 @@ const total = String(labStages.length).padStart(2, '0');
     font-weight: 600;
     letter-spacing: -0.01em;
     color: var(--color-text-on-canvas);
-  }
-
-  .lab__panel-detail {
-    margin: 0;
-    max-width: var(--width-content);
-    color: var(--color-text-on-canvas-muted);
-    font-size: 0.875rem;
-    line-height: 1.6;
   }
 
   .lab__payload {

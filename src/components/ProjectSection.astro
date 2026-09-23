@@ -1,64 +1,34 @@
 ---
 /**
- * ProjectSection — the unified "viewer" for project content on the homepage.
+ * ProjectSection — the stage inspector for a project case page.
  *
  * Renders:
- *   1. Project header (claim, status, stack)
- *   2. Product/visual surface (when the project has a ProductFrame image)
- *   3. Reliability narrative (optional — for projects with narrativeStates)
- *   4. Stage inspector (data-driven, used for every project)
+ *   1. Project header (claim, status, stack, evidence)
+ *   2. Stage inspector (data-driven from the project's stages)
  *
  * Uses the shared initTraceTabs controller for the inspector.
  * Behaviour:
  *   - No-JS: every panel renders, stacked.
- *   - Reduced motion: scroll-syncing is disabled; tabs still work.
  *   - Keyboard: arrows / Home / End cycle stages, Enter activates.
  */
-import type { Project } from '../data/projects';
+import type { Project, ProjectStage } from '../data/projects';
 import { projects } from '../data/registry';
-import ProductFrame from './ProductFrame.astro';
 import SectionFrame from './SectionFrame.astro';
 
 interface Props {
   project: Project;
-  /** When true, render only the inspector — used for compact project slots. */
-  inspectorOnly?: boolean;
-  /** Section id for the homepage anchor. */
+  /** Section id for the page anchor. */
   anchorId: string;
   /** Coordinate label for the section frame. */
   coordinate: string;
   /** Rail index shown in the margin. Defaults to the project's order
-      within the registry; pass a sub-address (e.g. "01.2") when the
-      project sits inside a numbered workspace. */
+      within the registry. */
   railIndex?: string;
-  /** Show the narrative rail. */
-  showNarrative?: boolean;
-  /** Optional pre-illustration to slot above the inspector. */
-  productFrame?: {
-    src1440: string;
-    src1800: string;
-    src2400: string;
-    width: number;
-    height: number;
-    alt: string;
-    label: string;
-    caption: string;
-    address?: string;
-    priority?: boolean;
-  };
 }
 
-const {
-  project,
-  inspectorOnly = false,
-  anchorId,
-  coordinate,
-  railIndex,
-  showNarrative = false,
-  productFrame,
-} = Astro.props as Props;
+const { project, anchorId, coordinate, railIndex } = Astro.props as Props;
 
-const narrativeStates = project.narrativeStates ?? [];
+const stages: ProjectStage[] = project.stages ?? [];
 const projectOrder = projects.findIndex((p) => p.id === project.id) + 1;
 const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
 ---
@@ -75,7 +45,6 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
     surface="paper"
     density="default"
   >
-    {!inspectorOnly && (
       <header class="page-shell region-grid project__header">
         <div class="region-rail project__rail">
           <div class="region-index">
@@ -136,106 +105,16 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
         </dl>
         </div>
       </header>
-    )}
-
-    {!inspectorOnly && productFrame && (
-      <div class="page-shell project__product">
-        <ProductFrame
-          src1440={productFrame.src1440}
-          src1800={productFrame.src1800}
-          src2400={productFrame.src2400}
-          width={productFrame.width}
-          height={productFrame.height}
-          alt={productFrame.alt}
-          label={productFrame.label}
-          caption={productFrame.caption}
-          address={productFrame.address ?? `${project.id}.me`}
-          priority={productFrame.priority}
-        />
-      </div>
-    )}
-
-    {showNarrative && narrativeStates.length > 0 && (
-      <section
-        class="page-shell project__narrative"
-        data-project-narrative={project.id}
-        aria-labelledby={`${anchorId}-narrative-title`}
-      >
-        <header class="narrative__intro">
-          <p class="mono-label">Reliability narrative</p>
-          <h3 id={`${anchorId}-narrative-title`}>
-            Failure, engineering response, then a product contract.
-          </h3>
-          <p>Each state maps to specific stages below.</p>
-        </header>
-
-        <div class="narrative__rail" role="group" aria-label={`${project.name} narrative states`}>
-          <p class="narrative__rail-meta">
-            <span class="mono-label" data-narrative-position>01 / {String(narrativeStates.length).padStart(2, '0')}</span>
-            <span class="narrative__rail-status">Current state</span>
-          </p>
-          <ol class="narrative__rail-list">
-            {narrativeStates.map((state, index) => (
-              <li>
-                <button
-                  type="button"
-                  class="narrative__rail-btn"
-                  data-narrative-control={state.id}
-                  aria-controls={`${anchorId}-narrative-${state.id}`}
-                  aria-current={index === 0 ? 'step' : undefined}
-                >
-                  <span class="narrative__rail-num">{String(index + 1).padStart(2, '0')}</span>
-                  <span class="narrative__rail-label">{state.label}</span>
-                  <span class="narrative__rail-tone" data-tone={state.tone}></span>
-                </button>
-              </li>
-            ))}
-          </ol>
-          <p class="visually-hidden" aria-live="polite" aria-atomic="true" data-narrative-announcement>
-            Current state: {narrativeStates[0]?.label ?? ''}
-          </p>
-        </div>
-
-        <div class="narrative__sequence">
-          {narrativeStates.map((state, index) => (
-            <article
-              id={`${anchorId}-narrative-${state.id}`}
-              class="narrative__state"
-              data-narrative-step={state.id}
-              data-tone={state.tone}
-              data-active={index === 0 ? 'true' : 'false'}
-            >
-              <header class="narrative__state-copy">
-                <p class="narrative__state-kicker mono-label">
-                  State {String(index + 1).padStart(2, '0')} / {state.label}
-                </p>
-                <h4>{state.title}</h4>
-                <p class="narrative__state-summary">{state.summary}</p>
-                <button
-                  type="button"
-                  class="text-link narrative__state-link"
-                  data-select-trace-stage={state.primaryStageId}
-                >
-                  Inspect this state in the trace
-                  <span class="text-link__arrow" aria-hidden="true">↓</span>
-                </button>
-              </header>
-            </article>
-          ))}
-        </div>
-      </section>
-    )}
 
     <section
       class="page-shell project__inspector"
       aria-labelledby={`${anchorId}-trace-title`}
     >
-      {!inspectorOnly && (
         <header class="inspector__intro">
           <div>
             <p class="mono-label">Stage inspector</p>
             <h3 id={`${anchorId}-trace-title`}>
-              Inspect the {String(project.stages.length).padStart(2, '0')} underlying stages.
+              Inspect the {String(stages.length).padStart(2, '0')} underlying stages.
             </h3>
           </div>
           <p class="inspector__legend">
@@ -243,7 +122,6 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
             Items marked ILLUSTRATIVE are demo shapes, not historical logs.
           </p>
         </header>
-      )}
 
       <div class="inspector__panel" data-trace-compact data-trace-project={project.id}>
         <div
@@ -252,16 +130,13 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
           aria-label={`${project.name} stages`}
           aria-orientation="horizontal"
         >
-          {project.stages.map((stage, idx) => (
+          {stages.map((stage, idx) => (
             <button
               type="button"
               role="tab"
               id={`${anchorId}-tab-${stage.id}`}
               class="inspector__tab"
               data-stage-tab={stage.id}
-              data-narrative-state={
-                narrativeStates.find((s) => s.primaryStageId === stage.id)?.id ?? ''
-              }
               aria-controls={`${anchorId}-panel-${stage.id}`}
               aria-selected={idx === 0 ? 'true' : 'false'}
               tabindex={idx === 0 ? '0' : '-1'}
@@ -275,16 +150,13 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
         </div>
 
         <div class="inspector__panels">
-          {project.stages.map((stage, idx) => (
+          {stages.map((stage, idx) => (
             <div
               role="tabpanel"
               id={`${anchorId}-panel-${stage.id}`}
               aria-labelledby={`${anchorId}-tab-${stage.id}`}
               class="inspector__panel-content"
               data-stage-panel={stage.id}
-              data-narrative-state={
-                narrativeStates.find((s) => s.primaryStageId === stage.id)?.id ?? ''
-              }
               data-active={idx === 0 ? 'true' : 'false'}
               tabindex="0"
               hidden={idx !== 0}
@@ -359,97 +231,14 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
       </div>
     </section>
 
-    {!inspectorOnly && project.claimLimit && (
-      <aside class="page-shell project__boundary" aria-label="Evidence boundary">
-        <span class="mono-label">Evidence boundary</span>
-        <p>{project.claimLimit}</p>
-      </aside>
-    )}
   </SectionFrame>
 </section>
 
 <script>
   import { initTraceTabs } from '../scripts/initTraceTabs';
 
-  // The stage inspector is live on its own — the narrative block is an
-  // optional companion (showNarrative) and must not be a prerequisite.
   for (const traceRoot of document.querySelectorAll<HTMLElement>('[data-trace-compact]')) {
-    const section = traceRoot.closest('.project');
-    const narrativeRoot = section?.querySelector<HTMLElement>('[data-project-narrative]') ?? null;
-    const steps = narrativeRoot ? [...narrativeRoot.querySelectorAll<HTMLElement>('[data-narrative-step]')] : [];
-    const controls = narrativeRoot ? [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-narrative-control]')] : [];
-    const stageLinks = narrativeRoot ? [...narrativeRoot.querySelectorAll<HTMLButtonElement>('[data-select-trace-stage]')] : [];
-    const position = narrativeRoot?.querySelector<HTMLElement>('[data-narrative-position]') ?? null;
-    const announcement = narrativeRoot?.querySelector<HTMLElement>('[data-narrative-announcement]') ?? null;
-    const hasNarrative = Boolean(narrativeRoot) && steps.length > 0 && controls.length > 0;
-
-    let syncingTrace = false;
-
-    function setActiveState(stateId: string, options: { syncTrace?: boolean; announce?: boolean } = {}) {
-      if (!hasNarrative || !narrativeRoot) return;
-      const activeIndex = steps.findIndex((step) => step.dataset.narrativeStep === stateId);
-      if (activeIndex < 0) return;
-
-      narrativeRoot.dataset.activeNarrativeState = stateId;
-      steps.forEach((step) => {
-        step.dataset.active = String(step.dataset.narrativeStep === stateId);
-      });
-      controls.forEach((control) => {
-        const active = control.dataset.narrativeControl === stateId;
-        if (active) control.setAttribute('aria-current', 'step');
-        else control.removeAttribute('aria-current');
-      });
-
-      if (position) {
-        position.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(steps.length).padStart(2, '0')}`;
-      }
-      if (options.announce && announcement) {
-        const activeLabel =
-          controls[activeIndex]?.querySelector<HTMLElement>('.narrative__rail-label')?.textContent?.trim() ?? stateId;
-        announcement.textContent = `Current state: ${activeLabel}`;
-      }
-
-      if (options.syncTrace && traceController) {
-        const stageId = steps[activeIndex]?.querySelector<HTMLButtonElement>('[data-select-trace-stage]')?.dataset.selectTraceStage;
-        if (stageId) {
-          syncingTrace = true;
-          traceController.select(stageId);
-          syncingTrace = false;
-        }
-      }
-    }
-
-    const traceController = initTraceTabs(traceRoot, {
-      onSelect: (_id, _index, _count, tab) => {
-        const narrativeState = tab.dataset.narrativeState;
-        if (!narrativeState || syncingTrace) return;
-        setActiveState(narrativeState, { syncTrace: false, announce: true });
-      },
-    });
-
-    if (!hasNarrative) continue;
-
-    controls.forEach((control) => {
-      control.addEventListener('click', () => {
-        const stateId = control.dataset.narrativeControl;
-        if (!stateId) return;
-        const step = steps.find((candidate) => candidate.dataset.narrativeStep === stateId);
-        if (step) step.scrollIntoView({ block: 'center', behavior: 'instant' });
-        setActiveState(stateId, { syncTrace: true, announce: true });
-      });
-    });
-
-    stageLinks.forEach((link) => {
-      link.addEventListener('click', () => {
-        const stageId = link.dataset.selectTraceStage;
-        if (!stageId || !traceController) return;
-        traceRoot.scrollIntoView({ block: 'center', behavior: 'instant' });
-        traceController.select(stageId);
-        traceRoot.querySelector<HTMLButtonElement>(`[data-stage-tab="${stageId}"]`)?.focus({ preventScroll: true });
-      });
-    });
-
-    setActiveState(steps[0]?.dataset.narrativeStep ?? '', { announce: false });
+    initTraceTabs(traceRoot);
   }
 </script>
 
@@ -598,201 +387,6 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
     color: var(--color-text-on-paper-faint);
     font-size: var(--text-meta);
     font-weight: 400;
-  }
-
-  .project__product {
-    padding-block: var(--space-5);
-    border-top: 1px solid var(--color-rule-on-paper);
-    border-bottom: 1px solid var(--color-rule-on-paper);
-  }
-
-  /* --- Narrative --- */
-  .project__narrative {
-    padding-block: var(--section-block);
-  }
-
-  .narrative__intro {
-    display: grid;
-    gap: var(--space-3);
-    max-width: var(--width-content);
-    margin-bottom: var(--space-7);
-  }
-
-  .narrative__intro h3 {
-    margin: 0;
-    max-width: 24ch;
-    font-size: var(--text-section);
-    font-weight: 600;
-    line-height: 1.1;
-  }
-
-  .narrative__intro p {
-    margin: 0;
-    max-width: var(--width-reading);
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-small);
-    line-height: 1.55;
-  }
-
-  .narrative__rail {
-    position: relative;
-    display: grid;
-    gap: var(--space-3);
-    padding: var(--space-3);
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper-soft);
-  }
-
-  .narrative__rail-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    margin: 0;
-  }
-
-  .narrative__rail-status {
-    color: var(--color-text-on-paper-muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: var(--tracking-meta);
-    text-transform: uppercase;
-  }
-
-  .narrative__rail-list {
-    display: grid;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .narrative__rail-list li {
-    border-top: 1px solid var(--color-rule-on-paper);
-  }
-
-  .narrative__rail-list li:first-child {
-    border-top: 0;
-  }
-
-  .narrative__rail-btn {
-    display: grid;
-    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
-    align-items: center;
-    gap: var(--space-3);
-    width: 100%;
-    min-height: var(--control-height);
-    padding: var(--space-2) var(--space-3);
-    border: 0;
-    background: transparent;
-    color: var(--color-text-on-paper-muted);
-    text-align: left;
-    cursor: pointer;
-    font: inherit;
-    transition:
-      background-color var(--duration-quick) var(--ease-standard),
-      color var(--duration-quick) var(--ease-standard);
-  }
-
-  .narrative__rail-btn:hover {
-    color: var(--color-text-on-paper);
-    background: color-mix(in srgb, var(--color-paper) 60%, transparent);
-  }
-
-  .narrative__rail-num {
-    color: var(--color-accent-text);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.04em;
-  }
-
-  .narrative__rail-label {
-    font-size: 0.9375rem;
-    font-weight: 600;
-  }
-
-  .narrative__rail-tone {
-    width: 0.5rem;
-    height: 0.5rem;
-    border: 1px solid var(--color-rule-on-paper);
-    border-radius: 50%;
-    background: var(--color-paper);
-  }
-
-  .narrative__rail-tone[data-tone='failure'] {
-    border-color: var(--color-signal-fail);
-    background: var(--color-signal-fail);
-  }
-
-  .narrative__rail-tone[data-tone='technical'] {
-    border-color: var(--color-accent);
-    background: var(--color-accent);
-  }
-
-  .narrative__rail-tone[data-tone='valid'] {
-    border-color: var(--color-signal-pass);
-    background: var(--color-signal-pass);
-  }
-
-  .narrative__rail-btn[aria-current='step'] {
-    background: var(--color-paper);
-    color: var(--color-text-on-paper);
-    box-shadow: inset 2px 0 0 var(--color-accent);
-  }
-
-  .narrative__rail-btn:focus-visible {
-    outline-offset: -3px;
-  }
-
-  .narrative__sequence {
-    display: grid;
-    gap: var(--space-6);
-    margin-top: var(--space-6);
-  }
-
-  .narrative__state {
-    display: grid;
-    gap: var(--space-5);
-    padding: var(--space-5);
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper);
-  }
-
-  .narrative__state[data-tone='failure'] {
-    border-color: color-mix(in srgb, var(--color-signal-fail) 40%, var(--color-rule-on-paper));
-  }
-
-  .narrative__state[data-tone='valid'] {
-    border-color: color-mix(in srgb, var(--color-signal-pass) 40%, var(--color-rule-on-paper));
-  }
-
-  .narrative__state-copy {
-    display: grid;
-    gap: var(--space-3);
-  }
-
-  .narrative__state-kicker {
-    color: var(--color-text-on-paper-muted);
-  }
-
-  .narrative__state-copy h4 {
-    margin: 0;
-    max-width: 22ch;
-    font-size: var(--text-section);
-    font-weight: 600;
-    line-height: 1.08;
-  }
-
-  .narrative__state-summary {
-    margin: 0;
-    max-width: 34rem;
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-body-large);
-    line-height: 1.55;
-  }
-
-  .narrative__state-link {
-    color: var(--color-text-on-paper);
-    justify-self: start;
   }
 
   /* --- Inspector --- */
@@ -1166,42 +760,11 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
     line-height: 1.5;
   }
 
-  .project__boundary {
-    display: grid;
-    gap: var(--space-2);
-    padding-block: var(--space-5);
-    padding-inline: 0;
-    margin-block: var(--space-6);
-    border-top: 1px solid var(--color-rule-on-paper);
-    border-bottom: 1px solid var(--color-rule-on-paper);
-  }
-
-  .project__boundary p {
-    margin: 0;
-    max-width: var(--width-reading);
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-small);
-    line-height: 1.55;
-  }
-
   /* Responsive */
   @media (min-width: 48rem) {
     .project__meta {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
       gap: var(--space-7);
-    }
-
-    .narrative__rail-list {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .narrative__rail-list li {
-      border-top: 0;
-      border-left: 1px solid var(--color-rule-on-paper);
-    }
-
-    .narrative__rail-list li:first-child {
-      border-left: 0;
     }
 
     .failure-grid {
@@ -1220,24 +783,6 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
   }
 
   @media (min-width: 64rem) {
-    .narrative__sequence {
-      display: block;
-    }
-
-    .narrative__state {
-      grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.82fr);
-      gap: var(--space-7);
-      align-items: start;
-      padding: var(--space-6);
-    }
-
-    .narrative__state-copy {
-      grid-column: 2;
-      grid-row: 1;
-      min-height: clamp(28rem, 68vh, 36rem);
-      align-content: center;
-    }
-
     .project__header {
       padding-bottom: var(--space-6);
     }
