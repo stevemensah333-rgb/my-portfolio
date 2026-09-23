@@ -327,6 +327,20 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
   const root = document.querySelector<HTMLElement>('[data-capabilities]');
 
   if (root) {
+    const STORAGE_KEY = 'workspace:capability';
+    const readStored = () => {
+      try {
+        return sessionStorage.getItem(STORAGE_KEY);
+      } catch {
+        return null;
+      }
+    };
+    const writeStored = (id: string) => {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, id);
+      } catch {}
+    };
+
     const triggers = [...root.querySelectorAll<HTMLButtonElement>('[data-cap-trigger]')];
     const panels = [...root.querySelectorAll<HTMLElement>('[data-cap-panel]')];
     const status = root.querySelector<HTMLElement>('[data-cap-status]');
@@ -351,6 +365,7 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
         ?.textContent
         ?.trim();
       if (status && label) status.textContent = `Showing capability: ${label}`;
+      writeStored(id);
     };
 
     for (const trigger of triggers) {
@@ -387,8 +402,11 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
       });
     }
 
-    const initial = triggers.find((trigger) => trigger.getAttribute('aria-selected') === 'true')?.dataset
+    const stored = readStored();
+    const hasStored = stored ? triggers.some((t) => t.dataset.capTrigger === stored) : false;
+    const marked = triggers.find((trigger) => trigger.getAttribute('aria-selected') === 'true')?.dataset
       .capTrigger;
+    const initial = hasStored ? stored! : marked;
     if (initial) select(initial);
   }
 </script>

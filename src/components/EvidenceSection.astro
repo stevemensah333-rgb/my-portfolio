@@ -156,12 +156,27 @@ import SectionFrame from './SectionFrame.astro';
   import { reserveStackHeight } from '../scripts/initTraceTabs';
 
   for (const section of document.querySelectorAll<HTMLElement>('[data-credential-evidence]')) {
+    const STORAGE_KEY = 'workspace:evidence';
+    const readStored = () => {
+      try {
+        return sessionStorage.getItem(STORAGE_KEY);
+      } catch {
+        return null;
+      }
+    };
+    const writeStored = (id: string) => {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, id);
+      } catch {}
+    };
+
     const triggers = [...section.querySelectorAll<HTMLButtonElement>('[data-credential-trigger]')];
     const panels = [...section.querySelectorAll<HTMLElement>('[data-credential-panel]')];
     const status = section.querySelector<HTMLElement>('[data-evidence-status]');
     reserveStackHeight(panels);
 
     const selectCredential = (id: string) => {
+      if (!triggers.some((t) => t.dataset.credentialTrigger === id)) return;
       for (const trigger of triggers) {
         const isActive = trigger.dataset.credentialTrigger === id;
         trigger.setAttribute('aria-selected', String(isActive));
@@ -180,13 +195,14 @@ import SectionFrame from './SectionFrame.astro';
         ?.textContent
         ?.trim();
       if (status && label) status.textContent = `Showing evidence: ${label}`;
+      writeStored(id);
     };
 
     for (const trigger of triggers) {
       const id = trigger.dataset.credentialTrigger;
       if (!id) continue;
 
-      // Click — primary interaction
+      // Click — primary interaction (mouse, touch, keyboard activation)
       trigger.addEventListener('click', () => selectCredential(id));
 
       // Hover — only on hover-capable pointers (per A4 fix)
@@ -223,6 +239,18 @@ import SectionFrame from './SectionFrame.astro';
           }
         }
       });
+    }
+
+    // Continuity: restore last inspected evidence across view transitions.
+    const stored = readStored();
+    const hasStored = stored ? triggers.some((t) => t.dataset.credentialTrigger === stored) : false;
+    if (hasStored && stored) {
+      selectCredential(stored);
+    } else {
+      // Ensure the initially marked tab is announced consistently.
+      const marked = triggers.find((t) => t.getAttribute('aria-selected') === 'true')?.dataset
+        .credentialTrigger;
+      if (marked) selectCredential(marked);
     }
   }
 </script>

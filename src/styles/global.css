@@ -1030,6 +1030,74 @@ select,
 }
 
 /* ----------------------------------------------------------------
+   8b. View Transitions — environmental continuity
+   ----------------------------------------------------------------
+   HOME / WORK / LAB / PROFILE are one workspace, not four sites.
+
+   The ClientRouter (astro:transitions) enables the native View
+   Transition API where available, with an animated fallback.
+   The transition is intentionally subtle: the root crossfades with
+   the canonical reveal duration and emphasized ease, so moving
+   between LIGHT (information) and DARK (instrumentation) feels
+   like the same system switching operating mode rather than a
+   hard cut. The shell's field is named so the rail and the
+   instrument bench can persist as recognisable geometry.
+
+   No elaborate page-transition animations are used; content is
+   never blocked, and reduced-motion visitors receive no animation
+   at all. The fallback animation that ClientRouter injects for
+   non-supporting browsers is likewise disabled under
+   prefers-reduced-motion via the global clamp in §7 (animation-
+   duration: 0.01ms) and the explicit group override below.
+   ---------------------------------------------------------------- */
+
+/* Name the field so its content participates as one snapshot.
+   The rail keeps its own identity without a name — the geometry
+   of the shell persists naturally because the shell grid exists on
+   both sides of the transition. */
+.shell__field {
+  view-transition-name: shell-field;
+}
+
+.lab__bench {
+  view-transition-name: lab-bench;
+}
+
+/* Subtle root crossfade — ~420ms emphasized, not a slide. */
+::view-transition-group(root) {
+  animation-duration: var(--duration-reveal);
+  animation-timing-function: var(--ease-emphasized);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-reveal);
+  animation-timing-function: var(--ease-emphasized);
+}
+
+/* Field and bench use the same timing so the workspace feels
+   continuous when HOME → WORK → LAB → PROFILE are navigated in
+   order. */
+::view-transition-group(shell-field),
+::view-transition-group(lab-bench) {
+  animation-duration: var(--duration-reveal);
+  animation-timing-function: var(--ease-emphasized);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  .shell__field,
+  .lab__bench {
+    view-transition-name: none !important;
+  }
+}
+
+/* ----------------------------------------------------------------
    9. Token aliases — backwards compatibility for the case pages
    ----------------------------------------------------------------
    The case studies were authored against the previous token

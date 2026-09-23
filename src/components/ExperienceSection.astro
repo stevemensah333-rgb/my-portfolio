@@ -99,21 +99,49 @@ const experiences = [
 </section>
 
 <script>
-  // Progressive fallback: if the engine has no exclusive <details
-  // name, close siblings when one opens so the "one record open"
-  // discipline holds anyway. Native `name` behaviour is left alone.
-  if (typeof HTMLDetailsElement !== 'undefined' && !('name' in HTMLDetailsElement.prototype)) {
+  (function () {
+    const STORAGE_KEY = 'workspace:experience';
+    const readStored = () => {
+      try {
+        const raw = sessionStorage.getItem(STORAGE_KEY);
+        const idx = raw === null ? NaN : parseInt(raw, 10);
+        return Number.isNaN(idx) ? null : idx;
+      } catch {
+        return null;
+      }
+    };
+    const writeStored = (idx: number | null) => {
+      try {
+        if (idx === null) sessionStorage.removeItem(STORAGE_KEY);
+        else sessionStorage.setItem(STORAGE_KEY, String(idx));
+      } catch {}
+    };
+
     const entries = [...document.querySelectorAll<HTMLDetailsElement>('.experience__entry')];
+
+    // Continuity: restore last opened record across view transitions / reloads.
+    const stored = readStored();
+    if (stored !== null && entries[stored]) {
+      entries[stored].open = true;
+    }
+
     for (const entry of entries) {
       entry.addEventListener('toggle', () => {
+        const idx = entries.indexOf(entry);
         if (entry.open) {
-          for (const other of entries) {
-            if (other !== entry) other.open = false;
+          writeStored(idx);
+          if (typeof HTMLDetailsElement !== 'undefined' && !('name' in HTMLDetailsElement.prototype)) {
+            for (const other of entries) {
+              if (other !== entry) other.open = false;
+            }
           }
+        } else {
+          const anyOpen = entries.some((e) => e.open);
+          if (!anyOpen) writeStored(null);
         }
       });
     }
-  }
+  })();
 </script>
 
 <style>
