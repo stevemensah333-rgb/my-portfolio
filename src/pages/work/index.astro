@@ -60,7 +60,6 @@ const phases = [
     <header
       class="archive-hero page-shell"
       data-workspace-section="top"
-      data-workspace-dest="work"
       data-workspace-label="Archive"
     >
       <div class="archive-hero__rule" aria-hidden="true">
@@ -101,7 +100,6 @@ const phases = [
       class="archive-stage"
       data-archive-stage
       data-workspace-section="archive"
-      data-workspace-dest="work"
       data-workspace-label="Project archive"
       aria-labelledby="archive-stage-title"
     >
@@ -137,12 +135,11 @@ const phases = [
             ))}
           </ol>
 
-          <ol class="archive-stage__cards" data-archive-cards aria-label="Projects">
+          <ol class="archive-stage__cards" aria-label="Projects">
             {archiveEntries.map(({ project, index, isFlagship }) => (
               <li
                 class:list={['archive-card', isFlagship && 'archive-card--flagship']}
                 data-archive-card
-                data-card-index={index}
               >
                 <a
                   class="archive-card__link"
@@ -234,7 +231,6 @@ const phases = [
     <footer
       class="archive-end page-shell"
       data-workspace-section="inspect"
-      data-workspace-dest="work"
       data-workspace-label="Inspect"
     >
       <p class="mono-label">03 · Inspect</p>

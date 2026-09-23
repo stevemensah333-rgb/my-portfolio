@@ -44,7 +44,7 @@ const toWebP = (src: string) => src.replace(/\.png$/i, '.webp');
 const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
 ---
 
-<figure class="product-figure" data-product-frame data-frame-id={id}>
+<figure class="product-figure" data-product-frame>
   <div class="product-frame">
     <div class="frame-bar" aria-hidden="true">
       <span class="frame-controls"><i></i><i></i><i></i></span>
@@ -67,7 +67,6 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
           loading={priority ? 'eager' : 'lazy'}
           fetchpriority={priority ? 'high' : 'auto'}
           decoding="async"
-          data-frame-img
         />
       </picture>
       <div class="frame-inspect">

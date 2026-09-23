@@ -123,7 +123,7 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
           </p>
         </header>
 
-      <div class="inspector__panel" data-trace-compact data-trace-project={project.id}>
+      <div class="inspector__panel" data-trace-compact>
         <div
           class="inspector__rail"
           role="tablist"
@@ -140,7 +140,6 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
               aria-controls={`${anchorId}-panel-${stage.id}`}
               aria-selected={idx === 0 ? 'true' : 'false'}
               tabindex={idx === 0 ? '0' : '-1'}
-              data-step={stage.step}
             >
               <span class="inspector__tab-step">{stage.step}</span>
               <span class="inspector__tab-label">{stage.label}</span>

@@ -84,15 +84,9 @@ const meta: Record<InvestigationStageId, LabStageMeta> = {
   },
 };
 
-const fallbackMeta: LabStageMeta = {
-  state: 'stage',
-  inspection: [],
-  illustrative: false,
-};
-
 export const labStages: LabStage[] = investigationStages.map((stage) => ({
   ...stage,
-  lab: meta[stage.id] ?? fallbackMeta,
+  lab: meta[stage.id],
 }));
 
 export const labCopy = {
