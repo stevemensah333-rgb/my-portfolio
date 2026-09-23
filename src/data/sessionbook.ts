@@ -1,15 +1,19 @@
 /**
  * SessionBook case-study copy, grounded in the public sessionbook
- * repository (commit 48ba544) and the AssemblyAI HTTP-tools tutorial
- * (conceptual reference only). Anything referenced from the tutorial is
- * treated as shape/idea, never as an implemented feature. Anything
- * illustrative is labelled illustrative in the interface.
+ * repository (commit 1264d9e, 2026-09-22) and the AssemblyAI HTTP-tools
+ * tutorial (conceptual reference only). Anything referenced from the
+ * tutorial is treated as shape/idea, never as an implemented feature.
+ * Anything illustrative is labelled illustrative in the interface.
+ *
+ * The primer (4 anchors, with evidence) and the questions register are
+ * complementary: a question appears in exactly ONE of the two lists, so
+ * no answer is stated twice on the page.
  */
 
 export const sessionbookMeta = {
   repoUrl: 'https://github.com/stevemensah333-rgb/sessionbook',
-  repoCommit: '48ba544',
-  repoCommitDate: '2026-09-20',
+  repoCommit: '1264d9e',
+  repoCommitDate: '2026-09-22',
   tutorialUrl: 'https://lablab.ai/ai-tutorials/assemblyai-voice-agent-http-tools',
 } as const;
 
@@ -35,7 +39,7 @@ export const sessionbookPrimer: {
     question: 'What does AssemblyAI own?',
     answer:
       'Everything about the conversation: transcription, prompting, tool invocation, and speech. SessionBook\u2019s job is the agent document and the backend the agent calls — nothing has to stream or persist a WebSocket.',
-    evidence: 'Reference architecture from the HTTP-tools tutorial; the agent document is voice_agent/agent.json, now implemented.',
+    evidence: 'voice_agent/agent.json — implemented: agent configuration with four tool definitions, verified in the repository.',
   },
   {
     question: 'What was learned?',
@@ -45,19 +49,15 @@ export const sessionbookPrimer: {
   },
 ];
 
-/** Q&A band — one row per question the page must answer. */
+/**
+ * Q&A band — only the questions the primer does NOT already answer.
+ * (Problem explored, why voice, AssemblyAI's role, and what was learned
+ * live in the primer above, each with its evidence statement.)
+ */
 export const sessionbookQuestions: {
   q: string;
   a: string;
 }[] = [
-  {
-    q: 'What problem was being explored?',
-    a: 'Whether a small backend can own an entire appointment flow served over voice \u2014 availability, booking, confirmation \u2014 keeping every decision model-free: timing, locking, and what gets said.',
-  },
-  {
-    q: 'Why voice?',
-    a: 'Because voice raises the stakes on correctness. A wrong date, a double-booking, or a poorly formatted time is immediately audible to the caller. It is the hardest surface for sloppy output to hide on.',
-  },
   {
     q: 'How does the agent interact with the backend?',
     a: 'Through plain HTTP on AssemblyAI\u2019s side. Each tool the agent holds points at a backend endpoint; when the agent needs a fact it makes the request itself, and the backend answers with values the agent can speak.',
@@ -67,12 +67,8 @@ export const sessionbookQuestions: {
     a: 'The calendar and its correctness. FastAPI plus a service layer: which slots are free, how a slot gets reserved without double-booking someone, how dates and times stay true to the provider\u2019s timezone, and what a confirmation should sound like.',
   },
   {
-    q: 'What does AssemblyAI own?',
-    a: 'The conversation. Transcribing the caller, running the agent, choosing and executing tools, and speaking replies. SessionBook supplies the agent document and the endpoints; it never holds a call or a socket.',
-  },
-  {
     q: 'What happens when a booking request cannot be fulfilled?',
-    a: 'Two written failure paths: SlotAlreadyBookedError when the slot is gone on arrival, and ValueError when the slot does not exist. Neither is yet caught and spoken \u2014 the spoken-failure sentence is the next piece of the boundary.',
+    a: 'Two caught, speakable failure paths: the tool route returns 409 with \u201cThat slot was just taken, would you like another time?\u201d when the slot is gone on arrival, and 404 when the slot does not exist. The agent can turn either into the next question instead of an apology.',
   },
   {
     q: 'What data crosses the system boundary?',
@@ -81,10 +77,6 @@ export const sessionbookQuestions: {
   {
     q: 'What failure cases were considered?',
     a: 'A concurrent double-booking, a slot that vanished between being listed and being chosen, a confirmation code that is ambiguous when read aloud or typed back \u2014 and the work still ahead: date interpretation when times are busy or closed, and phone numbers that arrive without enough digits.',
-  },
-  {
-    q: 'What did Stephen learn?',
-    a: 'The model is the conversation; the backend is the contract. Separating what the agent is allowed to do from what the backend decides is correct keeps a spoken system small, inspectable, and safe \u2014 and every gap that remains is visible in the words coming out of it.',
   },
 ];
 
@@ -96,14 +88,14 @@ export const sessionbookBoundary = {
     'Datetimes are timezone-aware, anchored to Africa/Accra (ZoneInfo)',
     'Confirmation codes drop ambiguous 0/O and 1/I glyphs',
     'Availability and confirmation responses carry ready-to-speak strings',
-    'GET /health is served',
-    'AssemblyAI voice-agent integration implemented (agent config, HTTP tool routes)',
-    'Voice-agent integration verified in the repository',
+    'Four HTTP tool routes serve the agent: get_today, check_availability, book_slot, confirm_booking',
+    'Booking failures return speakable sentences (409 slot taken, 404 no such slot)',
+    'AssemblyAI voice-agent integration implemented \u2014 agent configuration and tool routes verified in the repository',
   ] as const,
   missing: [
     'No live deployment, no live calls, no latency or success data',
-    'Minimal test coverage — tests/ scaffolded but sparse',
-    'No migrations generated',
-    'Spoken failure responses for edge cases may need refinement',
+    'tests/test_booking.py is empty \u2014 no tests are written',
+    'No migrations generated (Alembic configured, no versions)',
+    'Edge cases still open: date interpretation when times are busy or closed, and phone numbers without enough digits',
   ] as const,
-};
+} as const;

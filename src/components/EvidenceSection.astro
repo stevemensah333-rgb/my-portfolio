@@ -6,11 +6,10 @@ import SectionFrame from './SectionFrame.astro';
 <!--
   EVIDENCE — the archival register.
 
-  This section is deliberately the only part of the page set on the
-  DECK environment while still being a reading surface. That single
-  choice does most of the work: the page goes quiet, the artifacts
-  are lit, and the section reads as a plate drawer rather than as
-  more content.
+  Evidence is information, so it sits on the light environment inside
+  PROFILE (AGENTS.md §3: light = information, dark = instrumentation).
+  The register keeps its plate-drawer character: an accession index,
+  a mounted plate, catalogue metadata — just on paper, not on deck.
 
   Everything else supports that:
   - the index is a numbered accession list, not a menu of buttons;
@@ -22,12 +21,12 @@ import SectionFrame from './SectionFrame.astro';
   No badges, no trophies, no achievement cards. The interaction and
   the content model are unchanged.
 -->
-<section id="evidence" class="evidence on-deck" aria-labelledby="evidence-title" data-workspace-section="evidence">
-  <SectionFrame coordinate="06 · Evidence" status="Archive" surface="canvas" density="default">
+<section id="evidence" class="evidence" aria-labelledby="evidence-title" data-workspace-section="evidence">
+  <SectionFrame coordinate="04.4 · Profile / Evidence" status="Archive" surface="paper" density="default">
     <div class="page-shell region-grid">
       <aside class="region-rail">
         <div class="region-index">
-          <span class="region-index__no">06</span>
+          <span class="region-index__no">04.4</span>
           <span class="region-index__rule"></span>
           <span class="region-index__name">Archive</span>
           <span class="region-index__note">{credentials.length} records. Each links to its source artifact.</span>
@@ -115,7 +114,7 @@ import SectionFrame from './SectionFrame.astro';
                   </a>
                 ) : (
                   <div class="evidence__text-record">
-                    <p class="mono-label mono-label--inverse mono-label--bare">Evidence record</p>
+                    <p class="mono-label mono-label--bare">Evidence record</p>
                     <p class="evidence__result">{credential.result}</p>
                   </div>
                 )}
@@ -230,8 +229,8 @@ import SectionFrame from './SectionFrame.astro';
 
 <style>
   .evidence {
-    background: var(--color-deck);
-    color: var(--color-text-on-canvas);
+    background: var(--color-sheet);
+    color: var(--color-text-on-paper);
   }
 
   .evidence__body {
@@ -249,8 +248,8 @@ import SectionFrame from './SectionFrame.astro';
 
   .evidence__drawer {
     display: grid;
-    border: 1px solid var(--color-rule-on-canvas-strong);
-    background: var(--color-deck-soft);
+    border: 1px solid var(--color-rule-on-paper-strong);
+    background: var(--color-paper-soft);
   }
 
   /* --- accession index ------------------------------------------- */
@@ -258,14 +257,14 @@ import SectionFrame from './SectionFrame.astro';
   .evidence__index {
     display: grid;
     align-content: start;
-    background: var(--color-deck-deep);
+    background: var(--color-paper-inset);
   }
 
   .evidence__index-label {
     margin: 0;
     padding: var(--space-3) var(--space-4);
-    border-bottom: 1px solid var(--color-rule-on-canvas);
-    color: var(--color-text-on-canvas-faint);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    color: var(--color-text-on-paper-faint);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     font-weight: 500;
@@ -281,7 +280,7 @@ import SectionFrame from './SectionFrame.astro';
   }
 
   .evidence__list li + li .evidence__trigger {
-    border-top: 1px solid var(--color-rule-on-canvas);
+    border-top: 1px solid var(--color-rule-on-paper);
   }
 
   .evidence__trigger {
@@ -295,7 +294,7 @@ import SectionFrame from './SectionFrame.astro';
     border: 0;
     border-left: 2px solid transparent;
     background: transparent;
-    color: var(--color-text-on-canvas-muted);
+    color: var(--color-text-on-paper-muted);
     font: inherit;
     text-align: left;
     cursor: pointer;
@@ -308,7 +307,7 @@ import SectionFrame from './SectionFrame.astro';
   /* Accession numbers are three digits — the register reads as a
      catalogue rather than as a four-item menu. */
   .evidence__trigger-index {
-    color: var(--color-text-on-canvas-faint);
+    color: var(--color-text-on-paper-faint);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     letter-spacing: 0.06em;
@@ -331,7 +330,7 @@ import SectionFrame from './SectionFrame.astro';
   /* Catalogue metadata is always visible here — an archive does not
      hide its own labels behind hover. */
   .evidence__trigger-meta {
-    color: var(--color-text-on-canvas-faint);
+    color: var(--color-text-on-paper-faint);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     letter-spacing: 0.05em;
@@ -339,7 +338,7 @@ import SectionFrame from './SectionFrame.astro';
   }
 
   .evidence__trigger-result {
-    color: var(--color-text-on-canvas-muted);
+    color: var(--color-text-on-paper-muted);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     letter-spacing: 0.05em;
@@ -350,14 +349,14 @@ import SectionFrame from './SectionFrame.astro';
 
   .evidence__trigger:hover,
   .evidence__trigger:focus-visible {
-    background: var(--color-deck-soft);
-    color: var(--color-text-on-canvas);
+    background: var(--color-paper-soft);
+    color: var(--color-text-on-paper);
   }
 
   .evidence__trigger[aria-selected='true'] {
-    background: var(--color-deck-soft);
+    background: var(--color-paper-soft);
     border-left-color: var(--color-accent);
-    color: var(--color-text-on-canvas);
+    color: var(--color-text-on-paper);
   }
 
   .evidence__trigger[aria-selected='true'] .evidence__trigger-index,
@@ -370,7 +369,7 @@ import SectionFrame from './SectionFrame.astro';
   .evidence__panels {
     position: relative;
     padding: var(--space-5);
-    border-top: 1px solid var(--color-rule-on-canvas-strong);
+    border-top: 1px solid var(--color-rule-on-paper-strong);
   }
 
   .evidence__panel {
@@ -403,7 +402,7 @@ import SectionFrame from './SectionFrame.astro';
     align-items: baseline;
     gap: var(--space-3);
     padding-bottom: var(--space-3);
-    border-bottom: 1px solid var(--color-rule-on-canvas);
+    border-bottom: 1px solid var(--color-rule-on-paper);
   }
 
   .evidence__record-no {
@@ -420,7 +419,7 @@ import SectionFrame from './SectionFrame.astro';
   }
 
   .evidence__record-result {
-    color: var(--color-text-on-canvas-muted);
+    color: var(--color-text-on-paper-muted);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     letter-spacing: 0.05em;
@@ -435,7 +434,7 @@ import SectionFrame from './SectionFrame.astro';
     gap: 0;
     color: inherit;
     text-decoration: none;
-    border: 1px solid var(--color-rule-on-canvas);
+    border: 1px solid var(--color-rule-on-paper);
     transition: border-color var(--duration-quick) var(--ease-standard);
   }
 
@@ -447,14 +446,14 @@ import SectionFrame from './SectionFrame.astro';
   .evidence__plate-well {
     display: block;
     padding: var(--space-4);
-    background: var(--color-deck-deep);
+    background: var(--color-paper-inset);
   }
 
   .evidence__plate-well img {
     display: block;
     width: 100%;
     height: auto;
-    border: 1px solid var(--color-rule-on-canvas);
+    border: 1px solid var(--color-rule-on-paper);
   }
 
   .evidence__plate-strip {
@@ -464,8 +463,8 @@ import SectionFrame from './SectionFrame.astro';
     justify-content: space-between;
     gap: var(--space-2) var(--space-3);
     padding: var(--space-2) var(--space-3);
-    border-top: 1px solid var(--color-rule-on-canvas);
-    background: var(--color-deck-inset);
+    border-top: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-soft);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     letter-spacing: 0.05em;
@@ -473,7 +472,7 @@ import SectionFrame from './SectionFrame.astro';
   }
 
   .evidence__plate-kind {
-    color: var(--color-text-on-canvas-faint);
+    color: var(--color-text-on-paper-faint);
   }
 
   .evidence__plate-open {
@@ -484,13 +483,13 @@ import SectionFrame from './SectionFrame.astro';
     display: grid;
     gap: var(--space-2);
     padding: var(--space-5);
-    border: 1px solid var(--color-rule-on-canvas);
-    background: var(--color-deck-deep);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper-inset);
   }
 
   .evidence__result {
     margin: 0;
-    color: var(--color-text-on-canvas);
+    color: var(--color-text-on-paper);
     font-size: var(--text-body-large);
   }
 
@@ -506,15 +505,15 @@ import SectionFrame from './SectionFrame.astro';
     grid-template-columns: 5rem minmax(0, 1fr);
     gap: var(--space-3);
     padding-block: var(--space-2);
-    border-bottom: 1px solid var(--color-rule-on-canvas);
+    border-bottom: 1px solid var(--color-rule-on-paper);
   }
 
   .evidence__meta > div:first-child {
-    border-top: 1px solid var(--color-rule-on-canvas);
+    border-top: 1px solid var(--color-rule-on-paper);
   }
 
   .evidence__meta dt {
-    color: var(--color-text-on-canvas-faint);
+    color: var(--color-text-on-paper-faint);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     letter-spacing: var(--tracking-meta);
@@ -523,7 +522,7 @@ import SectionFrame from './SectionFrame.astro';
 
   .evidence__meta dd {
     margin: 0;
-    color: var(--color-text-on-canvas);
+    color: var(--color-text-on-paper);
     font-size: var(--text-small);
   }
 
@@ -536,7 +535,7 @@ import SectionFrame from './SectionFrame.astro';
 
     .evidence__panels {
       border-top: 0;
-      border-left: 1px solid var(--color-rule-on-canvas-strong);
+      border-left: 1px solid var(--color-rule-on-paper-strong);
     }
   }
 
@@ -585,7 +584,7 @@ import SectionFrame from './SectionFrame.astro';
     animation: none;
     padding-bottom: var(--space-5);
     margin-bottom: var(--space-5);
-    border-bottom: 1px solid var(--color-rule-on-canvas);
+    border-bottom: 1px solid var(--color-rule-on-paper);
   }
 
   html:not(.js) .evidence__index {

@@ -2,10 +2,16 @@
  * Concrete project entries. Each entry is shaped by Project in projects.ts.
  * No project literal should appear anywhere else in the codebase.
  *
+ * Stage-level investigation data lives in the project's own investigation
+ * module (syncareerInvestigation.ts) — the registry carries identity,
+ * status, evidence and route only, so there is exactly one copy of any
+ * narrative (AGENTS.md §5).
+ *
  * Evidence policy: Syncareer copy is grounded in the public syncareer repo
  * (README, AGENTS.md, career-guidance edge function, AI_APPLICATION_GUIDANCE).
- * SessionBook copy is grounded in the public sessionbook repo at commit
- * 48ba544. Anything illustrative is labelled illustrative in the interface.
+ * SessionBook copy is grounded in the public sessionbook repository at
+ * commit 1264d9e (2026-09-22). Anything illustrative is labelled
+ * illustrative in the interface.
  */
 
 import type { Project } from './projects';
@@ -52,144 +58,10 @@ export const syncareer: Project = {
       alt: 'Syncareer opportunities interface showing job search, match score, and interview / CV tailoring actions.',
     },
   ],
-  claimLimit:
-    'No before-and-after model outputs, repeatable evaluation, or measured failure rate is supplied. Some AI behaviour runs in deployed-only functions whose exact prompts cannot be audited from the repository.',
   stack: ['TypeScript', 'React + Vite', 'Supabase Postgres + RLS', 'Edge Functions (Deno)', 'Lovable AI gateway'],
   route: '/work/syncareer/',
-  stages: [
-    {
-      id: 'input',
-      step: '01',
-      label: 'INPUT',
-      title: 'Allowlisted context, nothing else',
-      summary: 'One bounded task, explicit context items, hard size limits.',
-      detail:
-        'Each request carries one bounded task (for example, cv.rewrite_bullet) plus explicit context items with id, provenance and label. The server fetches nothing on its own — no profile, no history, no CV beyond what is supplied — and rejects requests that exceed the item and size limits.',
-      evidence: 'contract.ts + prompts.ts in the career-guidance edge function.',
-      kind: 'input',
-    },
-    {
-      id: 'model-output',
-      step: '02',
-      label: 'MODEL OUTPUT',
-      title: 'Ungrounded rewrite (illustrative bad output)',
-      summary: 'A plausible bullet the evidence does not support.',
-      detail:
-        'ILLUSTRATIVE EXAMPLE — not a historical Syncareer log. Previous model outputs were never captured, so the “before” shape is inferred from the old request contract, which sent only the selected bullet: the server could not see the job requirement and could not tell job keywords from candidate evidence.',
-      evidence: 'Failure class from the repo evidence-grounding notes; old outputs not captured.',
-      kind: 'raw',
-      code: `Results-driven engineer with 5 years of Kubernetes experience
-who transformed deployments at Acme Corp,
-improving speed by 40%.`,
-      tone: 'failure',
-    },
-    {
-      id: 'validation',
-      step: '03',
-      label: 'VALIDATION',
-      title: 'Citations + factual-risk checks',
-      summary: 'Requirement and evidence IDs required; risky claims flagged.',
-      detail:
-        'Valid output must cite at least one requirement-* and one evidence-* context the model actually used. The application layer then checks for new numbers, job skills copied without candidate evidence, employers presented as experience, and coursework upgraded to employment. Unsafe proposals stay visible with a warning but cannot be accepted until fixed.',
-      evidence: 'Citation enforcement in career-guidance; factual-risk checks in the CV review flow.',
-      kind: 'validate',
-    },
-    {
-      id: 'failure',
-      step: '04',
-      label: 'FAILURE',
-      title: 'How ungrounded help failed',
-      summary: 'Too little context in, too little checking out.',
-      detail:
-        'Three distinct gaps, not one “AI problem”: requests carried too little context for the server to judge, job wording and candidate evidence were never distinguished, and remote JSON was trusted without runtime validation.',
-      evidence: 'Root causes recorded in the repo evidence-grounding notes.',
-      kind: 'fail',
-      tone: 'failure',
-      modes: [
-        { name: 'Bullet-only requests', note: 'Server could not see the requirement.' },
-        { name: 'Job skills as candidate skills', note: 'No evidence distinction.' },
-        { name: 'Unvalidated JSON trusted', note: 'A type cast, not a check.' },
-      ],
-    },
-    {
-      id: 'diagnosis',
-      step: '05',
-      label: 'DIAGNOSIS',
-      title: 'The contract was too thin',
-      summary: 'Both the request and the response needed more structure.',
-      detail:
-        'The old contract sent only the selected bullet and accepted text plus broad source IDs, while the UI supplied a fixed rationale. The fix had to cover both sides: richer, bounded requests and validated, cited responses.',
-      evidence: 'Interpretation of the old vs revised contracts; old outputs not captured.',
-      kind: 'diagnosis',
-    },
-    {
-      id: 'intervention',
-      step: '06',
-      label: 'INTERVENTION',
-      title: 'Ground every proposal in cited evidence',
-      summary: 'Bounded prompts, allowlisted context, citation + risk checks.',
-      detail:
-        'Revised contract: bounded task-family server prompts that treat all supplied text as untrusted data, allowlisted context items with size limits, mandatory requirement/evidence citations before quota is consumed, and application-layer factual-risk checks with explicit accept, reject and undo. Nothing is applied automatically.',
-      evidence: 'Tracked career-guidance v2 source; revised server prompt awaits deployment through Lovable Cloud.',
-      kind: 'intervene',
-      tone: 'technical',
-      fixes: [
-        'Bounded task-family server prompts',
-        'Allowlisted context with size limits',
-        'Requirement/evidence citation enforcement',
-        'Factual-risk checks + explicit review',
-      ],
-      code: `// revised response contract (real shape)
-{
-  "kind": "rewrite",
-  "text": "the proposal",
-  "sourceContextIds": ["requirement-1", "evidence-3"]
-}`,
-    },
-    {
-      id: 'output',
-      step: '07',
-      label: 'VALID OUTPUT',
-      title: 'Cited proposal, ready for review (illustrative)',
-      summary: 'A rewrite that traces back to requirement + evidence.',
-      detail:
-        'ILLUSTRATIVE valid output in the revised contract shape. The wording stays inside the supplied evidence and cites the contexts used. Accept changes only the local draft; the existing save persists it. No reliability rate is claimed.',
-      evidence: 'Contract shape from career-guidance; fixture-style example, not a live sample.',
-      kind: 'valid',
-      code: `{
-  "kind": "rewrite",
-  "text": "Built Python and SQL queries to analyse 1,200 sales records.",
-  "sourceContextIds": ["requirement-2", "evidence-1"]
-}`,
-      tone: 'valid',
-    },
-  ],
-  narrativeStates: [
-    {
-      id: 'observed-failure',
-      label: 'Observed failure',
-      title: 'The assistant saw too little and proved too little.',
-      summary: 'Bullet-only requests, undistinguished job wording, and unvalidated responses made ungrounded help possible.',
-      tone: 'failure',
-      primaryStageId: 'failure',
-    },
-    {
-      id: 'engineering-response',
-      label: 'Engineering response',
-      title: 'Both sides of the contract were rebuilt.',
-      summary: 'Bounded prompts, allowlisted context, mandatory citations and factual-risk checks — with the user reviewing every proposal.',
-      tone: 'technical',
-      primaryStageId: 'intervention',
-    },
-    {
-      id: 'product-contract',
-      label: 'Product contract',
-      title: 'A proposal is a draft, never a verdict.',
-      summary: 'Cited output the user can accept, edit or reject. No reliability metric is claimed.',
-      tone: 'valid',
-      primaryStageId: 'output',
-    },
-  ],
+  // The full engineering investigation (7 stages) lives in
+  // syncareerInvestigation.ts and renders on /work/syncareer/ and /lab/.
 };
 
 export const sessionbook: Project = {
@@ -211,8 +83,6 @@ export const sessionbook: Project = {
       note: 'Voice-agent JSON configuration and HTTP tool routes are implemented. Integration verified in the repository.',
     },
   ],
-  claimLimit:
-    'No live deployment, no measured latency or success rate. UNKNOWN for everything that depends on real production traffic. Test coverage is minimal (tests/ is scaffolded but sparse).',
   stack: ['FastAPI', 'SQLAlchemy 2.0 (async)', 'asyncpg', 'Postgres 16', 'Pydantic', 'Alembic'],
   route: '/work/sessionbook/',
   stages: [
@@ -323,7 +193,19 @@ export const sessionbook: Project = {
   ],
 };
 
-export const projects: Project[] = [syncareer, sessionbook];
+export const koranco: Project = {
+  id: 'koranco',
+  name: 'Koranco Farms',
+  short:
+    'A farm management system built through the Ashesi Innovation Lab — attendance, produce and employee modules.',
+  status: 'mvp',
+  claim:
+    'Selected for a 6-week Ashesi Innovation Lab project with Koranco Farms. Built a farm management system addressing how production data is captured, organized and used — with attendance checking, farm produce management, and employee management modules.',
+  evidence: [],
+  claimLimit:
+    'The farm management system was built and delivered as a working MVP through the Innovation Lab. No public repository, production deployment, or farm-side usage figures exist. This engagement is described from the Innovation Lab brief and my résumé.',
+  stack: ['FastAPI', 'PostgreSQL'],
+  route: '/work/koranco/',
+};
 
-export const getProject = (id: string): Project | undefined =>
-  projects.find(p => p.id === id);
+export const projects: Project[] = [syncareer, sessionbook, koranco];

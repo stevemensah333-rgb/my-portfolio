@@ -1,0 +1,201 @@
+---
+import { GMAIL_COMPOSE_URL } from '../../config/site';
+import { koranco } from '../../data/registry';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionFrame from '../../components/SectionFrame.astro';
+
+const title = `${koranco.name} — Farm Management System | Stephen Mensah`;
+const description = `${koranco.name}: a farm management system built through the Ashesi Innovation Lab — attendance, produce and employee modules. What was delivered, and what is not claimed.`;
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: `${koranco.name} — Farm Management System`,
+  headline: 'A farm management system delivered as an MVP',
+  description,
+  url: new URL(koranco.route, Astro.site).href,
+  author: {
+    '@type': 'Person',
+    name: 'Stephen Mensah',
+    url: new URL('/', Astro.site).href,
+  },
+};
+---
+
+<BaseLayout {title} {description} {structuredData} ogType="article">
+  <article class="case-page">
+    <header id="overview" class="case-hero page-shell" data-workspace-section="top" data-workspace-dest="work">
+      <a class="back-link" href="/work/">← Back to the work archive</a>
+
+      <div class="case-opening">
+        <div>
+          <p class="mono-label">Project · {koranco.name} · MVP delivered</p>
+          <h1>A farm's records, organized.</h1>
+          <p class="case-summary">{koranco.short}</p>
+        </div>
+
+        <aside class="product-record" aria-label={`${koranco.name} project record`}>
+          <div class="record-heading">
+            <p>Project record · 03</p>
+            <span>MVP delivered</span>
+          </div>
+          <p class="product-record__name">{koranco.name}</p>
+          <dl>
+            <div><dt>Type</dt><dd>Farm management system</dd></div>
+            <div><dt>Context</dt><dd>6-week Ashesi Innovation Lab project</dd></div>
+            <div><dt>Stack</dt><dd>{koranco.stack.join(' · ')}</dd></div>
+            <div><dt>Modules</dt><dd>Attendance · produce · employees</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </header>
+
+    <SectionFrame coordinate="01 · What was built" surface="paper" data-workspace-section="built" data-workspace-dest="work">
+      <div class="page-shell koranco-columns">
+        <section class="koranco-panel" aria-labelledby="koranco-built-title">
+          <p class="mono-label">What was built</p>
+          <h2 id="koranco-built-title">Core modules delivered</h2>
+          <ul class="koranco-list">
+            <li>Attendance checking — track worker presence and shift data across the farm.</li>
+            <li>Farm produce management — record, organize and monitor production output.</li>
+            <li>Employee management — maintain worker records and operational assignments.</li>
+          </ul>
+        </section>
+
+        <section class="koranco-panel" aria-labelledby="koranco-context-title">
+          <p class="mono-label">Context</p>
+          <h2 id="koranco-context-title">How it started</h2>
+          <ul class="koranco-list">
+            <li>Assessed how production data was captured, organized and used across the farm.</li>
+            <li>Identified record-keeping gaps and production visibility issues as the core problems.</li>
+            <li>Shaped the solution around the Innovation Lab brief and real farm workflows.</li>
+          </ul>
+        </section>
+
+        <section class="koranco-panel koranco-panel--verified" aria-labelledby="koranco-verified-title">
+          <p class="mono-label">Verified outcomes</p>
+          <h2 id="koranco-verified-title">What was delivered</h2>
+          <p class="koranco-none">
+            Three working modules built and delivered as an MVP through the Ashesi Innovation
+            Lab. No farm-side deployment or measured adoption data is claimed — the system
+            was built, not deployed to production.
+          </p>
+        </section>
+      </div>
+    </SectionFrame>
+
+    <SectionFrame coordinate="02 · Evidence boundary" surface="paper" data-workspace-section="evidence" data-workspace-dest="work">
+      <div class="page-shell koranco-boundary-wrap">
+        <aside class="koranco-boundary" aria-label="Evidence boundary">
+          <span class="mono-label">Evidence boundary</span>
+          <p>{koranco.claimLimit}</p>
+        </aside>
+      </div>
+    </SectionFrame>
+
+    <div class="case-content page-shell">
+      <section
+        id="contact-section"
+        class="contact-section"
+        aria-labelledby="contact-title"
+        data-workspace-section="contact"
+      >
+        <p class="mono-label">Contact</p>
+        <h2 id="contact-title">Want to talk through the build?</h2>
+        <a class="button" href={GMAIL_COMPOSE_URL} target="_blank" rel="noopener noreferrer">Email Stephen</a>
+      </section>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .product-record__name {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-component);
+    font-weight: 600;
+  }
+
+  .koranco-columns {
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--section-block);
+  }
+
+  .koranco-panel {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    padding: var(--space-5);
+    border: 1px solid var(--color-rule-on-paper);
+    background: var(--color-paper);
+  }
+
+  .koranco-panel h2 {
+    margin: 0;
+    font-size: var(--text-component);
+    font-weight: 600;
+  }
+
+  .koranco-list {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .koranco-list li {
+    position: relative;
+    padding-left: var(--space-4);
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .koranco-list li::before {
+    position: absolute;
+    left: 0;
+    color: var(--color-accent-text);
+    content: '—';
+    font-family: var(--font-mono);
+  }
+
+  .koranco-panel--verified {
+    border-left: 3px solid var(--color-signal-pass);
+    background: var(--color-signal-pass-tint);
+  }
+
+  .koranco-none {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.6;
+  }
+
+  .koranco-boundary-wrap {
+    padding-block: var(--section-block);
+  }
+
+  .koranco-boundary {
+    display: grid;
+    gap: var(--space-2);
+    max-width: var(--width-reading);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-rule-on-paper);
+  }
+
+  .koranco-boundary p {
+    margin: 0;
+    color: var(--color-text-on-paper-faint);
+    font-size: var(--text-small);
+    line-height: 1.6;
+  }
+
+  
+
+  @media (min-width: 48rem) {
+    .koranco-columns {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

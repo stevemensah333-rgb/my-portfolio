@@ -1,0 +1,211 @@
+---
+import { projects } from '../../data/registry';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionFrame from '../../components/SectionFrame.astro';
+
+const title = 'Work — Project Archive | Stephen Mensah';
+const description =
+  'The project archive: Syncareer, an evidence-grounded career workspace; SessionBook, a voice-agent booking backend; and a farm management system built for Koranco Farms. Each with its case study and evidence boundary.';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Work — Project Archive',
+  description,
+  url: new URL('/work/', Astro.site).href,
+  author: {
+    '@type': 'Person',
+    name: 'Stephen Mensah',
+    url: new URL('/', Astro.site).href,
+  },
+};
+---
+
+<BaseLayout {title} {description} {structuredData}>
+  <article class="archive">
+    <header class="archive-hero page-shell" data-workspace-section="top" data-workspace-dest="work">
+      <p class="mono-label">Work · Archive</p>
+      <h1>Three projects, one discipline.</h1>
+      <p class="archive-lede">
+        Each project is a case study with its evidence stated and its boundary marked:
+        what is verified in a repository, and what remains UNKNOWN. Syncareer is the
+        flagship.
+      </p>
+    </header>
+
+    <SectionFrame coordinate="02 · Work / Index" surface="paper" data-workspace-section="index" data-workspace-dest="work">
+      <div class="page-shell">
+        <ol class="archive-list">
+          {projects.map((project, index) => (
+            <li class="archive-row">
+              <a class="archive-row__link" href={project.route} aria-labelledby={`archive-${project.id}-title`}>
+                <span class="archive-row__index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="archive-row__body">
+                  <span class="archive-row__name-row">
+                    <h2 id={`archive-${project.id}-title`} class="archive-row__name">{project.name}</h2>
+                    <span class:list={['archive-row__status', `archive-row__status--${project.status}`]}>
+                      <span class="archive-row__status-dot" aria-hidden="true"></span>
+                      {project.status.replace(/-/g, ' ')}
+                    </span>
+                  </span>
+                  <span class="archive-row__short">{project.short}</span>
+                  <span class="archive-row__stack mono-label">{project.stack.join(' · ')}</span>
+                </span>
+                <span class="archive-row__chev" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </SectionFrame>
+  </article>
+</BaseLayout>
+
+<style>
+  .archive {
+    border-bottom: var(--border-default);
+  }
+
+  .archive-hero {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: clamp(2.25rem, 4.5vw, 3.5rem);
+  }
+
+  .archive-hero h1 {
+    max-width: 16ch;
+    margin: 0;
+    font-size: var(--text-feature);
+    font-weight: 650;
+    letter-spacing: -0.045em;
+    line-height: 1.04;
+  }
+
+  .archive-lede {
+    max-width: var(--width-reading);
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
+  }
+
+  /* Ruled index rows, not cards: one container-less list where the
+     link is the row. Same vocabulary as the evidence accession index. */
+  .archive-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+  }
+
+  .archive-row {
+    border-bottom: 1px solid var(--color-rule-on-paper);
+  }
+
+  .archive-row__link {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr) auto;
+    gap: var(--space-4);
+    align-items: start;
+    padding-block: var(--space-5);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .archive-row__index {
+    padding-top: var(--space-2);
+    color: var(--color-accent-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    letter-spacing: 0.05em;
+  }
+
+  .archive-row__body {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .archive-row__name-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .archive-row__name {
+    margin: 0;
+    font-size: var(--text-component);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+
+  .archive-row__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .archive-row__status-dot {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+
+  .archive-row__status--live .archive-row__status-dot,
+  .archive-row__status--mvp .archive-row__status-dot {
+    background: var(--color-signal-pass);
+  }
+
+  .archive-row__short {
+    max-width: 46rem;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .archive-row__stack {
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .archive-row__chev {
+    padding-top: var(--space-2);
+    color: var(--color-accent-text);
+    font-family: var(--font-mono);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition:
+      opacity var(--duration-quick) var(--ease-standard),
+      transform var(--duration-quick) var(--ease-standard);
+  }
+
+  .archive-row__link:hover .archive-row__chev,
+  .archive-row__link:focus-visible .archive-row__chev {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .archive-row__link:hover .archive-row__name,
+  .archive-row__link:focus-visible .archive-row__name {
+    color: var(--color-accent-text);
+  }
+
+  @media (max-width: 30rem) {
+    .archive-row__link {
+      grid-template-columns: 2rem minmax(0, 1fr);
+    }
+
+    .archive-row__chev {
+      display: none;
+    }
+  }
+</style>

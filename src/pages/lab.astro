@@ -1,0 +1,25 @@
+---
+import ReliabilityLab from '../components/ReliabilityLab.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Reliability Lab — One payload, seven stages | Stephen Mensah';
+const description =
+  'The Syncareer engineering investigation, opened as an instrument. Run it, step it, or inspect any stage directly: what the payload was, what the system did to it, and what it handed on. Illustrative payloads are labelled as fixtures.';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Reliability Lab',
+  description,
+  url: new URL('/lab/', Astro.site).href,
+  author: {
+    '@type': 'Person',
+    name: 'Stephen Mensah',
+    url: new URL('/', Astro.site).href,
+  },
+};
+---
+
+<BaseLayout {title} {description} {structuredData}>
+  <ReliabilityLab />
+</BaseLayout>

@@ -1024,16 +1024,7 @@ select,
 /* Scoped component styles intentionally stay authoritative for their
    internal states. These section-qualified selectors are the final
    composition constraints, so the hierarchy also holds at wide view. */
-section.hero .hero__instrument { padding: var(--space-5); border: 1px solid var(--color-rule-on-canvas-strong); background: var(--color-deck-soft); }
-section.hero .hero__instrument-label { padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-rule-on-canvas); }
 section.hero .hero__instrument .trace { min-height: clamp(11rem, 22vw, 16rem); }
-
-section#syncareer .sync-preview__product { max-width: none; margin-inline: calc(-1 * var(--space-2)); }
-section#syncareer .sync-preview__product .product-frame { border-color: var(--color-rule-on-paper-strong); }
-section#syncareer .sync-preview__problem { max-width: 38rem; padding-block: var(--space-4); background: color-mix(in srgb, var(--color-signal-fail-tint) 62%, var(--color-sheet)); }
-section#syncareer .sync-preview__trail-block,
-section#syncareer .sync-preview__boundary,
-section#syncareer .sync-preview__actions { opacity: 0.82; }
 
 section#reliability-lab .lab__title { font-size: clamp(1.5rem, 2.5vw, 2.25rem); }
 section#reliability-lab .lab__intro { max-width: 34rem; font-size: var(--text-small); }
@@ -1041,12 +1032,12 @@ section#reliability-lab .lab__bench { border-color: var(--color-rule-on-canvas-s
 section#reliability-lab .lab__boundary,
 section#reliability-lab .lab__keys { opacity: 0.72; }
 
-section#toolkit .toolkit__index { padding-top: var(--space-2); border-top: 2px solid var(--color-rule-on-paper-strong); }
-section#toolkit .toolkit__primary-header h3 { font-size: var(--text-component); }
-section#toolkit .toolkit__trigger { min-height: 3rem; font-size: 1rem; }
-section#toolkit .toolkit__detail { background: var(--color-sheet-soft); border-color: var(--color-rule-on-paper); }
-section#toolkit .toolkit__panel { padding: var(--space-4); }
-section#toolkit .toolkit__more { opacity: 0.82; }
+section#capabilities .toolkit__index { padding-top: var(--space-2); border-top: 2px solid var(--color-rule-on-paper-strong); }
+section#capabilities .toolkit__primary-header h3 { font-size: var(--text-component); }
+section#capabilities .toolkit__trigger { min-height: 3rem; font-size: 1rem; }
+section#capabilities .toolkit__detail { background: var(--color-sheet-soft); border-color: var(--color-rule-on-paper); }
+section#capabilities .toolkit__panel { padding: var(--space-4); }
+section#capabilities .toolkit__more { opacity: 0.82; }
 
 section#experience .experience__list { border-top: 2px solid var(--color-rule-on-paper-strong); }
 section#experience .experience__item:first-child { border-top: 0; }
@@ -1056,7 +1047,6 @@ section#experience .experience__dates,
 section#experience .experience__meta { color: var(--color-text-on-paper-faint); }
 
 section#evidence .evidence__header .region-lede { opacity: 0.72; }
-section#evidence .evidence__drawer { border: 1px solid var(--color-rule-on-canvas-strong); background: var(--color-deck-deep); }
 section#evidence .evidence__panels { padding: var(--space-6); }
 section#evidence .evidence__record-name { font-size: 1.2rem; }
 section#evidence .evidence__plate-well { padding: var(--space-5); }
@@ -1068,15 +1058,10 @@ section#contact .contact__address { padding-block: var(--space-6); border-top: 2
 section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
 
 @media (min-width: 48rem) {
-  section#toolkit .toolkit__index { grid-template-columns: minmax(17rem, 1.15fr) minmax(0, 0.85fr); column-gap: var(--space-8); }
+  section#capabilities .toolkit__index { grid-template-columns: minmax(17rem, 1.15fr) minmax(0, 0.85fr); column-gap: var(--space-8); }
   section#evidence .evidence__drawer { grid-template-columns: minmax(13rem, 0.75fr) minmax(0, 1.45fr); }
 }
-@media (min-width: 60rem) {
-  section#syncareer .sync-preview__product { margin-inline: calc(-1 * var(--space-5)); }
-}
 @media (max-width: 47.99rem) {
-  section.hero .hero__instrument { padding: var(--space-3); }
-  section#syncareer .sync-preview__product { margin-inline: 0; }
   section#evidence .evidence__panels { padding: var(--space-4); }
 }
 
@@ -1089,21 +1074,6 @@ section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
 */
 
 @media (min-width: 60rem) {
-  /* SYNCareer: the artifact spans the full measure; the supporting
-     failure and inspection trail then split 70 / 30 beneath it. */
-  section#syncareer .sync-preview__body {
-    grid-template-columns: minmax(0, 1.65fr) minmax(12rem, 0.75fr);
-    column-gap: clamp(var(--space-6), 4vw, var(--space-9));
-    row-gap: clamp(var(--space-5), 3vw, var(--space-7));
-  }
-  section#syncareer .sync-preview__header,
-  section#syncareer .sync-preview__product,
-  section#syncareer .sync-preview__actions { grid-column: 1 / -1; }
-  section#syncareer .sync-preview__problem { grid-column: 1; align-self: start; }
-  section#syncareer .sync-preview__trail-block,
-  section#syncareer .sync-preview__boundary { grid-column: 2; align-self: start; }
-  section#syncareer .sync-preview__boundary { margin-top: var(--space-4); }
-
   /* Lab: one dominant viewport with a deliberately shorter control
      register. The instrument remains dense without becoming uniform. */
   section#reliability-lab .lab__bench {
@@ -1122,7 +1092,7 @@ section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
 
   /* The tool index is a capability register first; the selected record
      is a narrower readout rather than a co-equal panel. */
-  section#toolkit .toolkit__index {
+  section#capabilities .toolkit__index {
     grid-template-columns: minmax(0, 1.55fr) minmax(14rem, 0.75fr);
     column-gap: clamp(var(--space-6), 4vw, var(--space-9));
   }
@@ -1149,9 +1119,6 @@ section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
 /* Small compositional breaks on the sheet: the artifact can touch the
    content measure while labels remain on the original axis. */
 @media (min-width: 75rem) {
-  section#syncareer .sync-preview__product {
-    margin-inline: calc(-1 * var(--space-8));
-  }
   section#evidence .evidence__panels {
     padding-inline: var(--space-7);
   }
@@ -1160,13 +1127,170 @@ section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
 /* On mobile, keep the order and dominant objects, but turn every
    horizontal relationship into a clean vertical one. */
 @media (max-width: 59.99rem) {
-  section#syncareer .sync-preview__body { gap: var(--space-7); }
-  section#syncareer .sync-preview__product { margin-inline: 0; }
-  section#syncareer .sync-preview__problem { max-width: 100%; }
   section#reliability-lab .lab__bench { gap: var(--space-4); }
   section#reliability-lab .lab__transport { padding-top: var(--space-3); }
   section#about .about__body,
   section#experience .region-body { max-width: none; }
+}
+
+/* ------------------------------------------------------------------
+   Case chrome — shared by every /work/ case page
+   ------------------------------------------------------------------
+   One source for the page-level vocabulary all case studies use:
+   hero opening, project record, evidence boundary, contact close.
+   Page-scoped styles stay authoritative for anything unique.
+*/
+article.case-page { border-bottom: var(--border-default); }
+article.case-page .case-hero { padding-block: clamp(2.25rem, 4.5vw, 3.5rem); }
+article.case-page .case-opening {
+  display: grid;
+  gap: clamp(var(--space-5), 2.5vw, var(--space-6));
+}
+article.case-page .back-link {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  color: var(--color-text-on-paper-muted);
+  font-size: var(--text-small);
+  text-decoration: none;
+}
+article.case-page .back-link:hover { color: var(--color-accent-text); }
+article.case-page .case-hero h1,
+article.case-page .case-opening__copy h1 {
+  max-width: 18ch;
+  margin-block: var(--space-3) var(--space-4);
+  font-size: var(--text-feature);
+  font-weight: 650;
+  letter-spacing: -0.045em;
+  line-height: 1.04;
+}
+article.case-page .case-summary {
+  max-width: var(--width-reading);
+  margin: 0;
+  color: var(--color-text-on-paper-muted);
+  font-size: var(--text-body-large);
+  line-height: 1.55;
+}
+article.case-page .product-record {
+  position: relative;
+  align-self: end;
+  padding: var(--space-5);
+  border: 1px solid var(--color-rule-on-paper);
+  background: var(--color-paper-soft);
+  overflow: hidden;
+}
+article.case-page .record-heading {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+}
+article.case-page .record-heading p,
+article.case-page .record-heading span,
+article.case-page .product-record dt {
+  margin: 0;
+  color: var(--color-text-on-paper-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+article.case-page .record-heading span { color: var(--color-accent-text); }
+article.case-page .product-record__name {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-component);
+  font-weight: 600;
+}
+article.case-page .product-record dl {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--color-rule-on-paper);
+}
+article.case-page .product-record dl div {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-rule-on-paper-soft);
+}
+article.case-page .product-record dd {
+  margin: 0;
+  font-size: var(--text-small);
+}
+article.case-page .product-record a {
+  font-weight: 600;
+  color: var(--color-text-on-paper);
+  text-decoration: none;
+}
+article.case-page .product-record a:hover { color: var(--color-accent-text); }
+article.case-page .boundary-panel {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-5);
+  border: 1px solid var(--color-rule-on-paper);
+  background: var(--color-paper-soft);
+}
+article.case-page .boundary-panel h2 {
+  margin: 0;
+  font-size: var(--text-component);
+  font-weight: 600;
+}
+article.case-page .boundary-list {
+  display: grid;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--color-rule-on-paper);
+  list-style: none;
+}
+article.case-page .boundary-list li {
+  position: relative;
+  padding: var(--space-3) 0 var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  color: var(--color-text-on-paper-muted);
+  font-size: var(--text-small);
+  line-height: 1.45;
+}
+article.case-page .boundary-list li::before {
+  position: absolute;
+  left: 0;
+  color: var(--color-text-on-paper-muted);
+  content: '—';
+  font-family: var(--font-mono);
+}
+article.case-page .boundary-list li[data-state='known']::before {
+  color: var(--color-signal-pass-text);
+  content: '✓';
+}
+article.case-page .boundary-list li[data-state='missing']::before {
+  color: var(--color-signal-fail-text);
+  content: '×';
+}
+article.case-page .case-content { padding-bottom: var(--space-6); }
+article.case-page .case-content > section {
+  padding-block: var(--space-6);
+  border-top: 1px solid var(--color-rule-on-paper);
+}
+article.case-page .contact-section h2 {
+  margin-block: var(--space-2) var(--space-4);
+  font-size: var(--text-section);
+  font-weight: 600;
+  line-height: 1.1;
+}
+article.case-page .contact-section .button { margin-top: var(--space-3); }
+
+@media (min-width: 64rem) {
+  article.case-page .case-opening {
+    grid-template-columns: minmax(0, 7fr) minmax(19rem, 5fr);
+    align-items: end;
+  }
+}
+
+@media (max-width: 30rem) {
+  article.case-page .case-hero h1,
+  article.case-page .case-opening__copy h1 { font-size: 1.75rem; }
 }
 
 /* ------------------------------------------------------------------
@@ -1184,30 +1308,20 @@ section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
 
 /* Toolkit: the index is the view. The selected item is an inspection
    readout, not another bordered card in the page sequence. */
-section#toolkit .toolkit__detail {
+section#capabilities .toolkit__detail {
   border: 0;
   border-left: 2px solid var(--color-rule-on-paper-strong);
   background: transparent;
 }
-section#toolkit .toolkit__panel {
+section#capabilities .toolkit__panel {
   padding: var(--space-3) 0 var(--space-3) var(--space-5);
 }
-section#toolkit .toolkit__panel-header {
+section#capabilities .toolkit__panel-header {
   padding-bottom: var(--space-2);
   border-bottom: 0;
 }
-section#toolkit .toolkit__panel-grid { gap: var(--space-4); }
-section#toolkit .toolkit__panel-note { opacity: 0.78; }
-
-/* Homepage Syncareer: one overview object, then restrained supporting
-   notes. The product frame is the only large enclosure in this block. */
-section#syncareer .sync-preview__claim { opacity: 0.82; }
-section#syncareer .sync-preview__trail { border-top-color: var(--color-rule-on-paper-soft); }
-section#syncareer .sync-preview__trail li { border-bottom-color: var(--color-rule-on-paper-soft); }
-section#syncareer .sync-preview__boundary {
-  padding-top: var(--space-3);
-  border-top-color: var(--color-rule-on-paper-soft);
-}
+section#capabilities .toolkit__panel-grid { gap: var(--space-4); }
+section#capabilities .toolkit__panel-note { opacity: 0.78; }
 
 /* Case study: decisions read as an open register, not three equal
    cards. The actual product surfaces retain their artifact frames. */
@@ -1270,10 +1384,10 @@ article.case-page .product-record dt { opacity: 0.76; }
 @media (max-width: 47.99rem) {
   article.case-page .case-surfaces__grid,
   article.case-page .outcome-grid { grid-template-columns: 1fr; }
-  section#toolkit .toolkit__detail {
+  section#capabilities .toolkit__detail {
     border-left: 0;
     border-top: 1px solid var(--color-rule-on-paper-strong);
   }
-  section#toolkit .toolkit__panel { padding: var(--space-4) 0 0; }
+  section#capabilities .toolkit__panel { padding: var(--space-4) 0 0; }
 }
 .section-frame.section-frame .section-frame__status { opacity: 0.62; }

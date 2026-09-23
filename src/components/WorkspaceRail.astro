@@ -1,27 +1,31 @@
 ---
 /**
- * WorkspaceRail — the persistent navigation surface of the environment.
+ * WorkspaceRail — the persistent navigation surface of the site.
  *
- * Desktop (>= 64rem): a vertical rail on the left of the viewport,
- * listing destinations as numbered, mono-labelled rows. Active section
- * is tracked by an IntersectionObserver in the page-level script.
+ * Desktop (>= 64rem): a vertical rail on the left of the viewport with
+ * two groups — PRIMARY (01 Home · 02 Work · 03 Lab · 04 Profile) and
+ * UTILITIES (Résumé · Email). "Current" is derived from the route, not
+ * from scroll position; an IntersectionObserver only drives the mono
+ * path readout and the progress spine.
  *
- * Tablet/Mobile (< 64rem): a compact bar at the bottom of the viewport
- * with the same destinations rendered as icon-less, mono-labelled tabs.
- * A "menu" disclosure opens a drawer with the full destination list.
+ * Tablet/Mobile (< 64rem): a compact bar with the four primary
+ * destinations plus a "More" disclosure that opens a drawer with the
+ * full list and descriptions.
  *
- * The rail is keyboard-operable: Tab to move, Enter / Space to activate.
- * Each destination is a real link (or button for the in-page disclosure).
- * The current page is announced via aria-current.
+ * The rail is keyboard-operable: every destination is a real link. The
+ * current page is announced via aria-current="page".
  */
-import { destinations } from '../config/workspace';
+import {
+  primaryDestinations,
+  utilityDestinations,
+  destinationForPath,
+  type Destination,
+} from '../config/workspace';
 
-const isHomepage = Astro.url.pathname === '/';
-const isCasePage = Astro.url.pathname.startsWith('/work/');
-const homeHref = (id: string) => (isHomepage ? `#${id}` : `/#${id}`);
+const currentId = destinationForPath(Astro.url.pathname);
+const currentIndex = primaryDestinations.findIndex((dest) => dest.id === currentId);
 
-// Determine which workspace item should be marked as current based on the route
-const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
+const destHref = (dest: Destination) => dest.href;
 ---
 
 <div class="workspace-rail" data-workspace-rail>
@@ -33,41 +37,59 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
     </span>
   </div>
 
-  <!-- Header stacks — label over the live readout — so the copper
-       path never has to share a line with the heading in a 15rem rail. -->
   <div class="workspace-rail__header">
-    <span class="mono-label workspace-rail__heading">Workspaces</span>
-    <span class="workspace-rail__path mono-label mono-label--bare" data-workspace-path>00 / 00</span>
+    <span class="mono-label workspace-rail__heading">Primary</span>
+    <span class="workspace-rail__path mono-label mono-label--bare" data-workspace-path>
+      {currentIndex >= 0
+        ? `${primaryDestinations[currentIndex]?.index} / ${String(primaryDestinations.length).padStart(2, '0')}`
+        : '— / —'}
+    </span>
   </div>
 
-  <nav aria-label="Primary workspace destinations" class="workspace-rail__nav">
+  <nav aria-label="Primary site destinations" class="workspace-rail__nav">
     <div class="workspace-rail__progress" aria-hidden="true">
-      <span class="workspace-rail__progress-fill" data-workspace-progress></span>
+      <span
+        class="workspace-rail__progress-fill"
+        data-workspace-progress
+        style={currentIndex >= 0 ? `height: ${((currentIndex + 1) / primaryDestinations.length) * 100}%` : ''}
+      ></span>
     </div>
     <ol class="workspace-rail__list" data-workspace-list>
-      {destinations.map((dest) => {
-        const href = dest.kind === 'home' ? homeHref(dest.section) : dest.section;
-        const isExternal = dest.kind === 'external';
-        return (
-          <li class="workspace-rail__item" data-workspace-item={dest.id}>
-            <a
-              class="workspace-rail__link"
-              href={href}
-              aria-current={dest.id === currentDest ? 'true' : undefined}
-              data-workspace-link={dest.id}
-              target={isExternal ? '_blank' : undefined}
-              rel={isExternal ? 'noopener noreferrer' : undefined}
-            >
-              <!-- Desktop rows stay a pure index — number, name, edge.
-                   The one-line captions live in the mobile drawer,
-                   where they orient instead of crowd. -->
-              <span class="workspace-rail__index" aria-hidden="true">{dest.index}</span>
-              <span class="workspace-rail__label">{dest.label}</span>
-              <span class="workspace-rail__chev" aria-hidden="true">›</span>
-            </a>
-          </li>
-        );
-      })}
+      {primaryDestinations.map((dest) => (
+        <li class="workspace-rail__item" data-workspace-item={dest.id}>
+          <a
+            class="workspace-rail__link"
+            href={destHref(dest)}
+            aria-current={dest.id === currentId ? 'page' : undefined}
+            data-workspace-link={dest.id}
+          >
+            <span class="workspace-rail__index" aria-hidden="true">{dest.index}</span>
+            <span class="workspace-rail__label">{dest.label}</span>
+            <span class="workspace-rail__chev" aria-hidden="true">›</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+
+    <span class="mono-label workspace-rail__group-heading">Utilities</span>
+    <ol class="workspace-rail__list workspace-rail__list--utilities">
+      {utilityDestinations.map((dest) => (
+        <li class="workspace-rail__item" data-workspace-item={dest.id}>
+          <a
+            class="workspace-rail__link"
+            href={destHref(dest)}
+            data-workspace-link={dest.id}
+            target={dest.external ? '_blank' : undefined}
+            rel={dest.external ? 'noopener noreferrer' : undefined}
+          >
+            <span class="workspace-rail__index" aria-hidden="true">{dest.index}</span>
+            <span class="workspace-rail__label">{dest.label}</span>
+            <span class="workspace-rail__chev workspace-rail__chev--ext" aria-hidden="true">
+              {dest.external ? '↗' : '→'}
+            </span>
+          </a>
+        </li>
+      ))}
     </ol>
   </nav>
 
@@ -76,7 +98,7 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
       <span class="workspace-rail__status-dot" aria-hidden="true"></span>
       <span>Open to AI engineering roles</span>
     </span>
-    <a class="workspace-rail__contact text-link" href={homeHref('contact')}>
+    <a class="workspace-rail__contact text-link" href={utilityDestinations[1]?.href ?? '#'}>
       Start a conversation
       <span class="text-link__arrow" aria-hidden="true">→</span>
     </a>
@@ -84,32 +106,30 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
 </div>
 
 <!-- Compact mobile / tablet bar -->
-<nav class="workspace-bar" data-workspace-bar aria-label="Quick workspace destinations">
+<nav class="workspace-bar" data-workspace-bar aria-label="Quick site destinations">
   <div class="workspace-bar__inner">
     <a
       class="workspace-bar__home"
       href="/"
       aria-label="Stephen Mensah — home"
-      data-workspace-link="top"
+      data-workspace-link="home"
     >
       <span class="workspace-bar__home-mark" aria-hidden="true">SM</span>
     </a>
     <ol class="workspace-bar__list">
-      {destinations
-        .filter((d) => d.kind !== 'external')
-        .map((dest) => (
-          <li class="workspace-bar__item" data-workspace-bar-item={dest.id}>
-            <a
-              class="workspace-bar__link"
-              href={dest.kind === 'home' ? homeHref(dest.section) : dest.section}
-              aria-current={dest.id === currentDest ? 'true' : undefined}
-              data-workspace-link={dest.id}
-            >
-              <span class="workspace-bar__index" aria-hidden="true">{dest.index}</span>
-              <span class="workspace-bar__label">{dest.label}</span>
-            </a>
-          </li>
-        ))}
+      {primaryDestinations.map((dest) => (
+        <li class="workspace-bar__item" data-workspace-bar-item={dest.id}>
+          <a
+            class="workspace-bar__link"
+            href={destHref(dest)}
+            aria-current={dest.id === currentId ? 'page' : undefined}
+            data-workspace-link={dest.id}
+          >
+            <span class="workspace-bar__index" aria-hidden="true">{dest.index}</span>
+            <span class="workspace-bar__label">{dest.label}</span>
+          </a>
+        </li>
+      ))}
       <li class="workspace-bar__item">
         <button
           class="workspace-bar__more"
@@ -129,26 +149,23 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
     <div class="workspace-bar__drawer-inner page-shell">
       <p class="mono-label workspace-bar__drawer-eyebrow">All destinations</p>
       <ol class="workspace-bar__drawer-list">
-        {destinations.map((dest) => {
-          const href = dest.kind === 'home' ? homeHref(dest.section) : dest.section;
-          return (
-            <li>
-              <a
-                href={href}
-                target={dest.kind === 'external' ? '_blank' : undefined}
-                rel={dest.kind === 'external' ? 'noopener noreferrer' : undefined}
-                class="workspace-bar__drawer-link"
-              >
-                <span class="workspace-bar__index" aria-hidden="true">{dest.index}</span>
-                <span class="workspace-bar__drawer-label">{dest.label}</span>
-                <span class="workspace-bar__drawer-description">{dest.description}</span>
-                <span class="workspace-bar__drawer-chev" aria-hidden="true">
-                  {dest.kind === 'external' ? '↗' : '→'}
-                </span>
-              </a>
-            </li>
-          );
-        })}
+        {[...primaryDestinations, ...utilityDestinations].map((dest) => (
+          <li>
+            <a
+              href={destHref(dest)}
+              target={dest.external ? '_blank' : undefined}
+              rel={dest.external ? 'noopener noreferrer' : undefined}
+              class="workspace-bar__drawer-link"
+            >
+              <span class="workspace-bar__index" aria-hidden="true">{dest.index}</span>
+              <span class="workspace-bar__drawer-label">{dest.label}</span>
+              <span class="workspace-bar__drawer-description">{dest.description}</span>
+              <span class="workspace-bar__drawer-chev" aria-hidden="true">
+                {dest.external ? '↗' : '→'}
+              </span>
+            </a>
+          </li>
+        ))}
       </ol>
     </div>
   </div>
@@ -156,55 +173,31 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
 
 <script>
   const rail = document.querySelector<HTMLElement>('[data-workspace-rail]');
-  const bar = document.querySelector<HTMLElement>('[data-workspace-bar]');
   const pathLabel = rail?.querySelector<HTMLElement>('[data-workspace-path]');
   const progressFill = rail?.querySelector<HTMLElement>('[data-workspace-progress]');
 
-  // --- Section tracking via IntersectionObserver -------------------------
-  // Tracks which destination section is in view and reflects it on the rail.
-  // The progress fill reveals structure: where you are in the workspace.
-  // Sections map onto destinations via data-workspace-dest (several
-  // sections share one destination — e.g. every Work section maps to "work").
-  const homeSections = document.querySelectorAll<HTMLElement>('main [data-workspace-section]');
-  const homeLinkLookup = new Map<string, HTMLAnchorElement>();
-  rail?.querySelectorAll<HTMLAnchorElement>('[data-workspace-link]').forEach((link) => {
-    const id = link.dataset.workspaceLink;
-    if (id) homeLinkLookup.set(id, link);
-  });
-  bar?.querySelectorAll<HTMLAnchorElement>('[data-workspace-link]').forEach((link) => {
-    const id = link.dataset.workspaceLink;
-    if (id && !homeLinkLookup.has(id)) homeLinkLookup.set(id, link);
-  });
-
-  const allSections = Array.from(homeSections);
-  const sectionOrder = allSections.map((s) => s.dataset.workspaceSection ?? '');
-
-  const destOf = (section: HTMLElement): string => {
-    if (section.dataset.workspaceDest !== undefined) return section.dataset.workspaceDest;
-    const id = section.dataset.workspaceSection ?? '';
-    return id === 'top' ? '' : id;
-  };
+  // --- Page-flow readout -----------------------------------------------
+  // "Current" is route-based and set at render time. The observer below
+  // only drives the mono path readout and the progress spine: where the
+  // visitor is in the current page's flow (sections carry
+  // data-workspace-section on every page).
+  const sections = Array.from(
+    document.querySelectorAll<HTMLElement>('main [data-workspace-section]'),
+  );
+  const sectionOrder = sections.map((s) => s.dataset.workspaceSection ?? '');
 
   const setActive = (id: string) => {
-    const section = allSections.find((s) => s.dataset.workspaceSection === id);
-    if (!section) return;
     const order = sectionOrder.indexOf(id);
     const total = sectionOrder.filter(Boolean).length;
-    if (pathLabel && order >= 0) {
+    if (pathLabel && order >= 0 && total > 0) {
       pathLabel.textContent = `${String(order + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
     }
     if (progressFill && order >= 0 && total > 0) {
-      const pct = ((order + 1) / total) * 100;
-      progressFill.style.height = `${pct}%`;
+      progressFill.style.height = `${((order + 1) / total) * 100}%`;
     }
-    const destId = destOf(section);
-    homeLinkLookup.forEach((link, linkId) => {
-      if (destId && linkId === destId) link.setAttribute('aria-current', 'true');
-      else link.removeAttribute('aria-current');
-    });
   };
 
-  if (allSections.length > 0) {
+  if (sections.length > 0) {
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
@@ -217,7 +210,7 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
       },
       { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
     );
-    allSections.forEach((s) => observer.observe(s));
+    sections.forEach((s) => observer.observe(s));
   }
 
   // --- Mobile drawer ----------------------------------------------------
@@ -303,12 +296,12 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
     border: 1px solid var(--color-accent);
     color: var(--color-accent-text);
     text-decoration: none;
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.04em;
   }
 
   .workspace-bar__home-mark {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
     line-height: 1;
   }
 
@@ -366,7 +359,7 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
     border-color: var(--color-accent);
   }
 
-  .workspace-bar__link[aria-current='true'] {
+  .workspace-bar__link[aria-current] {
     color: var(--color-accent-text);
     border-color: var(--color-accent);
     background: var(--color-canvas-soft);
@@ -549,6 +542,9 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
 
     .workspace-rail__nav {
       position: relative;
+      display: grid;
+      gap: var(--space-4);
+      align-content: start;
       padding-left: var(--space-3);
     }
 
@@ -647,16 +643,32 @@ const currentDest = isCasePage ? 'work' : isHomepage ? 'work' : null;
       transform: translateX(0);
     }
 
+    .workspace-rail__list--utilities .workspace-rail__chev {
+      opacity: 1;
+      transform: none;
+      font-size: 0.75rem;
+    }
+
+    .workspace-rail__group-heading {
+      color: var(--color-text-on-canvas-faint);
+      padding-top: var(--space-2);
+      border-top: 1px solid var(--color-rule-on-canvas-soft);
+    }
+
+    .workspace-rail__list--utilities .workspace-rail__link {
+      min-height: 2.25rem;
+    }
+
     /* ACTIVE — the rail's selected state borrows the lab's active-stage
        vocabulary: a copper edge, a copper index, full-contrast label,
        and a recessed ground. No wash, no chevron — one meaning. */
-    .workspace-rail__link[aria-current='true'] {
+    .workspace-rail__link[aria-current] {
       color: var(--color-text-on-canvas);
       background: var(--color-canvas-inset);
       box-shadow: inset 2px 0 0 var(--color-accent);
     }
 
-    .workspace-rail__link[aria-current='true'] .workspace-rail__chev {
+    .workspace-rail__link[aria-current] .workspace-rail__chev {
       opacity: 1;
       transform: translateX(0);
     }

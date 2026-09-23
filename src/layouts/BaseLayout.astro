@@ -44,6 +44,27 @@ const socialImageURL = new URL(image, Astro.site);
 <html lang="en">
   <head>
     <script is:inline>document.documentElement.classList.add('js');</script>
+    <!-- Legacy anchor routes: the old single-page anchors now live on
+         real routes. Old /#section URLs are mapped to their new homes
+         before first paint. Fragment-only mapping — no server route
+         depends on this. -->
+    <script is:inline>
+      (function () {
+        if (location.pathname !== '/' || !location.hash) return;
+        var legacy = {
+          '#about': '/profile/#about',
+          '#toolkit': '/profile/#capabilities',
+          '#experience': '/profile/#experience',
+          '#evidence': '/profile/#evidence',
+          '#reliability-lab': '/lab/',
+          '#syncareer': '/work/syncareer/',
+          '#sessionbook': '/work/sessionbook/',
+          '#koranco': '/work/koranco/',
+        };
+        var target = legacy[location.hash];
+        if (target) location.replace(target);
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google-site-verification" content="n5Zp1r0200c1EAmsKwpPnrSlVwWY-pz7RMShX3SFCRg" />

@@ -1,14 +1,18 @@
 /**
- * Project registry — single source of truth for project metadata.
+ * Project registry types.
  *
- * Every project shape surface in the environment reads from this file.
- * Adding a new project means: add an entry here, add the route file,
- * add the entry to the sitemap route list. Nothing else.
+ * Every project-shaped surface (archive, case pages, sitemap) reads from
+ * the registry. Adding a new project means: add an entry in registry.ts,
+ * add the route file, add the route to the sitemap list. Nothing else.
+ *
+ * Stage-level investigation data does NOT belong here — it lives in the
+ * investigation module of the project it belongs to (one canonical
+ * record per project, per AGENTS.md §5). `stages` is therefore optional
+ * and only carries a stage list that has no other home.
  *
  * Evidence rules (per AGENTS.md):
  *   - status reflects reality, not aspiration
  *   - evidence[] items are real artifacts or explicitly "illustrative"
- *   - claim limits live next to the project so the boundary travels
  */
 
 export type ProjectStatus =
@@ -67,29 +71,20 @@ export type Project = {
   id: string;
   /** Display name (short). */
   name: string;
-  /** One-line claim used in lists and the inspector. */
+  /** One-line claim used in the archive index. */
   short: string;
   /** Mono-tagged status — visible wherever the project appears. */
   status: ProjectStatus;
-  /** The headline framing of the project (used in environment cards). */
+  /** The headline framing of the project (used on the case page). */
   claim: string;
   /** Three to five evidence points, each anchored to a real artifact. */
   evidence: ProjectEvidence[];
-  /** Honest boundary on what is NOT claimed. Optional but encouraged. */
+  /** Honest boundary on what is NOT claimed. Rendered on the project's own page. */
   claimLimit?: string;
   /** Stack — short list of the most relevant items. */
   stack: string[];
   /** Where this project's full case study lives. */
   route: string;
-  /** Stage list for the inspector. Drives both homepage and full case. */
-  stages: ProjectStage[];
-  /** Optional: which reliability narrative states apply on the homepage. */
-  narrativeStates?: Array<{
-    id: string;
-    label: string;
-    title: string;
-    summary: string;
-    tone: 'failure' | 'technical' | 'valid';
-    primaryStageId: string;
-  }>;
+  /** Optional stage list, when no dedicated investigation module exists. */
+  stages?: ProjectStage[];
 };

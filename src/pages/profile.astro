@@ -1,0 +1,35 @@
+---
+import AboutSection from '../components/AboutSection.astro';
+import ExperienceSection from '../components/ExperienceSection.astro';
+import CapabilitiesSection from '../components/CapabilitiesSection.astro';
+import EvidenceSection from '../components/EvidenceSection.astro';
+import ContactSection from '../components/ContactSection.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Profile — About, Experience, Capabilities, Evidence | Stephen Mensah';
+const description =
+  'The person behind the work: about Stephen Mensah, where he has worked, the capabilities anchored to real projects, and the credentials that are easier to show than describe.';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  name: 'Profile — Stephen Mensah',
+  description,
+  url: new URL('/profile/', Astro.site).href,
+  mainEntity: {
+    '@type': 'Person',
+    name: 'Stephen Mensah',
+    url: new URL('/', Astro.site).href,
+  },
+};
+---
+
+<BaseLayout {title} {description} {structuredData}>
+  <AboutSection />
+  <ExperienceSection />
+  <CapabilitiesSection />
+  <EvidenceSection />
+  <ContactSection />
+  <SiteFooter slot="footer" />
+</BaseLayout>

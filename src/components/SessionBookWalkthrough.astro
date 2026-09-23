@@ -25,7 +25,7 @@ interface WalkStep {
   };
   codeLabel: string;
   /** 'illustrative' or 'implementation' — drives the label chip */
-  provenance: 'illustrative' | 'implementation' | 'illustrative-failure';
+  provenance: 'illustrative' | 'implementation';
   badge: string;
   code: string;
   bullets: string[];
@@ -39,40 +39,40 @@ const steps: WalkStep[] = [
     label: 'TOOL',
     title: 'What the agent is allowed to call',
     summary:
-      'One asset tells AssemblyAI what exists and what arguments it takes. It is not implemented yet.',
+      'One asset tells AssemblyAI what exists, what arguments it takes, and how long it may wait.',
     callout: {
-      title: 'Not granted yet',
-      note: 'SessionBook\u2019s tools.py and agent.json are both empty today. This definition shows the intended shape for a booking tool and is marked illustrative.',
+      title: 'Implemented',
+      note: 'This is the real book_slot tool definition from voice_agent/agent.json, alongside get_today, check_availability and confirm_booking.',
     },
-    codeLabel: 'ILLUSTRATIVE — TOOL DEFINITION (CONCEPTUAL)',
-    provenance: 'illustrative',
+    codeLabel: 'IMPLEMENTATION EXCERPT — voice_agent/agent.json',
+    provenance: 'implementation',
     badge: 'Tool definition',
     code: `{
   "name": "book_slot",
-  "description":
-    "Book the open slot the caller chose. Returns a confirmation
-     to read aloud. Answer in spoken words, not raw JSON.",
-  "http": {
-    "url": "{BASE_URL}/tools/book-slot",
-    "http_method": "POST"
-  },
+  "description": "Book a confirmed slot. Only call once the caller
+    has agreed to a specific time AND you have their name and
+    phone number.",
   "parameters": {
     "type": "object",
-    "required": ["slot_id", "caller_name", "caller_phone"],
     "properties": {
-      "slot_id":      { "type": "integer", "$comment": "from check-availability" },
-      "caller_name":  { "type": "string", "minLength": 1, "maxLength": 100 },
-      "caller_phone": { "type": "string", "pattern": "^\\+?[0-9]{7,15}$" }
-    }
+      "slot_id":     { "type": "integer", "description": "The id of the
+                       slot from check_availability that the caller chose." },
+      "caller_name": { "type": "string", "description": "The caller's
+                       full name as they said it." },
+      "caller_phone": { "type": "string", "description": "The caller's
+                       phone number, roughly as they said it." }
+    },
+    "required": ["slot_id", "caller_name", "caller_phone"]
   },
-  "timeout_seconds": 10
+  "http": { "url": "{{BASE_URL}}/tools/book_slot", "http_method": "POST" },
+  "timeout_seconds": 15
 }`,
     bullets: [
       'A name, a description the model reads, an argument schema, and the URL to call.',
       'The tool knows nothing about the calendar. The backend does.',
-      'Reference shape from the AssemblyAI HTTP-tools tutorial, adapted to SessionBook\u2019s service \u2014 not implemented in the repo.',
+      'The system prompt forbids calling book_slot with a missing or guessed field, and forbids inventing a confirmation code.',
     ],
-    evidence: 'voice_agent/agent.json and app/routers/tools.py \u2014 both empty; app/main.py wires only /health.',
+    evidence: 'voice_agent/agent.json \u2014 four tool definitions with HTTP URLs and timeouts; served by app/routers/tools.py.',
   },
   {
     id: 'request',
@@ -151,8 +151,8 @@ const steps: WalkStep[] = [
     title: 'Spoken by design \u2014 and what happens when it fails',
     summary:
       'Success answers as an agent speaks. Failure answers as a sentence the agent can turn into the next question.',
-    codeLabel: 'ILLUSTRATIVE — RESPONSE VALUES · SHAPES ARE REAL',
-    provenance: 'illustrative-failure',
+    codeLabel: 'IMPLEMENTATION EXCERPT — app/routers/tools.py',
+    provenance: 'implementation',
     badge: 'Response + failure',
     code: `// success \u2014 spoken as-is
 {
@@ -162,15 +162,20 @@ const steps: WalkStep[] = [
      Your confirmation code is K7Q3MN."
 }
 
-// slot takes two code paths that can fail without raising:
-//  SlotAlreadyBookedError  \u2192  slot already gone on arrival
-//  ValueError              \u2192  no such slot`,
+// failure \u2014 caught and answered as a sentence
+except SlotAlreadyBookedError:
+    raise HTTPException(
+        status_code=409,
+        detail="That slot was just taken, would you like another time?",
+    )
+except ValueError as exc:
+    raise HTTPException(status_code=404, detail=str(exc))`,
     bullets: [
       'Success: A sentence to read and a short code to repeat \u2014 no timestamp to reformat.',
-      'Still missing: a spoken failure sentence. book_slot raises SlotAlreadyBookedError and ValueError but does not yet turn them into words, and no route converts them into an HTTP response.',
-      'That gap matters for voice, for the reason in the reference: an agent that only hears "request failed" apologises; an agent that hears "that slot is taken, here is what remains" keeps the conversation alive.',
+      'Failure: 409 with \u201cThat slot was just taken, would you like another time?\u201d when the slot is gone on arrival; 404 when it never existed.',
+      'The system prompt closes the loop: if book_slot fails, tell the caller and offer to check availability again \u2014 never say the booking system is broken.',
     ],
-    evidence: 'app/schemas.py \u2014 BookingConfirmation. Raises in booking_service.py \u2014 the raised exceptions are not yet caught anywhere.',
+    evidence: 'app/routers/tools.py \u2014 book_slot catches SlotAlreadyBookedError and ValueError and returns speakable details.',
   },
 ];
 ---

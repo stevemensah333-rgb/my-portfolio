@@ -3,7 +3,7 @@ import { projects } from '../data/registry';
 
 export const prerender = true;
 
-const publicRoutes = ['/', ...projects.map(p => p.route)];
+const publicRoutes = ['/', '/work/', '/lab/', '/profile/', ...projects.map(p => p.route)];
 
 export const GET: APIRoute = ({ site }) => {
   const urls = publicRoutes
