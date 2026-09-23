@@ -1168,3 +1168,112 @@ section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
   section#about .about__body,
   section#experience .region-body { max-width: none; }
 }
+
+/* ------------------------------------------------------------------
+   Information density and repetition pass
+   ------------------------------------------------------------------
+   Keep the engineering record intact, but let a smaller set of rules,
+   artifacts and controls carry the visual grammar. Labels remain in
+   the document for orientation and accessibility; secondary ones are
+   quieter rather than competing with the subject.
+*/
+
+/* Section coordinates orient the reader. Status strings are useful
+   metadata, but should not read like a second heading on every region. */
+.section-frame__status { opacity: 0.62; }
+
+/* Toolkit: the index is the view. The selected item is an inspection
+   readout, not another bordered card in the page sequence. */
+section#toolkit .toolkit__detail {
+  border: 0;
+  border-left: 2px solid var(--color-rule-on-paper-strong);
+  background: transparent;
+}
+section#toolkit .toolkit__panel {
+  padding: var(--space-3) 0 var(--space-3) var(--space-5);
+}
+section#toolkit .toolkit__panel-header {
+  padding-bottom: var(--space-2);
+  border-bottom: 0;
+}
+section#toolkit .toolkit__panel-grid { gap: var(--space-4); }
+section#toolkit .toolkit__panel-note { opacity: 0.78; }
+
+/* Homepage Syncareer: one overview object, then restrained supporting
+   notes. The product frame is the only large enclosure in this block. */
+section#syncareer .sync-preview__claim { opacity: 0.82; }
+section#syncareer .sync-preview__trail { border-top-color: var(--color-rule-on-paper-soft); }
+section#syncareer .sync-preview__trail li { border-bottom-color: var(--color-rule-on-paper-soft); }
+section#syncareer .sync-preview__boundary {
+  padding-top: var(--space-3);
+  border-top-color: var(--color-rule-on-paper-soft);
+}
+
+/* Case study: decisions read as an open register, not three equal
+   cards. The actual product surfaces retain their artifact frames. */
+article.case-page .case-decisions__list li {
+  padding: var(--space-3) 0;
+  border: 0;
+  border-top: 1px solid var(--color-rule-on-paper);
+  background: transparent;
+}
+article.case-page .case-decisions__list li:last-child {
+  border-bottom: 1px solid var(--color-rule-on-paper);
+}
+article.case-page .case-decisions__list .mono-label { opacity: 0.72; }
+article.case-page .case-decisions__list p:last-child { max-width: 32rem; }
+article.case-page .case-surfaces__grid {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  align-items: start;
+}
+article.case-page .outcome-grid {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  align-items: start;
+}
+article.case-page .boundary-panel {
+  padding: var(--space-4) 0;
+  border: 0;
+  border-top: 1px solid var(--color-rule-on-paper-strong);
+  background: transparent;
+}
+article.case-page .boundary-list { border-top-color: var(--color-rule-on-paper-soft); }
+
+/* The trace and investigation are real interactive systems, so their
+   outer boundary stays. Quiet the repeated internal frames around
+   each field and artifact description. */
+article.case-page .investigation__workspace { border-color: var(--color-rule-on-paper-strong); }
+article.case-page .investigation__spine { border: 0; }
+article.case-page .investigation__tab { border-right-color: var(--color-rule-on-paper-soft); }
+article.case-page .investigation__from {
+  padding: var(--space-2) 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  background: transparent;
+}
+article.case-page .inv-list li {
+  padding: var(--space-2) 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  background: transparent;
+}
+article.case-page .investigation__handoff,
+article.case-page .investigation__evidence,
+article.case-page .investigation__from { opacity: 0.78; }
+article.case-page .investigation__evidence { padding-top: var(--space-2); }
+
+/* Repeated micro-labels still orient the inspection sequence, but the
+   large artifacts and headings carry the first read. */
+article.case-page .investigation__readout,
+article.case-page .case-decisions__stack,
+article.case-page .product-record dt { opacity: 0.76; }
+
+@media (max-width: 47.99rem) {
+  article.case-page .case-surfaces__grid,
+  article.case-page .outcome-grid { grid-template-columns: 1fr; }
+  section#toolkit .toolkit__detail {
+    border-left: 0;
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+  }
+  section#toolkit .toolkit__panel { padding: var(--space-4) 0 0; }
+}
+.section-frame.section-frame .section-frame__status { opacity: 0.62; }
