@@ -17,10 +17,10 @@ const description = 'The requested page could not be found.';
 <style>
   .not-found {
     display: grid;
-    min-height: calc(100svh - 5rem);
+    min-height: calc(100svh - var(--shell-control) - 2rem);
     align-content: center;
     justify-items: start;
-    padding-block: var(--space-9);
+    padding-block: var(--space-8);
   }
 
   .not-found p,
@@ -32,8 +32,6 @@ const description = 'The requested page could not be found.';
     max-width: 14ch;
     margin-top: var(--space-4);
     font-size: var(--text-feature);
-    letter-spacing: var(--tracking-heading);
-    line-height: var(--leading-heading);
   }
 
   .not-found > p:not(.mono-label) {

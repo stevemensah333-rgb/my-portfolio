@@ -26,6 +26,10 @@ const structuredData = {
 ---
 
 <BaseLayout {title} {description} {structuredData}>
+  <header class="profile-open page-shell" data-workspace-section="top" data-workspace-label="Profile">
+    <p class="mono-label">04 · Profile</p>
+    <h1>The person behind the work.</h1>
+  </header>
   <AboutSection />
   <ExperienceSection />
   <CapabilitiesSection />
@@ -33,3 +37,17 @@ const structuredData = {
   <ContactSection />
   <SiteFooter slot="footer" />
 </BaseLayout>
+
+<style>
+  .profile-open {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: clamp(2rem, 3.5vw, 3rem) var(--space-4);
+  }
+
+  .profile-open h1 {
+    max-width: 14ch;
+    margin: 0;
+    font-size: var(--text-feature);
+  }
+</style>

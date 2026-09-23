@@ -1,26 +1,55 @@
 /* ============================================================
    Stephen Mensah — Portfolio
-   Visual system: authored computing environment
+   Visual system: the workspace shell
    ------------------------------------------------------------
-   The site is an instrument. The aesthetic vocabulary comes from
-   technical panels, instrument readouts and schematic drawings —
-   not from retro, cyberpunk, or AI-art tropes. Everything below
-   is a single coherent system that must remain readable when
-   motion is disabled, when JavaScript is unavailable, and at
-   320 px width.
+   GOVERNING PRINCIPLE
+
+     LIGHT = INFORMATION     warm, readable, human, spacious
+     DARK  = INSTRUMENTATION deep charcoal, concentrated, technical
+
+   A surface is dark because something is being *operated* on it —
+   a trace, an instrument, a payload, a control rail. Everything
+   that is written to be read is light. The two environments are
+   not themes; they are two jobs.
+
+   Three type roles, three jobs:
+
+     DISPLAY    identity and major statements
+     CONTENT    body, interface, ordinary explanation
+     INSTRUMENT numbers, technical labels, system state, schemas,
+                code, diagnostic metadata
+
+   Orange means four things and nothing else: active, selected,
+   system status, attention. It is never a decoration.
+
+   Everything below must remain readable with motion disabled,
+   without JavaScript, and at 320px.
    ============================================================ */
 
 /* ----------------------------------------------------------------
-   1. Fonts
+   1. Fonts — three roles, three families
    ----------------------------------------------------------------
-   Two families, two jobs:
-   - Inter Variable → identity, prose, headings, UI labels
-   - IBM Plex Mono → technical readouts, coordinates, status,
-     section metadata, code
-   Both are self-hosted via @fontsource. `font-display: optional`
-   is kept for performance; the system has been verified to
-   fall back to system mono/sans without breaking the layout.
+   - Source Serif 4 Variable → DISPLAY. Identity and major
+     statements. The human register: warm, specific, worth reading.
+   - Inter Variable          → CONTENT. Body, interface, ordinary
+     headings. Neutral, fast, unremarkable on purpose.
+   - IBM Plex Mono           → INSTRUMENT. Numbers, technical
+     labels, system state, schemas, code, diagnostic metadata.
+
+   All self-hosted via @fontsource. `font-display: optional` keeps
+   the first paint stable; each family has a metric-sensible
+   fallback stack, and the layout has been verified not to break
+   when a fallback is used.
    ---------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Source Serif 4 Variable';
+  font-style: normal;
+  font-display: optional;
+  font-weight: 200 900;
+  src: url('@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2')
+    format('woff2-variations');
+}
 
 @font-face {
   font-family: 'Inter Variable';
@@ -41,59 +70,44 @@
 /* ----------------------------------------------------------------
    2. Design tokens
    ----------------------------------------------------------------
-   THE VISUAL GRAMMAR — "field notebook / instrument deck"
-
    Two environments, one accent, one geometry.
 
-   The two environments are the same material in two states:
-   warm paper and warm charcoal. No blue, no grey — both grounds
-   carry the same warm undertone, so a light→dark change reads as
-   a mode change of one surface, not a theme swap.
+   LIGHT (SHEET) — warm pressed paper. Where the work is explained
+     and the person is described. Surfaces get DARKER as they
+     recess: high < base < soft < inset.
 
-   DECK  — a deep warm charcoal. Non-black, faintly atmospheric.
-           Used for the identity band, the live instruments and the
-           closing surface. This is where the system RUNS.
-   SHEET — a warm pressed-linen ground. Used for the read surfaces:
-           project write-ups, experience, evidence, prose. This is
-           where the system is DOCUMENTED.
+   DARK (DECK) — deep charcoal. Where something is operated:
+     instruments, traces, payloads, and the shell's control rail.
+     Panels get LIGHTER as they surface toward the viewer:
+     deep < base < soft < inset < raised.
 
-   The accent is COPPER — an oxidised metal tone, not a brand blue
-   and not a UI amber. It only ever marks: active state, causal
-   emphasis, and the one control that matters in a region.
+   Both grounds carry the same warm undertone, so moving between
+   them reads as a change of job rather than a theme swap.
 
-   Geometry rule: 90° by default. The only curve in the system is a
-   circle (status dots, arc markers). No rounded cards.
-
-   Every token below is either a colour with a verified contrast
-   pairing, a measure on the 4px grid, or a named motion value.
-   Nothing here is decorative-by-default.
+   Geometry: 90 degrees is the default. A single small radius
+   (`--radius-contain`) exists for *containment* — a frame that
+   holds a captured artifact or a read-out — and is used
+   selectively, never as a default card treatment.
    ---------------------------------------------------------------- */
 
 :root {
-  /* 2.1 Environment: DECK (deep, cool, running) -------------------
-     Four steps. deep < base < soft < inset. Panels stack by getting
-     LIGHTER, so depth reads as "surfaced toward the viewer".
-     ---------------------------------------------- */
+  /* 2.1 Environment: DARK — instrumentation ------------------- */
 
-  --color-deck-deep: #0B0C0D;
-  --color-deck: #111314;
-  --color-deck-soft: #17191A;
-  --color-deck-inset: #1D2021;
-  --color-deck-raised: #25282A;
+  --color-deck-deep: #0A0C0D;
+  --color-deck: #101315;
+  --color-deck-soft: #161A1C;
+  --color-deck-inset: #1C2123;
+  --color-deck-raised: #242A2C;
 
-  /* 2.2 Environment: SHEET (warm, pressed, documented) ------------
-     high < base < soft < inset. Sheet surfaces get DARKER as they
-     recess, the inverse of deck — so the two environments read as
-     materially different, not as "light mode / dark mode".
-     ---------------------------------------------- */
+  /* 2.2 Environment: LIGHT — information ---------------------- */
 
-  --color-sheet-high: #F3EFE4;
-  --color-sheet: #EDE7D9;
-  --color-sheet-soft: #E5DECD;
-  --color-sheet-inset: #DAD2BD;
+  --color-sheet-high: #FCF9F2;
+  --color-sheet: #F6F1E6;
+  --color-sheet-soft: #EFE9DA;
+  --color-sheet-inset: #E4DBC7;
 
-  /* Legacy names — the whole component layer is authored against
-     these. Re-pointing them here is what carries the new palette
+  /* Aliases — the component layer is authored against these.
+     Re-pointing them here is what moves the two environments
      through every file without recolouring components one by one. */
   --color-canvas: var(--color-deck);
   --color-canvas-soft: var(--color-deck-soft);
@@ -103,61 +117,61 @@
   --color-paper-inset: var(--color-sheet-inset);
   --color-paper-tab: var(--color-sheet-soft);
 
-  /* 2.3 Text ------------------------------------------------------
-     Three steps per environment. Every faint tone below clears
-     4.5:1 against its own environment AND against that
-     environment's inset step (verified, see AUDIT contrast table).
-     ---------------------------------------------- */
+  /* 2.3 Text ---------------------------------------------------
+     Three steps per environment. Every faint tone clears 4.5:1
+     against its own environment AND against that environment's
+     inset step, which is the darkest (or lightest) ground it is
+     ever set on.
+     ------------------------------------------------------------ */
 
-  /* Three steps, and the ordering holds on every sheet tone. `faint`
-     is the floor: verified >= 4.5:1 even on `--color-sheet-inset`,
-     the darkest ground it is ever set on. */
-  --color-text-on-paper: #15181C;        /* 14.4:1 on sheet */
-  --color-text-on-paper-muted: #3D4349;  /* 8.1:1 on sheet, 6.6:1 on inset */
-  --color-text-on-paper-faint: #53595F;  /* 5.8:1 on sheet, 4.7:1 on inset */
+  --color-text-on-paper: #15181C;        /* >14:1 on sheet */
+  --color-text-on-paper-muted: #3D4349;  /* ~8:1 on sheet */
+  --color-text-on-paper-faint: #53595F;  /* ~5.8:1 on sheet */
 
   --color-text-on-canvas: #EAE7DF;
-  --color-text-on-canvas-muted: #A6A39B;  /* 7.4:1 on deck, 6.9:1 on inset */
-  --color-text-on-canvas-faint: #8F8C85;  /* 5.6:1 on deck, 5.1:1 on inset */
+  --color-text-on-canvas-muted: #A8A59D;
+  --color-text-on-canvas-faint: #918E87;
 
-  /* 2.4 Rules -----------------------------------------------------
-     Rules carry the geometry, so there are three weights, not one:
-       hair    — grouping inside a panel
-       rule    — the standard boundary
-       edge    — a structural division between regions (3:1)
-     ---------------------------------------------- */
+  /* 2.4 Rules --------------------------------------------------
+     Rules carry the geometry, so there are three weights:
+       -soft  grouping inside a panel
+       base   the standard boundary
+       strong a structural division (clears 3:1)
+     ------------------------------------------------------------ */
 
-  --color-rule-on-paper: #C3BAA4;
-  --color-rule-on-paper-soft: #D6CFBC;
-  --color-rule-on-paper-strong: #7E7660;
-  --color-rule-on-canvas: #2B2E30;
-  --color-rule-on-canvas-soft: #202324;
-  --color-rule-on-canvas-strong: #5D6164;  /* ~3:1 on deck — the edge step */
+  --color-rule-on-paper: #CDC4AD;
+  --color-rule-on-paper-soft: #DFD8C5;
+  --color-rule-on-paper-strong: #7C7460;
 
-  /* 2.5 Accent & signal -------------------------------------------
-     COPPER is the single accent. Two faces:
-       --color-accent      the mark/fill face (deck + sheet)
-       --color-accent-ink  the text-safe face on SHEET
-     On deck surfaces `--color-accent-text` re-maps to the bright
-     face (see the deck remap block). Signal green/rust appear only
-     on trace surfaces where pass/fail is the actual subject.
-     ---------------------------------------------- */
+  --color-rule-on-canvas: #2A2F31;
+  --color-rule-on-canvas-soft: #1E2224;
+  --color-rule-on-canvas-strong: #5F6366;
+
+  --edge-hair: 1px solid var(--color-rule-on-paper);
+  --edge-rule: 1px solid var(--color-rule-on-paper-strong);
+  --edge-hair-canvas: 1px solid var(--color-rule-on-canvas);
+  --edge-rule-canvas: 1px solid var(--color-rule-on-canvas-strong);
+
+  /* 2.5 Accent & signal ----------------------------------------
+     ORANGE means: active, selected, system status, attention.
+     Two faces — `ink` is the text-safe face on LIGHT, `bright`
+     is the text-safe face on DARK. Fills and marks use the base.
+     Signal green/rust appear only where pass or fail is the
+     actual subject of the surface.
+     ------------------------------------------------------------ */
 
   --color-accent: #C2632F;
-  --color-accent-bright: #E0743D;
+  --color-accent-bright: #E28044;
   --color-accent-deep: #A24E1F;
   --color-accent-soft: #E6C3A6;
-  --color-accent-tint: #EFE0D2;
+  --color-accent-tint: #F0E2D4;
 
   --color-accent-ink: #8A4415;
   --color-accent-text: var(--color-accent-ink);
 
-  /* The text/icon colour for anything sitting ON a copper fill.
-     Copper is a mid-tone, so neither the deck nor the sheet clears
-     4.5:1 against it by default (deck lands at 4.48). This is the one
-     value that does, on both, and it is a constant — it must NOT be
-     re-mapped per surface. */
-  --color-on-accent: #0B0C0D;
+  /* The only value that clears 4.5:1 on both an orange fill and
+     the deck. Constant — never re-mapped per surface. */
+  --color-on-accent: #0A0C0D;
 
   --color-signal-pass: #2C6249;
   --color-signal-pass-bright: #8FBFA5;
@@ -171,10 +185,11 @@
   --color-signal-fail-tint: #F1DFDB;
   --color-signal-fail-text: var(--color-signal-fail);
 
-  /* 2.6 Borders & controls ----------------------------------------
-     Radius is zero everywhere except true circles. A container that
-     wants to look "soft" is the wrong container.
-     ---------------------------------------------- */
+  /* 2.6 Borders, geometry, containment --------------------------
+     Radius is zero by default. `--radius-contain` exists for
+     captured artifacts and instrument read-outs — containment,
+     not softness — and is applied selectively.
+     ------------------------------------------------------------ */
 
   --border-width: 1px;
   --border-width-strong: 2px;
@@ -188,66 +203,81 @@
   --radius-zero: 0;
   --radius-control: 0;
   --radius-frame: 0;
+  --radius-contain: 3px;
   --radius-pill: 999px;
 
   --control-height: 2.625rem;
   --control-height-sm: 2.125rem;
   --control-height-lg: 3rem;
 
-  /* 2.7 Typography -------------------------------------------------
-     SIX roles, distinguished by weight, tracking, case and family —
-     not by size alone. Size only separates the top two.
+  /* Registration mark — the one directional tick that opens a
+     bounded area. One mark, one meaning. */
+  --mark-length: 2.25rem;
+  --mark-stroke: 2px;
+  --node-size: 0.5rem;
 
-       identity   Inter 600, tight negative tracking, display size
-       feature    Inter 600, negative tracking, section openers
-       section    Inter 600, small — headings do NOT shout
-       body       Inter 400, generous leading
-       interface  Inter 600, small caps-ish, tight — buttons, labels
-       metadata   Plex Mono 500, uppercase, +tracking — coordinates,
-                  status, stage numbers, evidence labels
-       code       Plex Mono 500, no tracking — payloads only
+  /* 2.7 Typography ----------------------------------------------
+     Three roles. Family, not size, is what separates them; size
+     only separates the steps inside a role.
 
-     Note the deliberate compression: `--text-section` is now much
-     closer to body size than before. Section hierarchy comes from
-     the mono eyebrow + rule + spacing, not from a big heading.
-     ---------------------------------------------- */
+       DISPLAY     Source Serif 4 · 600 · tight tracking
+       CONTENT     Inter · 400/600 · headings stay quiet
+       INSTRUMENT  IBM Plex Mono 500 · uppercase · open tracking
 
-  --font-sans: 'Inter Variable', Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+     Headings inside CONTENT are deliberately small. Hierarchy
+     comes from the index rule, the rail offset and spacing — not
+     from a shouting heading size.
+     ------------------------------------------------------------ */
 
-  --type-display: clamp(2.75rem, 6.2vw, 5.25rem);
-  --type-feature: clamp(1.875rem, 3.4vw, 2.875rem);
-  --type-section: clamp(1.375rem, 1.9vw, 1.75rem);
+  --font-display: 'Source Serif 4 Variable', 'Source Serif 4', 'Iowan Old Style', Georgia,
+    'Times New Roman', serif;
+  --font-content: 'Inter Variable', Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --font-instrument: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  /* Legacy alias — components import the content family as
+     `--font-sans`. */
+  --font-sans: var(--font-content);
+  --font-mono: var(--font-instrument);
+
+  --type-display: clamp(2.5rem, 5.4vw, 4.5rem);
+  --type-statement: clamp(1.75rem, 3.1vw, 2.625rem);
+  --type-title: clamp(1.125rem, 1.5vw, 1.375rem);
   --type-component: 1.0625rem;
 
   --text-display: var(--type-display);
-  --text-feature: var(--type-feature);
-  --text-section: var(--type-section);
+  --text-feature: var(--type-statement);
+  --text-section: var(--type-title);
   --text-component: var(--type-component);
   --text-body: 1rem;
-  --text-body-large: clamp(1.0625rem, 1.3vw, 1.125rem);
+  --text-body-large: clamp(1.0625rem, 1.2vw, 1.125rem);
   --text-small: 0.875rem;
-  --text-meta: 0.75rem;
-  --text-micro: 0.6875rem;
+  --text-instrument: 0.75rem;
+  --text-instrument-sm: 0.6875rem;
+  --text-meta: var(--text-instrument);
+  --text-micro: var(--text-instrument-sm);
 
-  --leading-display: 0.94;
-  --leading-heading: 1.08;
+  --leading-display: 1.02;
+  --leading-statement: 1.08;
+  --leading-heading: 1.2;
   --leading-body: 1.62;
 
-  --tracking-display: -0.045em;
-  --tracking-heading: -0.022em;
-  --tracking-meta: 0.11em;
+  --tracking-display: -0.022em;
+  --tracking-heading: -0.012em;
+  --tracking-instrument: 0.1em;
+  --tracking-meta: 0.1em;
   --tracking-button: 0.01em;
 
-  /* 2.8 Spacing & rhythm -------------------------------------------
-     Four-pixel base. The three SECTION rhythms below are the whole
-     vertical-density system: a section picks one and the page reads
-     as composed rather than as a uniform scroll.
+  /* 2.8 Spacing, rhythm and density by purpose ------------------
+     Four-pixel base. `--region-pad` is the vertical rhythm of a
+     region; each area of the workspace sets its own density, so
+     the pages are deliberately different to stand in:
 
-       block-major   an idea that deserves air (hero, lab, contact)
-       block         the default read section
-       block-tight   supporting / compact information
-     ---------------------------------------------- */
+       HOME     spacious   — room to orient
+       WORK     visual     — tighter, the artifacts carry it
+       LAB      concentrated — dense, instrument-like
+       PROFILE  structured — moderate, rules between blocks
+     ------------------------------------------------------------ */
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -260,28 +290,33 @@
   --space-9: 4rem;
   --space-10: 6rem;
 
-  --section-block-major: clamp(4.5rem, 8vw, 7.5rem);
-  --section-block: clamp(3.25rem, 5.5vw, 5rem);
-  --section-block-tight: clamp(2.5rem, 3.6vw, 3.25rem);
-  --section-gap: clamp(1.75rem, 3vw, 2.75rem);
+  --region-pad: clamp(2.5rem, 4vw, 3.5rem);
+  --section-gap: clamp(1.5rem, 2.4vw, 2.25rem);
 
-  /* 2.9 Layout ------------------------------------------------------
-     `--rail-col` is the signature grid move: every major section on
-     SHEET opens with a narrow metadata column and an offset content
-     column. It is what makes the page asymmetric without any
-     section needing its own bespoke layout.
-     ---------------------------------------------- */
+  /* Legacy aliases for the three static rhythms. */
+  --section-block: clamp(2.5rem, 4vw, 3.5rem);
+  --section-block-major: clamp(3.5rem, 5.6vw, 4.9rem);
+  --section-block-tight: clamp(1.75rem, 2.8vw, 2.4rem);
 
-  --width-page: 76rem;
+  /* 2.9 Layout — the shell --------------------------------------
+     `--shell-rail`    the persistent desktop control rail
+     `--shell-control` the mobile navigation control height
+     `--rail-col`      the metadata column inside a region
+     ------------------------------------------------------------ */
+
+  --shell-rail: 0rem;
+  --shell-control: 3.25rem;
+
+  --width-page: 78rem;
   --width-reading: 36rem;
   --width-narrow: 28rem;
-  --width-content: 50rem;
+  --width-content: 52rem;
   --page-gutter: clamp(1.125rem, 3.5vw, 2.5rem);
 
-  --rail-col: 11.5rem;
+  --rail-col: 10.5rem;
   --rail-gap: clamp(1.5rem, 3vw, 3rem);
 
-  /* 2.10 Motion ------------------------------------------------------ */
+  /* 2.10 Motion -------------------------------------------------- */
 
   --duration-quick: 120ms;
   --duration-base: 220ms;
@@ -291,54 +326,63 @@
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* 2.11 Geometric motifs (signature) ---------------------------------
-     FOUR motifs, and only four. Every geometric decision on the site
-     is one of these:
-       1. CORNER REGISTRATION — L-marks at panel corners
-       2. GUTTER TICKS        — measured axis along a region edge
-       3. INDEX RULE          — a copper rule + mono index opening a
-                                section, sitting in the rail column
-       4. ARC NODE            — a circle: status, stage node, marker
-     ---------------------------------------------- */
-
-  --mark-length: 3rem;
-  --mark-stroke: 2px;
-  --node-size: 0.5rem;
-
-  /* 2.12 Z-index ------------------------------------------------- */
+  /* 2.11 Z-index ------------------------------------------------- */
 
   --z-header: 50;
   --z-overlay: 40;
   --z-skip: 100;
 }
 
-/* DECK CONTEXTS.
-   Every dark surface on the site is listed here, and the list is the
-   single place a surface declares "I am a deck". Two things are
-   re-mapped:
+/* DENSITY BY PURPOSE.
+   `data-area` is set by the layout from the page's purpose. */
+[data-area='home'] {
+  --region-pad: clamp(2.75rem, 4.6vw, 4.25rem);
+  --section-gap: clamp(1.75rem, 2.8vw, 2.75rem);
+}
 
-   1. The signal/accent TEXT tokens flip to the bright face of each
-      pair. Fills, borders and marks keep the base colours; each
-      bright face is verified >= 4.5:1 on deck, deck-soft and
-      deck-inset.
+[data-area='work'] {
+  --region-pad: clamp(2.25rem, 3.4vw, 3.25rem);
+  --section-gap: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+[data-area='lab'] {
+  --region-pad: clamp(1.75rem, 2.6vw, 2.5rem);
+  --section-gap: clamp(1rem, 1.6vw, 1.5rem);
+}
+
+html[data-area='lab'] {
+  background: var(--color-deck);
+  color: var(--color-text-on-canvas);
+}
+
+[data-area='profile'] {
+  --region-pad: clamp(2.5rem, 3.6vw, 3.25rem);
+  --section-gap: clamp(1.5rem, 2.2vw, 2rem);
+}
+
+/* DARK CONTEXTS (DARK = INSTRUMENTATION).
+   Every dark surface on the site is listed here, and this list is
+   the single place a surface declares "I am an instrument". Two
+   things are re-mapped:
+
+   1. The accent/signal TEXT tokens flip to their bright face.
+      Fills, borders and marks keep the base colours; each bright
+      face clears 4.5:1 on deck, deck-soft and deck-inset.
    2. The `on-paper` text and rule tokens are re-pointed at their
-      `on-canvas` equivalents. This is what lets the shared grammar
-      (`.region-index`, `.mono-label`, `.region-lede`, ...) be written
-      once against the paper tokens and still be legible on a deck —
-      without every component re-declaring a `.on-deck` override, and
-      without a section silently shipping 1.8:1 text because someone
-      forgot one.
+      `on-canvas` equivalents. This lets the shared grammar
+      (`.region-index`, `.mono-label`, `.region-lede`, …) be
+      written once and stay legible on a deck, without every
+      component re-declaring an override — and without a section
+      shipping 1.8:1 text because someone forgot one.
 
    ADD ANY NEW DARK SURFACE TO THIS LIST. */
-.hero,
-.trace,
 .lab,
-.contact,
-.site-footer,
+.trace,
+.instrument,
 .workspace-rail,
-.workspace-bar,
-.boot,
-.case-trace-band,
+.workspace-control,
+.workspace-chrome,
+.site-footer,
 .on-deck {
   --color-accent-text: var(--color-accent-bright);
   --color-signal-fail-text: var(--color-signal-fail-bright);
@@ -361,17 +405,17 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  /* Grid/flex children shrink below their content's min-content width
-     (long code lines, nowrap instrument labels). Scroll boxes keep
-     their own overflow-x: auto — the document itself never scrolls
-     horizontally. */
+  /* Grid/flex children shrink below their content's min-content
+     width (long code lines, nowrap instrument labels). Scroll
+     boxes keep their own overflow-x: auto — the document itself
+     never scrolls horizontally. */
   min-width: 0;
 }
 
 html {
   background: var(--color-paper);
   color: var(--color-text-on-paper);
-  font-family: var(--font-sans);
+  font-family: var(--font-content);
   font-size: 16px;
   line-height: var(--leading-body);
   text-size-adjust: 100%;
@@ -383,13 +427,14 @@ body {
   min-width: 20rem;
   min-height: 100vh;
   margin: 0;
-  /* Long unbreakable tokens (file paths, URLs) wrap instead of pushing
-     the document wide. `white-space: pre` code blocks are unaffected. */
+  /* Long unbreakable tokens (file paths, URLs) wrap instead of
+     pushing the document wide. `white-space: pre` code blocks are
+     unaffected. */
   overflow-wrap: break-word;
 }
 
 section[id] {
-  scroll-margin-top: 5.5rem;
+  scroll-margin-top: calc(var(--shell-control) + 1.5rem);
 }
 
 h1,
@@ -405,14 +450,25 @@ blockquote {
   margin-block: 0;
 }
 
+/* DISPLAY role — identity and major statements only. */
 h1,
+.display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-display);
+  text-wrap: balance;
+}
+
+/* CONTENT role — everything structural. Headings stay quiet. */
 h2,
 h3,
 h4 {
-  line-height: var(--leading-heading);
-  letter-spacing: var(--tracking-heading);
-  text-wrap: balance;
+  font-family: var(--font-content);
   font-weight: 600;
+  letter-spacing: var(--tracking-heading);
+  line-height: var(--leading-heading);
+  text-wrap: balance;
 }
 
 p {
@@ -444,23 +500,19 @@ button {
 }
 
 :focus-visible {
-  /* accent-deep clears 4.67:1 on sheet and 4.48:1 on deck, so the
-     ring is visible in both environments without changing colour. */
+  /* accent-deep clears 4.5:1 on sheet; the bright face is used on
+     deck, so the ring is visible in both environments without a
+     third colour. */
   outline: 2px solid var(--color-accent-deep);
   outline-offset: 2px;
   border-radius: var(--radius-control);
 }
 
-/* On deck surfaces the ring uses the bright copper face — deep copper
-   on near-black is legible but the bright face reads as the same
-   "this is selected" signal used by the instruments. */
-.hero :focus-visible,
-.trace :focus-visible,
 .lab :focus-visible,
-.contact :focus-visible,
-.site-footer :focus-visible,
+.trace :focus-visible,
+.instrument :focus-visible,
 .workspace-rail :focus-visible,
-.workspace-bar :focus-visible,
+.workspace-control :focus-visible,
 .on-deck :focus-visible {
   outline-color: var(--color-accent-bright);
 }
@@ -476,20 +528,20 @@ button {
 
 .skip-link {
   position: fixed;
-  top: var(--space-3);
+  top: calc(var(--shell-control) + var(--space-2));
   left: var(--space-3);
   z-index: var(--z-skip);
   padding: var(--space-3) var(--space-4);
-  border: var(--border-hairline);
-  background: var(--color-canvas);
+  border: 1px solid var(--color-rule-on-canvas-strong);
+  background: var(--color-deck);
   color: var(--color-text-on-canvas);
-  font-family: var(--font-mono);
-  font-size: var(--text-meta);
+  font-family: var(--font-instrument);
+  font-size: var(--text-instrument);
   font-weight: 500;
-  letter-spacing: var(--tracking-meta);
+  letter-spacing: var(--tracking-instrument);
   text-transform: uppercase;
   text-decoration: none;
-  transform: translateY(calc(-100% - var(--space-5)));
+  transform: translateY(calc(-100% - var(--shell-control) - var(--space-6)));
   transition: transform var(--duration-base) var(--ease-emphasized);
 }
 
@@ -503,22 +555,22 @@ button {
   padding-inline: var(--page-gutter);
 }
 
-/* METADATA role — every piece of text that is instrument metadata
-   rather than prose: section eyebrows, coordinates, stage numbers,
-   status readouts, evidence labels.
+/* INSTRUMENT role — a piece of text that is system state rather
+   than prose: coordinates, statuses, numbers, technical labels.
 
-   The leading mark is a short copper RULE, not a dot or a box. It is
-   the smallest instance of the index-rule motif, so a label and a
-   section opener are visibly the same idea at two scales. */
+   The leading mark is a short RULE. It is the smallest instance of
+   the index-rule motif, so a label and a region opener are visibly
+   the same idea at two scales. The rule is neutral: orange is
+   reserved for live state (`.mono-label--state`). */
 .mono-label {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   color: var(--color-text-on-paper-muted);
-  font-family: var(--font-mono);
-  font-size: var(--text-meta);
+  font-family: var(--font-instrument);
+  font-size: var(--text-instrument);
   font-weight: 500;
-  letter-spacing: var(--tracking-meta);
+  letter-spacing: var(--tracking-instrument);
   line-height: 1;
   text-transform: uppercase;
 }
@@ -528,7 +580,17 @@ button {
   flex: 0 0 auto;
   width: 0.75rem;
   height: 1px;
+  background: var(--color-rule-on-paper-strong);
+}
+
+/* STATE — live system status. This is one of the four things
+   orange is allowed to mean. */
+.mono-label--state::before {
   background: var(--color-accent);
+}
+
+.mono-label--state {
+  color: var(--color-accent-text);
 }
 
 .mono-label--inverse {
@@ -536,46 +598,55 @@ button {
 }
 
 .mono-label--inverse::before {
-  background: var(--color-accent-bright);
+  background: var(--color-rule-on-canvas-strong);
 }
 
-/* Bare variant — no leading rule. For labels already inside a framed
-   or ruled context, where a second mark would be noise. */
+/* Bare variant — no leading rule. For labels already inside a
+   framed or ruled context, where a second mark would be noise. */
 .mono-label--bare::before {
   display: none;
 }
 
+/* INSTRUMENT type utility — numbers and technical strings that are
+   not labels (values inside prose, dl values, coordinates). */
+.instrument-value {
+  font-family: var(--font-instrument);
+  font-size: var(--text-instrument);
+  letter-spacing: 0.04em;
+}
+
 /* ----------------------------------------------------------------
-   4b. Section grammar
+   4b. Region grammar
    ----------------------------------------------------------------
    The composition primitive used by every major region.
 
-   `.region`       vertical rhythm — one of three densities
+   `.region`       vertical rhythm — one density per purpose
    `.region-grid`  the asymmetric two-column frame: a narrow
                    metadata rail + an offset content column
-   `.region-rail`  the metadata column (index, eyebrow, aside notes)
+   `.region-rail`  the metadata column (index, eyebrow, aside)
    `.region-body`  the content column
-   `.region-index` the copper index rule + number that opens a region
+   `.region-index` the index rule + number that opens a region
 
-   This is what stops the page reading as one long document: the
+   This is what stops a page reading as one long document: the
    metadata physically leaves the reading column and becomes a
-   margin apparatus, and each region chooses its own density.
+   margin apparatus.
    ---------------------------------------------------------------- */
 
 /* `--region-pad` is published so a region's own children (notably
    the SectionFrame index rule) can position against the region's
-   leading edge instead of guessing at it. */
+   leading edge instead of guessing at it. `--region-scale` lets a
+   region choose a density relative to its area's base rhythm — it
+   is applied at the point of use, so nothing becomes circular. */
 .region {
-  --region-pad: var(--section-block);
-  padding-block: var(--region-pad);
+  padding-block: calc(var(--region-pad) * var(--region-scale, 1));
 }
 
 .region--major {
-  --region-pad: var(--section-block-major);
+  --region-scale: 1.4;
 }
 
 .region--tight {
-  --region-pad: var(--section-block-tight);
+  --region-scale: 0.68;
 }
 
 .region-grid {
@@ -590,9 +661,9 @@ button {
     align-items: start;
   }
 
-  /* The rail column is sticky so the region's identity stays with the
-     reader through long content. It is metadata only — nothing here
-     is required to understand the body. */
+  /* The rail column is sticky so the region's identity stays with
+     the reader through long content. It is metadata only — nothing
+     here is required to understand the body. */
   .region-rail {
     position: sticky;
     top: var(--space-6);
@@ -612,8 +683,9 @@ button {
   min-width: 0;
 }
 
-/* The index: a mono number, a copper rule, then the region name.
-   Reads as a chapter mark on a technical drawing. */
+/* The index: a mono number, a rule, then the region name. Reads as
+   a chapter mark on a technical drawing. The number is neutral —
+   it is a coordinate, not a state. */
 .region-index {
   display: grid;
   gap: var(--space-3);
@@ -622,11 +694,11 @@ button {
 
 .region-index__no {
   display: block;
-  color: var(--color-accent-text);
-  font-family: var(--font-mono);
-  font-size: var(--text-meta);
+  color: var(--color-text-on-paper-muted);
+  font-family: var(--font-instrument);
+  font-size: var(--text-instrument);
   font-weight: 500;
-  letter-spacing: var(--tracking-meta);
+  letter-spacing: var(--tracking-instrument);
   line-height: 1;
 }
 
@@ -640,10 +712,10 @@ button {
 .region-index__name {
   display: block;
   color: var(--color-text-on-paper-muted);
-  font-family: var(--font-mono);
-  font-size: var(--text-meta);
+  font-family: var(--font-instrument);
+  font-size: var(--text-instrument);
   font-weight: 500;
-  letter-spacing: var(--tracking-meta);
+  letter-spacing: var(--tracking-instrument);
   line-height: 1.4;
   text-transform: uppercase;
 }
@@ -652,32 +724,16 @@ button {
   display: block;
   max-width: 22ch;
   color: var(--color-text-on-paper-faint);
-  font-size: var(--text-micro);
+  font-size: var(--text-instrument-sm);
   line-height: 1.5;
 }
 
-.on-deck .region-index__rule {
-  background: var(--color-rule-on-canvas-strong);
-}
-
-.on-deck .region-index__name {
-  color: var(--color-text-on-canvas-muted);
-}
-
-.on-deck .region-index__note {
-  color: var(--color-text-on-canvas-faint);
-}
-
-/* SECTION role — headings are small and quiet. Hierarchy is carried
-   by the index rule, the rail offset and spacing, not by size. */
+/* CONTENT role — region headings are small and quiet. */
 .region-title {
   margin: 0;
-  max-width: 24ch;
+  max-width: 26ch;
   font-size: var(--text-section);
   font-weight: 600;
-  letter-spacing: var(--tracking-heading);
-  line-height: var(--leading-heading);
-  text-wrap: balance;
 }
 
 .region-lede {
@@ -688,13 +744,10 @@ button {
   line-height: 1.55;
 }
 
-.on-deck .region-lede {
-  color: var(--color-text-on-canvas-muted);
-}
-
-/* An ENVIRONMENT SEAM — the transition between a sheet region and a
-   deck region. A 1px edge plus a copper tick at the rail position,
-   so environment changes are marked rather than just happening. */
+/* An ENVIRONMENT SEAM — the transition between regions. A
+   structural 1px edge plus a registration tick at the gutter, so
+   a change of surface is marked rather than merely happening.
+   Neutral: an environment change is structure, not a state. */
 .seam {
   position: relative;
   height: 0;
@@ -706,27 +759,23 @@ button {
   position: absolute;
   top: -1px;
   left: 0;
-  width: clamp(3rem, 12vw, 8rem);
-  height: 3px;
-  background: var(--color-accent);
+  width: clamp(2.5rem, 8vw, 5rem);
+  height: 2px;
+  background: var(--color-rule-on-paper-strong);
 }
 
 .seam--deck {
   border-top-color: var(--color-rule-on-canvas-strong);
 }
 
-/* REMOVED: `.corner-mark` (four-crosshair panel frame).
-   It was the old system's way of saying "this is an instrument", and
-   it ended up on every bounded box, which made the marks noise rather
-   than notation. The replacement is a single directional registration
-   tick at the leading corner (see `.region::before`, `.lab__bench::before`,
-   `.button::before`) — one mark, one meaning, and it now also encodes
-   direction rather than just decorating a corner. */
+.seam--deck::after {
+  background: var(--color-rule-on-canvas-strong);
+}
 
 /* INTERFACE role — controls.
-   A button is a bounded rectangle with a leading copper tick. The
-   tick grows on hover: the state change is directional, so it reads
-   as "this will take you somewhere" rather than as a colour flash. */
+   A button is a bounded rectangle with a leading tick. The tick
+   grows on hover: the state change is directional, so it reads as
+   "this will take you somewhere" rather than as a colour flash. */
 .button {
   position: relative;
   display: inline-flex;
@@ -739,7 +788,10 @@ button {
   border-radius: var(--radius-control);
   background: var(--color-text-on-paper);
   color: var(--color-sheet-high);
-  font: 600 var(--text-small) / 1 var(--font-sans);
+  font-family: var(--font-content);
+  font-size: var(--text-small);
+  font-weight: 600;
+  line-height: 1;
   letter-spacing: var(--tracking-button);
   text-decoration: none;
   cursor: pointer;
@@ -754,7 +806,7 @@ button {
   flex: 0 0 auto;
   width: 0.75rem;
   height: 1px;
-  background: var(--color-accent-bright);
+  background: var(--color-sheet-high);
   transition: width var(--duration-base) var(--ease-emphasized);
 }
 
@@ -789,9 +841,11 @@ button {
 }
 
 .button--secondary:hover::before {
-  background: var(--color-accent-bright);
+  background: var(--color-sheet-high);
 }
 
+/* ACCENT — the one action in a region that matters. Attention is
+   one of the four meanings of orange. */
 .button--accent {
   border-color: var(--color-accent);
   background: var(--color-accent);
@@ -816,17 +870,17 @@ button {
 
 /* On deck, the outline button borrows the deck rule + deck text. */
 .on-deck .button--secondary,
-.hero .button--secondary,
-.contact .button--secondary,
-.lab .button--secondary {
+.instrument .button--secondary,
+.lab .button--secondary,
+.trace .button--secondary {
   border-color: var(--color-rule-on-canvas-strong);
   color: var(--color-text-on-canvas);
 }
 
 .on-deck .button--secondary:hover,
-.hero .button--secondary:hover,
-.contact .button--secondary:hover,
-.lab .button--secondary:hover {
+.instrument .button--secondary:hover,
+.lab .button--secondary:hover,
+.trace .button--secondary:hover {
   border-color: var(--color-text-on-canvas);
   background: var(--color-text-on-canvas);
   color: var(--color-deck-deep);
@@ -845,8 +899,8 @@ button {
     opacity var(--duration-quick) var(--ease-standard);
 }
 
-/* The rule under a text link becomes copper and thickens on hover —
-   the link resolves rather than disappearing. */
+/* The rule under a text link becomes the accent and thickens on
+   hover — the link resolves rather than disappearing. */
 .text-link::after {
   content: '';
   position: absolute;
@@ -861,11 +915,9 @@ button {
 }
 
 .on-deck .text-link::after,
-.hero .text-link::after,
-.contact .text-link::after,
+.instrument .text-link::after,
 .lab .text-link::after,
-.trace .text-link::after,
-.site-footer .text-link::after {
+.trace .text-link::after {
   background: var(--color-rule-on-canvas-strong);
 }
 
@@ -890,10 +942,6 @@ button {
   transform: translateX(2px);
 }
 
-/* Section frame — see SectionFrame.astro. The seam, index rule and
-   density live with the component; nothing global is needed here. */
-
-/* Hidden but accessible */
 .visually-hidden {
   position: absolute !important;
   width: 1px;
@@ -925,35 +973,31 @@ select,
    6. Responsive overrides (token-level)
    ---------------------------------------------------------------- */
 
-@media (min-width: 48rem) {
-  :root {
-    --text-meta: 0.75rem;
-  }
-}
-
-@media (min-width: 64rem) {
-  :root {
-    --text-meta: 0.8125rem;
-  }
-}
-
 @media (max-width: 30rem) {
   :root {
-    --section-block: 3.5rem;
-    --section-block-tight: 2.75rem;
-    --text-section: 1.5rem;
-    --text-feature: 1.875rem;
-    --text-display: 2.5rem;
+    --type-display: 2.375rem;
+    --type-statement: 1.75rem;
+    --type-title: 1.25rem;
+    --page-gutter: 1.125rem;
+  }
+}
+
+/* The shell splits at 64rem: below it the navigation is a compact
+   control in the flow, above it the control becomes a rail column. */
+@media (min-width: 64rem) {
+  :root {
+    --shell-rail: 11.5rem;
+    --shell-control: 0rem;
   }
 }
 
 /* ----------------------------------------------------------------
    7. Reduced motion
    ----------------------------------------------------------------
-   The clamp below zeroes all transitions and animations
-   system-wide. Individual components add their own reduced
-   blocks only where they need to override behaviour (e.g.
-   cancel an IntersectionObserver-driven reveal).
+   The clamp below zeroes every transition and animation
+   system-wide. Components add their own reduced blocks only where
+   they must also change behaviour (e.g. cancel an
+   IntersectionObserver-driven reveal).
    ---------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -986,14 +1030,12 @@ select,
 }
 
 /* ----------------------------------------------------------------
-   9. Token aliases — backwards-compatibility for the case page
+   9. Token aliases — backwards compatibility for the case pages
    ----------------------------------------------------------------
-   The case study at /work/syncareer/ was authored against the
-   previous token system. Rather than rewrite a 1,244-line file
-   to preserve every word of case-study content, the legacy
-   token names are aliased to their new equivalents here.
-   These aliases should be retired when the case page is
-   re-skinned.
+   The case studies were authored against the previous token
+   system. Rather than rewrite three content-heavy files to
+   preserve every word, the legacy names are aliased here. These
+   retire section by section as each page is re-skinned.
    ---------------------------------------------------------------- */
 
 :root {
@@ -1021,83 +1063,34 @@ select,
   --section-tight: var(--section-block-tight);
 }
 
-/* Scoped component styles intentionally stay authoritative for their
-   internal states. These section-qualified selectors are the final
-   composition constraints, so the hierarchy also holds at wide view. */
-section.hero .hero__instrument .trace { min-height: clamp(11rem, 22vw, 16rem); }
-
+/* Scoped component styles stay authoritative for their internal
+   states. These section-qualified selectors are the final
+   composition constraints, so the hierarchy also holds at wide
+   view. */
 section#reliability-lab .lab__title { font-size: clamp(1.5rem, 2.5vw, 2.25rem); }
 section#reliability-lab .lab__intro { max-width: 34rem; font-size: var(--text-small); }
-section#reliability-lab .lab__bench { border-color: var(--color-rule-on-canvas-strong); background: var(--color-deck-inset); box-shadow: 0 0 0 1px var(--color-rule-on-canvas-soft); }
+section#reliability-lab .lab__bench { border-color: var(--color-rule-on-canvas-strong); background: var(--color-deck-inset); }
 section#reliability-lab .lab__boundary,
 section#reliability-lab .lab__keys { opacity: 0.72; }
 
 section#capabilities .toolkit__index { padding-top: var(--space-2); border-top: 2px solid var(--color-rule-on-paper-strong); }
 section#capabilities .toolkit__primary-header h3 { font-size: var(--text-component); }
 section#capabilities .toolkit__trigger { min-height: 3rem; font-size: 1rem; }
-section#capabilities .toolkit__detail { background: var(--color-sheet-soft); border-color: var(--color-rule-on-paper); }
-section#capabilities .toolkit__panel { padding: var(--space-4); }
-section#capabilities .toolkit__more { opacity: 0.82; }
-
-section#experience .experience__list { border-top: 2px solid var(--color-rule-on-paper-strong); }
-section#experience .experience__item:first-child { border-top: 0; }
-section#experience .experience__trigger { min-height: 4.25rem; padding-block: var(--space-3); }
-section#experience .experience__role { font-size: 1.05rem; font-weight: 600; }
-section#experience .experience__dates,
-section#experience .experience__meta { color: var(--color-text-on-paper-faint); }
-
-section#evidence .evidence__header .region-lede { opacity: 0.72; }
-section#evidence .evidence__panels { padding: var(--space-6); }
-section#evidence .evidence__record-name { font-size: 1.2rem; }
-section#evidence .evidence__plate-well { padding: var(--space-5); }
-
-section#contact .contact__title,
-section#contact .contact__copy,
-section#contact .contact__secondary { opacity: 0.82; }
-section#contact .contact__address { padding-block: var(--space-6); border-top: 2px solid var(--color-rule-on-canvas-strong); }
-section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
-
-@media (min-width: 48rem) {
-  section#capabilities .toolkit__index { grid-template-columns: minmax(17rem, 1.15fr) minmax(0, 0.85fr); column-gap: var(--space-8); }
-  section#evidence .evidence__drawer { grid-template-columns: minmax(13rem, 0.75fr) minmax(0, 1.45fr); }
+section#capabilities .detail-panel,
+section#capabilities .toolkit__detail {
+  border: 0;
+  border-left: 2px solid var(--color-rule-on-paper-strong);
+  background: transparent;
 }
-@media (max-width: 47.99rem) {
-  section#evidence .evidence__panels { padding: var(--space-4); }
+section#capabilities .toolkit__panel {
+  padding: var(--space-3) 0 var(--space-3) var(--space-5);
 }
+section#capabilities .toolkit__panel-header { padding-bottom: var(--space-2); border-bottom: 0; }
+section#capabilities .toolkit__panel-grid { gap: var(--space-4); }
+section#capabilities .toolkit__panel-note { opacity: 0.78; }
 
-/* ------------------------------------------------------------------
-   Scale, asymmetry and rhythm pass
-   ------------------------------------------------------------------
-   A few sections now use an explicit composition rather than inheriting
-   the same two-column document shape. The rules are intentionally
-   section-qualified so their internal states remain component-owned.
-*/
-
-@media (min-width: 60rem) {
-  /* Lab: one dominant viewport with a deliberately shorter control
-     register. The instrument remains dense without becoming uniform. */
-  section#reliability-lab .lab__bench {
-    grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.28fr);
-  }
-  section#reliability-lab .lab__railscroll,
-  section#reliability-lab .lab__viewport { grid-column: 1 / -1; }
-  section#reliability-lab .lab__readout { grid-column: 1; }
-  section#reliability-lab .lab__transport {
-    grid-column: 2;
-    grid-row: 3;
-    align-self: end;
-    padding-top: var(--space-3);
-  }
-  section#reliability-lab .lab__position { margin-left: 0; width: 100%; }
-
-  /* The tool index is a capability register first; the selected record
-     is a narrower readout rather than a co-equal panel. */
-  section#capabilities .toolkit__index {
-    grid-template-columns: minmax(0, 1.55fr) minmax(14rem, 0.75fr);
-    column-gap: clamp(var(--space-6), 4vw, var(--space-9));
-  }
-
-  /* Open, quiet portrait rail; the writing owns the measure. */
+@media (min-width: 64rem) {
+  /* About is prose: the writing measure dominates the field. */
   section#about .region-grid {
     grid-template-columns: minmax(10rem, 0.7fr) minmax(0, 3.3fr);
     column-gap: var(--space-8);
@@ -1116,8 +1109,6 @@ section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
   }
 }
 
-/* Small compositional breaks on the sheet: the artifact can touch the
-   content measure while labels remain on the original axis. */
 @media (min-width: 75rem) {
   section#evidence .evidence__panels {
     padding-inline: var(--space-7);
@@ -1139,9 +1130,10 @@ section#contact .contact__email { font-size: clamp(1.625rem, 4.6vw, 3.25rem); }
    One source for the page-level vocabulary all case studies use:
    hero opening, project record, evidence boundary, contact close.
    Page-scoped styles stay authoritative for anything unique.
-*/
+   ------------------------------------------------------------------ */
+
 article.case-page { border-bottom: var(--border-default); }
-article.case-page .case-hero { padding-block: clamp(2.25rem, 4.5vw, 3.5rem); }
+article.case-page .case-hero { padding-block: clamp(2rem, 4vw, 3rem); }
 article.case-page .case-opening {
   display: grid;
   gap: clamp(var(--space-5), 2.5vw, var(--space-6));
@@ -1160,10 +1152,10 @@ article.case-page .case-hero h1,
 article.case-page .case-opening__copy h1 {
   max-width: 18ch;
   margin-block: var(--space-3) var(--space-4);
-  font-size: var(--text-feature);
-  font-weight: 650;
-  letter-spacing: -0.045em;
-  line-height: 1.04;
+  font-size: var(--type-statement);
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-statement);
 }
 article.case-page .case-summary {
   max-width: var(--width-reading);
@@ -1191,8 +1183,8 @@ article.case-page .record-heading span,
 article.case-page .product-record dt {
   margin: 0;
   color: var(--color-text-on-paper-muted);
-  font-family: var(--font-mono);
-  font-size: var(--text-meta);
+  font-family: var(--font-instrument);
+  font-size: var(--text-instrument);
   font-weight: 500;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1229,9 +1221,10 @@ article.case-page .boundary-panel {
   display: grid;
   gap: var(--space-3);
   align-content: start;
-  padding: var(--space-5);
-  border: 1px solid var(--color-rule-on-paper);
-  background: var(--color-paper-soft);
+  padding: var(--space-4) 0;
+  border: 0;
+  border-top: 1px solid var(--color-rule-on-paper-strong);
+  background: transparent;
 }
 article.case-page .boundary-panel h2 {
   margin: 0;
@@ -1242,7 +1235,7 @@ article.case-page .boundary-list {
   display: grid;
   margin: var(--space-3) 0 0;
   padding: 0;
-  border-top: 1px solid var(--color-rule-on-paper);
+  border-top: 1px solid var(--color-rule-on-paper-soft);
   list-style: none;
 }
 article.case-page .boundary-list li {
@@ -1258,7 +1251,7 @@ article.case-page .boundary-list li::before {
   left: 0;
   color: var(--color-text-on-paper-muted);
   content: '—';
-  font-family: var(--font-mono);
+  font-family: var(--font-instrument);
 }
 article.case-page .boundary-list li[data-state='known']::before {
   color: var(--color-signal-pass-text);
@@ -1277,7 +1270,7 @@ article.case-page .contact-section h2 {
   margin-block: var(--space-2) var(--space-4);
   font-size: var(--text-section);
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 article.case-page .contact-section .button { margin-top: var(--space-3); }
 
@@ -1288,43 +1281,18 @@ article.case-page .contact-section .button { margin-top: var(--space-3); }
   }
 }
 
-@media (max-width: 30rem) {
-  article.case-page .case-hero h1,
-  article.case-page .case-opening__copy h1 { font-size: 1.75rem; }
-}
-
 /* ------------------------------------------------------------------
-   Information density and repetition pass
+   Information density pass
    ------------------------------------------------------------------
-   Keep the engineering record intact, but let a smaller set of rules,
-   artifacts and controls carry the visual grammar. Labels remain in
-   the document for orientation and accessibility; secondary ones are
-   quieter rather than competing with the subject.
-*/
+   Keep the engineering record intact, but let a smaller set of
+   rules, artifacts and controls carry the visual grammar. Labels
+   remain in the document for orientation and accessibility;
+   secondary ones are quieter rather than competing with the
+   subject.
+   ------------------------------------------------------------------ */
 
-/* Section coordinates orient the reader. Status strings are useful
-   metadata, but should not read like a second heading on every region. */
 .section-frame__status { opacity: 0.62; }
 
-/* Toolkit: the index is the view. The selected item is an inspection
-   readout, not another bordered card in the page sequence. */
-section#capabilities .toolkit__detail {
-  border: 0;
-  border-left: 2px solid var(--color-rule-on-paper-strong);
-  background: transparent;
-}
-section#capabilities .toolkit__panel {
-  padding: var(--space-3) 0 var(--space-3) var(--space-5);
-}
-section#capabilities .toolkit__panel-header {
-  padding-bottom: var(--space-2);
-  border-bottom: 0;
-}
-section#capabilities .toolkit__panel-grid { gap: var(--space-4); }
-section#capabilities .toolkit__panel-note { opacity: 0.78; }
-
-/* Case study: decisions read as an open register, not three equal
-   cards. The actual product surfaces retain their artifact frames. */
 article.case-page .case-decisions__list li {
   padding: var(--space-3) 0;
   border: 0;
@@ -1336,25 +1304,12 @@ article.case-page .case-decisions__list li:last-child {
 }
 article.case-page .case-decisions__list .mono-label { opacity: 0.72; }
 article.case-page .case-decisions__list p:last-child { max-width: 32rem; }
-article.case-page .case-surfaces__grid {
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
-  align-items: start;
-}
+article.case-page .case-surfaces__grid,
 article.case-page .outcome-grid {
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
   align-items: start;
 }
-article.case-page .boundary-panel {
-  padding: var(--space-4) 0;
-  border: 0;
-  border-top: 1px solid var(--color-rule-on-paper-strong);
-  background: transparent;
-}
-article.case-page .boundary-list { border-top-color: var(--color-rule-on-paper-soft); }
 
-/* The trace and investigation are real interactive systems, so their
-   outer boundary stays. Quiet the repeated internal frames around
-   each field and artifact description. */
 article.case-page .investigation__workspace { border-color: var(--color-rule-on-paper-strong); }
 article.case-page .investigation__spine { border: 0; }
 article.case-page .investigation__tab { border-right-color: var(--color-rule-on-paper-soft); }
@@ -1374,9 +1329,6 @@ article.case-page .investigation__handoff,
 article.case-page .investigation__evidence,
 article.case-page .investigation__from { opacity: 0.78; }
 article.case-page .investigation__evidence { padding-top: var(--space-2); }
-
-/* Repeated micro-labels still orient the inspection sequence, but the
-   large artifacts and headings carry the first read. */
 article.case-page .investigation__readout,
 article.case-page .case-decisions__stack,
 article.case-page .product-record dt { opacity: 0.76; }
@@ -1390,4 +1342,5 @@ article.case-page .product-record dt { opacity: 0.76; }
   }
   section#capabilities .toolkit__panel { padding: var(--space-4) 0 0; }
 }
+
 .section-frame.section-frame .section-frame__status { opacity: 0.62; }

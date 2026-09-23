@@ -95,13 +95,14 @@ const isDeck = surface === 'canvas';
     position: relative;
   }
 
-  /* The seam: a structural edge with a copper tick anchored to the
-     page gutter. One tick, one edge — this is the only thing that
-     separates regions, so it has to be deliberate. */
+  /* The SEAM — a structural edge with a registration tick anchored
+     to the page gutter. It is the only thing that separates regions,
+     so it has to be deliberate. Neutral: an environment change is
+     structure, not a state. */
   .section-frame__seam {
     position: absolute;
     inset: 0 0 auto 0;
-    height: 3px;
+    height: 2px;
     pointer-events: none;
   }
 
@@ -118,61 +119,46 @@ const isDeck = surface === 'canvas';
     position: absolute;
     top: 0;
     left: 0;
-    width: clamp(3.5rem, 14vw, 9rem);
-    height: 3px;
-    background: var(--color-accent);
+    width: clamp(2.5rem, 8vw, 5rem);
+    height: 2px;
+    background: var(--color-rule-on-paper-strong);
   }
 
-  .section-frame--canvas .section-frame__seam::before {
-    background: var(--color-rule-on-canvas-strong);
-  }
-
-  /* The index rule — coordinate, rule, status. The rule is what
-     carries the eye across; the coordinate anchors it at the gutter,
-     matching the seam tick above it. */
-  /* The index rule is pulled UP so it registers against the seam
-     rather than floating in the region's leading whitespace. The
-     region's density padding then applies below it, where it is
-     doing real work (separating the rule from the content). */
+  /* The INDEX RULE — coordinate, rule, status. The rule carries the
+     eye across the field; the coordinate anchors it at the gutter,
+     registering against the seam tick above it. It is pulled UP so
+     it sits on the region's leading edge rather than floating in
+     whitespace; the region's density padding then does its real work
+     below it. */
   .section-frame__index {
     display: grid;
     grid-template-columns: auto minmax(var(--space-4), 1fr) auto;
     align-items: center;
     gap: var(--space-3);
-    margin-top: calc(var(--region-pad, var(--section-block)) * -1 + var(--space-4));
+    margin-top: calc(var(--region-pad) * var(--region-scale, 1) * -1 + var(--space-4));
     padding-bottom: var(--section-gap);
   }
 
   .section-frame__coordinate,
   .section-frame__status {
-    font-family: var(--font-mono);
-    font-size: var(--text-micro);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
     font-weight: 500;
-    letter-spacing: var(--tracking-meta);
+    letter-spacing: var(--tracking-instrument);
     line-height: 1;
     text-transform: uppercase;
     white-space: nowrap;
   }
 
-  .section-frame__coordinate {
-    color: var(--color-text-on-paper-muted);
-  }
-
+  /* Both are coordinates, not states — neutral. */
+  .section-frame__coordinate,
   .section-frame__status {
-    color: var(--color-accent-text);
+    color: var(--color-text-on-paper-muted);
   }
 
   .section-frame__rule {
     height: 1px;
     background: var(--color-rule-on-paper);
-  }
-
-  .section-frame--canvas .section-frame__coordinate {
-    color: var(--color-text-on-canvas-muted);
-  }
-
-  .section-frame--canvas .section-frame__rule {
-    background: var(--color-rule-on-canvas);
   }
 
   @media (max-width: 34rem) {

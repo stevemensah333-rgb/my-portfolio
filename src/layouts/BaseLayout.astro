@@ -2,11 +2,13 @@
 import Analytics from '@vercel/analytics/astro';
 import { default as SpeedInsights } from '@vercel/speed-insights/astro';
 import WorkspaceRail from '../components/WorkspaceRail.astro';
-import BootSequence from '../components/BootSequence.astro';
 import '../styles/global.css';
 import '../styles/interactions.css';
+import displayFontURL from '@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2?url';
 import interFontURL from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import monoFontURL from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2?url';
+
+type WorkspaceArea = 'home' | 'work' | 'case' | 'lab' | 'profile';
 
 interface Props {
   title: string;
@@ -20,6 +22,8 @@ interface Props {
   noindex?: boolean;
   canonical?: boolean;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
+  /** Which density the page uses. Derived from the route by default. */
+  area?: WorkspaceArea;
 }
 
 const {
@@ -34,14 +38,27 @@ const {
   noindex = false,
   canonical = true,
   structuredData,
+  area,
 } = Astro.props;
+
+/* Density is a property of the place, not of the page file: Home is
+   spacious, Work is visual, Lab is concentrated, Profile is
+   structured. Case studies inherit Work's tighter rhythm. */
+const routeArea = (pathname: string): WorkspaceArea => {
+  if (pathname.startsWith('/lab')) return 'lab';
+  if (pathname.startsWith('/profile')) return 'profile';
+  if (pathname.startsWith('/work')) return 'work';
+  if (pathname.startsWith('/404')) return 'home';
+  return 'home';
+};
+const activeArea: WorkspaceArea = area ?? routeArea(Astro.url.pathname);
 const path = Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/+$/, '')}/`;
 const canonicalURL = new URL(path, Astro.site);
 const socialImageURL = new URL(image, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-area={activeArea}>
   <head>
     <script is:inline>document.documentElement.classList.add('js');</script>
     <!-- Legacy anchor routes: the old single-page anchors now live on
@@ -69,7 +86,7 @@ const socialImageURL = new URL(image, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google-site-verification" content="n5Zp1r0200c1EAmsKwpPnrSlVwWY-pz7RMShX3SFCRg" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#111314" />
+    <meta name="theme-color" content="#101315" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content="Stephen Mensah" />
@@ -78,6 +95,7 @@ const socialImageURL = new URL(image, Astro.site);
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="preload" href={displayFontURL} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={interFontURL} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={monoFontURL} as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content={ogType} />
@@ -104,35 +122,43 @@ const socialImageURL = new URL(image, Astro.site);
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
-    <BootSequence />
-    <div class="layout" data-layout>
+    <div class="shell">
       <WorkspaceRail />
-      <main id="main-content" class="layout__main" tabindex="-1">
-        <slot />
-      </main>
+      <div class="shell__field">
+        <main id="main-content" class="shell__main" tabindex="-1">
+          <slot />
+        </main>
+        <slot name="footer" />
+      </div>
     </div>
-    <slot name="footer" />
   </body>
 </html>
 
 <style is:global>
-  .layout {
+  /* THE SHELL — one control rail, one field.
+     Below 64rem the rail becomes a compact navigation control that
+     sits in the flow at the head of the page (see
+     WorkspaceRail.astro); above it, the two become columns and the
+     rail stays with the reader for the whole scroll. */
+  .shell {
     display: block;
     min-height: 100vh;
   }
 
-  .layout__main {
+  .shell__field,
+  .shell__main {
     min-width: 0;
   }
 
   @media (min-width: 64rem) {
-    .layout {
-      display: flex;
+    .shell {
+      display: grid;
+      grid-template-columns: var(--shell-rail) minmax(0, 1fr);
       align-items: stretch;
     }
 
-    .layout__main {
-      flex: 1 1 auto;
+    .shell__field,
+    .shell__main {
       min-width: 0;
     }
   }
