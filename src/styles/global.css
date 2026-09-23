@@ -130,7 +130,8 @@
 
   --color-text-on-canvas: #EAE7DF;
   --color-text-on-canvas-muted: #A8A59D;
-  --color-text-on-canvas-faint: #918E87;
+  /* ≥4.5:1 on every deck step including deck-raised (4.70:1). */
+  --color-text-on-canvas-faint: #96928A;
 
   /* 2.4 Rules --------------------------------------------------
      Rules carry the geometry, so there are three weights:

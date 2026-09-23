@@ -145,7 +145,10 @@ const total = String(labStages.length).padStart(2, '0');
                     <figcaption class="mono-label mono-label--inverse">
                       {stage.artifact.label}
                     </figcaption>
-                    <pre><code>{stage.artifact.code}</code></pre>
+                    <!-- tabindex: the block scrolls horizontally on wide
+                         screens; a focusable scroll region is the
+                         keyboard-accessible path (WCAG 2.1.1). -->
+                    <pre tabindex="0"><code>{stage.artifact.code}</code></pre>
                   </figure>
                 )}
 
@@ -240,9 +243,25 @@ const total = String(labStages.length).padStart(2, '0');
 </section>
 
 <script>
-  const root = document.querySelector<HTMLElement>('[data-reliability-lab]');
+  import { reserveStackHeight } from '../scripts/initTraceTabs';
 
-  if (root) {
+  /* Re-initializes on `astro:page-load` (the ClientRouter swaps the
+     shell without re-running bundled scripts); the marker keeps it
+     idempotent and the run-scoped AbortController removes the previous
+     run's window/media-query listeners. */
+  let teardown: (() => void) | null = null;
+
+  const init = () => {
+    const root = document.querySelector<HTMLElement>('[data-reliability-lab]');
+    if (!root || root.dataset.labEnhanced === '1') return;
+    root.dataset.labEnhanced = '1';
+
+    teardown?.();
+    const events = new AbortController();
+    teardown = () => events.abort();
+    const signal = events.signal;
+
+    {
     const rail = root.querySelector<HTMLElement>('[data-lab-rail]');
     const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')];
     const panels = [...root.querySelectorAll<HTMLElement>('[data-stage-panel]')];
@@ -255,6 +274,10 @@ const total = String(labStages.length).padStart(2, '0');
     const live = root.querySelector<HTMLElement>('[data-lab-live]');
 
     if (rail && tabs.length > 0 && panels.length === tabs.length) {
+      /* Stages swap in place; reserving the tallest panel keeps the
+         evidence boundary and keys below the bench from jumping. */
+      reserveStackHeight(panels, signal);
+
       const STORAGE_KEY = 'workspace:lab-stage';
       const readStoredStage = () => {
         try {
@@ -278,7 +301,7 @@ const total = String(labStages.length).padStart(2, '0');
         rail.setAttribute('aria-orientation', verticalRail.matches ? 'vertical' : 'horizontal');
       };
       setOrientation();
-      verticalRail.addEventListener('change', setOrientation);
+      verticalRail.addEventListener('change', setOrientation, { signal });
 
       const updateStage = (
         requestedIndex: number,
@@ -359,9 +382,13 @@ const total = String(labStages.length).padStart(2, '0');
           updateStage(index, { announce: true });
           writeStoredStage(stageIds[index] ?? '');
         }
-      });
+      }, { signal });
     }
-  }
+    }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>
@@ -832,6 +859,13 @@ const total = String(labStages.length).padStart(2, '0');
     .lab__node[aria-selected='true'] { box-shadow: inset 2px 0 0 var(--color-accent); }
     .lab__transport { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .lab__position { grid-column: 1 / -1; margin: 0; }
+    /* Code wraps instead of scrolling horizontally on narrow screens —
+       a focus-scrolled region is a poor fit for touch, and wrapping
+       loses nothing here. */
+    .lab__code pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
   }
 
   @media (max-width: 30rem) {

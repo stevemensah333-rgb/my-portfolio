@@ -181,72 +181,97 @@ const isCurrent = (dest: Destination) => dest.id === currentId;
   /* --- Enhancements only ------------------------------------------
      The navigation itself is markup: real links, a real disclosure,
      aria-current set at render. Nothing here is required for it to
-     work. */
+     work.
 
-  /* 1. State readout — where the visitor is inside the current page.
-        Sections opt in with `data-workspace-section` and may publish
-        a human label with `data-workspace-label`. */
-  const railSection = document.querySelector<HTMLElement>('[data-rail-section]');
-  const sections = Array.from(document.querySelectorAll<HTMLElement>('main [data-workspace-section]'));
+     The ClientRouter swaps the shell on client-side navigations but
+     bundled module scripts execute once per full page load, so this
+     init is re-run on `astro:page-load` (which also fires on initial
+     load). The `data-*-enhanced` markers keep it idempotent, and the
+     run-scoped AbortController tears down the previous generation's
+     document/window-scoped listeners so nothing accumulates. */
 
-  if (railSection && sections.length > 1) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (!visible) return;
-        const target = visible.target as HTMLElement;
-        const label = target.dataset.workspaceLabel ?? target.dataset.workspaceSection ?? '';
-        if (label) railSection.textContent = `Section · ${label}`;
-      },
-      { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
-    );
-    sections.forEach((section) => observer.observe(section));
-  }
+  let teardown: (() => void) | null = null;
+  let sectionObserver: IntersectionObserver | null = null;
 
-  /* 2. Mobile disclosure — Escape, outside click, and closing when
-        the viewport grows into the rail form. */
-  const menu = document.querySelector<HTMLDetailsElement>('[data-workspace-menu]');
+  const init = () => {
+    const chrome = document.querySelector<HTMLElement>('.workspace-chrome');
+    if (!chrome || chrome.dataset.chromeEnhanced === '1') return;
+    chrome.dataset.chromeEnhanced = '1';
 
-  if (menu) {
-    const railQuery = window.matchMedia('(min-width: 64rem)');
-    const background = [
-      ...document.querySelectorAll<HTMLElement>('main, body > footer, [data-workspace-rail]'),
-    ];
+    teardown?.();
+    sectionObserver?.disconnect();
+    sectionObserver = null;
+    const events = new AbortController();
+    teardown = () => events.abort();
 
-    const setOpen = (open: boolean) => {
-      menu.open = open;
-    };
+    /* 1. State readout — where the visitor is inside the current page.
+          Sections opt in with `data-workspace-section` and may publish
+          a human label with `data-workspace-label`. */
+    const railSection = document.querySelector<HTMLElement>('[data-rail-section]');
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('main [data-workspace-section]'));
 
-    menu.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement;
-      if (target.closest('a')) setOpen(false);
-    });
+    if (railSection && sections.length > 1) {
+      sectionObserver = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          const target = visible.target as HTMLElement;
+          const label = target.dataset.workspaceLabel ?? target.dataset.workspaceSection ?? '';
+          if (label) railSection.textContent = `Section · ${label}`;
+        },
+        { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
+      );
+      sections.forEach((section) => sectionObserver!.observe(section));
+    }
 
-    document.addEventListener('click', (event) => {
-      if (!menu.open) return;
-      const target = event.target as HTMLElement;
-      if (!target.closest('[data-workspace-menu]')) setOpen(false);
-    });
+    /* 2. Mobile disclosure — Escape, outside click, and closing when
+          the viewport grows into the rail form. */
+    const menu = document.querySelector<HTMLDetailsElement>('[data-workspace-menu]');
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && menu.open) {
-        setOpen(false);
-        menu.querySelector<HTMLElement>('summary')?.focus();
-      }
-    });
+    if (menu) {
+      const railQuery = window.matchMedia('(min-width: 64rem)');
+      const background = [
+        ...document.querySelectorAll<HTMLElement>('main, body > footer, [data-workspace-rail]'),
+      ];
 
-    // Keep the page behind the open panel out of the tab order.
-    const syncBackground = () => {
-      background.forEach((element) => {
-        element.inert = menu.open;
-      });
-    };
-    menu.addEventListener('toggle', syncBackground);
-    railQuery.addEventListener('change', () => setOpen(false));
-    syncBackground();
-  }
+      const setOpen = (open: boolean) => {
+        menu.open = open;
+      };
+
+      menu.addEventListener('click', (event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest('a')) setOpen(false);
+      }, { signal: events.signal });
+
+      document.addEventListener('click', (event) => {
+        if (!menu.open) return;
+        const target = event.target as HTMLElement;
+        if (!target.closest('[data-workspace-menu]')) setOpen(false);
+      }, { signal: events.signal });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && menu.open) {
+          setOpen(false);
+          menu.querySelector<HTMLElement>('summary')?.focus();
+        }
+      }, { signal: events.signal });
+
+      // Keep the page behind the open panel out of the tab order.
+      const syncBackground = () => {
+        background.forEach((element) => {
+          element.inert = menu.open;
+        });
+      };
+      menu.addEventListener('toggle', syncBackground, { signal: events.signal });
+      railQuery.addEventListener('change', () => setOpen(false), { signal: events.signal });
+      syncBackground();
+    }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

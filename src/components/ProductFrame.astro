@@ -118,8 +118,14 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
 </figure>
 
 <script>
-  for (const fig of document.querySelectorAll<HTMLElement>('[data-product-frame]')) {
-    const openBtn = fig.querySelector<HTMLButtonElement>('[data-frame-open]');
+  /* Re-initializes on `astro:page-load` (the ClientRouter swaps the
+     shell without re-running bundled scripts); the marker keeps it
+     idempotent so listeners are never doubled. */
+  const init = () => {
+    for (const fig of document.querySelectorAll<HTMLElement>('[data-product-frame]')) {
+      if (fig.dataset.frameEnhanced === '1') continue;
+      fig.dataset.frameEnhanced = '1';
+      const openBtn = fig.querySelector<HTMLButtonElement>('[data-frame-open]');
     const dialog = fig.querySelector<HTMLDialogElement>('[data-frame-dialog]');
     const closeBtn = fig.querySelector<HTMLButtonElement>('[data-frame-close]');
     if (!openBtn || !dialog) continue;
@@ -171,14 +177,18 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
       if (lastFocus && document.activeElement === document.body) lastFocus.focus();
     });
 
-    // Fallback only: when showModal is unavailable the dialog is not
-    // modal, so Escape must be caught on the dialog itself.
-    dialog.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && typeof dialog.showModal !== 'function' && dialog.open) {
-        close();
-      }
-    });
-  }
+      // Fallback only: when showModal is unavailable the dialog is not
+      // modal, so Escape must be caught on the dialog itself.
+      dialog.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && typeof dialog.showModal !== 'function' && dialog.open) {
+          close();
+        }
+      });
+    }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

@@ -250,16 +250,32 @@ const phases = [
 </BaseLayout>
 
 <script>
-  const archive = document.querySelector<HTMLElement>('[data-archive]');
-  const stage = archive?.querySelector<HTMLElement>('[data-archive-stage]');
-  const visual = archive?.querySelector<HTMLElement>('[data-archive-visual]');
-  const sticky = archive?.querySelector<HTMLElement>('.archive-stage__sticky');
-  const cards = Array.from(archive?.querySelectorAll<HTMLElement>('[data-archive-card]') ?? []);
-  const phaseItems = Array.from(archive?.querySelectorAll<HTMLElement>('[data-archive-phase]') ?? []);
-  const stateReadout = archive?.querySelector<HTMLElement>('[data-archive-state]');
-  const progressReadout = archive?.querySelector<HTMLElement>('[data-archive-progress]');
+  /* The ClientRouter swaps the shell without re-running bundled
+     scripts, so the pile engine re-initializes on `astro:page-load`
+     (fired on first load too). The marker keeps it idempotent; the
+     run-scoped AbortController removes the previous run's
+     window/media-query listeners. */
+  let teardown: (() => void) | null = null;
 
-  if (stage && visual && sticky && cards.length > 0) {
+  const init = () => {
+    const archive = document.querySelector<HTMLElement>('[data-archive]');
+    if (!archive || archive.dataset.archiveEnhanced === '1') return;
+    archive.dataset.archiveEnhanced = '1';
+
+    teardown?.();
+    const events = new AbortController();
+    teardown = () => events.abort();
+    const signal = events.signal;
+
+    const stage = archive.querySelector<HTMLElement>('[data-archive-stage]');
+    const visual = archive.querySelector<HTMLElement>('[data-archive-visual]');
+    const sticky = archive.querySelector<HTMLElement>('.archive-stage__sticky');
+    const cards = Array.from(archive.querySelectorAll<HTMLElement>('[data-archive-card]'));
+    const phaseItems = Array.from(archive.querySelectorAll<HTMLElement>('[data-archive-phase]'));
+    const stateReadout = archive.querySelector<HTMLElement>('[data-archive-state]');
+    const progressReadout = archive.querySelector<HTMLElement>('[data-archive-progress]');
+
+    if (stage && visual && sticky && cards.length > 0) {
     const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const desktopQuery = window.matchMedia('(min-width: 48rem)');
     const phaseLabels = ['Cluster', 'Separate', 'Reveal', 'Inspect'];
@@ -271,6 +287,7 @@ const phases = [
     let frame = 0;
     let previousPhase = -1;
     let focusedCard: HTMLElement | null = null;
+    let scrollBound = false;
 
     const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
     const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount;
@@ -293,12 +310,25 @@ const phases = [
       });
     };
 
+    /* MOBILE EQUIVALENT: below 48rem the pile does not exist — the CSS
+       stacks the cards in reading order and the transforms must not
+       fight it, so the inline state is removed rather than computed. */
+    const clearCard = (card: HTMLElement) => {
+      for (const name of ['--card-x', '--card-y', '--card-rotation', '--card-lift', '--card-progress']) {
+        card.style.removeProperty(name);
+      }
+      card.style.zIndex = '';
+    };
+
     const update = () => {
       frame = 0;
+      if (!desktopQuery.matches) {
+        cards.forEach(clearCard);
+        return;
+      }
       const progress = getProgress();
       const width = visual.clientWidth;
       const height = visual.clientHeight;
-      const desktop = desktopQuery.matches;
 
       cards.forEach((card, index) => {
         const layout = clusterLayouts[index] ?? clusterLayouts[clusterLayouts.length - 1];
@@ -309,17 +339,11 @@ const phases = [
         const clusterY = layout.y * height;
         const clusterRotation = layout.rotation;
 
-        const finalPositions = desktop
-          ? [
-              { x: -0.18 * width, y: 0.01 * height, rotation: -1 },
-              { x: 0.29 * width, y: -0.19 * height, rotation: 1.5 },
-              { x: 0.29 * width, y: 0.22 * height, rotation: -1.25 },
-            ]
-          : [
-              { x: 0, y: -0.15 * height, rotation: -0.8 },
-              { x: 0, y: 0.07 * height, rotation: 1.2 },
-              { x: 0, y: 0.28 * height, rotation: -1 },
-            ];
+        const finalPositions = [
+          { x: -0.18 * width, y: 0.01 * height, rotation: -1 },
+          { x: 0.29 * width, y: -0.19 * height, rotation: 1.5 },
+          { x: 0.29 * width, y: 0.22 * height, rotation: -1.25 },
+        ];
         const finalPosition = finalPositions[index] ?? finalPositions[finalPositions.length - 1];
         const x = lerp(clusterX, finalPosition.x, cardProgress);
         const y = lerp(clusterY, finalPosition.y, cardProgress);
@@ -343,36 +367,52 @@ const phases = [
       frame = window.requestAnimationFrame(update);
     };
 
-    window.addEventListener('scroll', requestUpdate, { passive: true });
-    window.addEventListener('resize', requestUpdate, { passive: true });
-    reducedQuery.addEventListener('change', requestUpdate);
-    desktopQuery.addEventListener('change', requestUpdate);
-    requestUpdate();
+    /* Scroll drives the pile only where the pile runs. Reduced motion
+       gets the final state directly: one update, no scroll listener. */
+    const bindScroll = () => {
+      if (scrollBound) return;
+      scrollBound = true;
+      window.addEventListener('scroll', requestUpdate, { passive: true, signal });
+    };
+    const unbindScroll = () => {
+      if (!scrollBound) return;
+      scrollBound = false;
+      window.removeEventListener('scroll', requestUpdate);
+    };
+    const syncMode = () => {
+      if (desktopQuery.matches && !reducedQuery.matches) bindScroll();
+      else unbindScroll();
+      requestUpdate();
+    };
+
+    window.addEventListener('resize', requestUpdate, { passive: true, signal });
+    reducedQuery.addEventListener('change', syncMode, { signal });
+    desktopQuery.addEventListener('change', syncMode, { signal });
+    syncMode();
 
     cards.forEach((card) => {
       const link = card.querySelector<HTMLAnchorElement>('a');
       if (!link) return;
 
-      // Links already provide the native Enter and touch paths. Space is
-      // added here because cards are the primary keyboard objects in the scene.
+      // Cards are absolute during the pile; raising the focused card
+      // keeps its outline visible above its neighbours. Links already
+      // provide the native Enter and touch activation paths.
       link.addEventListener('focusin', () => {
         focusedCard = card;
         card.style.zIndex = '40';
-      });
+      }, { signal });
 
       link.addEventListener('focusout', () => {
         if (focusedCard !== card) return;
         focusedCard = null;
         requestUpdate();
-      });
-
-      link.addEventListener('keydown', (event) => {
-        if (event.code !== 'Space') return;
-        event.preventDefault();
-        link.click();
-      });
+      }, { signal });
     });
   }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>
@@ -462,6 +502,11 @@ const phases = [
     min-height: 340vh;
     background: var(--color-paper-soft);
     border-top: 1px solid var(--color-rule-on-paper-strong);
+    /* The pile may park a card a few px past the field edge at some
+       desktop widths; clip horizontally so the document never gains a
+       horizontal scrollbar. `clip` (not `hidden`) does not create a
+       scroll container, so the sticky viewport keeps working. */
+    overflow-x: clip;
   }
 
   .archive-stage__sticky {
@@ -912,47 +957,58 @@ const phases = [
       max-width: 22rem;
     }
 
+    /* MOBILE EQUIVALENT — the pile is a desktop instrument. On a
+       touch screen the correct form of "separate the artifacts" is
+       the archive itself: cards stacked in reading order, native
+       scroll, nothing pinned, nothing overlapping. Same content,
+       same routes; the scroll choreography is not carried over. */
     .archive-stage {
-      min-height: 390vh;
+      min-height: 0;
     }
 
     .archive-stage__sticky {
-      min-height: 38rem;
-      padding-block: var(--space-4) var(--space-5);
+      position: static;
+      display: block;
+      height: auto;
+      min-height: 0;
+      padding-block: var(--space-4) var(--space-6);
     }
 
     .archive-stage__heading {
       gap: var(--space-3);
+      margin-bottom: var(--space-5);
     }
 
     .archive-stage__heading p {
       max-width: 34rem;
     }
 
-    .archive-stage__meter {
-      margin-top: var(--space-2);
+    /* Pile instrumentation has no state to report here. */
+    .archive-stage__readout,
+    .archive-stage__meter,
+    .archive-stage__phases,
+    .archive-stage__caption {
+      display: none;
     }
 
-    .archive-stage__phases {
-      right: auto;
-      left: 0;
-      gap: var(--space-2);
-      max-width: 100%;
-      overflow-x: auto;
-      padding-bottom: var(--space-2);
-    }
-
-    .archive-stage__phases li {
-      flex: 0 0 auto;
+    .archive-stage__workspace::before,
+    .archive-stage__workspace::after {
+      content: none;
     }
 
     .archive-stage__cards {
-      inset: var(--space-7) 0 var(--space-5);
+      position: static;
+      display: grid;
+      gap: var(--space-5);
+      inset: auto;
     }
 
     .archive-card,
     .archive-card--flagship {
-      width: min(100%, 31rem);
+      position: static;
+      width: 100%;
+      transform: none;
+      will-change: auto;
     }
 
     .archive-card__surface {
@@ -989,24 +1045,6 @@ const phases = [
 
     .archive-hero h1 {
       font-size: clamp(3rem, 16vw, 4.5rem);
-    }
-
-    .archive-stage__sticky {
-      min-height: 36rem;
-    }
-
-    .archive-stage__topline {
-      align-items: start;
-    }
-
-    .archive-stage__readout {
-      display: grid;
-      gap: 0.1rem;
-      justify-items: end;
-    }
-
-    .archive-stage__cards {
-      inset-inline: calc(var(--page-gutter) * -0.25);
     }
 
     .archive-card__footer {

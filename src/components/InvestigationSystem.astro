@@ -78,7 +78,10 @@ const total = String(stages.length).padStart(2, '0');
                   <figcaption class="system__slab-label mono-label mono-label--inverse">
                     {artifact.label}
                   </figcaption>
-                  <pre><code>{artifact.code}</code></pre>
+                  <!-- tabindex: the slab scrolls horizontally at reading
+                       widths; focusable so keyboard users can scroll it
+                       (WCAG 2.1.1). Narrow screens wrap instead. -->
+                  <pre tabindex="0"><code>{artifact.code}</code></pre>
                 </figure>
               )}
 

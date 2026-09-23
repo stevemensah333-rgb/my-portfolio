@@ -99,7 +99,15 @@ const experiences = [
 </section>
 
 <script>
-  (function () {
+  /* Re-initializes on `astro:page-load` (the ClientRouter swaps the
+     shell without re-running bundled scripts); the marker keeps it
+     idempotent so listeners are never doubled. */
+  const init = () => {
+    const list = document.querySelector<HTMLElement>('.experience__list');
+    if (!list || list.dataset.experienceEnhanced === '1') return;
+    list.dataset.experienceEnhanced = '1';
+
+    {
     const STORAGE_KEY = 'workspace:experience';
     const readStored = () => {
       try {
@@ -141,7 +149,11 @@ const experiences = [
         }
       });
     }
-  })();
+    }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

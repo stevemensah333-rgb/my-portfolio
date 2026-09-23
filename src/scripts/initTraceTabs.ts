@@ -1,5 +1,8 @@
 type TraceTabOptions = {
   onSelect?: (id: string, index: number, count: number, tab: HTMLButtonElement) => void;
+  /** Aborted when the calling view re-initializes (view transitions),
+      so window-scoped listeners never accumulate. */
+  signal?: AbortSignal;
 };
 
 export type TraceTabController = {
@@ -14,7 +17,7 @@ export type TraceTabController = {
  * stabilize function so callers can re-run it when their layout flips
  * between stacked and exclusive modes.
  */
-export function reserveStackHeight(panels: HTMLElement[]): () => void {
+export function reserveStackHeight(panels: HTMLElement[], signal?: AbortSignal): () => void {
   const stack = panels[0]?.parentElement;
   let resizeTimer = 0;
   const stabilize = () => {
@@ -35,7 +38,7 @@ export function reserveStackHeight(panels: HTMLElement[]): () => void {
   window.addEventListener('resize', () => {
     window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(stabilize, 150);
-  });
+  }, { signal });
   return stabilize;
 }
 
@@ -45,7 +48,7 @@ export function initTraceTabs(root: Element, options: TraceTabOptions = {}): Tra
 
   if (tabs.length === 0 || panels.length === 0) return null;
 
-  reserveStackHeight(panels);
+  reserveStackHeight(panels, options.signal);
 
   const select = (id: string) => {
     const index = tabs.findIndex(tab => tab.dataset.stageTab === id);
