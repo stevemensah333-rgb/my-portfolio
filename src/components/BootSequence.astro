@@ -19,12 +19,6 @@
 
 <div id="boot" class="boot" data-boot hidden>
   <div class="boot__inner">
-    <span class="boot__marks" aria-hidden="true">
-      <i class="boot__mark boot__mark--tl"></i>
-      <i class="boot__mark boot__mark--tr"></i>
-      <i class="boot__mark boot__mark--bl"></i>
-      <i class="boot__mark boot__mark--br"></i>
-    </span>
     <div class="boot__meta">
       <span class="mono-label mono-label--inverse boot__eyebrow" aria-hidden="true">Workspace · boot</span>
       <p class="boot__path" data-boot-path aria-hidden="true">00 / 07 · initializing</p>
@@ -166,49 +160,19 @@
     gap: var(--space-4);
   }
 
-  .boot__marks {
-    position: absolute;
-    inset: -1px;
-    pointer-events: none;
-  }
-
-  .boot__mark {
-    position: absolute;
-    width: 0.625rem;
-    height: 0.625rem;
-  }
-
-  .boot__mark::before,
-  .boot__mark::after {
+  /* Single leading-corner registration tick — the same motif used
+     by the lab bench, the inspector panel and the hero instrument.
+     The boot is an instrument being initialised, not a four-crosshair
+     registration frame (that pattern was removed from the system). */
+  .boot__inner::before {
     content: '';
     position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 3rem;
+    height: 2px;
     background: var(--color-accent);
   }
-
-  .boot__mark::before {
-    left: 0;
-    right: 0;
-    height: 1px;
-    top: 0;
-  }
-
-  .boot__mark::after {
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    left: 0;
-  }
-
-  .boot__mark--tl { top: -1px; left: -1px; }
-  .boot__mark--tr { top: -1px; right: -1px; }
-  .boot__mark--tr::before { left: auto; right: 0; }
-  .boot__mark--tr::after { left: auto; right: 0; }
-  .boot__mark--bl { bottom: -1px; left: -1px; top: auto; }
-  .boot__mark--bl::before { top: auto; bottom: 0; }
-  .boot__mark--bl::after { top: auto; bottom: 0; }
-  .boot__mark--br { bottom: -1px; right: -1px; top: auto; left: auto; }
-  .boot__mark--br::before { top: auto; bottom: 0; left: auto; right: 0; }
-  .boot__mark--br::after { top: auto; bottom: 0; left: auto; right: 0; }
 
   .boot__meta {
     display: grid;

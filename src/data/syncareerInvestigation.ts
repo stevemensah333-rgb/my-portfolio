@@ -15,6 +15,8 @@ export const syncareerProduct = {
     'The CV assistant used to send only the selected bullet. The server could polish wording. It could not see the job requirement, and it could not tell job keywords from candidate evidence.',
   built:
     'A request/response contract that allowlists context, validates model JSON, requires requirement and evidence citations, and refuses to apply anything automatically.',
+  pitchResult:
+    'Delivered a pitch for Syncareer to potential investors, securing seed funding to further develop the platform.',
 } as const;
 
 /** ReliabilityTrace 5-step causal path (raw → validate → fail → intervene → valid). */
