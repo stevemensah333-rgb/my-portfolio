@@ -1,0 +1,78 @@
+---
+/** Stable, accessible boundary for a future renderer. No GLB is fetched here. */
+---
+<figure class="stephen" data-stephen-visual data-model-src="/assets/models/stephen.glb">
+  <details class="stephen__note">
+    <summary aria-label="A note from Stephen">
+      <span class="stephen__stage">
+        <img
+          class="stephen__portrait"
+          src="/images/stephen-480.webp"
+          srcset="/images/stephen-480.webp 480w, /images/stephen-800.webp 800w"
+          sizes="(min-width: 64rem) 360px, (min-width: 48rem) 40vw, 480px"
+          alt="Stephen Mensah"
+          width="800" height="800"
+          fetchpriority="high" decoding="async"
+        />
+        <span class="stephen__renderer" data-stephen-renderer aria-hidden="true"><slot name="renderer" /></span>
+        <span class="stephen__marker" aria-hidden="true">SM / 01</span>
+      </span>
+      <span class="stephen__prompt"><span>A note from Stephen</span><span class="stephen__toggle" aria-hidden="true">+</span></span>
+    </summary>
+    <p class="stephen__message">I care about what happens after the model responds. That’s where I like to work.</p>
+  </details>
+  <figcaption class="stephen__caption">Portrait / static view</figcaption>
+</figure>
+
+<script>
+  import { initStephenVisual } from '../../scripts/stephenVisual';
+  document.querySelectorAll<HTMLElement>('[data-stephen-visual]').forEach(root => {
+    initStephenVisual(root);
+  });
+</script>
+
+<style>
+  .stephen { position: relative; margin: 0; width: 100%; max-width: 30rem; }
+  .stephen__note { position: relative; padding-bottom: 6.5rem; }
+  summary { list-style: none; cursor: pointer; }
+  summary::-webkit-details-marker { display: none; }
+  summary:focus-visible { outline: 2px solid var(--color-accent-ink); outline-offset: 5px; }
+  .stephen__stage {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    background: var(--color-sheet-inset);
+    border: 1px solid var(--color-rule-on-paper);
+  }
+  .stephen__portrait { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .stephen__renderer { position: absolute; inset: 0; pointer-events: none; }
+  .stephen__marker {
+    position: absolute; top: 1rem; left: 1rem;
+    padding: 0.35rem 0.5rem;
+    background: var(--color-sheet);
+    font: 500 0.65rem var(--font-instrument);
+    letter-spacing: 0.08em;
+  }
+  .stephen__prompt {
+    display: flex; justify-content: space-between; align-items: center;
+    min-height: 3rem; gap: 1rem;
+    border-bottom: 1px solid var(--color-rule-on-paper-strong);
+    font-size: var(--text-small);
+  }
+  summary:hover .stephen__prompt, summary:focus-visible .stephen__prompt { color: var(--color-accent-ink); }
+  .stephen__toggle { font-size: 1.5rem; }
+  details[open] .stephen__toggle { transform: rotate(45deg); }
+  .stephen__message {
+    position: absolute; bottom: 0; inset-inline: 0; height: 6.5rem;
+    margin: 0; padding-top: 0.8rem;
+    font-size: 0.875rem; line-height: 1.5;
+    color: var(--color-text-on-paper-muted);
+  }
+  .stephen__caption {
+    position: absolute; bottom: 0;
+    font: 500 0.625rem var(--font-instrument);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--color-text-on-paper-faint);
+  }
+</style>

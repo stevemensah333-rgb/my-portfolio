@@ -1,0 +1,37 @@
+<a id="lab" class="proof instrument" href="/lab/" aria-labelledby="proof-title proof-link">
+  <div class="proof__intro">
+    <p class="mono-label">Inside the Lab</p>
+    <h2 id="proof-title">Don’t stop at<br />the response.</h2>
+    <p class="proof__copy">Inspect the Syncareer reliability investigation. Evidence and limits, in context.</p>
+    <span id="proof-link" class="proof__link">Open Lab <span aria-hidden="true">↗</span></span>
+  </div>
+  <ol class="proof__path" aria-label="Reliability path overview">
+    {['Raw output', 'Failure', 'Intervention', 'Valid output'].map((label, index) => (
+      <li><span>{label}</span>{index < 3 && <span class="proof__arrow" aria-hidden="true">↓</span>}</li>
+    ))}
+  </ol>
+</a>
+
+<style>
+  .proof {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.5rem; padding: 1.75rem 2rem;
+    background: var(--color-deck); color: var(--color-text-on-canvas);
+    text-decoration: none; border: 1px solid var(--color-rule-on-canvas-strong);
+  }
+  .proof__intro { display: grid; align-content: start; gap: 0.75rem; }
+  .proof .mono-label { margin: 0; color: var(--color-text-on-canvas-muted); font-size: 0.625rem; }
+  .proof h2 { margin: 0; font: 500 1.75rem/1.15 var(--font-display); letter-spacing: -0.025em; }
+  .proof__copy { margin: 0; max-width: 32ch; font-size: 0.8125rem; color: var(--color-text-on-canvas-muted); line-height: 1.55; }
+  .proof__link { display: flex; gap: 1rem; font-size: 0.8125rem; color: var(--color-accent-bright); }
+  .proof:hover .proof__link, .proof:focus-visible .proof__link { text-decoration: underline; text-underline-offset: 4px; }
+  .proof:focus-visible { outline: 2px solid var(--color-accent-ink); outline-offset: 5px; }
+  .proof__path { margin: 0; padding: 0 0 0 1.5rem; border-left: 1px solid var(--color-rule-on-canvas-strong); list-style: none; align-self: center; }
+  .proof__path li { display: grid; gap: 0.25rem; font: 500 0.625rem/1.5 var(--font-instrument); text-transform: uppercase; letter-spacing: 0.06em; }
+  .proof__path li:nth-child(2) > span:first-child { color: var(--color-signal-fail-bright); }
+  .proof__arrow { color: var(--color-text-on-canvas-faint); padding-bottom: 0.25rem; }
+  @media (max-width: 30rem) {
+    .proof { padding: 1.25rem; gap: 1.5rem; grid-template-columns: minmax(0, 1fr); }
+    .proof__path { padding-left: 1rem; }
+  }
+</style>
