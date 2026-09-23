@@ -1,0 +1,79 @@
+---
+const words = ['STEPHEN', 'MENSAH'];
+---
+
+<div class="identity" data-interactive-name>
+  <span class="identity__name" role="img" aria-label="Stephen Mensah" tabindex="0">
+    {words.map(word => (
+      <span class="identity__word" aria-hidden="true">
+        {Array.from(word).map(letter => <span class="identity__letter">{letter}</span>)}
+      </span>
+    ))}
+  </span>
+</div>
+
+<script>
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll<HTMLElement>('[data-interactive-name]').forEach(root => {
+    const letters = Array.from(root.querySelectorAll<HTMLElement>('.identity__letter'));
+    let frame = 0;
+    let idle: ReturnType<typeof setTimeout>;
+    const reset = () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(idle);
+      letters.forEach(letter => letter.style.removeProperty('transform'));
+    };
+    root.addEventListener('pointermove', event => {
+      if (motion.matches || event.pointerType === 'touch') return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        // Read first, then write; four pixels maximum, no perpetual loop.
+        const offsets = letters.map(letter => {
+          const box = letter.getBoundingClientRect();
+          const dx = event.clientX - (box.left + box.width / 2);
+          const dy = event.clientY - (box.top + box.height / 2);
+          const strength = Math.max(0, 1 - Math.hypot(dx, dy) / 160);
+          return [dx / 160 * strength * 8, -strength * 4];
+        });
+        letters.forEach((letter, i) => {
+          letter.style.transform = `translate(${offsets[i][0]}px, ${offsets[i][1]}px)`;
+        });
+      });
+      clearTimeout(idle);
+      idle = setTimeout(reset, 700);
+    });
+    root.addEventListener('pointerleave', reset);
+    root.addEventListener('pointercancel', reset);
+    root.addEventListener('focusin', reset);
+    motion.addEventListener('change', reset);
+    document.addEventListener('visibilitychange', reset);
+  });
+</script>
+
+<style>
+  .identity { min-width: 0; container-type: inline-size; }
+  .identity__name {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.08em 0.25em;
+    width: fit-content;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 8.1cqw, 7.75rem);
+    font-weight: 600;
+    letter-spacing: -0.055em;
+    line-height: 1.1;
+  }
+  .identity__word { display: inline-flex; }
+  .identity__letter { display: inline-block; transition: transform 180ms ease-out; }
+  .identity__name:focus-visible {
+    outline: 2px solid var(--color-accent-ink);
+    outline-offset: 8px;
+    color: var(--color-accent-ink);
+  }
+  @media (max-width: 30rem) {
+    .identity__name { font-size: 15cqw; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .identity__letter { transform: none !important; transition: none; }
+  }
+</style>
