@@ -3,27 +3,27 @@ import SectionFrame from './SectionFrame.astro';
 
 const experiences = [
   {
-    role: 'Innovation Lab Project Participant',
-    organisation: 'Ashesi Center for Entrepreneurship — Koranco Farms',
+    role: 'Software Engineer — Applied Innovation Lab',
+    organisation: 'Ashesi Center for Entrepreneurship',
     dates: 'Jul 2026 — Sep 2026',
     description:
-      'Selected for a 6-week Ashesi Innovation Lab project with Koranco Farms. Assessed how production data is captured, organized and used across the farm, and built a farm management system with attendance checking, farm produce management and employee management modules.',
-    meta: 'INNOVATION LAB · KORANCO FARMS · MVP DELIVERED',
+      'Developed offline-first farm management software for Koranco Farms so field operations keep running uninterrupted in low-connectivity environments. Designed custom authentication and role-based authorization pipelines with FastAPI and PostgreSQL, and built a website for Koranco Farms to improve SEO and bring customers and visitors to contact or visit the farm.',
+    meta: 'INNOVATION LAB · KORANCO FARMS · OFFLINE-FIRST · FASTAPI · POSTGRESQL',
   },
   {
     role: 'Software Engineer Intern',
-    organisation: 'Amalitech',
+    organisation: 'AmaliTech',
     dates: 'Aug 2026 — Sep 2026',
     description:
-      'Built software products in collaboration with professional teams.',
-    meta: 'INTERNSHIP · SOFTWARE ENGINEERING',
+      'Engineered the backend for a mentor–mentee matching platform using FastAPI and Python, with JWT authentication for secure session management. Worked in a cross-functional group of 5 tech professionals from different engineering fields to develop a full-stack working MVP.',
+    meta: 'INTERNSHIP · BACKEND · FASTAPI · JWT AUTH · MVP',
   },
   {
-    role: 'DataCamp Donates Program Coordinator',
-    organisation: 'DataCamp',
+    role: 'Program Coordinator',
+    organisation: 'Ashesi DataCamp Donates — DataCamp',
     dates: 'Nov 2025 — Present',
     description:
-      "Directed user license distribution and facilitated participant engagement of over 35 learners with DataCamp's data science and AI learning resources.",
+      "Coordinated learner access to DataCamp's AI and data science learning platform through the Donates Program, and supported 35+ students and community learners in accessing technical upskilling resources in data science, AI and programming.",
     meta: '35+ LEARNERS · DATA & AI EDUCATION',
   },
   {
@@ -31,8 +31,8 @@ const experiences = [
     organisation: 'Ashesi University',
     dates: 'Feb 2026 — May 2026',
     description:
-      'Supported 50+ students with academic resources and research materials, improving on-time assignment submission rates by 20% and enhancing students preparedness for career-related tasks. Assisted 30+ patrons with technical difficulties regarding printing, scanning, and database navigation, translating complex technical processes into plain English.',
-    meta: '50+ STUDENTS · 20% SUBMISSION IMPROVEMENT · 30+ TECH INTERACTIONS',
+      'Assisted 30+ patrons with technical difficulties regarding printing, scanning, and database navigation, translating complex technical processes into plain English.',
+    meta: '30+ PATRONS · TECHNICAL SUPPORT',
   },
 ];
 ---
@@ -50,7 +50,9 @@ const experiences = [
     disclosed panel, which is the same open/inspect vocabulary the
     trace and toolkit use.
 
-  Content is untouched.
+  Content mirrors the WORK EXPERIENCE section of the public résumé
+  (public/Stephen-Mensah-Resume.pdf). When the résumé changes, update
+  this array — roles, organisations, dates and descriptions.
 -->
 <section id="experience" class="experience" aria-labelledby="experience-title" data-workspace-section="experience">
   <SectionFrame coordinate="04 · Experience" surface="paper" density="default">
