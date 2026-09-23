@@ -1,19 +1,28 @@
 ---
 /**
- * WorkspaceRail — the persistent navigation surface of the site.
+ * WorkspaceRail — the persistent control surface of the workspace.
  *
- * Desktop (>= 64rem): a vertical rail on the left of the viewport with
- * two groups — PRIMARY (01 Home · 02 Work · 03 Lab · 04 Profile) and
- * UTILITIES (Résumé · Email). "Current" is derived from the route, not
- * from scroll position; an IntersectionObserver only drives the mono
- * path readout and the progress spine.
+ * It is one component with two forms, not two navigations:
  *
- * Tablet/Mobile (< 64rem): a compact bar with the four primary
- * destinations plus a "More" disclosure that opens a drawer with the
- * full list and descriptions.
+ *   DESKTOP (>= 64rem)  a narrow vertical rail bolted to the left
+ *                       edge of the field. It is a control surface,
+ *                       not a second column of content: an index of
+ *                       destinations, a separation for the two
+ *                       utilities, and a state readout.
  *
- * The rail is keyboard-operable: every destination is a real link. The
- * current page is announced via aria-current="page".
+ *   MOBILE  (< 64rem)   a compact control at the head of the page —
+ *                       brand, current destination, and a disclosure
+ *                       that opens the full list. It is not a shrunken
+ *                       rail: one bar, one control, one panel.
+ *
+ * Both forms read from `config/workspace.ts`, so adding a destination
+ * means editing one list. "Current" is derived from the route and set
+ * at render time (`aria-current="page"`), so it is correct without
+ * JavaScript and on first paint.
+ *
+ * The disclosure uses native <details>/<summary>: it opens, closes and
+ * is keyboard-operable with no script at all. The script below only
+ * enhances it (Escape, outside click, resizing to the rail form).
  */
 import {
   primaryDestinations,
@@ -23,369 +32,401 @@ import {
 } from '../config/workspace';
 
 const currentId = destinationForPath(Astro.url.pathname);
-const currentIndex = primaryDestinations.findIndex((dest) => dest.id === currentId);
+const current = primaryDestinations.find((dest) => dest.id === currentId) ?? null;
+const total = String(primaryDestinations.length).padStart(2, '0');
 
 const destHref = (dest: Destination) => dest.href;
+const isCurrent = (dest: Destination) => dest.id === currentId;
 ---
 
-<div class="workspace-rail" data-workspace-rail>
-  <div class="workspace-rail__brand">
-    <span class="workspace-rail__brand-mark" aria-hidden="true">SM</span>
-    <span class="workspace-rail__brand-text">
-      <span class="workspace-rail__brand-name">Stephen Mensah</span>
-      <span class="workspace-rail__brand-role mono-label mono-label--bare">Engineering workspace</span>
-    </span>
-  </div>
+<div class="workspace-chrome">
+<!-- ================= DESKTOP: the rail ================= -->
+<aside class="workspace-rail" data-workspace-rail>
+  <a class="workspace-rail__brand" href="/" aria-label="Stephen Mensah — home">
+    <span class="workspace-rail__mark" aria-hidden="true">SM</span>
+    <span class="workspace-rail__name">Stephen Mensah</span>
+  </a>
 
-  <div class="workspace-rail__header">
-    <span class="mono-label workspace-rail__heading">Primary</span>
-    <span class="workspace-rail__path mono-label mono-label--bare" data-workspace-path>
-      {currentIndex >= 0
-        ? `${primaryDestinations[currentIndex]?.index} / ${String(primaryDestinations.length).padStart(2, '0')}`
-        : '— / —'}
-    </span>
-  </div>
-
-  <nav aria-label="Primary site destinations" class="workspace-rail__nav">
-    <div class="workspace-rail__progress" aria-hidden="true">
-      <span
-        class="workspace-rail__progress-fill"
-        data-workspace-progress
-        style={currentIndex >= 0 ? `height: ${((currentIndex + 1) / primaryDestinations.length) * 100}%` : ''}
-      ></span>
-    </div>
-    <ol class="workspace-rail__list" data-workspace-list>
-      {primaryDestinations.map((dest) => (
-        <li class="workspace-rail__item" data-workspace-item={dest.id}>
-          <a
-            class="workspace-rail__link"
-            href={destHref(dest)}
-            aria-current={dest.id === currentId ? 'page' : undefined}
-            data-workspace-link={dest.id}
-          >
-            <span class="workspace-rail__index" aria-hidden="true">{dest.index}</span>
-            <span class="workspace-rail__label">{dest.label}</span>
-            <span class="workspace-rail__chev" aria-hidden="true">›</span>
-          </a>
-        </li>
-      ))}
-    </ol>
-
-    <span class="mono-label workspace-rail__group-heading">Utilities</span>
-    <ol class="workspace-rail__list workspace-rail__list--utilities">
-      {utilityDestinations.map((dest) => (
-        <li class="workspace-rail__item" data-workspace-item={dest.id}>
-          <a
-            class="workspace-rail__link"
-            href={destHref(dest)}
-            data-workspace-link={dest.id}
-            target={dest.external ? '_blank' : undefined}
-            rel={dest.external ? 'noopener noreferrer' : undefined}
-          >
-            <span class="workspace-rail__index" aria-hidden="true">{dest.index}</span>
-            <span class="workspace-rail__label">{dest.label}</span>
-            <span class="workspace-rail__chev workspace-rail__chev--ext" aria-hidden="true">
-              {dest.external ? '↗' : '→'}
-            </span>
-          </a>
-        </li>
-      ))}
-    </ol>
-  </nav>
-
-  <div class="workspace-rail__footer">
-    <span class="workspace-rail__status mono-label" data-workspace-status>
-      <span class="workspace-rail__status-dot" aria-hidden="true"></span>
-      <span>Open to AI engineering roles</span>
-    </span>
-    <a class="workspace-rail__contact text-link" href={utilityDestinations[1]?.href ?? '#'}>
-      Start a conversation
-      <span class="text-link__arrow" aria-hidden="true">→</span>
-    </a>
-  </div>
-</div>
-
-<!-- Compact mobile / tablet bar -->
-<nav class="workspace-bar" data-workspace-bar aria-label="Quick site destinations">
-  <div class="workspace-bar__inner">
-    <a
-      class="workspace-bar__home"
-      href="/"
-      aria-label="Stephen Mensah — home"
-      data-workspace-link="home"
-    >
-      <span class="workspace-bar__home-mark" aria-hidden="true">SM</span>
-    </a>
-    <ol class="workspace-bar__list">
-      {primaryDestinations.map((dest) => (
-        <li class="workspace-bar__item" data-workspace-bar-item={dest.id}>
-          <a
-            class="workspace-bar__link"
-            href={destHref(dest)}
-            aria-current={dest.id === currentId ? 'page' : undefined}
-            data-workspace-link={dest.id}
-          >
-            <span class="workspace-bar__index" aria-hidden="true">{dest.index}</span>
-            <span class="workspace-bar__label">{dest.label}</span>
-          </a>
-        </li>
-      ))}
-      <li class="workspace-bar__item">
-        <button
-          class="workspace-bar__more"
-          type="button"
-          aria-expanded="false"
-          aria-controls="workspace-bar-drawer"
-          data-workspace-bar-more
-        >
-          <span class="workspace-bar__index" aria-hidden="true">+</span>
-          <span class="workspace-bar__label">More</span>
-        </button>
-      </li>
-    </ol>
-  </div>
-
-  <div id="workspace-bar-drawer" class="workspace-bar__drawer" data-workspace-bar-drawer hidden>
-    <div class="workspace-bar__drawer-inner page-shell">
-      <p class="mono-label workspace-bar__drawer-eyebrow">All destinations</p>
-      <ol class="workspace-bar__drawer-list">
-        {[...primaryDestinations, ...utilityDestinations].map((dest) => (
+  <nav class="workspace-rail__nav" aria-label="Primary destinations">
+    <ol class="workspace-rail__list">
+      {
+        primaryDestinations.map((dest) => (
           <li>
             <a
+              class="workspace-rail__link"
               href={destHref(dest)}
+              aria-current={isCurrent(dest) ? 'page' : undefined}
+              data-workspace-link={dest.id}
+            >
+              <span class="workspace-rail__index" aria-hidden="true">{dest.index}</span>
+              <span class="workspace-rail__label">{dest.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="workspace-rail__caption">Utilities</p>
+
+    <ol class="workspace-rail__list workspace-rail__list--utilities">
+      {
+        utilityDestinations.map((dest) => (
+          <li>
+            <a
+              class="workspace-rail__link"
+              href={destHref(dest)}
+              data-workspace-link={dest.id}
               target={dest.external ? '_blank' : undefined}
               rel={dest.external ? 'noopener noreferrer' : undefined}
-              class="workspace-bar__drawer-link"
             >
-              <span class="workspace-bar__index" aria-hidden="true">{dest.index}</span>
-              <span class="workspace-bar__drawer-label">{dest.label}</span>
-              <span class="workspace-bar__drawer-description">{dest.description}</span>
-              <span class="workspace-bar__drawer-chev" aria-hidden="true">
+              <span class="workspace-rail__index" aria-hidden="true">{dest.index}</span>
+              <span class="workspace-rail__label">{dest.label}</span>
+              <span class="workspace-rail__mark-ext" aria-hidden="true">
                 {dest.external ? '↗' : '→'}
               </span>
             </a>
           </li>
-        ))}
-      </ol>
-    </div>
+        ))
+      }
+    </ol>
+  </nav>
+
+  <div class="workspace-rail__state">
+    <p class="workspace-rail__readout">
+      <span class="workspace-rail__readout-index">{current ? `${current.index} / ${total}` : '— / —'}</span>
+      <span class="workspace-rail__readout-section" data-rail-section></span>
+    </p>
+    <p class="workspace-rail__status">
+      <span class="workspace-rail__dot" aria-hidden="true"></span>
+      Open to AI engineering roles
+    </p>
   </div>
-</nav>
+</aside>
+
+<!-- ================= MOBILE: the control ================= -->
+<div class="workspace-control" data-workspace-control>
+  <div class="workspace-control__bar">
+    <a class="workspace-control__brand" href="/" aria-label="Stephen Mensah — home">
+      <span class="workspace-control__mark" aria-hidden="true">SM</span>
+      <span class="workspace-control__name">Stephen Mensah</span>
+    </a>
+
+    <p class="workspace-control__state">
+      <span class="workspace-control__state-index" aria-hidden="true">
+        {current ? current.index : '—'}
+      </span>
+      <span class="workspace-control__state-label">{current ? current.label : 'Workspace'}</span>
+    </p>
+
+    <details class="workspace-control__disclosure" data-workspace-menu>
+      <summary class="workspace-control__toggle">
+        <span class="workspace-control__toggle-label">Destinations</span>
+        <span class="workspace-control__toggle-mark" aria-hidden="true"></span>
+      </summary>
+
+      <nav class="workspace-control__panel" aria-label="All destinations">
+        <ol class="workspace-control__list">
+          {
+            primaryDestinations.map((dest) => (
+              <li>
+                <a
+                  class="workspace-control__link"
+                  href={destHref(dest)}
+                  aria-current={isCurrent(dest) ? 'page' : undefined}
+                >
+                  <span class="workspace-control__index" aria-hidden="true">{dest.index}</span>
+                  <span class="workspace-control__text">
+                    <span class="workspace-control__link-label">{dest.label}</span>
+                    <span class="workspace-control__link-note">{dest.description}</span>
+                  </span>
+                  <span class="workspace-control__chev" aria-hidden="true">→</span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+
+        <p class="workspace-control__caption">Utilities</p>
+
+        <ol class="workspace-control__list">
+          {
+            utilityDestinations.map((dest) => (
+              <li>
+                <a
+                  class="workspace-control__link"
+                  href={destHref(dest)}
+                  target={dest.external ? '_blank' : undefined}
+                  rel={dest.external ? 'noopener noreferrer' : undefined}
+                >
+                  <span class="workspace-control__index" aria-hidden="true">{dest.index}</span>
+                  <span class="workspace-control__text">
+                    <span class="workspace-control__link-label">{dest.label}</span>
+                    <span class="workspace-control__link-note">{dest.description}</span>
+                  </span>
+                  <span class="workspace-control__chev" aria-hidden="true">
+                    {dest.external ? '↗' : '→'}
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+    </details>
+  </div>
+</div>
+</div>
 
 <script>
-  const rail = document.querySelector<HTMLElement>('[data-workspace-rail]');
-  const pathLabel = rail?.querySelector<HTMLElement>('[data-workspace-path]');
-  const progressFill = rail?.querySelector<HTMLElement>('[data-workspace-progress]');
+  /* --- Enhancements only ------------------------------------------
+     The navigation itself is markup: real links, a real disclosure,
+     aria-current set at render. Nothing here is required for it to
+     work. */
 
-  // --- Page-flow readout -----------------------------------------------
-  // "Current" is route-based and set at render time. The observer below
-  // only drives the mono path readout and the progress spine: where the
-  // visitor is in the current page's flow (sections carry
-  // data-workspace-section on every page).
-  const sections = Array.from(
-    document.querySelectorAll<HTMLElement>('main [data-workspace-section]'),
-  );
-  const sectionOrder = sections.map((s) => s.dataset.workspaceSection ?? '');
+  /* 1. State readout — where the visitor is inside the current page.
+        Sections opt in with `data-workspace-section` and may publish
+        a human label with `data-workspace-label`. */
+  const railSection = document.querySelector<HTMLElement>('[data-rail-section]');
+  const sections = Array.from(document.querySelectorAll<HTMLElement>('main [data-workspace-section]'));
 
-  const setActive = (id: string) => {
-    const order = sectionOrder.indexOf(id);
-    const total = sectionOrder.filter(Boolean).length;
-    if (pathLabel && order >= 0 && total > 0) {
-      pathLabel.textContent = `${String(order + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
-    }
-    if (progressFill && order >= 0 && total > 0) {
-      progressFill.style.height = `${((order + 1) / total) * 100}%`;
-    }
-  };
-
-  if (sections.length > 0) {
+  if (railSection && sections.length > 1) {
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
-          .filter((e) => e.isIntersecting)
+          .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) {
-          const id = (visible.target as HTMLElement).dataset.workspaceSection;
-          if (id) setActive(id);
-        }
+        if (!visible) return;
+        const target = visible.target as HTMLElement;
+        const label = target.dataset.workspaceLabel ?? target.dataset.workspaceSection ?? '';
+        if (label) railSection.textContent = `Section · ${label}`;
       },
       { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
     );
-    sections.forEach((s) => observer.observe(s));
+    sections.forEach((section) => observer.observe(section));
   }
 
-  // --- Mobile drawer ----------------------------------------------------
-  const moreBtn = document.querySelector<HTMLButtonElement>('[data-workspace-bar-more]');
-  const drawer = document.querySelector<HTMLElement>('[data-workspace-bar-drawer]');
-  // Page content behind the full-screen drawer: made inert while the
-  // drawer is open so keyboard and screen-reader focus stay inside it.
-  const drawerBackground = [
-    ...document.querySelectorAll<HTMLElement>('main, body > footer, [data-workspace-rail]'),
-  ];
+  /* 2. Mobile disclosure — Escape, outside click, and closing when
+        the viewport grows into the rail form. */
+  const menu = document.querySelector<HTMLDetailsElement>('[data-workspace-menu]');
 
-  if (moreBtn && drawer) {
-    const close = () => {
-      moreBtn.setAttribute('aria-expanded', 'false');
-      drawer.hidden = true;
-      document.documentElement.classList.remove('bar-drawer-open');
-      drawerBackground.forEach((el) => {
-        el.inert = false;
+  if (menu) {
+    const railQuery = window.matchMedia('(min-width: 64rem)');
+    const background = [
+      ...document.querySelectorAll<HTMLElement>('main, body > footer, [data-workspace-rail]'),
+    ];
+
+    const setOpen = (open: boolean) => {
+      menu.open = open;
+    };
+
+    menu.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      if (target.closest('a')) setOpen(false);
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!menu.open) return;
+      const target = event.target as HTMLElement;
+      if (!target.closest('[data-workspace-menu]')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && menu.open) {
+        setOpen(false);
+        menu.querySelector<HTMLElement>('summary')?.focus();
+      }
+    });
+
+    // Keep the page behind the open panel out of the tab order.
+    const syncBackground = () => {
+      background.forEach((element) => {
+        element.inert = menu.open;
       });
     };
-    moreBtn.addEventListener('click', () => {
-      const open = moreBtn.getAttribute('aria-expanded') === 'true';
-      if (open) close();
-      else {
-        moreBtn.setAttribute('aria-expanded', 'true');
-        drawer.hidden = false;
-        document.documentElement.classList.add('bar-drawer-open');
-        drawerBackground.forEach((el) => {
-          el.inert = true;
-        });
-        drawer.querySelector<HTMLAnchorElement>('a')?.focus();
-      }
-    });
-    drawer.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement;
-      if (target.closest('a')) close();
-    });
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && moreBtn.getAttribute('aria-expanded') === 'true') {
-        close();
-        moreBtn.focus();
-      }
-    });
-    const tabletUp = window.matchMedia('(min-width: 64rem)');
-    tabletUp.addEventListener('change', (e) => {
-      if (e.matches) close();
-    });
+    menu.addEventListener('toggle', syncBackground);
+    railQuery.addEventListener('change', () => setOpen(false));
+    syncBackground();
   }
 </script>
 
 <style>
+  /* ============================================================
+     SHARED
+     The rail and the control are the same surface in two forms:
+     deep charcoal (DARK = INSTRUMENTATION), because both are
+     controls rather than reading material.
+
+     `.workspace-chrome` is the single child of the shell, so the
+     desktop grid never gains a ghost column from the unused form.
+     ============================================================ */
+
+  .workspace-chrome {
+    background: var(--color-deck);
+    color: var(--color-text-on-canvas);
+  }
+
+  .workspace-rail,
+  .workspace-control {
+    background: var(--color-deck);
+    color: var(--color-text-on-canvas);
+  }
+
+  /* ============================================================
+     MOBILE / TABLET — the compact control (< 64rem)
+     One bar: brand · current destination · disclosure.
+     Not a shrunken rail.
+     ============================================================ */
+
+  .workspace-chrome {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+  }
+
   .workspace-rail {
     display: none;
   }
 
-  .workspace-bar {
-    position: sticky;
-    top: 0;
-    z-index: var(--z-header);
-    background: var(--color-canvas);
-    color: var(--color-text-on-canvas);
+  .workspace-control {
+    position: relative;
     border-bottom: 1px solid var(--color-rule-on-canvas);
-    /* Single source of truth for the bar's height: the drawer and the
-       bar row share it, so no gap can open between them at any width. */
-    --workspace-bar-height: 3.25rem;
   }
 
-  .workspace-bar__inner {
+  .workspace-control__bar {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
     gap: var(--space-3);
+    width: min(100%, calc(var(--width-page) + (2 * var(--page-gutter))));
+    min-height: var(--shell-control);
+    margin-inline: auto;
     padding: var(--space-2) var(--page-gutter);
-    min-height: var(--workspace-bar-height);
   }
 
-  .workspace-bar__home {
+  .workspace-control__brand {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border: 1px solid var(--color-accent);
-    color: var(--color-accent-text);
+    gap: var(--space-3);
+    min-width: 0;
+    color: var(--color-text-on-canvas);
     text-decoration: none;
   }
 
-  .workspace-bar__home-mark {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
+  .workspace-control__mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--color-rule-on-canvas-strong);
+    color: var(--color-text-on-canvas);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
     letter-spacing: 0.04em;
-    line-height: 1;
   }
 
-  .workspace-bar__list {
-    display: flex;
-    gap: var(--space-1);
+  .workspace-control__name {
+    overflow: hidden;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* At 375px the name collides with the state readout. The mark
+     keeps the brand; the link's aria-label names it. */
+  @media (max-width: 29.99rem) {
+    .workspace-control__name {
+      display: none;
+    }
+  }
+
+  /* The current destination is always visible, so the control shows
+     state even while it is closed. */
+  .workspace-control__state {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
     margin: 0;
-    padding: 0;
-    list-style: none;
-    overflow-x: auto;
-    scrollbar-width: none;
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
   }
 
-  .workspace-bar__list::-webkit-scrollbar {
+  .workspace-control__state-index {
+    color: var(--color-accent-text);
+  }
+
+  /* Static so the open panel positions against `.workspace-control`,
+     not against the summary's narrow box. */
+  .workspace-control__disclosure {
+    position: static;
+  }
+
+  .workspace-control__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.25rem;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-rule-on-canvas-strong);
+    color: var(--color-text-on-canvas);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+    list-style: none;
+    cursor: pointer;
+    transition:
+      border-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
+  }
+
+  .workspace-control__toggle::-webkit-details-marker {
     display: none;
   }
 
-  .workspace-bar__item {
-    flex: 0 0 auto;
-  }
-
-  .workspace-bar__link,
-  .workspace-bar__more {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-    min-height: 2rem;
-    padding: 0 var(--space-2);
-    border: 1px solid var(--color-rule-on-canvas);
-    background: transparent;
-    color: var(--color-text-on-canvas);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: var(--tracking-meta);
-    text-transform: uppercase;
-    text-decoration: none;
-    cursor: pointer;
-    transition:
-      color var(--duration-quick) var(--ease-standard),
-      border-color var(--duration-quick) var(--ease-standard),
-      background-color var(--duration-quick) var(--ease-standard);
-  }
-
-  .workspace-bar__index {
-    color: var(--color-accent-text);
-    font-size: 0.625rem;
-    letter-spacing: 0.04em;
-  }
-
-  .workspace-bar__link:hover,
-  .workspace-bar__link:focus-visible,
-  .workspace-bar__more:hover,
-  .workspace-bar__more:focus-visible {
-    color: var(--color-accent-text);
+  .workspace-control__toggle:hover,
+  .workspace-control__toggle:focus-visible {
     border-color: var(--color-accent);
-  }
-
-  .workspace-bar__link[aria-current] {
     color: var(--color-accent-text);
-    border-color: var(--color-accent);
-    background: var(--color-canvas-soft);
   }
 
-  .workspace-bar__drawer {
-    position: fixed;
-    inset: var(--workspace-bar-height) 0 0 0;
-    z-index: calc(var(--z-overlay) - 1);
-    background: var(--color-canvas);
-    color: var(--color-text-on-canvas);
+  /* A two-bar mark that becomes a single bar when the panel is open.
+     One control, two states, no icon set. */
+  .workspace-control__toggle-mark {
+    position: relative;
+    width: 0.75rem;
+    height: 0.5rem;
+    border-top: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transition: height var(--duration-quick) var(--ease-standard);
+  }
+
+  .workspace-control__disclosure[open] .workspace-control__toggle-mark {
+    height: 0;
+    border-bottom: 0;
+  }
+
+  .workspace-control__panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 2;
+    max-height: calc(100vh - var(--shell-control) - 0.5rem);
+    padding: var(--space-4) var(--page-gutter) var(--space-5);
     overflow-y: auto;
     overscroll-behavior: contain;
+    border-top: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck);
+    box-shadow: 0 1.25rem 2rem rgb(0 0 0 / 40%);
   }
 
-  .workspace-bar__drawer-inner {
-    display: grid;
-    gap: var(--space-4);
-    padding-block: var(--space-5) var(--space-7);
-  }
-
-  .workspace-bar__drawer-eyebrow {
-    color: var(--color-text-on-canvas-muted);
-  }
-
-  .workspace-bar__drawer-list {
+  .workspace-control__list {
     display: grid;
     margin: 0;
     padding: 0;
@@ -393,184 +434,185 @@ const destHref = (dest: Destination) => dest.href;
     border-top: 1px solid var(--color-rule-on-canvas);
   }
 
-  .workspace-bar__drawer-list li {
-    border-bottom: 1px solid var(--color-rule-on-canvas);
+  .workspace-control__caption {
+    margin: var(--space-4) 0 0;
+    color: var(--color-text-on-canvas-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
   }
 
-  .workspace-bar__drawer-link {
+  .workspace-control__list:last-child {
+    margin-top: var(--space-2);
+  }
+
+  .workspace-control__link {
     display: grid;
-    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
-    align-items: center;
+    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    align-items: start;
     gap: var(--space-3);
-    min-height: 3.5rem;
-    padding: var(--space-2) 0;
+    min-height: 3rem;
+    padding: var(--space-3) var(--space-2) var(--space-3) var(--space-1);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
     color: var(--color-text-on-canvas);
     text-decoration: none;
-    transition: color var(--duration-quick) var(--ease-standard);
+    transition:
+      color var(--duration-quick) var(--ease-standard),
+      background-color var(--duration-quick) var(--ease-standard);
   }
 
-  .workspace-bar__drawer-link:hover,
-  .workspace-bar__drawer-link:focus-visible {
-    color: var(--color-accent-text);
+  .workspace-control__index {
+    padding-top: 0.1em;
+    color: var(--color-text-on-canvas-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: 0.04em;
   }
 
-  .workspace-bar__drawer-label {
+  .workspace-control__text {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .workspace-control__link-label {
     font-size: 0.9375rem;
     font-weight: 600;
+    letter-spacing: -0.01em;
   }
 
-  .workspace-bar__drawer-description {
+  /* CONTENT role: a description is prose, not instrument metadata. */
+  .workspace-control__link-note {
     color: var(--color-text-on-canvas-muted);
-    font-size: var(--text-meta);
-    grid-column: 2;
+    font-size: var(--text-small);
+    line-height: 1.4;
   }
 
-  .workspace-bar__drawer-chev {
+  .workspace-control__chev {
+    padding-top: 0.1em;
+    color: var(--color-text-on-canvas-faint);
+    font-family: var(--font-instrument);
+  }
+
+  .workspace-control__link:hover,
+  .workspace-control__link:focus-visible {
     color: var(--color-accent-text);
-    font-family: var(--font-mono);
   }
 
-  @media (min-width: 48rem) {
-    .workspace-bar {
-      --workspace-bar-height: 3.5rem;
+  .workspace-control__link:hover .workspace-control__chev,
+  .workspace-control__link:focus-visible .workspace-control__chev {
+    color: var(--color-accent-text);
+  }
+
+  /* ACTIVE / SELECTED — the same treatment as the rail: an orange
+     leading edge, an orange index, full-contrast label. */
+  .workspace-control__link[aria-current='page'] {
+    box-shadow: inset 2px 0 0 var(--color-accent);
+    padding-left: var(--space-3);
+  }
+
+  .workspace-control__link[aria-current='page'] .workspace-control__index {
+    color: var(--color-accent-text);
+  }
+
+  @media (min-width: 40rem) {
+    .workspace-control__panel {
+      left: auto;
+      right: var(--page-gutter);
+      width: min(24rem, calc(100% - (2 * var(--page-gutter))));
+      border: 1px solid var(--color-rule-on-canvas-strong);
+      border-top: 1px solid var(--color-rule-on-canvas-strong);
+    }
+  }
+
+  @media (max-width: 29.99rem) {
+    .workspace-control__toggle-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
     }
 
-    .workspace-bar__inner {
-      padding-block: var(--space-3);
-      min-height: var(--workspace-bar-height);
-    }
-
-    .workspace-bar__home {
+    .workspace-control__toggle {
+      padding: 0;
       width: 2.25rem;
-      height: 2.25rem;
-    }
-
-    .workspace-bar__link,
-    .workspace-bar__more {
-      min-height: 2.25rem;
-      padding: 0 var(--space-3);
+      justify-content: center;
     }
   }
 
-  /* Lock body scroll when drawer open */
-  :global(html.bar-drawer-open),
-  :global(html.bar-drawer-open body) {
-    overflow: hidden;
-  }
+  /* ============================================================
+     DESKTOP — the rail (>= 64rem)
+     Narrow on purpose. It carries navigation, control and state;
+     the content it points at lives in the field beside it.
+     ============================================================ */
 
   @media (min-width: 64rem) {
-    .workspace-bar {
+    .workspace-chrome {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      z-index: auto;
+      width: var(--shell-rail);
+      min-height: 100vh;
+      border-right: 1px solid var(--color-rule-on-canvas);
+    }
+
+    .workspace-control {
       display: none;
     }
 
     .workspace-rail {
-      position: sticky;
-      top: 0;
-      align-self: flex-start;
       display: grid;
-      grid-template-rows: auto auto 1fr auto;
-      align-content: start;
-      gap: var(--space-4);
-      /* The rail is a control surface, not a sidebar: narrower than the
-         old 17rem so it reads as an instrument edge bolted to the
-         canvas, not as a second website. */
-      width: 15rem;
-      flex: 0 0 15rem;
+      grid-template-rows: auto 1fr auto;
+      gap: var(--space-5);
+      width: 100%;
       min-height: 100vh;
-      padding: var(--space-5) 0 var(--space-4) var(--page-gutter);
-      background: var(--color-canvas);
-      color: var(--color-text-on-canvas);
-      border-right: 1px solid var(--color-rule-on-canvas);
+      padding: var(--space-5) 0 var(--space-5);
     }
 
-    /* The brand stacks — mark, then name, then role — so nothing has
-       to wrap in the narrower rail. It reads as an instrument's name
-       plate, not a site header. */
+    /* Name plate, stacked: mark then name. Architectural rather
+       than a site header squeezed into a column. */
     .workspace-rail__brand {
       display: grid;
       justify-items: start;
       gap: var(--space-3);
-      padding-bottom: var(--space-4);
+      padding: 0 var(--space-4) var(--space-5);
       border-bottom: 1px solid var(--color-rule-on-canvas);
+      color: var(--color-text-on-canvas);
+      text-decoration: none;
+      transition: color var(--duration-quick) var(--ease-standard);
     }
 
-    .workspace-rail__brand-mark {
+    .workspace-rail__brand:hover {
+      color: var(--color-accent-text);
+    }
+
+    .workspace-rail__mark {
       display: grid;
       place-items: center;
-      width: 2rem;
-      height: 2rem;
-      border: 1px solid var(--color-accent);
-      color: var(--color-accent-text);
-      font-family: var(--font-mono);
-      font-size: 0.625rem;
+      width: 1.75rem;
+      height: 1.75rem;
+      border: 1px solid var(--color-rule-on-canvas-strong);
+      color: var(--color-text-on-canvas);
+      font-family: var(--font-instrument);
+      font-size: var(--text-instrument-sm);
       letter-spacing: 0.04em;
     }
 
-    .workspace-rail__brand-text {
-      display: grid;
-      gap: 2px;
-      min-width: 0;
-      width: 100%;
-    }
-
-    .workspace-rail__brand-name {
-      font-size: 0.9375rem;
+    .workspace-rail__name {
+      font-size: 0.875rem;
       font-weight: 600;
       letter-spacing: -0.01em;
-    }
-
-    .workspace-rail__brand-role {
-      color: var(--color-text-on-canvas-muted);
-      letter-spacing: 0.06em;
-      white-space: nowrap;
-    }
-
-    .workspace-rail__header {
-      display: grid;
-      gap: var(--space-1);
-      padding-bottom: var(--space-2);
-    }
-
-    .workspace-rail__heading {
-      color: var(--color-text-on-canvas-muted);
-    }
-
-    .workspace-rail__path {
-      color: var(--color-accent-text);
-      white-space: nowrap;
+      line-height: 1.2;
     }
 
     .workspace-rail__nav {
-      position: relative;
       display: grid;
-      gap: var(--space-4);
       align-content: start;
-      padding-left: var(--space-3);
-    }
-
-    .workspace-rail__progress {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 1px;
-      background: var(--color-rule-on-canvas);
-    }
-
-    .workspace-rail__progress-fill {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1px;
-      height: 12%;
-      background: var(--color-accent);
-      transition: height var(--duration-reveal) var(--ease-emphasized);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .workspace-rail__progress-fill {
-        transition: none;
-      }
+      gap: var(--space-4);
+      padding: 0 var(--space-4);
     }
 
     .workspace-rail__list {
@@ -581,19 +623,21 @@ const destHref = (dest: Destination) => dest.href;
       border-top: 1px solid var(--color-rule-on-canvas);
     }
 
-    .workspace-rail__item {
+    .workspace-rail__list li {
       border-bottom: 1px solid var(--color-rule-on-canvas);
     }
 
-    /* Rows are compact index lines: number, name, edge. No captions,
-       no wrapping — the caption layer lives in the mobile drawer. */
+    /* An index line: number, name, optional external mark. No
+       captions, no wrapping — the caption layer lives in the mobile
+       panel. */
     .workspace-rail__link {
+      position: relative;
       display: grid;
-      grid-template-columns: 1.75rem minmax(0, 1fr) auto;
-      gap: var(--space-3);
+      grid-template-columns: 1.5rem minmax(0, 1fr) auto;
       align-items: center;
-      min-height: 2.75rem;
-      padding: var(--space-2) 0;
+      gap: var(--space-3);
+      min-height: 2.5rem;
+      padding-right: var(--space-1);
       color: var(--color-text-on-canvas-muted);
       text-decoration: none;
       transition:
@@ -601,120 +645,126 @@ const destHref = (dest: Destination) => dest.href;
         background-color var(--duration-quick) var(--ease-standard);
     }
 
+    .workspace-rail__link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: calc(var(--space-4) * -1);
+      width: 2px;
+      background: var(--color-accent);
+      opacity: 0;
+      transition: opacity var(--duration-quick) var(--ease-standard);
+    }
+
+    .workspace-rail__index {
+      color: var(--color-text-on-canvas-faint);
+      font-family: var(--font-instrument);
+      font-size: var(--text-instrument-sm);
+      letter-spacing: 0.04em;
+      transition: color var(--duration-quick) var(--ease-standard);
+    }
+
+    .workspace-rail__label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .workspace-rail__mark-ext {
+      color: var(--color-text-on-canvas-faint);
+      font-family: var(--font-instrument);
+      font-size: 0.75rem;
+    }
+
     .workspace-rail__link:hover,
     .workspace-rail__link:focus-visible {
       color: var(--color-text-on-canvas);
     }
 
-    .workspace-rail__index {
-      color: var(--color-accent-text);
-      font-family: var(--font-mono);
-      font-size: 0.6875rem;
-      letter-spacing: 0.04em;
-      transition: color var(--duration-quick) var(--ease-standard);
-    }
-
     .workspace-rail__link:hover .workspace-rail__index,
     .workspace-rail__link:focus-visible .workspace-rail__index {
-      color: var(--color-text-on-canvas);
-    }
-
-    .workspace-rail__label {
-      grid-column: 2;
-      font-size: 0.875rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-
-    .workspace-rail__chev {
       color: var(--color-accent-text);
-      font-family: var(--font-mono);
-      font-size: 0.875rem;
-      opacity: 0;
-      transform: translateX(-4px);
-      transition:
-        opacity var(--duration-quick) var(--ease-standard),
-        transform var(--duration-quick) var(--ease-standard);
     }
 
-    .workspace-rail__link:hover .workspace-rail__chev,
-    .workspace-rail__link:focus-visible .workspace-rail__chev {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .workspace-rail__list--utilities .workspace-rail__chev {
-      opacity: 1;
-      transform: none;
-      font-size: 0.75rem;
-    }
-
-    .workspace-rail__group-heading {
-      color: var(--color-text-on-canvas-faint);
-      padding-top: var(--space-2);
-      border-top: 1px solid var(--color-rule-on-canvas-soft);
-    }
-
-    .workspace-rail__list--utilities .workspace-rail__link {
-      min-height: 2.25rem;
-    }
-
-    /* ACTIVE — the rail's selected state borrows the lab's active-stage
-       vocabulary: a copper edge, a copper index, full-contrast label,
-       and a recessed ground. No wash, no chevron — one meaning. */
-    .workspace-rail__link[aria-current] {
+    /* ACTIVE / SELECTED — orange edge, orange index, full-contrast
+       label, recessed ground. Four signals, one meaning. */
+    .workspace-rail__link[aria-current='page'] {
+      background: var(--color-deck-inset);
       color: var(--color-text-on-canvas);
-      background: var(--color-canvas-inset);
-      box-shadow: inset 2px 0 0 var(--color-accent);
     }
 
-    .workspace-rail__link[aria-current] .workspace-rail__chev {
+    .workspace-rail__link[aria-current='page']::before {
       opacity: 1;
-      transform: translateX(0);
     }
 
-    .workspace-rail__footer {
+    .workspace-rail__link[aria-current='page'] .workspace-rail__index {
+      color: var(--color-accent-text);
+    }
+
+    .workspace-rail__caption {
+      margin: 0;
+      color: var(--color-text-on-canvas-faint);
+      font-family: var(--font-instrument);
+      font-size: var(--text-instrument-sm);
+      letter-spacing: var(--tracking-instrument);
+      text-transform: uppercase;
+    }
+
+    /* STATE — the rail reports where the visitor is and what is
+       open. Instrument type: this is a readout, not prose. */
+    .workspace-rail__state {
       display: grid;
       gap: var(--space-3);
-      padding-top: var(--space-4);
+      padding: var(--space-4) var(--space-4) 0;
       border-top: 1px solid var(--color-rule-on-canvas);
     }
 
-    .workspace-rail__status {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      color: var(--color-text-on-canvas-muted);
+    .workspace-rail__readout {
+      display: grid;
+      gap: 2px;
+      margin: 0;
+      font-family: var(--font-instrument);
+      font-size: var(--text-instrument-sm);
+      letter-spacing: var(--tracking-instrument);
+      text-transform: uppercase;
     }
 
-    .workspace-rail__status-dot {
+    .workspace-rail__readout-index {
+      color: var(--color-accent-text);
+    }
+
+    /* Reserved so the state block does not shift when the observer
+       first reports a section. */
+    .workspace-rail__readout-section {
+      min-height: 1em;
+      color: var(--color-text-on-canvas-faint);
+    }
+
+    .workspace-rail__status {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: start;
+      gap: var(--space-2);
+      margin: 0;
+      color: var(--color-text-on-canvas-muted);
+      font-size: var(--text-small);
+      line-height: 1.4;
+    }
+
+    .workspace-rail__dot {
       width: 0.4375rem;
       height: 0.4375rem;
-      background: var(--color-signal-pass);
+      margin-top: 0.4em;
+      background: var(--color-accent);
       border-radius: 50%;
-      animation: rail-status-pulse 3.6s var(--ease-standard) infinite;
     }
+  }
 
-    @keyframes rail-status-pulse {
-      0%,
-      90%,
-      100% {
-        opacity: 1;
-      }
-      95% {
-        opacity: 0.35;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .workspace-rail__status-dot {
-        animation: none;
-      }
-    }
-
-    .workspace-rail__contact {
-      color: var(--color-text-on-canvas);
-      align-self: start;
+  @media (prefers-reduced-motion: reduce) {
+    .workspace-control__toggle-mark {
+      transition: none;
     }
   }
 </style>

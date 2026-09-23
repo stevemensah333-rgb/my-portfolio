@@ -1,15 +1,14 @@
 ---
 /**
- * CONTACT — the end of the environment.
+ * CONTACT — the end of the information field.
  *
- * Decisive rather than loud. Three moves:
- *  1. The address IS the composition. The email is set at feature
- *     scale as the largest element on the surface — larger than the
- *     heading — so "how to reach Stephen" is unmissable.
- *  2. The section closes with a terminal rule: a full-width copper
- *     edge that reads as the bottom of the instrument.
- *  3. Secondary links become a ruled register, not buttons, so the
+ * LIGHT = information. Reaching Stephen is a human act, not an
+ * instrument readout. Three moves:
+ *  1. The address IS the composition. The email is set in the
+ *     display face, so "how to reach Stephen" is unmissable.
+ *  2. Secondary links become a ruled register, not buttons, so the
  *     one primary action stays unambiguous.
+ *  3. A structural terminus rule closes the field.
  *
  * No form, no chatbot. Copy and links unchanged.
  */
@@ -23,8 +22,8 @@ const secondaryLinks = [
 ];
 ---
 
-<section id="contact" class="contact" aria-labelledby="contact-title" data-workspace-section="contact">
-  <SectionFrame coordinate="E · Contact" status="End of environment" surface="canvas" density="major">
+<section id="contact" class="contact" aria-labelledby="contact-title" data-workspace-section="contact" data-workspace-label="Contact">
+  <SectionFrame coordinate="E · Contact" status="End of environment" density="default">
     <div class="page-shell region-grid">
       <aside class="region-rail">
         <div class="region-index">
@@ -36,7 +35,7 @@ const secondaryLinks = [
 
       <div class="region-body contact__body">
         <header class="contact__intro">
-          <p class="mono-label mono-label--inverse">Start a conversation</p>
+          <p class="mono-label">Start a conversation</p>
           <h2 id="contact-title" class="contact__title">Have an AI engineering role to discuss?</h2>
           <p class="contact__copy">
             I'm looking for entry-level AI engineering opportunities where I can contribute to product
@@ -47,7 +46,7 @@ const secondaryLinks = [
         <!-- The address as the composition. -->
         <div class="contact__address">
           <p class="contact__address-label">
-            <span class="mono-label mono-label--inverse">Direct</span>
+            <span class="mono-label">Direct</span>
           </p>
           <p class="contact__email">
             <a class="contact__email-link" href={`mailto:${PUBLIC_EMAIL}`}>{PUBLIC_EMAIL}</a>
