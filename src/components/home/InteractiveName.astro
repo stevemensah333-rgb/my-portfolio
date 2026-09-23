@@ -71,6 +71,16 @@ const words = ['STEPHEN', 'MENSAH'];
 
 <style>
   .identity { min-width: 0; container-type: inline-size; }
+
+  /* THE FOCAL POINT of the home viewport. Everything else in the hero
+     is sized against this: the headline sits on the shared statement
+     scale, the portrait is the visual anchor, and the Lab door is a
+     quiet framed region. One dominant idea per viewport.
+
+     Tracking is tightened past `--tracking-display` (-0.022em) as an
+     optical correction: that token is tuned for statement scale
+     (~2.6–4.5rem), and at wordmark scale (up to 7.75rem) display
+     serif needs more closure to hold together as one mark. */
   .identity__name {
     display: flex;
     flex-wrap: wrap;

@@ -1,7 +1,20 @@
-<a id="lab" class="proof instrument" href="/lab/" aria-labelledby="proof-title proof-link">
+<!--
+  ProofTeaser — the route from Home into the Lab.
+
+  LIGHT = INFORMATION. This is a link with a short orientation line,
+  not a surface anything is operated on, so it sits on the sheet with
+  the rest of the hero. It borrows the Lab's *vocabulary* — mono
+  labels, a stage path, a rust marker on the one failing step — so the
+  visitor reads what the Lab is before arriving, while the dark ground
+  stays reserved for the instrument itself.
+
+  Deliberately quiet: the hero's focal point is the name. This is a
+  door, not a second poster.
+-->
+<a id="lab" class="proof" href="/lab/" aria-labelledby="proof-title proof-link">
   <div class="proof__intro">
     <p class="mono-label">Inside the Lab</p>
-    <h2 id="proof-title">Don’t stop at<br />the response.</h2>
+    <h2 id="proof-title">Don’t stop at the response.</h2>
     <p class="proof__copy">Inspect the Syncareer reliability investigation. Evidence and limits, in context.</p>
     <span id="proof-link" class="proof__link">Open Lab <span aria-hidden="true">↗</span></span>
   </div>
@@ -15,23 +28,37 @@
 <style>
   .proof {
     display: grid; grid-template-columns: minmax(0, 1fr) auto;
-    gap: 1.5rem; padding: 1.75rem 2rem;
-    background: var(--color-deck); color: var(--color-text-on-canvas);
-    text-decoration: none; border: 1px solid var(--color-rule-on-canvas-strong);
+    gap: 1.5rem; padding: 1.5rem 1.75rem;
+    background: var(--color-sheet-soft); color: var(--color-text-on-paper);
+    text-decoration: none; border: 1px solid var(--color-rule-on-paper-strong);
+    transition:
+      background-color var(--duration-quick) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard);
   }
-  .proof__intro { display: grid; align-content: start; gap: 0.75rem; }
-  .proof .mono-label { margin: 0; color: var(--color-text-on-canvas-muted); font-size: 0.625rem; }
-  .proof h2 { margin: 0; font: 500 1.75rem/1.15 var(--font-display); letter-spacing: -0.025em; }
-  .proof__copy { margin: 0; max-width: 32ch; font-size: 0.8125rem; color: var(--color-text-on-canvas-muted); line-height: 1.55; }
-  .proof__link { display: flex; gap: 1rem; font-size: 0.8125rem; color: var(--color-accent-bright); }
+  .proof:hover, .proof:focus-visible { background: var(--color-sheet-high); }
+  .proof__intro { display: grid; align-content: start; gap: 0.625rem; }
+  .proof .mono-label { margin: 0; color: var(--color-text-on-paper-faint); font-size: 0.625rem; }
+  /* Statement scale, on-system display treatment. It is a door label,
+     so it stays well under the hero headline. */
+  .proof h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-section);
+    font-weight: 600;
+    letter-spacing: var(--tracking-display);
+    line-height: var(--leading-heading);
+  }
+  .proof__copy { margin: 0; max-width: 34ch; font-size: var(--text-small); color: var(--color-text-on-paper-muted); line-height: 1.55; }
+  .proof__link { display: flex; gap: 1rem; font-size: var(--text-small); font-weight: 600; color: var(--color-accent-text); }
   .proof:hover .proof__link, .proof:focus-visible .proof__link { text-decoration: underline; text-underline-offset: 4px; }
   .proof:focus-visible { outline: 2px solid var(--color-accent-ink); outline-offset: 5px; }
-  .proof__path { margin: 0; padding: 0 0 0 1.5rem; border-left: 1px solid var(--color-rule-on-canvas-strong); list-style: none; align-self: center; }
+  .proof__path { margin: 0; padding: 0 0 0 1.25rem; border-left: 1px solid var(--color-rule-on-paper-strong); list-style: none; align-self: center; }
   .proof__path li { display: grid; gap: 0.25rem; font: 500 0.625rem/1.5 var(--font-instrument); text-transform: uppercase; letter-spacing: 0.06em; }
-  .proof__path li:nth-child(2) > span:first-child { color: var(--color-signal-fail-bright); }
-  .proof__arrow { color: var(--color-text-on-canvas-faint); padding-bottom: 0.25rem; }
+  /* Rust only on the step that fails — fail is the subject of this path. */
+  .proof__path li:nth-child(2) > span:first-child { color: var(--color-signal-fail-text); }
+  .proof__arrow { color: var(--color-text-on-paper-faint); padding-bottom: 0.25rem; }
   @media (max-width: 30rem) {
-    .proof { padding: 1.25rem; gap: 1.5rem; grid-template-columns: minmax(0, 1fr); }
-    .proof__path { padding-left: 1rem; }
+    .proof { padding: 1.25rem; gap: 1.25rem; grid-template-columns: minmax(0, 1fr); }
+    .proof__path { padding-left: 1rem; justify-self: start; }
   }
 </style>

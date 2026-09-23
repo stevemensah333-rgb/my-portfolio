@@ -98,7 +98,7 @@ const structuredData = {
                   </span>
                   <span class="work-entry__name">{project.name}</span>
                   <span class="work-entry__stack">{project.stack.slice(0, 3).join(' · ')}</span>
-                  <span class="work-entry__status">
+                  <span class:list={['work-entry__status', `work-entry__status--${project.status}`]}>
                     <span class="work-entry__status-dot" aria-hidden="true"></span>
                     {project.status.replace(/-/g, ' ')}
                   </span>
@@ -166,12 +166,22 @@ const structuredData = {
   .hero__masthead p { margin: 0; font-size: 0.625rem; }
   .hero__message { display: grid; align-content: start; gap: 1.5rem; }
   .hero__eyebrow { margin: 0; color: var(--color-text-on-paper-faint); font-size: 0.625rem; }
-  .hero__headline { margin: 0; max-width: 14ch; font-size: clamp(2.75rem, 4.5vw, 4.75rem); font-weight: 500; line-height: 1.06; letter-spacing: -0.045em; }
+
+  /* ONE DOMINANT IDEA. The interactive name above is the masthead and
+     the focal point of this viewport; the headline is the statement
+     under it, not a rival poster. It therefore sits on the same
+     statement scale as every other page's h1 (Lab, Profile, case
+     studies) and inherits the display weight/tracking from the global
+     h1 rule instead of overriding them. Measure is left to the grid
+     column, so it reads as two lines rather than a tall block. */
+  .hero__headline { margin: 0; font-size: var(--text-feature); line-height: var(--leading-statement); }
   .hero__headline em { font-style: normal; color: var(--color-accent-ink); }
-  .hero__support { max-width: 37ch; margin: 0; color: var(--color-text-on-paper-muted); font-size: 1rem; line-height: 1.65; }
+  .hero__support { max-width: 37ch; margin: 0; color: var(--color-text-on-paper-muted); font-size: var(--text-body-large); line-height: 1.65; }
   .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem 1.75rem; }
   .hero__availability { display: flex; align-items: baseline; gap: 0.5rem; margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--color-text-on-paper-faint); }
-  .hero__availability span { width: 6px; height: 6px; flex-shrink: 0; background: var(--color-accent); border-radius: 50%; }
+  /* The same "open to roles" mark the control rail carries — one
+     meaning, one size, one colour. */
+  .hero__availability span { width: var(--node-status); height: var(--node-status); flex-shrink: 0; background: var(--color-accent); border-radius: 50%; }
   .hero__visual { min-width: 0; }
   .hero__proof { max-width: 42rem; }
   @media (min-width: 48rem) {
@@ -188,7 +198,6 @@ const structuredData = {
   }
   @media (max-width: 30rem) {
     .hero__masthead { flex-direction: column; gap: 0.5rem; }
-    .hero__headline { font-size: 2.75rem; }
   }
 
   /* ============================================================
@@ -302,10 +311,19 @@ const structuredData = {
   }
 
   .work-entry__status-dot {
-    width: 0.4375rem;
-    height: 0.4375rem;
+    width: var(--node-status);
+    height: var(--node-status);
     border-radius: 50%;
     background: var(--color-accent);
+  }
+
+  /* One status, one colour, everywhere it appears. Live and mvp read
+     as pass in the archive and on a project record, so they read as
+     pass here too; only work still in flight keeps the attention
+     accent. */
+  .work-entry__status--live .work-entry__status-dot,
+  .work-entry__status--mvp .work-entry__status-dot {
+    background: var(--color-signal-pass);
   }
 
   .work-entry__chev {

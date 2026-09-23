@@ -291,8 +291,8 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
   }
 
   .project__status-dot {
-    width: 0.4375rem;
-    height: 0.4375rem;
+    width: var(--node-status);
+    height: var(--node-status);
     background: var(--color-accent);
     border-radius: 50%;
   }
@@ -760,8 +760,8 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
     position: absolute;
     right: 0;
     top: -0.25rem;
-    width: 0.5rem;
-    height: 0.5rem;
+    width: var(--node-size);
+    height: var(--node-size);
     border: 1px solid var(--color-accent);
     border-radius: 50%;
     background: var(--color-paper);
