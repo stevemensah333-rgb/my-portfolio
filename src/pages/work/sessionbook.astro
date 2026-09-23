@@ -14,7 +14,7 @@ import SessionBookArchitecture from '../../components/SessionBookArchitecture.as
 import SessionBookWalkthrough from '../../components/SessionBookWalkthrough.astro';
 
 const title = `${sessionbook.name} — Voice-Agent Backend Case Study | Stephen Mensah`;
-const description = `${sessionbook.name} is a FastAPI backend for voice-driven appointment booking using AssemblyAI Voice Agent capabilities: availability, atomic booking, and spoken responses. What the repo verifies, and what is still in progress.`;
+const description = `${sessionbook.name} is a FastAPI backend for voice-driven appointment booking using AssemblyAI Voice Agent capabilities: availability, atomic booking, and spoken responses. What the repo verifies, and what remains to be measured.`;
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -52,19 +52,20 @@ const architectureSummary =
 
       <div class="case-opening">
         <div class="case-opening__copy">
-          <p class="mono-label">Backend case study · {sessionbook.name} · In development</p>
+          <p class="mono-label">Backend case study · {sessionbook.name} · MVP</p>
           <h1>A small backend for a conversation it will never hear.</h1>
           <p class="case-summary">
             {sessionbook.short} The engine that decides correctness — availability,
-            atomic booking, spoken responses — is written. The voice agent that will
-            talk to it is not wired up yet, and the page says so at every step.
+            atomic booking, spoken responses — is written. The voice-agent integration
+            is now implemented, with agent configuration and HTTP tool routes verified
+            in the repository.
           </p>
         </div>
 
         <aside class="product-record" aria-label={`${sessionbook.name} product record`}>
           <div class="record-heading">
             <p>System record · 02</p>
-            <span>In development</span>
+            <span>MVP</span>
           </div>
           <p class="product-record__name">{sessionbook.name}</p>
           <p class="product-record__position">
@@ -77,7 +78,7 @@ const architectureSummary =
             <div><dt>Role</dt><dd>Booking engine behind a voice agent</dd></div>
             <div><dt>Framework</dt><dd>FastAPI</dd></div>
             <div><dt>Database</dt><dd>Postgres 16 (local compose)</dd></div>
-            <div><dt>Status</dt><dd>Voice-agent integration in progress</dd></div>
+            <div><dt>Status</dt><dd>MVP — voice-agent integration implemented</dd></div>
             <div>
               <dt>Source</dt>
               <dd>
@@ -98,8 +99,9 @@ const architectureSummary =
         Grounded in the SessionBook repository at commit {sessionbookMeta.repoCommit}
         ({sessionbookMeta.repoCommitDate}). The
         <a href={sessionbookMeta.tutorialUrl} target="_blank" rel="noopener">AssemblyAI HTTP-tools tutorial</a>
-        is conceptual reference only — it shapes what is being aimed at, and is never
-        presented as something SessionBook already does.
+        was conceptual reference — it shaped what was being aimed at, and was never
+        presented as something SessionBook already did. The voice-agent integration
+        is now implemented and verified in the repository.
       </p>
     </header>
 

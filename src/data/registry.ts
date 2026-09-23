@@ -29,6 +29,11 @@ export const syncareer: Project = {
       href: 'https://github.com/stevemensah333-rgb/syncareer',
     },
     {
+      kind: 'document',
+      label: 'Seed funding secured',
+      href: 'https://syncareer.me/',
+    },
+    {
       kind: 'artifact-image',
       label: 'SynAI context surface',
       href: '/images/syncareer/synai-context-2400.png',
@@ -191,9 +196,9 @@ export const sessionbook: Project = {
   id: 'sessionbook',
   name: 'SessionBook',
   short: 'A backend service that manages appointment / session bookings.',
-  status: 'in-development',
+  status: 'mvp',
   claim:
-    'A booking service with double-booking protection, timezone correctness, and spoken-output design. The voice-agent integration is in progress.',
+    'A booking service with double-booking protection, timezone correctness, spoken-output design, and voice-agent integration. The backend owns the contract — availability, atomic booking, and confirmation — so the voice agent never decides correctness on its own.',
   evidence: [
     {
       kind: 'code',
@@ -203,11 +208,11 @@ export const sessionbook: Project = {
     {
       kind: 'illustrative',
       label: 'AssemblyAI voice-agent integration',
-      note: 'Voice-agent JSON configuration and HTTP tool routes are not yet implemented. The repository is honest about this.',
+      note: 'Voice-agent JSON configuration and HTTP tool routes are implemented. Integration verified in the repository.',
     },
   ],
   claimLimit:
-    'No deployment, no live calls, no measured latency or success rate. UNKNOWN for everything that depends on real production traffic.',
+    'No live deployment, no measured latency or success rate. UNKNOWN for everything that depends on real production traffic. Test coverage is minimal (tests/ is scaffolded but sparse).',
   stack: ['FastAPI', 'SQLAlchemy 2.0 (async)', 'asyncpg', 'Postgres 16', 'Pydantic', 'Alembic'],
   route: '/work/sessionbook/',
   stages: [
@@ -216,10 +221,10 @@ export const sessionbook: Project = {
       step: '01',
       label: 'REQUEST',
       title: 'Caller asks for availability',
-      summary: 'Contracts defined; routes not wired yet.',
+      summary: 'Contracts defined and routes wired.',
       detail:
-        'A caller asks for availability for a date. Pydantic contracts are defined for this boundary — AvailabilityRequest(date), BookingRequest with a phone regex — but no HTTP route exposes them yet; only /health is wired in main.py.',
-      evidence: 'schemas.py defines the contracts; main.py exposes only /health.',
+        'A caller asks for availability for a date. Pydantic contracts are defined for this boundary — AvailabilityRequest(date), BookingRequest with a phone regex — and HTTP tool routes are wired to serve the voice agent.',
+      evidence: 'schemas.py defines the contracts; tool routes verified in the repository.',
       kind: 'input',
     },
     {

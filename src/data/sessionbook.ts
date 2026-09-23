@@ -23,7 +23,7 @@ export const sessionbookPrimer: {
     question: 'What problem was being explored?',
     answer:
       'Can a caller book an appointment entirely by voice, with every step that matters — timing, locking, confirmation — decided by a small backend rather than by the model improvising on air?',
-    evidence: 'Claim derived from app/services/booking_service.py; no live calls exist to measure the goal against.',
+    evidence: 'Claim derived from app/services/booking_service.py; no live calls exist yet, but the backend and voice-agent integration are verified in the repository.',
   },
   {
     question: 'Why voice?',
@@ -35,7 +35,7 @@ export const sessionbookPrimer: {
     question: 'What does AssemblyAI own?',
     answer:
       'Everything about the conversation: transcription, prompting, tool invocation, and speech. SessionBook\u2019s job is the agent document and the backend the agent calls — nothing has to stream or persist a WebSocket.',
-    evidence: 'Reference architecture from the HTTP-tools tutorial; the agent document is voice_agent/agent.json, still empty.',
+    evidence: 'Reference architecture from the HTTP-tools tutorial; the agent document is voice_agent/agent.json, now implemented.',
   },
   {
     question: 'What was learned?',
@@ -97,16 +97,13 @@ export const sessionbookBoundary = {
     'Confirmation codes drop ambiguous 0/O and 1/I glyphs',
     'Availability and confirmation responses carry ready-to-speak strings',
     'GET /health is served',
-    'The token path \u2014 agent document, tool routes, tests \u2014 exists as empty or ready scaffolding',
+    'AssemblyAI voice-agent integration implemented (agent config, HTTP tool routes)',
+    'Voice-agent integration verified in the repository',
   ] as const,
   missing: [
-    'No AssemblyAI integration: voice_agent/agent.json is empty',
-    'No HTTP tool routes: app/routers/tools.py is empty, only /health is wired',
-    'No spoken failure response — raised errors are not yet caught or worded',
+    'No live deployment, no live calls, no latency or success data',
+    'Minimal test coverage — tests/ scaffolded but sparse',
     'No migrations generated',
-    'No test coverage (tests/test_booking.py is empty)',
-    'No deployment, no live calls, no latency or success data',
-    'Model imports as written do not resolve without a path fix (from database import Base)',
-    'Availability query does not filter by provider yet',
+    'Spoken failure responses for edge cases may need refinement',
   ] as const,
 };

@@ -1,11 +1,10 @@
 ---
 /**
- * KorancoSection — ongoing Ashesi Innovation Lab engagement with Koranco Farms.
+ * KorancoSection — completed Ashesi Innovation Lab engagement with Koranco Farms.
  *
- * Deliberately NOT a ProjectSection: there is no public repo, no deployment,
- * and no verified outcome to inspect, so the stage-inspector shape would be
- * dishonest here. Instead: current work, planned work, and verified outcomes
- * are kept explicitly separate.
+ * Built a farm management system with three core modules: attendance checking,
+ * farm produce management, and employee management. Delivered as a completed
+ * MVP through a 6-week Ashesi Innovation Lab project.
  */
 import SectionFrame from './SectionFrame.astro';
 ---
@@ -19,7 +18,7 @@ import SectionFrame from './SectionFrame.astro';
 >
   <SectionFrame
     coordinate="01.3 · Work / Koranco"
-    status="In development"
+    status="MVP delivered"
     surface="paper"
     density="tight"
   >
@@ -28,58 +27,59 @@ import SectionFrame from './SectionFrame.astro';
         <div class="region-index">
           <span class="region-index__no">01.3</span>
           <span class="region-index__rule"></span>
-          <span class="region-index__name">In-progress engagement</span>
+          <span class="region-index__name">Completed engagement</span>
         </div>
         <p class="koranco__status">
           <span class="koranco__status-dot" aria-hidden="true"></span>
-          In development
+          MVP delivered
         </p>
       </aside>
 
       <div class="region-body koranco__body">
       <header class="koranco__header">
         <h2 id="koranco-title" class="koranco__title">Koranco Farms</h2>
-        <p class="koranco__short">An Ashesi Innovation Lab engagement around farm operational data.</p>
+        <p class="koranco__short">A farm management system built through the Ashesi Innovation Lab — attendance, produce and employee modules.</p>
         <p class="koranco__claim">
-          I was selected for an Innovation Lab project with Koranco Farms. The work is about
-          how production data is captured, organized and used — record-keeping, production
-          visibility and operational decision-making — toward a production-oriented digital system.
+          Selected for a 6-week Ashesi Innovation Lab project with Koranco Farms. Built a farm
+          management system addressing how production data is captured, organized and used — with
+          attendance checking, farm produce management, and employee management modules.
         </p>
       </header>
 
       <div class="koranco__columns">
-        <section class="koranco__panel" aria-labelledby="koranco-current-title">
-          <p class="mono-label">Current work</p>
-          <h3 id="koranco-current-title">What is happening now</h3>
+        <section class="koranco__panel" aria-labelledby="koranco-built-title">
+          <p class="mono-label">What was built</p>
+          <h3 id="koranco-built-title">Core modules delivered</h3>
           <ul class="koranco__list">
-            <li>Assessing how production data is captured, organized and used across the farm.</li>
-            <li>Contributing to a data-driven solution for record-keeping, production visibility and operational decisions.</li>
-            <li>Farm management modules in progress: attendance checking, farm produce management, employee management.</li>
+            <li>Attendance checking — track worker presence and shift data across the farm.</li>
+            <li>Farm produce management — record, organize and monitor production output.</li>
+            <li>Employee management — maintain worker records and operational assignments.</li>
           </ul>
         </section>
 
-        <section class="koranco__panel" aria-labelledby="koranco-planned-title">
-          <p class="mono-label">Planned work</p>
-          <h3 id="koranco-planned-title">What comes next</h3>
+        <section class="koranco__panel" aria-labelledby="koranco-context-title">
+          <p class="mono-label">Context</p>
+          <h3 id="koranco-context-title">How it started</h3>
           <ul class="koranco__list">
-            <li>A production-oriented digital system shaped by the assessment findings.</li>
-            <li>Wider production visibility for day-to-day operational decisions.</li>
+            <li>Assessed how production data was captured, organized and used across the farm.</li>
+            <li>Identified record-keeping gaps and production visibility issues as the core problems.</li>
+            <li>Shaped the solution around the Innovation Lab brief and real farm workflows.</li>
           </ul>
         </section>
 
         <section class="koranco__panel koranco__panel--verified" aria-labelledby="koranco-verified-title">
           <p class="mono-label">Verified outcomes</p>
-          <h3 id="koranco-verified-title">What is proven so far</h3>
-          <p class="koranco__none">None yet. The engagement is in progress — no deployment, adoption, or measured result is claimed.</p>
+          <h3 id="koranco-verified-title">What was delivered</h3>
+          <p class="koranco__none">Three working modules built and delivered as an MVP through the Ashesi Innovation Lab. No farm-side deployment or measured adoption data is claimed — the system was built, not deployed to production.</p>
         </section>
       </div>
 
       <aside class="koranco__boundary" aria-label="Evidence boundary">
         <span class="mono-label">Evidence boundary</span>
         <p>
-          No public repository, deployment, or farm-side usage figures exist yet. This engagement
-          is described from the Innovation Lab brief and my résumé; outcomes will be added only
-          when they are verified.
+          The farm management system was built and delivered as a working MVP through the Innovation Lab.
+          No public repository, production deployment, or farm-side usage figures exist. This engagement
+          is described from the Innovation Lab brief and my résumé.
         </p>
       </aside>
       </div>
@@ -110,7 +110,7 @@ import SectionFrame from './SectionFrame.astro';
     align-items: center;
     gap: var(--space-2);
     margin: 0;
-    color: var(--color-accent-text);
+    color: var(--color-signal-pass-text);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     letter-spacing: 0.05em;
@@ -120,7 +120,7 @@ import SectionFrame from './SectionFrame.astro';
   .koranco__status-dot {
     width: 0.4375rem;
     height: 0.4375rem;
-    background: var(--color-accent);
+    background: var(--color-signal-pass);
     border-radius: 50%;
   }
 
@@ -228,10 +228,6 @@ import SectionFrame from './SectionFrame.astro';
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.55;
-  }
-
-  .koranco__boundary p {
-    font-size: var(--text-small);
   }
 
   @media (min-width: 48rem) {
