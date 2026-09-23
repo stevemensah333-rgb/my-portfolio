@@ -1,365 +1,321 @@
 ---
+/**
+ * CAPABILITIES — the old Toolkit, re-based around capabilities.
+ *
+ * The previous index led with technologies: a row per tool, detail
+ * per tool. That inverted the hierarchy — a visitor should read
+ * what Stephen can do first, and see the stack underneath. This
+ * section is organised by four capabilities:
+ *
+ *   01 AI APPLICATIONS · 02 BACKEND · 03 PRODUCT ENGINEERING · 04 DATA / ML
+ *
+ * Selecting a capability reveals the evidence behind it — where the
+ * capability was exercised and what was actually done — plus the
+ * technologies that support it. Technologies are a mono line inside
+ * a capability, never the visual hierarchy themselves.
+ *
+ * Deliberately absent: proficiency bars, percentages, ratings,
+ * logo clouds. A capability claim is only as good as its evidence,
+ * so the rows carry none of the vocabulary that would imply a
+ * measured level.
+ *
+ * Every evidence line below is carried over from the previous
+ * toolkit index and the project registry — nothing here is new
+ * information about the projects themselves.
+ */
 import SectionFrame from './SectionFrame.astro';
 
-type ToolkitItem = {
+type CapabilityEvidence = {
+  text: string;
+  /** Short mono attribution, e.g. a project or context name. */
+  where: string;
+  /** Shareable route for the artifact, when one exists. */
+  href?: string;
+};
+
+type Capability = {
   id: string;
   name: string;
-  featuredOrder: number | null;
-  usedIn: { project: string; href?: string }[];
-  evidence: string[];
-  note?: string;
+  /** One plain sentence on what the capability means in practice. */
+  statement: string;
+  /** Support, not hierarchy: the stack behind the capability. */
+  technologies: string[];
+  evidence: CapabilityEvidence[];
 };
 
-type ToolkitGroup = {
-  category: string;
-  items: ToolkitItem[];
-};
-
-const toolkit: ToolkitGroup[] = [
+const capabilities: Capability[] = [
   {
-    category: 'Languages',
-    items: [
+    id: 'ai-applications',
+    name: 'AI applications',
+    statement:
+      'Building AI-enabled features where model output has to pass contracts and validation before it reaches a person — and debugging what happens when it does not.',
+    technologies: ['Python', 'TypeScript', 'FastAPI', 'Prompt design', 'Output validation', 'Evidence grounding'],
+    evidence: [
       {
-        id: 'python',
-        name: 'Python',
-        featuredOrder: null,
-        usedIn: [
-          { project: 'SessionBook', href: '/work/sessionbook/' },
-          { project: 'Coursework / Data cleaning' },
-          { project: 'Supervised ML (DataCamp)' },
-        ],
-        evidence: ['FastAPI service', 'async DB drivers', 'data cleaning', 'validation patterns'],
+        text: 'Bounded task-family server prompts with explicit rules for untrusted user data.',
+        where: 'Syncareer',
+        href: '/work/syncareer/',
       },
       {
-        id: 'javascript',
-        name: 'TypeScript',
-        featuredOrder: 4,
-        usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }, { project: 'Portfolio (this site)' }],
-        evidence: ['React + Vite product surfaces', 'typed AI-boundary contracts', 'portfolio interactivity (Astro)'],
+        text: 'Requirement/evidence citation enforced before AI guidance applies to a student record.',
+        where: 'Syncareer',
+        href: '/work/syncareer/',
       },
       {
-        id: 'html',
-        name: 'HTML',
-        featuredOrder: null,
-        usedIn: [{ project: 'Syncareer', href: 'https://syncareer.me/' }, { project: 'Portfolio' }],
-        evidence: ['semantic product surfaces', 'accessible trace markup', 'evidence-first layout'],
+        text: 'Schema checks before product use; failure modes kept separate from formatting noise.',
+        where: 'Syncareer · SessionBook',
+        href: '/work/syncareer/',
       },
       {
-        id: 'css',
-        name: 'CSS',
-        featuredOrder: null,
-        usedIn: [{ project: 'Syncareer' }, { project: 'Portfolio' }],
-        evidence: ['restrained design tokens', 'responsive editorial grid'],
+        text: 'Typed AI-boundary contracts between the model response and the React front end.',
+        where: 'Syncareer',
+        href: '/work/syncareer/',
+      },
+      {
+        text: 'Spoken-output design for the booking confirmation — the reply is read aloud, so it is written for ears.',
+        where: 'SessionBook',
+        href: '/work/sessionbook/',
+      },
+      {
+        text: 'The same evidence, instrumented stage by stage: one payload through contract, validation, refusal and repair.',
+        where: 'Reliability Lab',
+        href: '/lab/',
       },
     ],
   },
   {
-    category: 'Backend & AI Integration',
-    items: [
+    id: 'backend',
+    name: 'Backend',
+    statement:
+      'Services that own their contract — API design, data modelling, auth, and the concurrency and transaction decisions where correctness actually lives.',
+    technologies: ['Python', 'FastAPI', 'SQLAlchemy 2.0 (async)', 'Pydantic', 'PostgreSQL', 'MySQL', 'MongoDB', 'SQLite'],
+    evidence: [
       {
-        id: 'prompt-engineering',
-        name: 'Prompt engineering',
-        featuredOrder: 1,
-        usedIn: [{ project: 'Syncareer', href: '/work/syncareer/' }],
-        evidence: ['bounded task-family server prompts', 'untrusted-data prompt rules', 'requirement/evidence citation design'],
+        text: 'Async FastAPI service with typed Mapped models and async session lifecycle (routes still pending).',
+        where: 'SessionBook',
+        href: '/work/sessionbook/',
       },
       {
-        id: 'fastapi',
-        name: 'FastAPI',
-        featuredOrder: 5,
-        usedIn: [{ project: 'SessionBook', href: '/work/sessionbook/' }],
-        evidence: ['async SQLAlchemy 2.0 service', 'Pydantic contracts at the boundary', 'transactional booking logic (routes pending)'],
+        text: 'SELECT … FOR UPDATE row lock guarding double bookings; timezone-aware scheduling on UTC storage.',
+        where: 'SessionBook',
+        href: '/work/sessionbook/',
       },
       {
-        id: 'sqlalchemy',
-        name: 'SQLAlchemy (async)',
-        featuredOrder: 6,
-        usedIn: [{ project: 'SessionBook', href: '/work/sessionbook/' }],
-        evidence: ['typed Mapped[...] models', 'async session lifecycle', 'Alembic configured — no migrations yet'],
-      },
-    ],
-  },
-  {
-    category: 'Databases',
-    items: [
-      {
-        id: 'postgresql',
-        name: 'PostgreSQL',
-        featuredOrder: 2,
-        usedIn: [
-          { project: 'SessionBook', href: '/work/sessionbook/' },
-          { project: 'Syncareer', href: '/work/syncareer/' },
-        ],
-        evidence: [
-          'SELECT … FOR UPDATE row lock (SessionBook)',
-          'Supabase Postgres + RLS app data (Syncareer)',
-        ],
+        text: 'Alembic configured — no migrations written yet, stated rather than smoothed over.',
+        where: 'SessionBook',
+        href: '/work/sessionbook/',
       },
       {
-        id: 'mysql',
-        name: 'MySQL',
-        featuredOrder: null,
-        usedIn: [{ project: 'Coursework (learning)' }],
-        evidence: ['relational modeling', 'query patterns'],
+        text: 'Supabase Postgres with row-level security holding the application record together.',
+        where: 'Syncareer',
+        href: '/work/syncareer/',
       },
       {
-        id: 'mongodb',
-        name: 'MongoDB',
-        featuredOrder: null,
-        usedIn: [{ project: 'Learning / document model' }],
-        evidence: ['document modeling exploration'],
+        text: 'Custom authentication and role-based authorization pipelines for an offline-first farm system.',
+        where: 'Koranco',
+        href: '/work/koranco/',
       },
       {
-        id: 'sqlite',
-        name: 'SQLite',
-        featuredOrder: null,
-        usedIn: [{ project: 'Local prototypes' }],
-        evidence: ['local persistence', 'rapid iteration'],
+        text: 'Backend for a mentor–mentee matching platform with JWT session management (internship MVP).',
+        where: 'AmaliTech',
+      },
+      {
+        text: 'MySQL relational modeling and query patterns (coursework); MongoDB document modeling exploration; SQLite for local prototypes.',
+        where: 'Coursework · Prototypes',
       },
     ],
   },
   {
-    category: 'Infrastructure & Tools',
-    items: [
+    id: 'product-engineering',
+    name: 'Product engineering',
+    statement:
+      'The surfaces and the plumbing that turn a system into something a person can use: semantic interfaces, accessibility, deployment, and a repository history another engineer can read.',
+    technologies: ['TypeScript', 'React + Vite', 'Astro', 'HTML', 'CSS', 'Docker', 'Vercel', 'Git / GitHub'],
+    evidence: [
       {
-        id: 'docker',
-        name: 'Docker',
-        featuredOrder: null,
-        usedIn: [{ project: 'SessionBook', href: '/work/sessionbook/' }],
-        evidence: ['docker-compose for Postgres 16', 'reproducible local dev environment'],
+        text: 'React + Vite product surfaces behind the live Syncareer workspace.',
+        where: 'Syncareer',
+        href: '/work/syncareer/',
       },
       {
-        id: 'vercel',
-        name: 'Vercel',
-        featuredOrder: null,
-        usedIn: [{ project: 'Portfolio deployment' }],
-        evidence: ['static deployment', 'analytics integration'],
+        text: 'docker-compose for Postgres 16 — a reproducible local development environment.',
+        where: 'SessionBook',
+        href: '/work/sessionbook/',
       },
       {
-        id: 'git-github',
-        name: 'Git / GitHub',
-        featuredOrder: null,
-        usedIn: [
-          { project: 'Syncareer' },
-          { project: 'SessionBook', href: '/work/sessionbook/' },
-          { project: 'Portfolio' },
-        ],
-        evidence: ['evidence branch workflow', 'documentation history'],
+        text: 'Semantic product surfaces and accessible trace markup — evidence-first layout, readable without JavaScript.',
+        where: 'This portfolio',
+        href: '/',
+      },
+      {
+        text: 'Restraint carried as design: warm paper, one accent, monospace for state; responsive editorial grid at 320px.',
+        where: 'This portfolio',
+        href: '/',
+      },
+      {
+        text: 'Static deployment on Vercel with analytics integration.',
+        where: 'This portfolio',
+      },
+      {
+        text: 'Evidence-branch workflow and documentation history across the repositories.',
+        where: 'GitHub',
+        href: 'https://github.com/stevemensah333-rgb',
       },
     ],
   },
   {
-    category: 'Data & ML',
-    items: [
+    id: 'data-ml',
+    name: 'Data / ML',
+    statement:
+      'Data preparation and supervised model fundamentals, learned where they bite: inconsistent input, evaluation beyond the happy path, output that varies.',
+    technologies: ['Python', 'SQL', 'Pandas', 'Data cleaning', 'Supervised ML'],
+    evidence: [
       {
-        id: 'data-cleaning',
-        name: 'Data cleaning',
-        featuredOrder: null,
-        usedIn: [{ project: 'DataCamp / Coursework' }],
-        evidence: ['handling inconsistent data', 'prep for validation'],
+        text: 'Handling inconsistent data and preparing it for validation — the unglamorous half of ML coursework.',
+        where: 'DataCamp · Coursework',
       },
       {
-        id: 'supervised-machine-learning',
-        name: 'Supervised machine learning',
-        featuredOrder: null,
-        usedIn: [{ project: 'Coursework' }],
-        evidence: ['evaluation beyond happy path', 'testing variance'],
+        text: 'Model evaluation beyond the happy path; testing output variance instead of trusting a single run.',
+        where: 'Coursework',
       },
       {
-        id: 'output-validation-evidence',
-        name: 'Output validation / Evidence grounding',
-        featuredOrder: 3,
-        usedIn: [
-          { project: 'Syncareer', href: '/work/syncareer/' },
-          { project: 'SessionBook', href: '/work/sessionbook/' },
-        ],
-        evidence: [
-          'schema checks before product use',
-          'requirement/evidence citation enforcement',
-          'failure mode separation',
-          'spoken-output design for the booking confirmation',
-        ],
+        text: 'Supporting 35+ learners with data science and AI coursework through the Donates Program.',
+        where: 'Ashesi DataCamp Donates',
       },
     ],
   },
 ];
 
-const allToolkitItems = toolkit.flatMap(group => group.items);
-const primaryToolkitItems = allToolkitItems
-  .filter(item => item.featuredOrder !== null)
-  .sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0));
-const additionalToolkit = toolkit
-  .map(group => ({
-    ...group,
-    items: group.items.filter(item => item.featuredOrder === null),
-  }))
-  .filter(group => group.items.length > 0);
-const additionalToolCount = additionalToolkit.reduce((count, group) => count + group.items.length, 0);
-const initialItemId = primaryToolkitItems[0]?.id;
+const initialId = capabilities[0]!.id;
+const isExternal = (href?: string) => !!href && href.startsWith('http');
 ---
 
 <!--
-  CAPABILITIES — an engineering index, not a card grid.
+  CAPABILITIES — an index of what I do, each row a claim the rest of
+  the site can check.
 
-  The information model is unchanged. What changed is that the three
-  parts no longer read as three repetitions of the same content:
+    LIST      four ruled rows. No containers, no chips grid — a
+              capability is a line item, and selecting one is
+              inspection (copper edge + filled node, the same open/
+              selected vocabulary as Experience and Evidence).
+    SELECTED  the bounded viewport beside the list: a plain
+              statement of what the capability means, the supporting
+              technologies set as a mono line, and the evidence —
+              each item attributed to the project or context it came
+              from, linked where a public artifact exists.
 
-    PRIMARY   a numbered index of capabilities, rendered as ruled
-              rows with no container. Selecting one is inspection.
-    SELECTED  the detail for the current row — the only bounded
-              panel in the section, because it is the only thing
-              with a real boundary (it is a viewport onto one item).
-    MORE      the long tail, disclosed, set in a denser two-column
-              register so it visibly ranks below the primary list.
-
-  The section reads top-to-bottom as capability → evidence → tail.
+  No-JavaScript: every capability's detail shows, stacked. The
+  information is never gated behind the selection.
 -->
-<section id="capabilities" class="toolkit" aria-labelledby="toolkit-title" data-workspace-section="capabilities">
+<section id="capabilities" class="capabilities" aria-labelledby="capabilities-title" data-workspace-section="capabilities" data-workspace-label="Capabilities">
   <SectionFrame
     coordinate="04.3 · Profile / Capabilities"
-    status={`${primaryToolkitItems.length} primary · ${additionalToolCount} supporting`}
+    status={`${capabilities.length} capabilities · evidence-anchored`}
     surface="paper"
-    density="tight"
+    density="default"
   >
-    <div class="page-shell region-grid" data-toolkit>
+    <div class="page-shell region-grid" data-capabilities>
       <aside class="region-rail">
         <div class="region-index">
           <span class="region-index__no">04.3</span>
           <span class="region-index__rule"></span>
           <span class="region-index__name">Capabilities</span>
-          <span class="region-index__note">Every entry is anchored to a project or an artifact.</span>
+          <span class="region-index__note">Grouped by capability, not by tool. Every line traces to a project or an artifact.</span>
         </div>
       </aside>
 
-      <div class="region-body toolkit__body">
-        <header class="toolkit__header">
-          <h2 id="toolkit-title" class="region-title">Capabilities</h2>
+      <div class="region-body capabilities__body">
+        <header class="capabilities__header">
+          <h2 id="capabilities-title" class="region-title">What I work with</h2>
           <p class="region-lede">
-            Project-relevant capabilities stay visible. Select one to see where I used it and what
-            I actually did with it.
+            Four capabilities carry the work on this site. Select one to see what it covers, what
+            supports it, and where it has been applied.
           </p>
         </header>
 
-        <div class="toolkit__index">
-          <section class="toolkit__primary" aria-labelledby="toolkit-primary-title">
-            <header class="toolkit__primary-header">
-              <h3 id="toolkit-primary-title">Project capabilities</h3>
-              <p class="mono-label mono-label--bare">{primaryToolkitItems.length} selected</p>
-            </header>
-            <ul class="toolkit__primary-list" role="tablist" aria-label="Project capabilities">
-              {primaryToolkitItems.map(item => {
-                  const itemId = item.id;
-                  const btnId = `toolkit-btn-${itemId}`;
-                  const isInitial = itemId === initialItemId;
-                  return (
-                    <li class="toolkit__item" role="presentation">
-                      <button
-                        id={btnId}
-                        type="button"
-                        role="tab"
-                        class="toolkit__trigger"
-                        aria-controls={`toolkit-panel-${itemId}`}
-                        aria-selected={isInitial ? 'true' : 'false'}
-                        tabindex={isInitial ? 0 : -1}
-                        data-active={String(isInitial)}
-                        data-toolkit-trigger={itemId}
-                      >
-                        <span class="toolkit__trigger-step" aria-hidden="true">
-                          {String(item.featuredOrder ?? '').padStart(2, '0')}
-                        </span>
-                        <span class="toolkit__trigger-name">{item.name}</span>
-                        <span class="toolkit__trigger-mark" aria-hidden="true"></span>
-                      </button>
-                    </li>
-                  );
-                })}
+        <div class="capabilities__split">
+          <section class="capabilities__list" aria-labelledby="capabilities-list-title">
+            <h3 id="capabilities-list-title" class="visually-hidden">Capabilities</h3>
+            <ul role="tablist" aria-label="Capabilities" class="capabilities__rows">
+              {capabilities.map((capability, index) => {
+                const isActive = capability.id === initialId;
+                return (
+                  <li role="presentation">
+                    <button
+                      type="button"
+                      role="tab"
+                      id={`cap-btn-${capability.id}`}
+                      class="capabilities__trigger"
+                      data-cap-trigger={capability.id}
+                      aria-controls={`cap-panel-${capability.id}`}
+                      aria-selected={isActive}
+                      tabindex={isActive ? 0 : -1}
+                    >
+                      <span class="capabilities__trigger-no" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                      <span class="capabilities__trigger-name">{capability.name}</span>
+                      <span class="capabilities__trigger-mark" aria-hidden="true"></span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </section>
 
-          <section class="toolkit__detail" data-toolkit-detail>
-            {primaryToolkitItems.map(item => {
-              const itemId = item.id;
-              const btnId = `toolkit-btn-${itemId}`;
-              const isInitial = itemId === initialItemId;
+          <section class="capabilities__detail">
+            {capabilities.map((capability, index) => {
+              const isActive = capability.id === initialId;
               return (
                 <article
-                  id={`toolkit-panel-${itemId}`}
-                  class="toolkit__panel"
+                  id={`cap-panel-${capability.id}`}
+                  class="capabilities__panel"
                   role="tabpanel"
-                  aria-labelledby={btnId}
-                  data-toolkit-detail-panel={itemId}
-                  data-active={String(isInitial)}
+                  aria-labelledby={`cap-btn-${capability.id}`}
+                  data-cap-panel={capability.id}
                   tabindex="0"
-                  hidden={!isInitial}
+                  hidden={!isActive}
                 >
-                  <header class="toolkit__panel-header">
-                    <p class="mono-label mono-label--bare">
-                      <span class="toolkit__panel-step" aria-hidden="true">{String(item.featuredOrder ?? '').padStart(2, '0')}</span>
-                      Selected
-                    </p>
-                    <strong class="toolkit__panel-name">{item.name}</strong>
+                  <header class="capabilities__panel-head">
+                    <span class="mono-label mono-label--bare">
+                      <span class="capabilities__panel-step" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                      {capability.name}
+                    </span>
                   </header>
-                  <dl class="toolkit__panel-grid">
-                    <div>
-                      <dt class="mono-label mono-label--bare">Used in</dt>
-                      <dd>
-                        <ul class="toolkit__panel-list">
-                          {item.usedIn.map(u => (
-                            <li>
-                              {u.href
-                                ? <a href={u.href} target={u.href.startsWith('http') ? '_blank' : undefined} rel={u.href.startsWith('http') ? 'noopener' : undefined}>{u.project}</a>
-                                : <span>{u.project}</span>}
-                            </li>
-                          ))}
-                        </ul>
-                      </dd>
-                    </div>
-                    <div>
-                      <dt class="mono-label mono-label--bare">Evidence</dt>
-                      <dd>
-                        <ul class="toolkit__panel-list">
-                          {item.evidence.map(e => <li>{e}</li>)}
-                        </ul>
-                      </dd>
-                    </div>
-                  </dl>
-                  {item.note && <p class="toolkit__panel-note">{item.note}</p>}
+
+                  <p class="capabilities__statement">{capability.statement}</p>
+
+                  <p class="capabilities__tech">
+                    <span class="capabilities__tech-label">Supports</span>
+                    <span class="capabilities__tech-list">{capability.technologies.join(' · ')}</span>
+                  </p>
+
+                  <div class="capabilities__evidence">
+                    <p class="mono-label mono-label--bare">Evidence</p>
+                    <ul>
+                      {capability.evidence.map((item) => (
+                        <li>
+                          <span class="capabilities__evidence-text">{item.text}</span>
+                          {item.href ? (
+                            <a
+                              class="capabilities__evidence-where"
+                              href={item.href}
+                              rel={isExternal(item.href) ? 'noopener' : undefined}
+                              target={isExternal(item.href) ? '_blank' : undefined}
+                            >
+                              {item.where}
+                            </a>
+                          ) : (
+                            <span class="capabilities__evidence-where capabilities__evidence-where--static">{item.where}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </article>
               );
             })}
-            <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-toolkit-status></p>
+            <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-cap-status></p>
           </section>
         </div>
-
-        <details class="toolkit__more" data-toolkit-more>
-          <summary>
-            <span class="mono-label mono-label--bare">Supporting tools</span>
-            <span class="toolkit__more-count">{additionalToolCount} entries</span>
-            <span class="toolkit__more-mark" aria-hidden="true"></span>
-          </summary>
-          <div class="toolkit__more-groups">
-            {additionalToolkit.map((group, groupIndex) => (
-              <section class="toolkit__group" aria-labelledby={`toolkit-more-group-${groupIndex}`}>
-                <h3 id={`toolkit-more-group-${groupIndex}`}>
-                  <span class="mono-label mono-label--bare">{group.category}</span>
-                </h3>
-                <ul class="toolkit__group-list">
-                  {group.items.map(item => (
-                    <li>
-                      <span class="toolkit__group-name">{item.name}</span>
-                      <span class="toolkit__group-meta">
-                        {item.usedIn.map((u) => u.project).join(' · ') || '—'}
-                      </span>
-                      <ul class="toolkit__group-evidence">
-                        {item.evidence.map((e) => <li>{e}</li>)}
-                      </ul>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
-          </div>
-        </details>
       </div>
     </div>
   </SectionFrame>
@@ -368,164 +324,123 @@ const initialItemId = primaryToolkitItems[0]?.id;
 <script>
   import { reserveStackHeight } from '../scripts/initTraceTabs';
 
-  const toolkitRoot = document.querySelector('[data-toolkit]');
+  const root = document.querySelector<HTMLElement>('[data-capabilities]');
 
-  if (toolkitRoot) {
-    const triggers = [...toolkitRoot.querySelectorAll<HTMLButtonElement>('[data-toolkit-trigger]')];
-    const detailPanels = [...toolkitRoot.querySelectorAll<HTMLElement>('[data-toolkit-detail-panel]')];
-    const status = toolkitRoot.querySelector<HTMLElement>('[data-toolkit-status]');
-    reserveStackHeight(detailPanels);
+  if (root) {
+    const triggers = [...root.querySelectorAll<HTMLButtonElement>('[data-cap-trigger]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-cap-panel]')];
+    const status = root.querySelector<HTMLElement>('[data-cap-status]');
+    reserveStackHeight(panels);
 
     const select = (id: string) => {
-      if (!triggers.some(trigger => trigger.dataset.toolkitTrigger === id)) return;
+      if (!triggers.some((trigger) => trigger.dataset.capTrigger === id)) return;
 
-      triggers.forEach(trigger => {
-        const active = trigger.dataset.toolkitTrigger === id;
+      for (const trigger of triggers) {
+        const active = trigger.dataset.capTrigger === id;
         trigger.setAttribute('aria-selected', String(active));
         trigger.tabIndex = active ? 0 : -1;
-        trigger.dataset.active = String(active);
-      });
-      detailPanels.forEach(panel => {
-        const active = panel.dataset.toolkitDetailPanel === id;
+      }
+      for (const panel of panels) {
+        const active = panel.dataset.capPanel === id;
         panel.hidden = !active;
-        panel.dataset.active = String(active);
-      });
+      }
 
       const label = triggers
-        .find((trigger) => trigger.dataset.toolkitTrigger === id)
-        ?.querySelector('.toolkit__trigger-name')
+        .find((trigger) => trigger.dataset.capTrigger === id)
+        ?.querySelector('.capabilities__trigger-name')
         ?.textContent
         ?.trim();
-      if (status && label) status.textContent = `Showing capability detail: ${label}`;
+      if (status && label) status.textContent = `Showing capability: ${label}`;
     };
 
-    triggers.forEach(trigger => {
-      const itemId = trigger.dataset.toolkitTrigger;
-      if (!itemId) return;
+    for (const trigger of triggers) {
+      const id = trigger.dataset.capTrigger;
+      if (!id) continue;
 
-      trigger.addEventListener('click', () => select(itemId));
+      trigger.addEventListener('click', () => select(id));
 
+      // Hover-select only where hovering is a deliberate pointer
+      // action (same rule the evidence drawer follows).
       trigger.addEventListener('mouseenter', () => {
-        if (window.matchMedia('(hover: hover)').matches) {
-          select(itemId);
-        }
+        if (window.matchMedia('(hover: hover)').matches) select(id);
       });
 
-      // A4 fix: do not select on focus. Keyboard nav uses Arrow keys
-      // to move focus + change selection; tabbing through should not
-      // mutate the visible detail panel.
-
-      trigger.addEventListener('keydown', (e) => {
-        const visibleTriggers = triggers;
-        const idx = visibleTriggers.indexOf(trigger);
-        if (idx < 0) return;
+      trigger.addEventListener('keydown', (event) => {
+        const index = triggers.indexOf(trigger);
         let next: number | null = null;
-        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-          e.preventDefault();
-          next = (idx + 1) % visibleTriggers.length;
-        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-          e.preventDefault();
-          next = (idx - 1 + visibleTriggers.length) % visibleTriggers.length;
-        } else if (e.key === 'Home') {
-          e.preventDefault();
+        if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+          next = (index + 1) % triggers.length;
+        } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+          next = (index - 1 + triggers.length) % triggers.length;
+        } else if (event.key === 'Home') {
           next = 0;
-        } else if (e.key === 'End') {
-          e.preventDefault();
-          next = visibleTriggers.length - 1;
+        } else if (event.key === 'End') {
+          next = triggers.length - 1;
         }
-        if (next !== null) {
-          const t = visibleTriggers[next];
-          if (t) {
-            t.focus();
-            // Select on Arrow / Home / End so keyboard-only users see the
-            // corresponding detail panel change (A4 fix — selection is NOT
-            // driven by plain focus).
-            const nextId = t.dataset.toolkitTrigger;
-            if (nextId) select(nextId);
-          }
+        if (next === null) return;
+        event.preventDefault();
+        const target = triggers[next];
+        if (target) {
+          target.focus();
+          select(target.dataset.capTrigger ?? '');
         }
       });
-    });
+    }
 
-    const initial = triggers.find(trigger => trigger.getAttribute('aria-selected') === 'true')?.dataset.toolkitTrigger;
+    const initial = triggers.find((trigger) => trigger.getAttribute('aria-selected') === 'true')?.dataset
+      .capTrigger;
     if (initial) select(initial);
   }
 </script>
 
 <style>
-  .toolkit {
+  .capabilities {
     background: var(--color-sheet);
   }
 
-  .toolkit__body {
+  .capabilities__body {
     gap: var(--space-5);
   }
 
-  .toolkit__header {
+  .capabilities__header {
     display: grid;
     gap: var(--space-3);
   }
 
-  /* The index: capability list and its detail viewport, side by side
-     at width. They are one unit — hence one shared top rule. */
-  .toolkit__index {
+  .capabilities__split {
     display: grid;
     gap: var(--space-5);
   }
 
-  /* --- primary list --------------------------------------------- */
-  /* No container. Ruled rows carry the structure, the selected row
-     carries a copper edge. A capability is a line item in an index,
-     not a card. */
+  /* --- the list -------------------------------------------------- */
+  /* Ruled rows, no container, no chrome beyond the rules. A
+     capability is a line item in an index. */
 
-  .toolkit__primary {
-    display: grid;
-    gap: var(--space-3);
-    align-content: start;
-  }
-
-  .toolkit__primary-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-3);
-    padding-bottom: var(--space-2);
-    border-bottom: 1px solid var(--color-rule-on-paper-strong);
-  }
-
-  .toolkit__primary-header h3 {
-    margin: 0;
-    font-size: var(--text-small);
-    font-weight: 600;
-    letter-spacing: 0;
-  }
-
-  .toolkit__primary-list {
+  .capabilities__rows {
     display: grid;
     margin: 0;
     padding: 0;
     list-style: none;
+    border-top: 1px solid var(--color-rule-on-paper-strong);
   }
 
-  .toolkit__item {
+  .capabilities__rows li {
     border-bottom: 1px solid var(--color-rule-on-paper-soft);
   }
 
-  .toolkit__trigger {
+  .capabilities__trigger {
     display: grid;
-    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    grid-template-columns: 2rem minmax(0, 1fr) 0.5rem;
     align-items: center;
     gap: var(--space-3);
     width: 100%;
     min-height: var(--control-height);
-    padding: var(--space-2) var(--space-3) var(--space-2) 0;
+    padding: var(--space-3) 0;
     border: 0;
     border-left: 2px solid transparent;
     background: transparent;
     color: var(--color-text-on-paper-muted);
     font: inherit;
-    font-size: 0.9375rem;
-    font-weight: 500;
     text-align: left;
     cursor: pointer;
     transition:
@@ -535,13 +450,17 @@ const initialItemId = primaryToolkitItems[0]?.id;
       padding-left var(--duration-base) var(--ease-emphasized);
   }
 
-  .toolkit__trigger:hover,
-  .toolkit__trigger:focus-visible {
+  .capabilities__trigger:hover,
+  .capabilities__trigger:focus-visible {
     color: var(--color-text-on-paper);
     padding-left: var(--space-2);
   }
 
-  .toolkit__trigger-step {
+  .capabilities__trigger:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .capabilities__trigger-no {
     padding-left: var(--space-3);
     color: var(--color-text-on-paper-faint);
     font-family: var(--font-mono);
@@ -550,10 +469,16 @@ const initialItemId = primaryToolkitItems[0]?.id;
     transition: color var(--duration-quick) var(--ease-standard);
   }
 
-  /* The selection mark is an ARC NODE, matching the trace: hollow
-     when unselected, filled copper when selected. Same vocabulary,
-     same meaning — "this is the item under inspection". */
-  .toolkit__trigger-mark {
+  .capabilities__trigger-name {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* Selection node: hollow when idle, filled copper when selected —
+     the same "under inspection" mark the other Profile sections use. */
+  .capabilities__trigger-mark {
+    justify-self: end;
     width: var(--node-size);
     height: var(--node-size);
     border-radius: 50%;
@@ -564,113 +489,116 @@ const initialItemId = primaryToolkitItems[0]?.id;
       border-color var(--duration-quick) var(--ease-standard);
   }
 
-  .toolkit__trigger[aria-selected='true'] {
+  .capabilities__trigger[aria-selected='true'] {
     border-left-color: var(--color-accent);
-    padding-left: var(--space-2);
     background: var(--color-sheet-soft);
     color: var(--color-text-on-paper);
+    padding-left: var(--space-2);
   }
 
-  .toolkit__trigger[aria-selected='true'] .toolkit__trigger-step {
+  .capabilities__trigger[aria-selected='true'] .capabilities__trigger-no {
     color: var(--color-accent-text);
   }
 
-  .toolkit__trigger[aria-selected='true'] .toolkit__trigger-mark {
+  .capabilities__trigger[aria-selected='true'] .capabilities__trigger-mark {
     background: var(--color-accent);
     border-color: var(--color-accent);
   }
 
-  /* --- detail viewport ------------------------------------------ */
-  /* The one bounded panel in the section. It is bounded because it
-     is genuinely a viewport: its contents swap. */
+  /* --- the selected capability ----------------------------------- */
+  /* The one bounded panel in the section: it is a viewport whose
+     contents swap, so it earns a frame. */
 
-  .toolkit__detail {
+  .capabilities__detail {
     border: 1px solid var(--color-rule-on-paper);
     background: var(--color-sheet-high);
-    min-height: 0;
   }
 
-  .toolkit__panel {
+  .capabilities__panel {
     display: grid;
     gap: var(--space-4);
-    padding: var(--space-5);
+    padding: var(--space-4);
   }
 
-  .toolkit__panel[hidden] {
+  .capabilities__panel[hidden] {
     display: none !important;
   }
 
-  /* Progressive enhancement: without JS, every panel shows stacked. */
-  html:not(.js) .toolkit__panel,
-  html:not(.js) .toolkit__panel[hidden] {
-    display: grid !important;
-    border-bottom: 1px solid var(--color-rule-on-paper-soft);
-  }
-
-  html:not(.js) .toolkit__primary {
-    display: none;
-  }
-
-  .toolkit__panel-header {
+  .capabilities__panel-head {
     display: grid;
-    gap: var(--space-2);
     padding-bottom: var(--space-3);
     border-bottom: 1px solid var(--color-rule-on-paper);
   }
 
-  .toolkit__panel-name {
-    font-size: 1.125rem;
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    color: var(--color-text-on-paper);
-  }
-
-  /* The detail carries the same index the selected row shows, so
-     capability → where used → evidence reads as one numbered record. */
-  .toolkit__panel-step {
+  .capabilities__panel-step {
     margin-right: var(--space-2);
     color: var(--color-accent-text);
   }
 
-  .toolkit__panel-grid {
+  .capabilities__statement {
+    margin: 0;
+    max-width: 52ch;
+    color: var(--color-text-on-paper);
+    font-size: var(--text-body-large);
+    line-height: 1.55;
+  }
+
+  /* Technologies: support, so they read as a data line — one mono
+     run, label and value, not a chip field. */
+  .capabilities__tech {
     display: grid;
-    gap: var(--space-5);
+    gap: var(--space-1);
     margin: 0;
   }
 
-  .toolkit__panel-grid > div {
+  .capabilities__tech-label {
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+  }
+
+  .capabilities__tech-list {
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-instrument);
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+
+  /* Evidence: each line is a thing done, attributed at the edge.
+     Hung on the leading-tick motif, like the drawer captions. */
+  .capabilities__evidence {
     display: grid;
     gap: var(--space-3);
-    align-content: start;
   }
 
-  .toolkit__panel-grid dt {
-    color: var(--color-text-on-paper-faint);
-  }
-
-  .toolkit__panel-grid dd {
-    margin: 0;
-  }
-
-  .toolkit__panel-list {
+  .capabilities__evidence ul {
     display: grid;
-    gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  /* Evidence items are hung on a short copper rule rather than a
-     bullet square — the same leading-tick motif as .mono-label. */
-  .toolkit__panel-list li {
-    position: relative;
-    padding-left: var(--space-5);
+  .capabilities__evidence li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2) var(--space-4);
+    align-items: baseline;
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--color-rule-on-paper-soft);
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.5;
   }
 
-  .toolkit__panel-list li::before {
+  .capabilities__evidence-text {
+    position: relative;
+    padding-left: var(--space-5);
+  }
+
+  .capabilities__evidence-text::before {
     content: '';
     position: absolute;
     left: 0;
@@ -680,177 +608,84 @@ const initialItemId = primaryToolkitItems[0]?.id;
     background: var(--color-accent);
   }
 
-  .toolkit__panel-list a {
-    color: var(--color-text-on-paper);
-    font-weight: 600;
-  }
-
-  .toolkit__panel-note {
-    margin: 0;
-    padding-left: var(--space-4);
-    border-left: 2px solid var(--color-accent);
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-small);
-    line-height: 1.5;
-  }
-
-  /* --- supporting tools (the tail) -------------------------------- */
-  /* Visibly subordinate: denser type, a recessed ground, and no
-     container of its own beyond the disclosure boundary. */
-
-  .toolkit__more {
-    border-top: 1px solid var(--color-rule-on-paper-strong);
-  }
-
-  .toolkit__more summary {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: var(--space-3);
-    min-height: var(--control-height);
-    padding-block: var(--space-2);
-    color: var(--color-text-on-paper);
-    cursor: pointer;
-    list-style: none;
-    transition: color var(--duration-quick) var(--ease-standard);
-  }
-
-  .toolkit__more summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .toolkit__more summary:hover,
-  .toolkit__more summary:focus-visible {
+  .capabilities__evidence-where {
+    justify-self: end;
     color: var(--color-accent-text);
-  }
-
-  .toolkit__more-count {
-    justify-self: start;
-    color: var(--color-text-on-paper-faint);
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     letter-spacing: 0.05em;
     text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--duration-quick) var(--ease-standard);
   }
 
-  /* Disclosure marker: a plus that rotates to a cross. Shape carries
-     the state, not just colour. */
-  .toolkit__more-mark {
-    position: relative;
-    width: 0.75rem;
-    height: 0.75rem;
-    transition: transform var(--duration-base) var(--ease-emphasized);
+  .capabilities__evidence-where:hover,
+  .capabilities__evidence-where:focus-visible {
+    border-bottom-color: currentColor;
   }
 
-  .toolkit__more-mark::before,
-  .toolkit__more-mark::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    background: var(--color-accent);
-  }
-
-  .toolkit__more-mark::before {
-    width: 100%;
-    height: 1px;
-  }
-
-  .toolkit__more-mark::after {
-    width: 1px;
-    height: 100%;
-  }
-
-  .toolkit__more[open] .toolkit__more-mark {
-    transform: rotate(45deg);
-  }
-
-  .toolkit__more-groups {
-    display: grid;
-    gap: var(--space-5);
-    padding-block: var(--space-4) var(--space-2);
-  }
-
-  .toolkit__group h3 {
-    margin: 0 0 var(--space-2);
-  }
-
-  .toolkit__group-list {
-    display: grid;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .toolkit__group-list li {
-    display: grid;
-    gap: var(--space-1);
-    padding: var(--space-3) 0;
-    border-top: 1px solid var(--color-rule-on-paper-soft);
-    color: var(--color-text-on-paper);
-    font-size: var(--text-small);
-  }
-
-  .toolkit__group-name {
-    font-weight: 600;
-  }
-
-  .toolkit__group-meta {
+  /* Attribution without a public artifact is set as plain data —
+     not a dead link pretending to be one. */
+  .capabilities__evidence-where--static {
     color: var(--color-text-on-paper-faint);
-    font-family: var(--font-mono);
-    font-size: var(--text-micro);
-    letter-spacing: 0.04em;
   }
 
-  .toolkit__group-evidence {
-    display: grid;
-    gap: var(--space-1);
-    margin: var(--space-1) 0 0;
-    padding: 0;
-    list-style: none;
+  /* Progressive enhancement: without JS, every capability shows,
+     stacked — the list of buttons would swap nothing. */
+  html:not(.js) .capabilities__list {
+    display: none;
   }
 
-  .toolkit__group-evidence li {
-    padding: 0;
-    border-top: 0;
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-micro);
-    line-height: 1.55;
+  html:not(.js) .capabilities__panel,
+  html:not(.js) .capabilities__panel[hidden] {
+    display: grid !important;
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
   }
 
-  /* --- responsive -------------------------------------------------- */
+  html:not(.js) .capabilities__detail {
+    border-color: var(--color-rule-on-paper-strong);
+  }
 
   @media (min-width: 48rem) {
-    .toolkit__index {
-      grid-template-columns: minmax(14rem, 19rem) minmax(0, 1fr);
-      column-gap: var(--space-7);
-      align-items: start;
-    }
-
-    .toolkit__detail {
-      position: sticky;
-      top: var(--space-6);
-    }
-
-    .toolkit__more-groups {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: var(--space-7);
+    .capabilities__panel {
+      padding: var(--space-5);
     }
   }
 
   @media (min-width: 64rem) {
-    .toolkit__panel-grid {
-      grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
+    .capabilities__split {
+      grid-template-columns: minmax(13rem, 16.5rem) minmax(0, 1fr);
+      column-gap: var(--rail-gap);
+      align-items: start;
     }
 
-    .toolkit__more-groups {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .capabilities__detail {
+      position: sticky;
+      top: var(--space-6);
+    }
+
+    .capabilities__evidence li {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+
+  /* Very narrow: the attribution drops under the line it belongs
+     to rather than squeezing it. */
+  @media (max-width: 24rem) {
+    .capabilities__evidence li {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .capabilities__evidence-where {
+      justify-self: start;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .toolkit__trigger,
-    .toolkit__more-mark {
+    .capabilities__trigger,
+    .capabilities__trigger-mark,
+    .capabilities__evidence-where {
       transition: none;
     }
   }

@@ -2,45 +2,37 @@
 /**
  * ABOUT — the quiet register.
  *
- * Deliberately the least structured section on the page: one column
- * of prose at a comfortable measure, a portrait offset into the
- * margin, and no instrument vocabulary at all. It is the only place
- * where the visual system steps back, which is what makes it read
- * as a person rather than as another panel.
+ * Deliberately the least structured section on the page: an open
+ * two-column composition — portrait offset into the left margin,
+ * prose at a comfortable measure — with no index rail, no ruled
+ * insets and no read-out. The SectionFrame seam and coordinate stay
+ * because they are how the system marks a region; inside About, the
+ * instrument vocabulary is otherwise switched off.
  *
- * Copy unchanged.
+ * The page-level h1 is the Profile opener; About is an h2 on the
+ * same display register, so the human statement can be large
+ * without breaking heading order.
  */
 import ParticlePortrait from './ParticlePortrait.astro';
 import SectionFrame from './SectionFrame.astro';
 ---
 
-<section id="about" class="about" aria-labelledby="about-title" data-workspace-section="about">
+<section id="about" class="about" aria-labelledby="about-title" data-workspace-section="about" data-workspace-label="About">
   <SectionFrame coordinate="04.1 · Profile / About" surface="paper" density="default">
-    <div class="page-shell region-grid">
-      <aside class="region-rail">
-        <div class="region-index">
-          <span class="region-index__no">04.1</span>
-          <span class="region-index__rule"></span>
-          <span class="region-index__name">The engineer</span>
-        </div>
+    <div class="page-shell about__grid">
+      <div class="about__portrait">
+        <ParticlePortrait
+          src="/images/stephen.png"
+          alt="Stephen Mensah"
+          width={800}
+          height={800}
+          srcset="/images/stephen-480.webp 480w, /images/stephen-800.webp 800w"
+          sizes="(min-width: 60rem) 11.5rem, min(14rem, calc(100vw - 3rem))"
+        />
+      </div>
 
-        <div class="about__portrait">
-          <ParticlePortrait
-            src="/images/stephen.png"
-            alt="Stephen Mensah"
-            width={800}
-            height={800}
-            srcset="/images/stephen-480.webp 480w, /images/stephen-800.webp 800w"
-            sizes="(min-width: 60rem) 11.5rem, min(100vw - 2rem, 14rem)"
-          />
-        </div>
-      </aside>
-
-      <div class="region-body about__body">
-        <header class="about__header">
-          <h1 id="about-title" class="about__title">A little about me.</h1>
-        </header>
-
+      <div class="about__body">
+        <h2 id="about-title" class="about__title">A little about me.</h2>
         <div class="about__copy">
           <p>
             I'm a Computer Science student at Ashesi University in Berekuso, Ghana. I spend a lot
@@ -54,7 +46,7 @@ import SectionFrame from './SectionFrame.astro';
             secured seed funding. SessionBook is a voice-agent booking backend where the
             interesting problem was keeping concurrency, timezones and spoken confirmation
             honest. I also built a farm management system for Koranco Farms through the
-            Ashesi Innovation Lab.
+            Ashesi Center for Entrepreneurship.
           </p>
         </div>
       </div>
@@ -67,16 +59,23 @@ import SectionFrame from './SectionFrame.astro';
     background: var(--color-sheet);
   }
 
-  .about__body {
+  .about__grid {
+    display: grid;
     gap: var(--space-5);
+    align-items: start;
   }
 
-  /* About is the one heading in the system allowed to be larger than
-     a section title — it is a human statement, not a label. Still
-     well below the feature scale used by projects. */
+  .about__body {
+    display: grid;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+
+  /* About is the one section heading allowed display scale — it is a
+     human statement, not a label. */
   .about__title {
     margin: 0;
-    max-width: 18ch;
+    max-width: 16ch;
     font-size: clamp(1.625rem, 2.6vw, 2.25rem);
     font-weight: 600;
     letter-spacing: var(--tracking-heading);
@@ -85,20 +84,20 @@ import SectionFrame from './SectionFrame.astro';
 
   .about__copy {
     display: grid;
-    gap: var(--space-5);
-    max-width: var(--width-reading);
+    gap: var(--space-4);
+    max-width: 46rem;
   }
 
   .about__copy p {
     margin: 0;
+    max-width: var(--width-reading);
     color: var(--color-text-on-paper);
     font-size: var(--text-body-large);
     line-height: 1.7;
   }
 
-  /* The portrait sits in the margin column, small and squared, with
-     one hairline. No corner marks: this is the section where the
-     instrument vocabulary is switched off. */
+  /* The portrait is a small squared print hung in the margin — one
+     hairline, no corner marks, no read-out. */
   .about__portrait {
     width: min(100%, 14rem);
     padding: var(--space-2);
@@ -106,10 +105,21 @@ import SectionFrame from './SectionFrame.astro';
     background: var(--color-sheet-soft);
   }
 
+  .about__portrait :global(.pportrait__readout) {
+    display: none;
+  }
+
   @media (min-width: 60rem) {
+    .about__grid {
+      grid-template-columns: 11.5rem minmax(0, 1fr);
+      column-gap: var(--rail-gap);
+    }
+
     .about__portrait {
       width: 100%;
-      max-width: var(--rail-col);
+      /* Offset so the print hangs slightly below the opening line —
+         the one place asymmetry is allowed to be loose. */
+      margin-top: var(--space-5);
     }
   }
 </style>
