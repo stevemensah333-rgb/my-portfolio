@@ -23,7 +23,7 @@ const secondaryLinks = [
 ---
 
 <section id="contact" class="contact" aria-labelledby="contact-title" data-workspace-section="contact" data-workspace-label="Contact">
-  <SectionFrame coordinate="E · Contact" status="End of environment" density="default">
+  <SectionFrame coordinate="E · Contact" status="End of field" density="default">
     <div class="page-shell region-grid">
       <aside class="region-rail">
         <div class="region-index">
@@ -38,7 +38,7 @@ const secondaryLinks = [
           <p class="mono-label">Start a conversation</p>
           <h2 id="contact-title" class="contact__title">Have an AI engineering role to discuss?</h2>
           <p class="contact__copy">
-            I'm looking for entry-level AI engineering opportunities where I can contribute to product
+            I’m looking for entry-level AI engineering opportunities where I can contribute to product
             work and learn from experienced engineers.
           </p>
         </header>
@@ -87,10 +87,26 @@ const secondaryLinks = [
 </section>
 
 <style>
+  /* LIGHT = INFORMATION. Reaching Stephen is read, not operated, so
+     this surface belongs on the sheet — as the doc comment above has
+     always said. It takes the most forward light step (`high`), which
+     is right for the primary action and keeps a visible step from the
+     region before it on both Home and Profile; the dark ground is left
+     to the footer chrome that follows, so the page still ends crisply.
+
+     This also repairs a real defect: `.contact` was never in the dark
+     registry in global.css, so the shared grammar inside it
+     (`.mono-label`, `.region-index`, `.section-frame__coordinate`,
+     the seam) kept its on-paper tokens and rendered at 1.86–2.63:1
+     against the deck. On the sheet those tokens are correct as
+     authored — no overrides needed. Measured on `sheet-high`: text
+     6.74–16.93:1, the accent button fill 3.90:1, the terminus rule
+     5.48:1, and 18.64:1 against the footer (the old deck→deck-deep
+     boundary measured 1.05:1 — effectively invisible). */
   .contact {
     position: relative;
-    background: var(--color-deck);
-    color: var(--color-text-on-canvas);
+    background: var(--color-sheet-high);
+    color: var(--color-text-on-paper);
   }
 
   .contact__body {
@@ -115,7 +131,7 @@ const secondaryLinks = [
   .contact__copy {
     max-width: 34rem;
     margin: 0;
-    color: var(--color-text-on-canvas-muted);
+    color: var(--color-text-on-paper-muted);
     font-size: var(--text-body-large);
     line-height: 1.55;
   }
@@ -126,8 +142,8 @@ const secondaryLinks = [
     display: grid;
     gap: var(--space-4);
     padding-block: var(--space-5);
-    border-top: 1px solid var(--color-rule-on-canvas-strong);
-    border-bottom: 1px solid var(--color-rule-on-canvas);
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+    border-bottom: 1px solid var(--color-rule-on-paper);
   }
 
   .contact__address-label {
@@ -135,20 +151,28 @@ const secondaryLinks = [
   }
 
   /* The single largest element on the closing surface. It breaks the
-     rule that headings are quiet — deliberately, once, at the end. */
+     rule that headings are quiet — deliberately, once, at the end.
+     What it does not break is the type-role rule: a major statement
+     is set in DISPLAY, like the hero name, the archive h1 and every
+     case-study opening, and it uses the system's display tracking
+     rather than a value of its own. */
   .contact__email {
     margin: 0;
+    font-family: var(--font-display);
     font-size: clamp(1.375rem, 3.6vw, 2.5rem);
     font-weight: 600;
-    letter-spacing: -0.035em;
-    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+    line-height: var(--leading-display);
     overflow-wrap: anywhere;
   }
 
   .contact__email-link {
-    color: var(--color-text-on-canvas);
+    color: var(--color-text-on-paper);
     text-decoration: none;
-    background-image: linear-gradient(var(--color-accent), var(--color-accent));
+    /* accent-deep is the accent's light-ground face — the same face
+       the global focus ring uses — so the hover underline still clears
+       3:1 against the sheet (5.48:1 on `sheet-high`). */
+    background-image: linear-gradient(var(--color-accent-deep), var(--color-accent-deep));
     background-repeat: no-repeat;
     background-position: 0 100%;
     background-size: 0 2px;
@@ -183,8 +207,8 @@ const secondaryLinks = [
     gap: var(--space-3);
     min-height: var(--control-height);
     padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--color-rule-on-canvas);
-    color: var(--color-text-on-canvas);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    color: var(--color-text-on-paper);
     text-decoration: none;
     transition:
       color var(--duration-quick) var(--ease-standard),
@@ -220,9 +244,9 @@ const secondaryLinks = [
     height: 2px;
     background: linear-gradient(
       to right,
-      var(--color-accent) 0,
-      var(--color-accent) clamp(3.5rem, 14vw, 9rem),
-      var(--color-rule-on-canvas) clamp(3.5rem, 14vw, 9rem)
+      var(--color-accent-deep) 0,
+      var(--color-accent-deep) clamp(3.5rem, 14vw, 9rem),
+      var(--color-rule-on-paper-strong) clamp(3.5rem, 14vw, 9rem)
     );
   }
 

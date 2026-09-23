@@ -27,7 +27,11 @@ const total = String(stages.length).padStart(2, '0');
 <section class="system" aria-labelledby="investigation-title" data-system>
   <header class="system__header">
     <p class="mono-label">The system · {total} stages, one payload</p>
-    <h2 id="investigation-title">One payload, seven stages.</h2>
+    <!-- The stage count is the eyebrow's job, and "one payload, seven
+         stages" is the Lab's own name for the instrument. Here the
+         heading names what this page does with that payload: follows
+         it. Same subject, different verb — explanation, not operation. -->
+    <h2 id="investigation-title">One payload, followed to the end.</h2>
     <p class="system__intro">
       Each stage receives what the one before it produced. Read down, or jump to a stage from the
       map: the contract code, the checks and the refusal are read from the Syncareer repository,

@@ -499,9 +499,11 @@ const total = String(labStages.length).padStart(2, '0');
     text-transform: uppercase;
   }
 
+  /* Stage node — the same registration node the capability triggers
+     and the project inspector use, so a node is one size site-wide. */
   .lab__node-mark {
-    width: 0.55rem;
-    height: 0.55rem;
+    width: var(--node-size);
+    height: var(--node-size);
     border: 1px solid var(--color-rule-on-canvas-strong);
     border-radius: 50%;
     background: var(--color-deck);

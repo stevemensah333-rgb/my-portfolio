@@ -99,8 +99,14 @@
   --color-deck-inset: #1C2123;
   --color-deck-raised: #242A2C;
 
-  /* 2.2 Environment: LIGHT — information ---------------------- */
+  /* 2.2 Environment: LIGHT — information ----------------------
+     Surfaces get DARKER as they recess: high < base < soft < inset.
+     `raised` is the one step in the other direction — the face a
+     sheet shows when it is lifted toward the viewer on hover or
+     focus. It mirrors `--color-deck-raised`, so both environments
+     now have a named top face and no component has to invent one. */
 
+  --color-sheet-raised: #FFFDF8;
   --color-sheet-high: #FCF9F2;
   --color-sheet: #F6F1E6;
   --color-sheet-soft: #EFE9DA;
@@ -216,6 +222,12 @@
   --mark-length: 2.25rem;
   --mark-stroke: 2px;
   --node-size: 0.5rem;
+
+  /* Status dot — the small circle that carries a project's or a
+     stage's state. One size everywhere it appears, so the same
+     fact is the same physical mark on Home, in the archive and on
+     a project record. */
+  --node-status: 0.4375rem;
 
   /* 2.7 Typography ----------------------------------------------
      Three roles. Family, not size, is what separates them; size
@@ -376,10 +388,9 @@ html[data-area='lab'] {
       component re-declaring an override — and without a section
       shipping 1.8:1 text because someone forgot one.
 
-   ADD ANY NEW DARK SURFACE TO THIS LIST. */
+   ADD ANY NEW DARK SURFACE TO THIS LIST. A one-off surface that is
+   not worth naming here can declare itself with `.on-deck`. */
 .lab,
-.trace,
-.instrument,
 .workspace-rail,
 .workspace-control,
 .workspace-chrome,
@@ -510,8 +521,6 @@ button {
 }
 
 .lab :focus-visible,
-.trace :focus-visible,
-.instrument :focus-visible,
 .workspace-rail :focus-visible,
 .workspace-control :focus-visible,
 .on-deck :focus-visible {
@@ -871,17 +880,13 @@ button {
 
 /* On deck, the outline button borrows the deck rule + deck text. */
 .on-deck .button--secondary,
-.instrument .button--secondary,
-.lab .button--secondary,
-.trace .button--secondary {
+.lab .button--secondary {
   border-color: var(--color-rule-on-canvas-strong);
   color: var(--color-text-on-canvas);
 }
 
 .on-deck .button--secondary:hover,
-.instrument .button--secondary:hover,
-.lab .button--secondary:hover,
-.trace .button--secondary:hover {
+.lab .button--secondary:hover {
   border-color: var(--color-text-on-canvas);
   background: var(--color-text-on-canvas);
   color: var(--color-deck-deep);
@@ -916,9 +921,7 @@ button {
 }
 
 .on-deck .text-link::after,
-.instrument .text-link::after,
-.lab .text-link::after,
-.trace .text-link::after {
+.lab .text-link::after {
   background: var(--color-rule-on-canvas-strong);
 }
 

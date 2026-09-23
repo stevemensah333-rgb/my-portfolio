@@ -689,7 +689,7 @@ const phases = [
 
   .archive-card__link:hover .archive-card__surface,
   .archive-card__link:focus-visible .archive-card__surface {
-    background: #fffdf8;
+    background: var(--color-sheet-raised);
     box-shadow: 0 calc(var(--card-lift, 5px) + 5px) 0 rgb(21 24 28 / 16%);
     transform: translateY(-3px);
   }
@@ -725,8 +725,8 @@ const phases = [
   }
 
   .archive-card__status-dot {
-    width: 0.4rem;
-    height: 0.4rem;
+    width: var(--node-status);
+    height: var(--node-status);
     border-radius: 50%;
     background: var(--color-accent);
   }
