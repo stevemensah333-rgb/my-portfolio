@@ -1,13 +1,17 @@
 /**
- * Future GLB integration contract; deliberately no renderer dependency or fetch.
- * Replace the no-factory call in StephenVisual when a web-ready asset is approved.
- * The existing asset is ~54 MB and must not be loaded speculatively.
+ * Controller for the Home avatar slot. Owns lifecycle only: when the stage is
+ * worth loading, when to pause, and how to report state to the markup. The
+ * renderer itself lives behind `StephenRendererFactory` (see stephenRenderer),
+ * so this file stays free of any 3D dependency.
  *
- * A factory mounts into `host`, loads `src`, and resolves only after its first frame.
- * It must keep the portrait visible on failure, frame the head inside the fixed
- * stage, and implement look-at using its model's actual head/eye rig (unknown).
- * Targets are normalized [-1, 1]; cap head movement to a few degrees in the adapter.
- * Render on demand; pause MUST cancel renderer frames. Never auto-rotate.
+ * A factory mounts into `host`, loads `src`, and resolves only after its first
+ * frame. It must keep the portrait visible on failure, frame the bust inside
+ * the fixed square stage, and keep pointer-driven motion capped to a few
+ * degrees. Targets are normalized [-1, 1]. Render on demand; `pause` MUST
+ * cancel renderer frames. Never auto-rotate.
+ *
+ * Reduced motion still gets the model: one static frame, no pointer motion,
+ * no nod, and the disclosure note stays fully usable.
  */
 export interface StephenRenderer {
   lookAt(x: number, y: number): void;
@@ -20,21 +24,34 @@ export type StephenRendererFactory = (
   src: string,
 ) => Promise<StephenRenderer>;
 
-export function initStephenVisual(root: HTMLElement, createRenderer?: StephenRendererFactory) {
-  // Static today: native disclosure provides click, touch, Enter and Space.
-  // No motion listeners, GPU work, or model request until a renderer is supplied.
-  if (!createRenderer) return () => {};
+/** photo = nothing rendered (also the no-JS baseline); held = reduced motion. */
+export type StephenVisualState = 'photo' | 'loading' | 'live' | 'held' | 'fallback' | 'missing';
+
+export function initStephenVisual(
+  root: HTMLElement,
+  createRenderer?: StephenRendererFactory,
+  onState?: (state: StephenVisualState) => void,
+) {
+  // Without a factory there is nothing to enhance: the native disclosure
+  // already provides click, touch, Enter and Space for the note.
+  if (!createRenderer) {
+    onState?.('photo');
+    return () => {};
+  }
   const host = root.querySelector<HTMLElement>('[data-stephen-renderer]')!;
   const stage = root.querySelector<HTMLElement>('.stephen__stage')!;
   const note = root.querySelector<HTMLDetailsElement>('details')!;
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const coarse = matchMedia('(pointer: coarse)');
   const events = new AbortController();
   let renderer: StephenRenderer | undefined;
   let disposed = false;
   let visible = false;
   let loading = false;
+  let blocked = false; // a failed or missing asset is not retried this session
   let idle: ReturnType<typeof setTimeout>;
 
+  const setState = (state: StephenVisualState) => onState?.(state);
   const stop = () => {
     clearTimeout(idle);
     renderer?.lookAt(0, 0);
@@ -45,32 +62,41 @@ export function initStephenVisual(root: HTMLElement, createRenderer?: StephenRen
     renderer?.dispose();
     renderer = undefined;
     host.replaceChildren();
+    setState('photo');
   };
   const load = async () => {
-    if (renderer || loading || disposed || !visible || motion.matches || document.hidden) return;
+    if (renderer || loading || blocked || disposed || !visible || document.hidden) return;
     loading = true;
+    setState('loading');
     try {
       const model = await createRenderer(host, root.dataset.modelSrc!);
-      if (disposed || motion.matches || !visible || document.hidden) {
+      if (disposed || !visible || document.hidden) {
         model.dispose();
         host.replaceChildren();
+        setState('photo');
       } else {
         renderer = model;
+        setState(motion.matches ? 'held' : 'live');
         stop();
       }
-    } catch {
-      // A renderer must release partial resources on rejection. Keep the photograph.
+    } catch (error) {
+      // The renderer releases partial resources on rejection. Keep the photo.
       host.replaceChildren();
+      blocked = true;
+      setState((error as { kind?: string } | null)?.kind === 'missing' ? 'missing' : 'fallback');
     } finally {
       loading = false;
     }
   };
   const look = (event: PointerEvent) => {
     if (!renderer || motion.matches || !visible || document.hidden) return;
+    if (coarse.matches && event.type === 'pointermove') return; // touch: taps only
     const box = stage.getBoundingClientRect();
     const clamp = (value: number) => Math.max(-1, Math.min(1, value));
-    renderer.lookAt(clamp((event.clientX - box.left) / box.width * 2 - 1),
-      clamp(1 - (event.clientY - box.top) / box.height * 2));
+    renderer.lookAt(
+      clamp(((event.clientX - box.left) / box.width) * 2 - 1),
+      clamp(1 - ((event.clientY - box.top) / box.height) * 2),
+    );
     clearTimeout(idle);
     idle = setTimeout(stop, 650);
   };
@@ -80,17 +106,29 @@ export function initStephenVisual(root: HTMLElement, createRenderer?: StephenRen
   stage.addEventListener('pointerleave', stop, options);
   stage.addEventListener('pointercancel', stop, options);
   note.addEventListener('toggle', () => {
-    if (note.open && !motion.matches && visible) {
-      renderer?.activate();
+    if (note.open && renderer && visible) {
+      renderer.activate(); // a small nod; a no-op under reduced motion
       clearTimeout(idle);
       idle = setTimeout(stop, 650);
     }
   }, options);
-  motion.addEventListener('change', () => motion.matches ? unload() : void load(), options);
-  document.addEventListener('visibilitychange', () => document.hidden ? stop() : void load(), options);
+  motion.addEventListener('change', () => {
+    if (motion.matches) {
+      stop();
+      if (renderer) setState('held');
+    } else {
+      if (renderer) setState('live');
+      void load();
+    }
+  }, options);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else void load();
+  }, options);
   const observer = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
-    if (visible) void load(); else stop();
+    if (visible) void load();
+    else stop();
   });
   observer.observe(root);
   const dispose = () => {
@@ -99,8 +137,9 @@ export function initStephenVisual(root: HTMLElement, createRenderer?: StephenRen
     events.abort();
     unload();
   };
-  window.addEventListener('pagehide', event => {
-    if (event.persisted) stop(); else dispose();
+  window.addEventListener('pagehide', (event) => {
+    if (event.persisted) stop();
+    else dispose();
   }, options);
   return dispose;
 }
