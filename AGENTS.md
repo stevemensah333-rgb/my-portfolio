@@ -1,334 +1,152 @@
-You are helping build Stephen Mensah's personal engineering portfolio.
+# Stephen's Engineering Workspace — project instructions
 
-This is not a conventional scrolling portfolio, and it is not a generic developer portfolio.
+This file is the source of truth for the finalized portfolio direction. The portfolio is **Stephen's Engineering Workspace**: an evidence-led portfolio, not a Windows or macOS clone, fake operating system, dashboard, or generic interactive portfolio.
 
-The portfolio is Stephen's engineering workspace: a small, coherent computing environment where the site itself is part of the demonstration. It must be distinctive, but usability and evidence matter more than spectacle.
+`ARCHITECTURE.md` describes an earlier workspace concept. Do not carry forward its workspace-rail/app-shell direction or any IA or visual choice that conflicts with this file. `AUDIT.md` is a useful, read-only snapshot of the implementation audited on 2026-09-21; consult it when working in the areas it covers, but treat it as implementation history, not design authority. Verify current code before relying on audit details.
 
-PRIORITIES
+## 1. Purpose and visitor journey
 
-When instructions conflict, the lower number wins. Each rule is stated once here. The sections below add detail to a priority; they do not restate it.
+The visitor journey is:
 
-P1 — EVIDENCE. Never invent a metric, user, result, technology, architecture detail, date or achievement. Separate what was observed, what was interpreted, and what was never measured. Mark what is missing as UNKNOWN. An honest partial answer beats a complete-looking fabrication.
+**HUMAN → WORK → INSTRUMENTATION → PROFILE → CONTACT**
 
-P2 — USABILITY. Every visitor gets the full content: no JavaScript, keyboard only, touch only, reduced motion, 320px wide, 200% zoom. Everything interactive is operable without hover or drag, and has a visible focus state and an accessible name.
+The portfolio should quickly show who Stephen is, let a visitor inspect real engineering work, explain the thinking behind it, and make it easy to contact him.
 
-P3 — POSITIONING. Say what is true about Stephen and these projects, including how finished they are. Detail in PRIMARY GOAL, POSITIONING, PROJECTS, EVIDENCE.
+- **Default audience:** an engineering manager considering Stephen for an entry-level AI engineering role at a SaaS company.
+- **Positioning:** Stephen builds and debugs AI-enabled software, with particular attention to reliability, validation, integration, and how AI output behaves inside a real product. Support this with evidence; do not turn it into an unsupported outcome claim.
+- **Primary action:** email Stephen to arrange a conversation. Keep email easy to find across the site, on every device, and without JavaScript.
+- **Homepage:** concise. Establish identity and direction, show a strong route into the work, and avoid turning the homepage into a duplicate of the full case study or Lab.
 
-P4 — VERIFICATION. Type-check, build, and inspect the rendered page. Never call work complete because the build passed.
+## 2. Information architecture
 
-P5 — SIMPLICITY. Smallest mechanism that works, fewest dependencies, smallest coherent change, nothing outside the area you were asked to touch.
+The architecture is **HOME / WORK / LAB / PROFILE**. The journey's CONTACT step is served primarily by the **EMAIL** utility; **RÉSUMÉ** is the other utility. Preserve existing public URLs unless a deliberate route and redirect plan is made.
 
-P6 — DESIGN. One coherent, distinctive system. It serves P1–P5 and never overrides them.
+- **HOME:** identity and concise orientation.
+- **WORK:** project archive and project details. Syncareer is the flagship case study.
+- **LAB:** Reliability Lab, the technical inspection environment for evidence.
+- **PROFILE:** About, Experience, Capabilities, and Evidence.
+- **Utilities:** RÉSUMÉ and EMAIL. Do not turn Toolkit into a standalone workspace; capabilities belong in Profile.
 
-COMMANDS
+Do not add top-level destinations merely to make the site feel more like an operating environment.
 
-Astro 7 with TypeScript (`astro/tsconfigs/strict`), plain CSS, static output, deployed to Vercel. There is no test suite, no lint step and no CI.
+## 3. Visual direction
 
-  npm run dev        # astro dev, binds 0.0.0.0
-  npm run build      # astro build -> dist/
-  npm run check      # astro check — the only automated gate
-  npm run preview    # serve dist/
+The governing principle is **LIGHT = INFORMATION; DARK = INSTRUMENTATION**.
 
-`npm run check` plus a build is the entire automated surface, which is why inspecting the rendered page carries the weight it does (P4).
+Use light environments primarily for identity, project context, case-study explanation, profile, experience, and evidence. Use the dark environment primarily for Reliability Lab, technical inspection, and system behavior.
 
-Before finalizing any project-related work:
+- Warm light surfaces; deep charcoal instrumentation; restrained orange for meaningful state.
+- Display typography for identity, sans-serif for content and interface, monospace for system state and technical metadata. Choose typefaces for these roles; do not preserve a family pairing merely for continuity.
+- Use precise, structural geometry. Asymmetry is welcome when useful; inset, offset, and framed regions should clarify structure rather than decorate it.
+- Prefer a few large visual anchors to many small cards. Keep hierarchy clear without motion.
+- Keep the system coherent across all areas. Contrast must remain readable in every state.
 
-  git grep -i flock
+Do not copy another portfolio's identity, layout, copy, illustrations, or interaction vocabulary. The design should read as a serious engineering portfolio, not a consumer OS or product dashboard.
 
-PRIMARY GOAL
+## 4. Interaction direction
 
-Make one specific visitor — an engineering manager considering Stephen for an entry-level AI engineering role at a SaaS company — believe one claim:
+The intended primary interaction concepts are:
 
-Stephen builds and debugs AI-enabled software, and pays particular attention to reliability, validation, integration, and what happens when AI output has to fit an actual product.
+1. Interactive 3D Stephen.
+2. Interactive name.
+3. Project cluster/pile.
+4. Syncareer engineering investigation.
+5. Reliability Lab.
 
-PRIMARY ACTION
+Treat these as purposeful parts of the visitor journey, not a checklist to crowd onto the homepage. Each interaction should reveal or communicate identity, evidence, state, causality, transformation, hierarchy, structure, or inspection. Do not add interaction merely for spectacle.
 
-The visitor should email Stephen to schedule a conversation. That action stays easy to find from any area, on any device, and with JavaScript disabled (P2).
+Secondary interactions are disclosure, inspection, visible focus states, and subtle transitions. Keep them quiet and predictable.
 
-POSITIONING
+The 3D experience must be specifically about Stephen, not an arbitrary 3D object. It must have a useful static/accessibility fallback, remain understandable without motion, and be budgeted for performance and mobile. No content or essential action may depend on successful 3D rendering. If an interaction uses drag, provide an equivalent keyboard and touch-friendly path.
 
-Primary headline:
-"I make AI features reliable enough to ship."
+Do not add:
 
-Syncareer is the main evidence-backed project: an AI-integrated career platform Stephen built.
+- fake terminals, fake diagnostics, or fabricated logs;
+- global cursor gimmicks or a global particle background;
+- arbitrary 3D objects or unrelated/random ML demos;
+- sound by default;
+- an unnecessary backend, database, global state system, or animation framework.
 
-In production use, Syncareer's LLM-powered features exhibited problems including:
-- inconsistent output formatting
-- dropped context
-- response variance
+## 5. Syncareer: canonical case study and Reliability Lab
 
-Stephen diagnosed those failure modes and improved the system using techniques including:
-- prompt restructuring
-- few-shot examples
-- explicit context management
-- tighter output constraints
+Syncareer is the flagship case study. It has **one canonical implementation of the full engineering investigation**; do not create parallel versions of the same narrative across the archive, case study, and Lab.
 
-SessionBook is the current project and replaces Flocker.
+Use this case-study structure:
 
-PROJECTS
+**01 PRODUCT → 02 FAILURE → 03 INVESTIGATION → 04 INTERVENTION → 05 RESULT**
 
-The project set currently includes:
-- Syncareer
-- SessionBook
-- Koranco / Ashesi Innovation Lab work, where appropriate
+Inside INVESTIGATION, use:
 
-Do not invent additional projects, and do not describe ongoing work as completed, shipped, deployed or in production unless the repository or supplied evidence supports exactly that.
+**01 INPUT → 02 MODEL OUTPUT → 03 VALIDATION → 04 FAILURE → 05 DIAGNOSIS → 06 INTERVENTION → 07 OUTPUT AFTERWARD**
 
-SessionBook:
-- A backend utility involving AssemblyAI Voice Agent functionality for booking workflows.
-- Repository evidence is the source of truth for what it does, what works, and what is unfinished.
-- The AssemblyAI HTTP-tools tutorial (https://lablab.ai/ai-tutorials/assemblyai-voice-agent-http-tools) is conceptual reference only. Tutorial shapes — stored agent JSON, HTTP tools, tool schemas, spoken-response design, helper tools — are not evidence that SessionBook implements them.
-- Per the audit of 2026-09-21 (AUDIT.md), the Voice Agent integration, HTTP tool routes, tests and migrations were absent and no metrics existed. Re-verify against the repository before making any claim.
+The Reliability Lab is the interactive inspection environment for this evidence. It should let visitors inspect technical behavior and artifacts, not repeat the case study as a second independent narrative. Avoid repeating the same failure modes and interventions in multiple views; link to or reuse the canonical evidence rather than maintaining duplicate story content. Keep the case study's explanation readable outside the interactive Lab.
 
-EVIDENCE AND HONESTY
+Never fabricate a test, validation result, diagnostic, log, metric, failure rate, latency, or outcome. Clearly distinguish:
 
-Detail for P1.
+- what was **observed**;
+- what was **interpreted**;
+- what was **not measured** or remains **UNKNOWN**.
 
-- Distinguish three things in the interface and in the copy: what was observed, what was interpreted, what was never measured.
-- Where evidence is missing, mark it UNKNOWN or state the boundary in the interface. Do not fill the gap with plausible-sounding content.
-- Illustrative examples are allowed only when labelled illustrative in the interface, next to the example, and real artifacts are unavailable.
-- Prefer real artifacts over reconstructions: actual code, schemas, logs, screenshots, failure modes, documented decisions.
-- Do not silently invent missing content. Ask, or use a clearly marked placeholder.
-- Keep the public résumé and the site consistent. Known conflict to resolve before publishing: the Amalitech entry dates, and whether the Koranco farm work belongs to Amalitech or the Ashesi Innovation Lab. Until resolved, treat neither version as settled.
+Prefer real project artifacts—code, schemas, logs, screenshots, failure examples, and documented decisions—over reconstructions. If an illustrative example is necessary because a real artifact is unavailable, label it **illustrative** next to the example. State the evidence boundary in the relevant view, not only elsewhere on the site.
 
-DESIGN PRINCIPLE
+## 6. Factual accuracy and project boundaries
 
-The site is part of the demonstration, and it may be memorable. Visual distinction comes from a coherent system — geometry, proportion, type, motion and interaction working together — not decoration applied on top.
+Never invent a user, metric, result, date, technology, architecture detail, project status, or achievement. Do not imply work is complete, shipped, deployed, or in production unless repository or supplied evidence supports that exact claim. Omit unsupported detail or mark it UNKNOWN. Keep the public résumé consistent with the site.
 
-Every visual decision should communicate at least one of: engineering, systems, structure, transformation, precision, interaction, inspection.
+Known project context to re-verify against the repository before publishing claims:
 
-REFERENCES — WHAT THEY ARE, WHAT THEY'RE FOR, WHAT WE DO NOT TAKE
+- **Syncareer:** an AI-integrated career platform Stephen built. Existing project notes describe production-use problems in LLM features including inconsistent formatting, dropped context, and response variance, and interventions including prompt restructuring, few-shot examples, explicit context management, and tighter output constraints. Present only what current artifacts support; do not imply an unmeasured improvement.
+- **SessionBook:** the current project, a backend utility involving AssemblyAI Voice Agent functionality for booking workflows. Repository evidence is the source of truth for what exists and what is unfinished. The AssemblyAI HTTP-tools tutorial is conceptual reference only, not evidence of implementation. The 2026-09-21 audit found no Voice Agent integration, HTTP tool routes, tests, migrations, or metrics; re-check before making any claim.
+- **Koranco / Ashesi Innovation Lab:** include only where appropriate and supported. The Amalitech entry dates, and whether the Koranco farm work belongs to Amalitech or the Ashesi Innovation Lab, remain unresolved; do not present either version as settled.
 
-The redesign was shaped by three named references. Each is a *conceptual* lesson only. We do not copy their visual identity, layout, branding, copy, illustrations, interaction vocabulary, or specific motifs.
+Do not invent additional projects. The abandoned project replaced by SessionBook must not appear in public content, routes, metadata, images, or project lists. Before project-related work, run `git grep -i flock -- src public` and check any supplied drafts for stale references.
 
-1. Folio98 — https://folio98.framer.website/
-   A Framer template that turns the entire page into a small "operating system" metaphor, with desktop icons, a wallpaper, a notepad, a paint app, etc.
-   LESSON: the website itself can behave like a small software environment; areas of the portfolio can be presented as applications or instruments that the visitor operates.
-   DO NOT TAKE: the retro/Windows-98 visual vocabulary, the wallpaper/folder/desktop-icon metaphor, the skeuomorphic OS chrome, the wallpaper picker, the casual gamified UI, or any specific app metaphor (paint, notepad, logic grid, etc.). None of this fits a serious engineering portfolio for an AI-reliability focused candidate.
-   The replacement: a precise instrument panel vocabulary — corner registration marks, gutter axis ticks, mono coordinate labels, bounded trace surfaces — that reads as "instrument" without imitating any OS.
+## 7. Accessibility, resilience, and responsive behavior
 
-2. Wilbert Boadzo — https://www.wilbertboadzo.tech/
-   A freelance software engineer's portfolio. Hero uses oversized name-as-typography with a portrait layered behind, numbered service cards (01–05), a "process" timeline with status labels, and client testimonials.
-   LESSON: typographic confidence (oversized name-as-identity, italic emphasis on key phrases), numbered list markers as a structural motif, and a clear "process / how I work" section.
-   DO NOT TAKE: the testimonials layout (we have no testimonials and must not fabricate them — see EVAL 3 / P1), the "schedule time with me" Calendly CTA, the metric claims, the specific colour palette, the large-portrait-as-hero composition, or the AI-image / gradient styling. The audit notes this site's testimonial pattern is the opposite of what an evidence-led portfolio should show.
-   The replacement: same structural move (numbered markers, process transparency, oversized identity typography) executed with restraint — mono indices, small "Status / Path / Coordinate" labels rather than decorative numerals, and process shown via the actual Reliability Lab interaction rather than a separate carousel.
+Accessibility is a design requirement, not a final polish pass.
 
-3. AETΣRNA — https://aeterna.framer.ai/
-   A Framer template for AI-startup positioning. Strong typographic geometry, large display type, classical-proportion references, dark/light theme, "capabilities" cards.
-   LESSON: visual identity can come from a coherent system of geometry, proportion, typography and motion rather than decorative gradients or AI imagery. Specific moves worth understanding: a single dominant serif/grotesque pairing, large display headlines with negative tracking, deliberate grid breaking, a small set of signature geometric motifs used sparingly.
-   DO NOT TAKE: the AI-startup marketing copy ("neural precision", "human synthesis", "the chisel", "build your legacy"), the testimonial quote ("Aeterna didn't just give us a tool; they gave us an era"), the classical-marble/architecture metaphors, the dark-mode hero with overlarge italic display type, the "Join Waitlist" CTA, or the three-step "Blueprint / Chisel / Reveal" methodology framing. All of that is startup-product positioning and would directly conflict with P3 (Positioning) and EVAL 3 (Credibility) for a candidate applying for entry-level roles.
-   The replacement: borrow the underlying idea — a coherent geometric system (corner registration marks + gutter axis ticks + mono coordinate labels, sharp 90° geometry, restrained motion vocabulary, single controlled accent) — without borrowing any of the language, tone, or metaphorical scaffolding.
+- Use semantic HTML first. Give every control an accessible name and a visible focus state.
+- All content and essential navigation must work without JavaScript. JavaScript may enhance, never gate, the core story.
+- Every interaction must work by keyboard and touch; hover is never the only way to discover information. Provide a non-drag alternative wherever dragging is used.
+- Respect `prefers-reduced-motion` in CSS and JavaScript. Reduced-motion visitors must reach the same information in its final state without animation.
+- Preserve logical focus behavior, including focus restoration for overlays. Use established native patterns where appropriate (`details`/`summary`, buttons, links, and correct tab semantics).
+- Compose deliberately for mobile; do not merely compress desktop layouts. Keep controls touch-friendly and content reachable without a chain of panels.
+- Check readable contrast, keyboard operation, a 320px viewport, and 200% zoom. No essential information may be hidden behind motion, pointer precision, or an interaction a visitor may not discover.
 
-OVERALL CONSTRAINTS
+## 8. Technical and routing constraints
 
-References are conceptual only. Do not copy the visual identity, layouts, branding, copy, illustrations, interaction vocabulary or exact motifs of Folio98, Windows 98, macOS, AETΣRNA, Wilbert Boadzo, Claude Tomoh, or any other portfolio, template or product.
+The project uses Astro with strict TypeScript, plain CSS, small amounts of client-side JavaScript, and static output. Prefer the existing stack and maintain Vercel static-deployment compatibility. Verify `package.json` and the code before relying on implementation details.
 
-When you reference any of these sites in design reasoning, name the specific lesson you are taking from it AND name what you are explicitly not taking. Naming the constraint is part of the lesson.
+Use the smallest maintainable implementation and fewest dependencies that satisfy the interaction. Do not add React, WebGL/3D tooling, large animation libraries, backend infrastructure, a database, or global state without a concrete implementation reason. The interactive 3D Stephen concept is a reason to evaluate a suitable 3D technique, not a reason to add unrelated complexity.
 
-VISUAL SYSTEM
+- Keep browser navigation, reloads, anchor links, and shareable project URLs working; do not make the site depend on opaque client-side state.
+- Existing public URLs `/`, `/work/syncareer/`, `/about`, `/contact`, and `/case-study` are commitments. Do not break them without a deliberate redirect decision.
+- Every major project needs a shareable, indexable detail URL, following the existing `/work/<project>/` pattern.
+- When routes change, update navigation, the sitemap route list, and structured data in the same change.
+- Keep SEO, responsive images, and a small initial payload in view. Use icons only when they carry meaning; mark decorative icons hidden from assistive technology.
 
-The redesign may substantially change colours, typography, geometry, shapes, spacing, panel structure, borders, hierarchy, motion and interaction patterns.
+## 9. Working process and verification
 
-Do not keep the current palette, the Inter + IBM Plex Mono pairing, or the current geometry merely for continuity. The existing build is a baseline to migrate from, not a specification. Equally, do not keep something only because it is new.
+Before significant work:
 
-The system must maintain:
-- readable contrast in every state, including hover, focus, disabled and error
-- coherent typography with a clear scale and one role per family
-- hierarchy that survives without motion
-- consistency across areas — one system, not a set of unrelated pieces
-- accessibility as a property of the system, not a later pass
+1. **Inspect** the current implementation and relevant documentation; read `AUDIT.md` where it covers the affected area.
+2. **Scope** the affected files, state assumptions, and explain the smallest coherent change. For a significant visual or architectural decision, say how it supports the portfolio's evidence and what is being traded away.
+3. **Implement** only what was requested. Do not rewrite working code without a concrete reason or touch unrelated files.
+4. **Verify** relevant checks. Available project commands are `npm run check`, `npm run build`, `npm run dev`, and `npm run preview`. For source/UI changes, inspect the rendered result as well as command output; check responsive behavior, keyboard access, no-JavaScript content, and reduced motion as relevant. A passing build alone does not establish completion.
+5. **Critique** the result for factual support, accessibility, mobile behavior, performance, maintainability, and consistency with this direction. Name remaining weaknesses or assumptions.
+6. **Report** changed files, decisions, checks run, and unresolved issues.
 
-GEOMETRY
+For a documentation-only change, verify the diff and ensure no unrequested files changed; source builds are not a substitute for that scope check.
 
-Geometry should communicate structure.
+## 10. Content and completion standard
 
-Accept: asymmetry, framed regions, inset surfaces, deliberate offsets, technical alignment, controlled grid breaking, circular or arc geometry when it carries meaning.
+Write directly, warmly, and specifically, with short sentences. Avoid portfolio clichés such as “passionate developer,” “results-driven,” “cutting-edge solutions,” “leveraging technology,” and generic claims that could fit hundreds of developers.
 
-Reject: arbitrary decorative shapes, random blobs, visual noise, geometry with no relationship to content.
+A revision is ready only when:
 
-INTERACTION
-
-Interactions must have purpose. A good one communicates at least one of: state, causality, transformation, hierarchy, structure, inspection. Do not add interaction because it looks impressive.
-
-- Hover may reveal detail, but is never the only route to information.
-- Drag needs a non-drag alternative.
-- Keyboard and touch reach everything (P2).
-- Do not hide primary content behind an interaction a visitor might never discover.
-
-PARTICLES
-
-Particle effects are allowed when they have a clear conceptual purpose. A particle-based portrait or similar visual may be the signature interaction.
-
-Any particle system must:
-- be limited in scope to one deliberate area
-- hold a fixed cost per frame, with no runaway node counts
-- read correctly as a static fallback, and render that state under reduced motion (P2)
-- work on mobile, including reduced counts or a disabled path
-- never obscure content, controls or text
-
-Do not turn the entire site into a particle effect.
-
-MOTION
-
-Motion should communicate system behaviour.
-
-Prefer: state transitions, transformations, opening and closing, progressive disclosure, data flow, inspection.
-
-Avoid: constant ambient animation, excessive parallax, pointless floating elements, animation used only to make the page feel "modern".
-
-Reduced motion reaches every piece of information in its final state, with no animation required (P2).
-
-INTERACTIVE ENVIRONMENT
-
-The portfolio may use an application or workspace metaphor. Possible areas: Work / Projects, Reliability Lab, About, Experience, Evidence, Résumé, Contact.
-
-Do not turn this into an operating-system clone, and do not copy Windows or macOS.
-
-Do not create fake terminals, fake system diagnostics, fake logs or fake status readouts. Any surface that implies a real measurement must have made one. If a surface looks like software, it must behave like software actually built for the visitor's purpose.
-
-ROUTING
-
-- Do not make the site depend on opaque client-side state.
-- Preserve normal browser navigation: back, forward, reload, scroll restoration, anchor links.
-- Every major project has a shareable, indexable deep link, following the existing `/work/<project>/` pattern.
-- Existing public URLs are commitments: `/`, `/work/syncareer/`, `/about`, `/contact`, `/case-study`. Do not break them without a deliberate redirect decision.
-- When routes change, update navigation, the sitemap route list and structured data in the same change.
-
-RESPONSIVE DESIGN
-
-Desktop and mobile are different compositions of the same system. Do not shrink desktop UI.
-
-- Stack or transform complex layouts instead of compressing them.
-- Replace drag with touch-friendly controls.
-- Use drawers, tabs or disclosures where they reduce load.
-- Keep core information reachable without opening a chain of panels.
-
-Verify systems with fixed dimensions, nested scroll regions, or coordinates tied to one breakpoint at every boundary, not only at the extremes.
-
-ACCESSIBILITY
-
-Detail for P2. Accessibility is a requirement, not a review step.
-
-- Semantic HTML first. Use the right element before reaching for ARIA.
-- Respect the patterns already in the codebase: a skip link to main content, inert-based modal behaviour, roving tabindex on tablists, native details/summary disclosure, aria-current for position, the hidden attribute for panel switching.
-- Nothing that matters depends on hover, drag, scroll position or pointer precision.
-- Focus is always visible, and is restored after opening and closing overlays.
-- Handle `prefers-reduced-motion: reduce` in CSS and in JavaScript. A reduced-motion visitor reaches every piece of information in its final state.
-- Content and core navigation work without JavaScript. Script may enhance; it must not be the only route to information.
-- Check contrast, 200% zoom and a 320px viewport before calling work complete.
-
-CONTENT STYLE
-
-Direct. Warm. Plain. Specific. Short sentences.
-
-Stephen describes himself as curious, analytical and attentive.
-
-Never use: passionate developer, results-driven, dynamic professional, innovative thinker, cutting-edge solutions, leveraging technology, transforming ideas into reality, seamless experiences, driven by curiosity, at the intersection of, pushing boundaries.
-
-If a sentence could appear unchanged on hundreds of developer portfolios, make it more specific or remove it.
-
-CONTENT RULE
-
-Every area of the environment must either contribute evidence toward the central claim or move the visitor toward emailing Stephen. If a proposed area, panel, interaction or visual does neither, challenge whether it should exist.
-
-TECHNICAL PRINCIPLES
-
-Prefer Astro, TypeScript, plain CSS, small amounts of client-side JavaScript, and Canvas or SVG where a visual genuinely needs them.
-
-Do not add React, WebGL, large animation frameworks or other dependencies without a concrete implementation reason. The interactive nature of the redesign does not justify architectural complexity.
-
-Do not create backend infrastructure, a database, a CMS, a global state system or abstraction layers unless an actual requirement appears.
-
-Also maintain: semantic HTML, strong typography, a small initial payload, components that own their state clearly, SEO and structured data, Vercel static deployment compatibility, and icons only where they carry meaning (decorative ones aria-hidden).
-
-AI / ENGINEERING PRESENTATION
-
-The portfolio should demonstrate engineering rather than claim it.
-
-Prefer: real code, actual schemas, real architecture, concrete failure modes, real project artifacts, actual screenshots, documented implementation decisions.
-
-Avoid: generic AI diagrams, fake metrics, fake dashboards, generic "AI pipeline" visuals, unsupported claims.
-
-RELIABILITY LAB
-
-The Reliability Lab demonstrates the central idea through an actual interaction.
-
-It must:
-- let the visitor inspect a real transformation: input, model output, validation, failure, intervention, resulting output
-- use real project artifacts wherever they exist, and label anything illustrative as illustrative
-- state its evidence boundary inside the interaction, not only in surrounding copy
-- behave like an instrument a visitor can operate, not a decorative animation
-
-It must not fabricate a measurement, failure rate, latency figure or log, or present a check, validation result or diagnostic that never actually ran.
-
-EXISTING IMPLEMENTATION
-
-Inspect before changing.
-
-- The current site is a working Astro static build with scoped CSS, a small token layer, and a few kilobytes of hand-written vanilla JavaScript, some shared and some inlined per component. It type-checks cleanly and builds successfully.
-- AUDIT.md records the architecture, interaction and state map, reusable components and known risks as of 2026-09-21. Read it before touching the areas it describes.
-- Preserve the behaviours that already work, even when their visuals change: the shared tab controller (roving tabindex, programmatic select), the captioned responsive image frame with priority loading, the SEO layer in the base layout, the motion tokens and reduced-motion clamp, native disclosure for experience and mobile evidence, and the inert-based mobile menu with focus restore.
-- The visual system, component structure and layout may change. Accessibility behaviour, evidence rules and routing commitments must not regress.
-
-IMPLEMENTATION WORKFLOW
-
-1. ORIENT
-Read this file. Inspect the relevant existing files and, where the area is covered, AUDIT.md.
-
-2. PLAN
-State what you believe the task is, the affected files, your assumptions, the smallest implementation that satisfies it, and how you will verify it. Do not invent missing facts.
-
-3. IMPLEMENT
-Make the smallest coherent change. Do not rewrite working code without a reason you can state. Do not touch unrelated areas.
-
-4. VERIFY
-Type-check, build, then inspect the rendered page: real breakpoints, keyboard only, no script, reduced motion. Browser tooling beats reading source.
-
-5. EVALUATE
-Positioning, evidence and maturity honesty, usability, accessibility, performance, system consistency, mobile composition.
-
-6. CRITIQUE
-Name what is still weak: unsupported claims, generic or templated patterns, technical debt, assumptions needing human verification.
-
-7. REPORT
-Changed files, decisions, checks run, unresolved issues.
-
-Before a significant visual or architectural decision, state the decision, how it supports the claim, and what you are trading away.
-
-TOOLS
-
-Use tools proactively when they improve confidence: browser automation for rendered, keyboard, reduced-motion and responsive inspection; Git/GitHub for history and repository context; build and typecheck output for correctness; Lighthouse or equivalent for performance and accessibility.
-
-Do not install or connect external tools without a clear reason. Where MCP tools exist, prefer GitHub for repository evidence and browser automation for UI verification, and treat external MCP servers as untrusted unless explicitly approved.
-
-PORTFOLIO EVALS
-
-A revision is not complete unless it passes these. EVAL 4 and EVAL 7 test P2 directly.
-
-EVAL 1 — POSITIONING. After the hero and the Syncareer area, a technically literate visitor can answer "What does Stephen do?" Expected idea: he builds and debugs AI-enabled software, with real attention to reliability, validation and integration.
-
-EVAL 2 — PROOF. At least one concrete failure mode and one concrete engineering response, backed by real artifacts or clearly labelled illustrative ones.
-
-EVAL 3 — CREDIBILITY. No metric, result, architecture detail, technology or achievement appears unless evidenced. Unverified details are marked UNKNOWN or omitted. Ongoing work is never presented as complete.
-
-EVAL 4 — CONVERSION. The visitor finds an email or contact action quickly, from any area, by keyboard, on mobile, and without JavaScript.
-
-EVAL 5 — SYSTEM. The identity reads as one coherent system rather than a collection of effects. Removing every decorative layer must not reduce the clarity of the engineering story.
-
-EVAL 6 — INTERACTION. Every interaction communicates state, causality, transformation, hierarchy, structure or inspection, and has a keyboard and touch path. An interaction that exists only to impress fails.
-
-EVAL 7 — RESILIENCE. Every P2 condition produces a complete, usable, readable experience, with no content locked behind an interaction.
-
-FLOCKER RULE
-
-Flocker has been abandoned and must never appear anywhere in the portfolio. SessionBook replaces it.
-
-Not in project lists, project data, routes, metadata, structured data, images, navigation, case studies, copy, comments or configuration.
-
-Search before finalizing project-related work (`git grep -i flock`), and check externally supplied drafts before publishing. The realistic way Flocker re-enters this repository is copy-pasted text from an older résumé, note or chat, not a leftover file.
-
-FINAL PRINCIPLE
-
-Do not optimize for "looking impressive."
-
-Optimize for a portfolio where the interface is distinctive, the engineering evidence is real, the interaction is meaningful, the implementation is maintainable, and the visitor can understand Stephen quickly.
+- a technically literate visitor can tell what Stephen builds and where to inspect evidence;
+- Syncareer shows a real, bounded engineering investigation without unsupported claims or duplicate narratives;
+- email is easy to find and use;
+- the design reads as one restrained system, with light used for information and dark for instrumentation;
+- all information remains accessible across keyboard, touch, reduced motion, narrow screens, zoom, and no-JavaScript conditions;
+- the implementation remains performant, maintainable, and proportionate to the work it demonstrates.
