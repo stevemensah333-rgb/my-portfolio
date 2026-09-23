@@ -62,9 +62,23 @@ const { src, alt, width, height, srcset, sizes } = Astro.props;
   const INK = ['#DAD2BD', '#A8A18E', '#7E7660', '#3D4349', '#15181C'];
   const ACCENT = '#C2632F';
 
-  const roots = document.querySelectorAll<HTMLElement>('[data-particle-portrait]');
+  /* Re-initializes on `astro:page-load` (the ClientRouter swaps the
+     shell without re-running bundled scripts); markers keep it
+     idempotent and the run-scoped AbortController removes the previous
+     run's document/media-query listeners and disconnects observers. */
+  let teardown: (() => void) | null = null;
+
+  const init = () => {
+    const roots = [...document.querySelectorAll<HTMLElement>('[data-particle-portrait]')]
+      .filter((root) => root.dataset.pportraitEnhanced !== '1');
+    if (roots.length === 0) return;
+    teardown?.();
+    const events = new AbortController();
+    teardown = () => events.abort();
+    const signal = events.signal;
 
   for (const root of roots) {
+    root.dataset.pportraitEnhanced = '1';
     const img = root.querySelector<HTMLImageElement>('[data-portrait-img]');
     const canvas = root.querySelector<HTMLCanvasElement>('[data-portrait-canvas]');
     const readoutBlocks = root.querySelector<HTMLElement>('[data-readout-blocks]');
@@ -279,6 +293,7 @@ const { src, alt, width, height, srcset, sizes } = Astro.props;
       { rootMargin: '160px' },
     );
     observer.observe(root);
+    events.signal.addEventListener('abort', () => observer.disconnect(), { once: true });
 
     // pointer — subtle, reveals state (amber = displaced)
     root.addEventListener('pointermove', (event) => {
@@ -320,7 +335,7 @@ const { src, alt, width, height, srcset, sizes } = Astro.props;
       } else if (!document.hidden) {
         kick();
       }
-    });
+    }, { signal });
 
     let resizeTimer = 0;
     const resizeObserver = new ResizeObserver(() => {
@@ -332,6 +347,10 @@ const { src, alt, width, height, srcset, sizes } = Astro.props;
       }, 160) as unknown as number;
     });
     resizeObserver.observe(root);
+    events.signal.addEventListener('abort', () => {
+      window.clearTimeout(resizeTimer);
+      resizeObserver.disconnect();
+    }, { once: true });
 
     reducedQuery.addEventListener('change', (event) => {
       if (event.matches) {
@@ -345,11 +364,15 @@ const { src, alt, width, height, srcset, sizes } = Astro.props;
         observer.disconnect();
         resizeObserver.disconnect();
       }
-    });
+    }, { signal });
 
     // initial readout
     updateReadout();
   }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

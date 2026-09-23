@@ -175,7 +175,7 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
                       {stage.kind}
                     </span>
                   </div>
-                  <pre><code>{stage.code}</code></pre>
+                  <pre tabindex="0"><code>{stage.code}</code></pre>
                 </div>
               )}
 
@@ -237,9 +237,28 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
 <script>
   import { initTraceTabs } from '../scripts/initTraceTabs';
 
-  for (const traceRoot of document.querySelectorAll<HTMLElement>('[data-trace-compact]')) {
-    initTraceTabs(traceRoot);
-  }
+  /* Re-initializes on `astro:page-load` (the ClientRouter swaps the
+     shell without re-running bundled scripts); the marker keeps it
+     idempotent and the run-scoped AbortController removes the previous
+     run's window listeners. */
+  let teardown: (() => void) | null = null;
+
+  const init = () => {
+    const roots = [...document.querySelectorAll<HTMLElement>('[data-trace-compact]')]
+      .filter((traceRoot) => traceRoot.dataset.traceEnhanced !== '1');
+    if (roots.length === 0) return;
+    teardown?.();
+    const events = new AbortController();
+    teardown = () => events.abort();
+
+    for (const traceRoot of roots) {
+      traceRoot.dataset.traceEnhanced = '1';
+      initTraceTabs(traceRoot, { signal: events.signal });
+    }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>
@@ -615,8 +634,9 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
 
   .code-panel__meta {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: var(--space-3);
+    gap: var(--space-2) var(--space-3);
     padding: var(--space-2) var(--space-3);
     border-bottom: 1px solid var(--color-rule-on-paper-soft);
     color: var(--color-text-on-paper-muted);
@@ -761,6 +781,27 @@ const indexLabel = railIndex ?? String(projectOrder).padStart(2, '0');
   }
 
   /* Responsive */
+  @media (max-width: 47.99rem) {
+    /* MOBILE EQUIVALENT — the stage rail wraps into rows instead of
+       becoming a horizontal scroll strip: every stage is visible and
+       tappable without sideways instrumentation. */
+    .inspector__rail {
+      flex-wrap: wrap;
+      overflow-x: visible;
+    }
+
+    .inspector__tab {
+      white-space: normal;
+    }
+
+    /* Code wraps instead of requiring sideways scrolling. */
+    .code-panel pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      max-height: none;
+    }
+  }
+
   @media (min-width: 48rem) {
     .project__meta {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);

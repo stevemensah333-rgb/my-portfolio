@@ -324,9 +324,22 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
 <script>
   import { reserveStackHeight } from '../scripts/initTraceTabs';
 
-  const root = document.querySelector<HTMLElement>('[data-capabilities]');
+  /* Re-initializes on `astro:page-load` (the ClientRouter swaps the
+     shell without re-running bundled scripts); the marker keeps it
+     idempotent and the run-scoped AbortController removes the previous
+     run's window listeners. */
+  let teardown: (() => void) | null = null;
 
-  if (root) {
+  const init = () => {
+    const root = document.querySelector<HTMLElement>('[data-capabilities]');
+    if (!root || root.dataset.capabilitiesEnhanced === '1') return;
+    root.dataset.capabilitiesEnhanced = '1';
+    teardown?.();
+    const events = new AbortController();
+    teardown = () => events.abort();
+    const signal = events.signal;
+
+    {
     const STORAGE_KEY = 'workspace:capability';
     const readStored = () => {
       try {
@@ -344,7 +357,11 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
     const triggers = [...root.querySelectorAll<HTMLButtonElement>('[data-cap-trigger]')];
     const panels = [...root.querySelectorAll<HTMLElement>('[data-cap-panel]')];
     const status = root.querySelector<HTMLElement>('[data-cap-status]');
-    reserveStackHeight(panels);
+    reserveStackHeight(panels, signal);
+
+    // The live region is for user-driven changes only; the initial
+    // render must not announce anything on page load.
+    let interacted = false;
 
     const select = (id: string) => {
       if (!triggers.some((trigger) => trigger.dataset.capTrigger === id)) return;
@@ -364,7 +381,7 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
         ?.querySelector('.capabilities__trigger-name')
         ?.textContent
         ?.trim();
-      if (status && label) status.textContent = `Showing capability: ${label}`;
+      if (status && label && interacted) status.textContent = `Showing capability: ${label}`;
       writeStored(id);
     };
 
@@ -372,12 +389,18 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
       const id = trigger.dataset.capTrigger;
       if (!id) continue;
 
-      trigger.addEventListener('click', () => select(id));
+      trigger.addEventListener('click', () => {
+        interacted = true;
+        select(id);
+      });
 
       // Hover-select only where hovering is a deliberate pointer
       // action (same rule the evidence drawer follows).
       trigger.addEventListener('mouseenter', () => {
-        if (window.matchMedia('(hover: hover)').matches) select(id);
+        if (window.matchMedia('(hover: hover)').matches) {
+          interacted = true;
+          select(id);
+        }
       });
 
       trigger.addEventListener('keydown', (event) => {
@@ -394,6 +417,7 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
         }
         if (next === null) return;
         event.preventDefault();
+        interacted = true;
         const target = triggers[next];
         if (target) {
           target.focus();
@@ -408,7 +432,11 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
       .capTrigger;
     const initial = hasStored ? stored! : marked;
     if (initial) select(initial);
-  }
+    }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

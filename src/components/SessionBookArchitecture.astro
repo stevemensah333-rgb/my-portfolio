@@ -220,8 +220,22 @@ const nodes: ArchNode[] = [
 <script>
   import { initTraceTabs } from '../scripts/initTraceTabs';
 
-  const root = document.querySelector<HTMLElement>('[data-arch]');
-  if (root) {
+  /* Re-initializes on `astro:page-load` (the ClientRouter swaps the
+     shell without re-running bundled scripts); the marker keeps it
+     idempotent and the run-scoped AbortController removes the previous
+     run's window listeners. */
+  let teardown: (() => void) | null = null;
+
+  const init = () => {
+    const root = document.querySelector<HTMLElement>('[data-arch]');
+    if (!root || root.dataset.archEnhanced === '1') return;
+    root.dataset.archEnhanced = '1';
+    teardown?.();
+    const events = new AbortController();
+    teardown = () => events.abort();
+    const signal = events.signal;
+
+    {
     const rail = root.querySelector<HTMLElement>('[data-arch-rail]');
     const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')] as HTMLButtonElement[];
     const fill = root.querySelector<HTMLElement>('[data-arch-fill]');
@@ -234,6 +248,12 @@ const nodes: ArchNode[] = [
       const ids = tabs.map(t => t.dataset.stageTab ?? '').filter(Boolean);
       const count = ids.length;
       let activeIndex = 0;
+      // The live region exists for user-driven changes; the initial
+      // render must not announce anything on page load.
+      let interacted = false;
+      const markInteracted = () => { interacted = true; };
+      rail.addEventListener('click', markInteracted, { capture: true });
+      rail.addEventListener('keydown', markInteracted, { capture: true });
 
       const readouts = tabs.map(t => t.dataset.readout ?? '');
 
@@ -261,12 +281,14 @@ const nodes: ArchNode[] = [
       };
 
       initTraceTabs(root, {
+        signal,
         onSelect: (_id, index) => {
           activeIndex = index;
           setTrack(index);
           setReadout(index, 'active');
-          // Selection always announces — click, Enter / Space, or arrows.
-          announce(index);
+          // Selection always announces once the visitor drives it —
+          // click, Enter / Space, or arrows. Never on initial render.
+          if (interacted) announce(index);
           // reveal structure: past vs future
           tabs.forEach((t, i) => {
             if (i < index) {
@@ -310,7 +332,11 @@ const nodes: ArchNode[] = [
       setTrack(0);
       setReadout(0, 'active');
     }
-  }
+    }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

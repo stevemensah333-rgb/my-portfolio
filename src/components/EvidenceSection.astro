@@ -155,7 +155,23 @@ import SectionFrame from './SectionFrame.astro';
 <script>
   import { reserveStackHeight } from '../scripts/initTraceTabs';
 
-  for (const section of document.querySelectorAll<HTMLElement>('[data-credential-evidence]')) {
+  /* Re-initializes on `astro:page-load` (the ClientRouter swaps the
+     shell without re-running bundled scripts); the marker keeps it
+     idempotent and the run-scoped AbortController removes the previous
+     run's window listeners. */
+  let teardown: (() => void) | null = null;
+
+  const init = () => {
+    const sections = [...document.querySelectorAll<HTMLElement>('[data-credential-evidence]')]
+      .filter((section) => section.dataset.evidenceEnhanced !== '1');
+    if (sections.length === 0) return;
+    teardown?.();
+    const events = new AbortController();
+    teardown = () => events.abort();
+    const signal = events.signal;
+
+    for (const section of sections) {
+    section.dataset.evidenceEnhanced = '1';
     const STORAGE_KEY = 'workspace:evidence';
     const readStored = () => {
       try {
@@ -173,7 +189,11 @@ import SectionFrame from './SectionFrame.astro';
     const triggers = [...section.querySelectorAll<HTMLButtonElement>('[data-credential-trigger]')];
     const panels = [...section.querySelectorAll<HTMLElement>('[data-credential-panel]')];
     const status = section.querySelector<HTMLElement>('[data-evidence-status]');
-    reserveStackHeight(panels);
+    reserveStackHeight(panels, signal);
+
+    // The live region is for user-driven changes only; the initial
+    // render must not announce anything on page load.
+    let interacted = false;
 
     const selectCredential = (id: string) => {
       if (!triggers.some((t) => t.dataset.credentialTrigger === id)) return;
@@ -194,7 +214,7 @@ import SectionFrame from './SectionFrame.astro';
         ?.querySelector('.evidence__trigger-name')
         ?.textContent
         ?.trim();
-      if (status && label) status.textContent = `Showing evidence: ${label}`;
+      if (status && label && interacted) status.textContent = `Showing evidence: ${label}`;
       writeStored(id);
     };
 
@@ -203,11 +223,15 @@ import SectionFrame from './SectionFrame.astro';
       if (!id) continue;
 
       // Click — primary interaction (mouse, touch, keyboard activation)
-      trigger.addEventListener('click', () => selectCredential(id));
+      trigger.addEventListener('click', () => {
+        interacted = true;
+        selectCredential(id);
+      });
 
       // Hover — only on hover-capable pointers (per A4 fix)
       trigger.addEventListener('mouseenter', () => {
         if (window.matchMedia('(hover: hover)').matches) {
+          interacted = true;
           selectCredential(id);
         }
       });
@@ -232,6 +256,7 @@ import SectionFrame from './SectionFrame.astro';
           next = visibleTriggers.length - 1;
         }
         if (next !== null) {
+          interacted = true;
           const t = visibleTriggers[next];
           if (t) {
             t.focus();
@@ -252,7 +277,11 @@ import SectionFrame from './SectionFrame.astro';
         .credentialTrigger;
       if (marked) selectCredential(marked);
     }
-  }
+    }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

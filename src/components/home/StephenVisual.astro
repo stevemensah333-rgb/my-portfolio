@@ -52,16 +52,34 @@
     missing: 'The model file is not part of this deployment. The photograph stays, and nothing on this page depends on it.',
   };
 
-  document.querySelectorAll<HTMLElement>('[data-stephen-visual]').forEach(root => {
-    const caption = root.querySelector<HTMLElement>('[data-stephen-caption]');
-    const message = root.querySelector<HTMLElement>('[data-stephen-message]');
-    const baseNote = message?.textContent ?? '';
-    initStephenVisual(root, createStephenRenderer, (state) => {
-      root.dataset.state = state;
-      if (caption) caption.textContent = CAPTIONS[state];
-      if (message) message.textContent = NOTES[state] ?? baseNote;
+  /* The ClientRouter swaps the shell without re-executing bundled
+     scripts, so init re-runs on `astro:page-load` (also fired on first
+     load). Markers keep it idempotent; a previous page's controller is
+     disposed when a fresh one mounts, so renderers never accumulate. */
+  let active: Array<() => void> = [];
+
+  const init = () => {
+    const fresh: Array<() => void> = [];
+    document.querySelectorAll<HTMLElement>('[data-stephen-visual]').forEach(root => {
+      if (root.dataset.visualEnhanced === '1') return;
+      root.dataset.visualEnhanced = '1';
+      const caption = root.querySelector<HTMLElement>('[data-stephen-caption]');
+      const message = root.querySelector<HTMLElement>('[data-stephen-message]');
+      const baseNote = message?.textContent ?? '';
+      fresh.push(initStephenVisual(root, createStephenRenderer, (state) => {
+        root.dataset.state = state;
+        if (caption) caption.textContent = CAPTIONS[state];
+        if (message) message.textContent = NOTES[state] ?? baseNote;
+      }));
     });
-  });
+    if (fresh.length > 0) {
+      active.forEach(dispose => dispose());
+      active = fresh;
+    }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

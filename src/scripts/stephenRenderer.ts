@@ -6,9 +6,10 @@
  *           then a -20° yaw trim so the neutral pose meets the visitor and
  *           matches the turn of the fallback photograph
  *   simplify --ratio 0.02 --error 0.005    1,879,648 tris -> 37,592 tris
- *   resize: baseColor <= 2048 px, normal + ORM <= 1024 px (all were 4096)
+ *   resize: baseColor <= 1024 px, normal + ORM <= 1024 px (all were 4096;
+ *   the stage renders at <= 480 CSS px, so 1024 leaves 2x-DPR headroom)
  *   webp --quality 85, then dedup, prune, meshopt --level high
- *   Result: 55.9 MB -> 779 KB, one self-contained GLB using
+ *   Result: 55.9 MB -> 421 KB, one self-contained GLB using
  *   EXT_meshopt_compression, EXT_texture_webp and KHR_mesh_quantization.
  *
  * `three` is imported only inside the factory, so the library is fetched

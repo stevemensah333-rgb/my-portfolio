@@ -239,7 +239,7 @@ except ValueError as exc:
                 {step.badge}
               </span>
             </div>
-            <pre><code>{step.code}</code></pre>
+            <pre tabindex="0"><code>{step.code}</code></pre>
           </div>
 
           <ul class="walk__bullets">
@@ -264,8 +264,22 @@ except ValueError as exc:
 <script>
   import { initTraceTabs } from '../scripts/initTraceTabs';
 
-  const root = document.querySelector<HTMLElement>('[data-walk]');
-  if (root) initTraceTabs(root);
+  /* Re-initializes on `astro:page-load` (the ClientRouter swaps the
+     shell without re-running bundled scripts). */
+  let teardown: (() => void) | null = null;
+
+  const init = () => {
+    const root = document.querySelector<HTMLElement>('[data-walk]');
+    if (!root || root.dataset.walkEnhanced === '1') return;
+    root.dataset.walkEnhanced = '1';
+    teardown?.();
+    const events = new AbortController();
+    teardown = () => events.abort();
+    initTraceTabs(root, { signal: events.signal });
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>
@@ -527,6 +541,26 @@ except ValueError as exc:
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.5;
+  }
+
+  @media (max-width: 47.99rem) {
+    /* MOBILE EQUIVALENT — four short step tabs wrap into rows rather
+       than becoming a horizontal scroll strip. */
+    .walk__rail {
+      flex-wrap: wrap;
+      overflow-x: visible;
+    }
+
+    .walk__tab {
+      white-space: normal;
+    }
+
+    /* Code wraps instead of requiring sideways scrolling. */
+    .walk__code pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      max-height: none;
+    }
   }
 
   @media (max-width: 30rem) {
