@@ -320,8 +320,10 @@ html[data-area='lab'] {
   color: var(--color-text-on-canvas);
 }
 
+/* Profile is the human layer: the airiest rhythm after Home, so the
+   page reads as a person's record rather than an instrument panel. */
 [data-area='profile'] {
-  --region-pad: clamp(2.5rem, 3.6vw, 3.25rem);
+  --region-pad: clamp(2.75rem, 4.2vw, 3.75rem);
   --section-gap: clamp(1.5rem, 2.2vw, 2rem);
 }
 

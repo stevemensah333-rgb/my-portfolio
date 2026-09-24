@@ -3,13 +3,15 @@
  * EXPERIENCE — compact expandable records.
  *
  * Not a timeline: no spine, no nodes, no run of the eye down a
- * drawn line. The section is a short ledger of records — each row
- * states role, organisation and dates; opening it discloses the
- * description and metadata in place. One record opens at a time:
- * `name` on <details> makes that native, with a small script as a
- * fallback for engines that predate `name` support. Without
- * JavaScript the records simply open independently — same content,
- * looser discipline.
+ * drawn line. The section is a short ledger — each record states
+ * organisation, role and dates; opening it discloses a concise
+ * description. Metadata is kept to a minimum: the facts above are
+ * the record, and nothing else is added to fill space.
+ *
+ * One record opens at a time: `name` on <details> makes that
+ * native, with a small script as a fallback for engines that
+ * predate `name` support. Without JavaScript the records simply
+ * open independently — same content, looser discipline.
  *
  * Content mirrors the WORK EXPERIENCE section of the public résumé
  * (public/Stephen-Mensah-Resume.pdf). When the résumé changes,
@@ -23,32 +25,28 @@ const experiences = [
     organisation: 'Ashesi Center for Entrepreneurship',
     dates: 'Jul 2026 — Sep 2026',
     description:
-      'Developed offline-first farm management software for Koranco Farms so field operations keep running uninterrupted in low-connectivity environments. Designed custom authentication and role-based authorization pipelines with FastAPI and PostgreSQL, and built a website for Koranco Farms to improve SEO and bring customers and visitors to contact or visit the farm.',
-    meta: 'INNOVATION LAB · KORANCO FARMS · OFFLINE-FIRST · FASTAPI · POSTGRESQL',
+      'Built offline-first farm management software for Koranco Farms, so field operations keep running in low-connectivity environments — FastAPI and PostgreSQL behind custom authentication and role-based authorization, plus a public site for the farm.',
   },
   {
     role: 'Software Engineer Intern',
     organisation: 'AmaliTech',
     dates: 'Aug 2026 — Sep 2026',
     description:
-      'Engineered the backend for a mentor–mentee matching platform using FastAPI and Python, with JWT authentication for secure session management. Worked in a cross-functional group of 5 tech professionals from different engineering fields to develop a full-stack working MVP.',
-    meta: 'INTERNSHIP · BACKEND · FASTAPI · JWT AUTH · MVP',
+      'Built the backend for a mentor–mentee matching platform — FastAPI, JWT session management — in a cross-functional team of five, delivering a full-stack working MVP.',
   },
   {
     role: 'Program Coordinator',
     organisation: 'Ashesi DataCamp Donates — DataCamp',
     dates: 'Nov 2025 — Present',
     description:
-      "Coordinated learner access to DataCamp’s AI and data science learning platform through the Donates Program, and supported 35+ students and community learners in accessing technical upskilling resources in data science, AI and programming.",
-    meta: '35+ LEARNERS · DATA & AI EDUCATION',
+      'Coordinate learner access to DataCamp’s AI and data science platform through the Donates Program, supporting 35+ students and community learners with technical upskilling resources.',
   },
   {
     role: 'Student Library Assistant',
     organisation: 'Ashesi University',
     dates: 'Feb 2026 — May 2026',
     description:
-      'Assisted 30+ patrons with technical difficulties regarding printing, scanning, and database navigation, translating complex technical processes into plain English.',
-    meta: '30+ PATRONS · TECHNICAL SUPPORT',
+      'Helped 30+ patrons with printing, scanning and database navigation, translating technical processes into plain English.',
   },
 ];
 ---
@@ -61,7 +59,6 @@ const experiences = [
           <span class="region-index__no">04.2</span>
           <span class="region-index__rule"></span>
           <span class="region-index__name">Experience</span>
-          <span class="region-index__note">{experiences.length} records. Open one at a time.</span>
         </div>
       </aside>
 
@@ -86,7 +83,6 @@ const experiences = [
                   </summary>
                   <div class="experience__panel">
                     <p>{entry.description}</p>
-                    <p class="experience__meta">{entry.meta}</p>
                   </div>
                 </details>
               </li>
@@ -330,18 +326,10 @@ const experiences = [
 
   .experience__panel p {
     margin: 0;
+    max-width: 38rem;
     color: var(--color-text-on-paper-muted);
-    font-size: var(--text-small);
+    font-size: var(--text-body);
     line-height: 1.65;
-  }
-
-  .experience__meta {
-    margin-top: var(--space-3) !important;
-    color: var(--color-text-on-paper-faint) !important;
-    font-family: var(--font-mono);
-    font-size: var(--text-micro) !important;
-    letter-spacing: 0.05em;
-    line-height: 1.5 !important;
   }
 
   @media (min-width: 48rem) {
