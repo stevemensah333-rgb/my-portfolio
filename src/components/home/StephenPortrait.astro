@@ -1,0 +1,84 @@
+---
+/**
+ * Home portrait — Stephen's identity slot in the hero.
+ *
+ * The portrait is a real photograph: no WebGL, no 3D, no generated
+ * stand-in. The <figure> is a simple interaction boundary — a scoped
+ * region where pointer-responsive depth, lighting, and hover/focus
+ * response may later attach without changing this DOM. For now it
+ * holds only the photograph and one native disclosure, "A note from
+ * Stephen", which answers tap, click, Enter and Space with no
+ * JavaScript.
+ */
+---
+<figure class="portrait" data-portrait-boundary>
+  <details class="portrait__note">
+    <summary aria-label="A note from Stephen">
+      <span class="portrait__stage">
+        <img
+          class="portrait__image"
+          src="/images/stephen-480.webp"
+          srcset="/images/stephen-480.webp 480w, /images/stephen-800.webp 800w"
+          sizes="(min-width: 64rem) 360px, (min-width: 48rem) 40vw, 480px"
+          alt="Stephen Mensah"
+          width="800" height="800"
+          fetchpriority="high" decoding="async"
+        />
+        <span class="portrait__marker" aria-hidden="true">SM / 01</span>
+      </span>
+      <span class="portrait__prompt">
+        <span>A note from Stephen</span>
+        <span class="portrait__toggle" aria-hidden="true">+</span>
+      </span>
+    </summary>
+    <p class="portrait__message">I care about what happens after the model responds. That’s where I like to work.</p>
+  </details>
+  <figcaption class="portrait__caption">Portrait / Stephen Mensah</figcaption>
+</figure>
+
+<style>
+  .portrait { position: relative; margin: 0; width: 100%; max-width: 30rem; }
+  .portrait__note { position: relative; padding-bottom: 6.5rem; }
+  summary { list-style: none; cursor: pointer; }
+  summary::-webkit-details-marker { display: none; }
+  summary:focus-visible { outline: 2px solid var(--color-accent-ink); outline-offset: 5px; }
+  /* The stage is the boundary's transform target if pointer-responsive
+     depth or lighting is added later; the image itself stays still. */
+  .portrait__stage {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1 / 1; /* reserved space: the portrait never shifts the layout */
+    background: var(--color-sheet-inset);
+    border: 1px solid var(--color-rule-on-paper);
+  }
+  .portrait__image { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .portrait__marker {
+    position: absolute; top: 1rem; left: 1rem;
+    padding: 0.35rem 0.5rem;
+    background: var(--color-sheet);
+    font: 500 0.65rem var(--font-instrument);
+    letter-spacing: 0.08em;
+  }
+  .portrait__prompt {
+    display: flex; justify-content: space-between; align-items: center;
+    min-height: 3rem; gap: 1rem;
+    border-bottom: 1px solid var(--color-rule-on-paper-strong);
+    font-size: var(--text-small);
+  }
+  summary:hover .portrait__prompt, summary:focus-visible .portrait__prompt { color: var(--color-accent-ink); }
+  .portrait__toggle { font-size: 1.5rem; }
+  details[open] .portrait__toggle { transform: rotate(45deg); }
+  .portrait__message {
+    position: absolute; bottom: 0; inset-inline: 0; height: 6.5rem;
+    margin: 0; padding-top: 0.8rem;
+    font-size: 0.875rem; line-height: 1.5;
+    color: var(--color-text-on-paper-muted);
+  }
+  .portrait__caption {
+    position: absolute; bottom: 0;
+    font: 500 0.625rem var(--font-instrument);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--color-text-on-paper-faint);
+  }
+</style>
