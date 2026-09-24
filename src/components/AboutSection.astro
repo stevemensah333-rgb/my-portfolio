@@ -1,52 +1,54 @@
 ---
 /**
- * ABOUT — the quiet register.
+ * ABOUT — the human register.
  *
- * Deliberately the least structured section on the page: an open
- * two-column composition — portrait offset into the left margin,
- * prose at a comfortable measure — with no index rail, no ruled
- * insets and no read-out. The SectionFrame seam and coordinate stay
- * because they are how the system marks a region; inside About, the
- * instrument vocabulary is otherwise switched off.
+ * The most open section in the portfolio: a real photograph and two
+ * short paragraphs, set at the page's airiest rhythm. No instrument
+ * vocabulary — no rail, no read-out, no tags — because this is the
+ * person the instruments belong to. The SectionFrame seam and
+ * coordinate stay: they are how the system marks a region, and the
+ * portrait keeps a single hairline frame like a print hung on paper.
  *
- * The page-level h1 is the Profile opener; About is an h2 on the
- * same display register, so the human statement can be large
- * without breaking heading order.
+ * The portrait is the real photograph (public/images/stephen.{png,webp},
+ * 500×500): no canvas, no particles, no 3D, no reconstruction.
+ *
+ * The page-level h1 is the Profile opener; About is an h2 on the same
+ * content register, so the human statement can be large without
+ * breaking heading order.
  */
-import ParticlePortrait from './ParticlePortrait.astro';
 import SectionFrame from './SectionFrame.astro';
 ---
 
 <section id="about" class="about" aria-labelledby="about-title" data-workspace-section="about" data-workspace-label="About">
-  <SectionFrame coordinate="04.1 · Profile / About" surface="paper" density="default">
+  <SectionFrame coordinate="04.1 · Profile / About" surface="paper" density="major">
     <div class="page-shell about__grid">
-      <div class="about__portrait">
-        <ParticlePortrait
-          src="/images/stephen.png"
-          alt="Stephen Mensah"
-          width={800}
-          height={800}
-          srcset="/images/stephen-480.webp 480w, /images/stephen-800.webp 800w"
-          sizes="(min-width: 60rem) 11.5rem, min(14rem, calc(100vw - 3rem))"
-        />
-      </div>
+      <figure class="about__portrait">
+        <picture>
+          <source type="image/webp" srcset="/images/stephen.webp" />
+          <img
+            src="/images/stephen.png"
+            alt="Portrait of Stephen Mensah"
+            width={500}
+            height={500}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+      </figure>
 
       <div class="about__body">
         <h2 id="about-title" class="about__title">A little about me.</h2>
         <div class="about__copy">
           <p>
-            I’m a Computer Science student at Ashesi University in Berekuso, Ghana. I spend a lot
-            of build time chasing the problems that only show up at the boundary — between a model
-            and a contract, between a request and a database row, between what a system promises
-            and what it actually does.
+            I’m a Computer Science student at Ashesi University in Berekuso, Ghana. I spend
+            most of my build time at the boundaries — between a model and the contract it
+            answers to, between a request and the row it changes, between what a system
+            promises and what it actually does.
           </p>
           <p>
-            Syncareer is my shipped product: a free career workspace for students whose
-            AI help has to cite evidence before it applies — I pitched it to investors and
-            secured seed funding. SessionBook is a voice-agent booking backend where the
-            interesting problem was keeping concurrency, timezones and spoken confirmation
-            honest. I also built a farm management system for Koranco Farms through the
-            Ashesi Center for Entrepreneurship.
+            The projects themselves live in <a href="/work/">Work</a> — Syncareer, SessionBook,
+            a farm system for Koranco Farms. This page is the other half: where I’ve worked,
+            what I can be relied on for, and the records to back it up.
           </p>
         </div>
       </div>
@@ -96,22 +98,35 @@ import SectionFrame from './SectionFrame.astro';
     line-height: 1.7;
   }
 
-  /* The portrait is a small squared print hung in the margin — one
-     hairline, no corner marks, no read-out. */
+  /* The one quiet link — out to the projects. */
+  .about__copy a {
+    color: inherit;
+    text-underline-offset: 0.18em;
+  }
+
+  .about__copy a:hover {
+    color: var(--color-accent-text);
+  }
+
+  /* The portrait is a real photograph hung as a small squared print:
+     one mat, one hairline, no caption, no read-out. */
   .about__portrait {
     width: min(100%, 14rem);
+    margin: 0;
     padding: var(--space-2);
     border: 1px solid var(--color-rule-on-paper);
     background: var(--color-sheet-soft);
   }
 
-  .about__portrait :global(.pportrait__readout) {
-    display: none;
+  .about__portrait img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   @media (min-width: 60rem) {
     .about__grid {
-      grid-template-columns: 11.5rem minmax(0, 1fr);
+      grid-template-columns: 13rem minmax(0, 1fr);
       column-gap: var(--rail-gap);
     }
 

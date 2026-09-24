@@ -210,7 +210,7 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
 <section id="capabilities" class="capabilities" aria-labelledby="capabilities-title" data-workspace-section="capabilities" data-workspace-label="Capabilities">
   <SectionFrame
     coordinate="04.3 · Profile / Capabilities"
-    status={`${capabilities.length} capabilities · evidence-anchored`}
+    status="Evidence-anchored"
     surface="paper"
     density="default"
   >
@@ -220,16 +220,16 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
           <span class="region-index__no">04.3</span>
           <span class="region-index__rule"></span>
           <span class="region-index__name">Capabilities</span>
-          <span class="region-index__note">Grouped by capability, not by tool. Every line traces to a project or an artifact.</span>
+          <span class="region-index__note">Every line traces to a project or an artifact.</span>
         </div>
       </aside>
 
       <div class="region-body capabilities__body">
         <header class="capabilities__header">
-          <h2 id="capabilities-title" class="region-title">What I work with</h2>
+          <h2 id="capabilities-title" class="region-title">What I can do</h2>
           <p class="region-lede">
-            Four capabilities carry the work on this site. Select one to see what it covers, what
-            supports it, and where it has been applied.
+            Four capabilities, each traced to the work where it was applied. The tools
+            underneath support them — they are not the claim.
           </p>
         </header>
 
