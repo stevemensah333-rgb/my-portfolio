@@ -2,14 +2,28 @@
 const words = ['STEPHEN', 'MENSAH'];
 ---
 
+<!--
+  InteractiveName — the identity marker (masthead), not the headline.
+
+  AGENTS.md §11 HERO TYPOGRAPHIC PRIORITY: the hero statement is the
+  dominant typographic element. This is a signature — present enough
+  to establish identity, always smaller than the statement under it,
+  never full-width.
+
+  The letters keep a restrained pointer response: a lift of a few
+  pixels near the pointer, transform-only (no reflow, no physics),
+  and nothing at all for touch or reduced-motion visitors. The name
+  is plain text to assistive technology.
+-->
 <div class="identity" data-interactive-name>
-  <span class="identity__name" role="img" aria-label="Stephen Mensah" tabindex="0">
+  <p class="identity__name">
+    <span class="visually-hidden">Stephen Mensah</span>
     {words.map(word => (
       <span class="identity__word" aria-hidden="true">
         {Array.from(word).map(letter => <span class="identity__letter">{letter}</span>)}
       </span>
     ))}
-  </span>
+  </p>
 </div>
 
 <script>
@@ -18,6 +32,7 @@ const words = ['STEPHEN', 'MENSAH'];
      idempotent and the run-scoped AbortController removes the
      previous run's document/media-query listeners. */
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const RADIUS = 110;
   let teardown: (() => void) | null = null;
 
   const init = () => {
@@ -42,16 +57,17 @@ const words = ['STEPHEN', 'MENSAH'];
         if (motion.matches || event.pointerType === 'touch') return;
         cancelAnimationFrame(frame);
         frame = requestAnimationFrame(() => {
-          // Read first, then write; four pixels maximum, no perpetual loop.
+          // Read all boxes first, then write: a 3px lift and ~1px lean
+          // at most, eased by distance. No perpetual loop.
           const offsets = letters.map(letter => {
             const box = letter.getBoundingClientRect();
             const dx = event.clientX - (box.left + box.width / 2);
             const dy = event.clientY - (box.top + box.height / 2);
-            const strength = Math.max(0, 1 - Math.hypot(dx, dy) / 160);
-            return [dx / 160 * strength * 8, -strength * 4];
+            const strength = Math.max(0, 1 - Math.hypot(dx, dy) / RADIUS) ** 2;
+            return [(dx / RADIUS) * strength * 4, -strength * 3];
           });
           letters.forEach((letter, i) => {
-            letter.style.transform = `translate(${offsets[i][0]}px, ${offsets[i][1]}px)`;
+            letter.style.transform = `translate(${offsets[i][0].toFixed(2)}px, ${offsets[i][1].toFixed(2)}px)`;
           });
         });
         clearTimeout(idle);
@@ -59,7 +75,6 @@ const words = ['STEPHEN', 'MENSAH'];
       }, { signal: events.signal });
       root.addEventListener('pointerleave', reset, { signal: events.signal });
       root.addEventListener('pointercancel', reset, { signal: events.signal });
-      root.addEventListener('focusin', reset, { signal: events.signal });
       motion.addEventListener('change', reset, { signal: events.signal });
       document.addEventListener('visibilitychange', reset, { signal: events.signal });
     }
@@ -72,36 +87,27 @@ const words = ['STEPHEN', 'MENSAH'];
 <style>
   .identity { min-width: 0; container-type: inline-size; }
 
-  /* THE FOCAL POINT of the home viewport. Everything else in the hero
-     is sized against this: the headline sits on the shared statement
-     scale, the portrait is the visual anchor, and the Lab door is a
-     quiet framed region. One dominant idea per viewport.
-
-     Tracking is tightened past `--tracking-display` (-0.022em) as an
-     optical correction: that token is tuned for statement scale
-     (~2.6–4.5rem), and at wordmark scale (up to 7.75rem) display
-     serif needs more closure to hold together as one mark. */
+  /* IDENTITY MARKER. Sized against its own column (`cqi`), not the
+     viewport, so the desktop rail can never push it past the
+     statement: ~26px on a phone, ~44px at full width — always a
+     clear step below the hero headline. Letterspaced capitals read
+     as a masthead/signature rather than as a second headline. */
   .identity__name {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.08em 0.25em;
+    gap: 0 0.3em;
     width: fit-content;
+    margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2rem, 8.1cqw, 7.75rem);
+    font-size: clamp(1.625rem, 7cqi, 2.75rem);
     font-weight: 600;
-    letter-spacing: -0.055em;
-    line-height: 1.1;
+    letter-spacing: 0.035em;
+    line-height: 1.05;
+    color: var(--color-text-on-paper);
   }
   .identity__word { display: inline-flex; }
   .identity__letter { display: inline-block; transition: transform 180ms ease-out; }
-  .identity__name:focus-visible {
-    outline: 2px solid var(--color-accent-ink);
-    outline-offset: 8px;
-    color: var(--color-accent-ink);
-  }
-  @media (max-width: 30rem) {
-    .identity__name { font-size: 15cqw; }
-  }
   @media (prefers-reduced-motion: reduce) {
     .identity__letter { transform: none !important; transition: none; }
   }

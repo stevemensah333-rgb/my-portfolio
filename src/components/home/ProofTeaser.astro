@@ -1,64 +1,110 @@
-<!--
-  ProofTeaser — the route from Home into the Lab.
-
-  LIGHT = INFORMATION. This is a link with a short orientation line,
-  not a surface anything is operated on, so it sits on the sheet with
-  the rest of the hero. It borrows the Lab's *vocabulary* — mono
-  labels, a stage path, a rust marker on the one failing step — so the
-  visitor reads what the Lab is before arriving, while the dark ground
-  stays reserved for the instrument itself.
-
-  Deliberately quiet: the hero's focal point is the name. This is a
-  door, not a second poster.
--->
-<a id="lab" class="proof" href="/lab/" aria-labelledby="proof-title proof-link">
-  <div class="proof__intro">
-    <p class="mono-label">Inside the Lab</p>
-    <h2 id="proof-title">Don’t stop at the response.</h2>
-    <p class="proof__copy">Inspect the Syncareer reliability investigation. Evidence and limits, in context.</p>
-    <span id="proof-link" class="proof__link">Open Lab <span aria-hidden="true">↗</span></span>
-  </div>
-  <ol class="proof__path" aria-label="Reliability path overview">
-    {['Raw output', 'Failure', 'Intervention', 'Valid output'].map((label, index) => (
-      <li><span>{label}</span>{index < 3 && <span class="proof__arrow" aria-hidden="true">↓</span>}</li>
+---
+/**
+ * ProofTeaser — the compact route from Home into the Lab.
+ *
+ * A signpost, not a second case study: one label that names the real
+ * project, the four-step reliability path, one link. It borrows the
+ * Lab's vocabulary — mono steps, rust on the one failing step — so a
+ * visitor knows what the Lab is before arriving, while the dark
+ * ground stays reserved for the instrument itself (LIGHT =
+ * INFORMATION). About six short lines; no surface of its own.
+ *
+ * The link's name stays short ("Open the Lab"); its ::after stretches
+ * over the block so the whole cue is one large click/tap target and
+ * the focus ring outlines the block, while the path is still read
+ * as a list. `id="lab"` keeps the existing /#lab anchor landing here.
+ */
+const steps = [
+  { label: 'Raw output' },
+  { label: 'Failure', failure: true },
+  { label: 'Intervention' },
+  { label: 'Valid output' },
+];
+---
+<div id="lab" class="proof">
+  <p class="proof__label mono-label">Syncareer · Reliability Lab</p>
+  <ol class="proof__path" aria-label="Reliability path">
+    {steps.map((step, index) => (
+      <li class:list={['proof__step', step.failure && 'proof__step--fail']}>
+        <span class="proof__arrow" aria-hidden="true">{index > 0 ? '↓' : ''}</span>
+        <span>{step.label}</span>
+      </li>
     ))}
   </ol>
-</a>
+  <a class="proof__link" href="/lab/">Open the Lab <span class="proof__link-arrow" aria-hidden="true">→</span></a>
+</div>
 
 <style>
   .proof {
-    display: grid; grid-template-columns: minmax(0, 1fr) auto;
-    gap: 1.5rem; padding: 1.5rem 1.75rem;
-    background: var(--color-sheet-soft); color: var(--color-text-on-paper);
-    text-decoration: none; border: 1px solid var(--color-rule-on-paper-strong);
-    transition:
-      background-color var(--duration-quick) var(--ease-standard),
-      border-color var(--duration-quick) var(--ease-standard);
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+    width: fit-content;
+    max-width: 100%;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-rule-on-paper);
   }
-  .proof:hover, .proof:focus-visible { background: var(--color-sheet-high); }
-  .proof__intro { display: grid; align-content: start; gap: 0.625rem; }
-  .proof .mono-label { margin: 0; color: var(--color-text-on-paper-faint); font-size: 0.625rem; }
-  /* Statement scale, on-system display treatment. It is a door label,
-     so it stays well under the hero headline. */
-  .proof h2 {
+  .proof__label {
     margin: 0;
-    font-family: var(--font-display);
-    font-size: var(--text-section);
-    font-weight: 600;
-    letter-spacing: var(--tracking-display);
-    line-height: var(--leading-heading);
+    color: var(--color-text-on-paper-faint);
+    font-size: var(--text-instrument-sm);
   }
-  .proof__copy { margin: 0; max-width: 34ch; font-size: var(--text-small); color: var(--color-text-on-paper-muted); line-height: 1.55; }
-  .proof__link { display: flex; gap: 1rem; font-size: var(--text-small); font-weight: 600; color: var(--color-accent-text); }
-  .proof:hover .proof__link, .proof:focus-visible .proof__link { text-decoration: underline; text-underline-offset: 4px; }
-  .proof:focus-visible { outline: 2px solid var(--color-accent-ink); outline-offset: 5px; }
-  .proof__path { margin: 0; padding: 0 0 0 1.25rem; border-left: 1px solid var(--color-rule-on-paper-strong); list-style: none; align-self: center; }
-  .proof__path li { display: grid; gap: 0.25rem; font: 500 0.625rem/1.5 var(--font-instrument); text-transform: uppercase; letter-spacing: 0.06em; }
+  .proof__path {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .proof__step {
+    display: grid;
+    grid-template-columns: 1.25rem auto;
+    align-items: baseline;
+    color: var(--color-text-on-paper-muted);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+  .proof__arrow { color: var(--color-text-on-paper-faint); }
   /* Rust only on the step that fails — fail is the subject of this path. */
-  .proof__path li:nth-child(2) > span:first-child { color: var(--color-signal-fail-text); }
-  .proof__arrow { color: var(--color-text-on-paper-faint); padding-bottom: 0.25rem; }
-  @media (max-width: 30rem) {
-    .proof { padding: 1.25rem; gap: 1.25rem; grid-template-columns: minmax(0, 1fr); }
-    .proof__path { padding-left: 1rem; justify-self: start; }
+  .proof__step--fail { color: var(--color-signal-fail-text); }
+
+  .proof__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-height-sm);
+    color: var(--color-text-on-paper);
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule-on-paper-strong);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.3em;
+  }
+  .proof__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .proof__link-arrow {
+    color: var(--color-accent-text);
+    transition: transform var(--duration-base) var(--ease-emphasized);
+  }
+  .proof__link:hover,
+  .proof__link:focus-visible {
+    color: var(--color-accent-text);
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 2px;
+  }
+  .proof__link:hover .proof__link-arrow { transform: translateX(2px); }
+  .proof__link:focus-visible { outline: none; }
+  .proof__link:focus-visible::after {
+    outline: 2px solid var(--color-accent-ink);
+    outline-offset: 6px;
   }
 </style>

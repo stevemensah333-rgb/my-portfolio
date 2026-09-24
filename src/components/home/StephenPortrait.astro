@@ -3,63 +3,181 @@
  * Home portrait — Stephen's identity slot in the hero.
  *
  * The portrait is a real photograph: no WebGL, no 3D, no generated
- * stand-in. The <figure> is a simple interaction boundary — a scoped
- * region where pointer-responsive depth, lighting, and hover/focus
- * response may later attach without changing this DOM. For now it
- * holds only the photograph and one native disclosure, "A note from
- * Stephen", which answers tap, click, Enter and Space with no
- * JavaScript.
+ * stand-in, no depth reconstruction. The frame is a simple
+ * interaction boundary. Under a fine pointer it responds with three
+ * small, related movements — the photograph shifts a few pixels
+ * inside its frame, the frame tilts by under two degrees, and a soft
+ * highlight follows the pointer. At rest (touch, keyboard, no
+ * JavaScript, reduced motion) it is the plain, uncropped photograph.
+ *
+ * "A note from Stephen" is a native <details>: the whole portrait is
+ * its summary, so tap, click, Enter and Space open it with no
+ * JavaScript. One short personal message — not a menu, not a chat.
  */
 ---
-<figure class="portrait" data-portrait-boundary>
+<figure class="portrait" data-portrait>
   <details class="portrait__note">
     <summary aria-label="A note from Stephen">
-      <span class="portrait__stage">
+      <span class="portrait__frame">
         <img
           class="portrait__image"
           src="/images/stephen-480.webp"
           srcset="/images/stephen-480.webp 480w, /images/stephen-800.webp 800w"
-          sizes="(min-width: 64rem) 360px, (min-width: 48rem) 40vw, 480px"
+          sizes="(min-width: 48rem) 26rem, 20rem"
           alt="Stephen Mensah"
           width="800" height="800"
           fetchpriority="high" decoding="async"
         />
-        <span class="portrait__marker" aria-hidden="true">SM / 01</span>
+        <span class="portrait__light" aria-hidden="true"></span>
       </span>
       <span class="portrait__prompt">
         <span>A note from Stephen</span>
         <span class="portrait__toggle" aria-hidden="true">+</span>
       </span>
     </summary>
-    <p class="portrait__message">I care about what happens after the model responds. That’s where I like to work.</p>
+    <div class="portrait__message">
+      <p>
+        I’m most interested in what happens after the model answers. Did it see the
+        right context? Can every claim be traced back to evidence?
+      </p>
+      <p>Thanks for taking a closer look. <span class="portrait__sign">— Stephen</span></p>
+    </div>
   </details>
-  <figcaption class="portrait__caption">Portrait / Stephen Mensah</figcaption>
 </figure>
 
+<script>
+  /* Pointer-responsive portrait. Writes two normalized offsets
+     (--portrait-x / --portrait-y, each -1…1) onto the figure; every
+     movement lives in CSS behind a fine-pointer, motion-OK media
+     query. Nothing runs for touch or reduced motion. Re-initializes
+     on `astro:page-load`. */
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let teardown: (() => void) | null = null;
+
+  const init = () => {
+    const roots = [...document.querySelectorAll<HTMLElement>('[data-portrait]')]
+      .filter(root => root.dataset.portraitEnhanced !== '1');
+    if (roots.length === 0) return;
+    teardown?.();
+    const events = new AbortController();
+    teardown = () => events.abort();
+
+    for (const root of roots) {
+      root.dataset.portraitEnhanced = '1';
+      const frame = root.querySelector<HTMLElement>('.portrait__frame');
+      if (!frame) continue;
+
+      let queued = false;
+      let x = 0;
+      let y = 0;
+      const write = () => {
+        queued = false;
+        root.style.setProperty('--portrait-x', x.toFixed(3));
+        root.style.setProperty('--portrait-y', y.toFixed(3));
+      };
+      const schedule = () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(write);
+      };
+      const rest = () => {
+        x = 0;
+        y = 0;
+        schedule();
+      };
+      const clamp = (value: number) => Math.max(-1, Math.min(1, value));
+
+      frame.addEventListener('pointermove', event => {
+        if (motion.matches || event.pointerType === 'touch') return;
+        const box = frame.getBoundingClientRect();
+        if (box.width === 0 || box.height === 0) return;
+        x = clamp(((event.clientX - box.left) / box.width) * 2 - 1);
+        y = clamp(((event.clientY - box.top) / box.height) * 2 - 1);
+        schedule();
+      }, { signal: events.signal });
+      frame.addEventListener('pointerleave', rest, { signal: events.signal });
+      frame.addEventListener('pointercancel', rest, { signal: events.signal });
+      motion.addEventListener('change', rest, { signal: events.signal });
+    }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>
+
 <style>
-  .portrait { position: relative; margin: 0; width: 100%; max-width: 30rem; }
-  .portrait__note { position: relative; padding-bottom: 6.5rem; }
+  .portrait { position: relative; width: 100%; max-width: 26rem; margin: 0; }
+
+  .portrait__note { position: relative; }
   summary { list-style: none; cursor: pointer; }
   summary::-webkit-details-marker { display: none; }
   summary:focus-visible { outline: 2px solid var(--color-accent-ink); outline-offset: 5px; }
-  /* The stage is the boundary's transform target if pointer-responsive
-     depth or lighting is added later; the image itself stays still. */
-  .portrait__stage {
+
+  /* THE FRAME — the interaction boundary. Square, so the photograph
+     is never cropped to fit a shape, and the space is reserved so
+     the portrait never shifts the layout. At rest: no transform. */
+  .portrait__frame {
     display: block;
     position: relative;
     overflow: hidden;
-    aspect-ratio: 1 / 1; /* reserved space: the portrait never shifts the layout */
+    aspect-ratio: 1 / 1;
     background: var(--color-sheet-inset);
     border: 1px solid var(--color-rule-on-paper);
+    transition:
+      transform var(--duration-base) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard);
   }
-  .portrait__image { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .portrait__marker {
-    position: absolute; top: 1rem; left: 1rem;
-    padding: 0.35rem 0.5rem;
-    background: var(--color-sheet);
-    font: 500 0.65rem var(--font-instrument);
-    letter-spacing: 0.08em;
+
+  .portrait__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-base) var(--ease-standard);
   }
+
+  /* Controlled lighting: a warm highlight positioned by the pointer.
+     Soft-light keeps it inside the photograph's own value range
+     instead of washing it out. Hidden unless the frame is hovered. */
+  .portrait__light {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: soft-light;
+    background: radial-gradient(
+      60% 56% at calc(50% + var(--portrait-x, 0) * 30%) calc(36% + var(--portrait-y, 0) * 30%),
+      rgba(255, 250, 240, 0.6),
+      rgba(255, 250, 240, 0) 72%
+    );
+    transition: opacity var(--duration-base) var(--ease-standard);
+  }
+
+  summary:hover .portrait__frame,
+  summary:focus-visible .portrait__frame {
+    border-color: var(--color-rule-on-paper-strong);
+  }
+
+  /* DEPTH, ONLY WHERE IT CAN BE FELT. A fine pointer that can hover,
+     and a visitor who has not asked for less motion. The photograph
+     is pushed in by 4% — the headroom that keeps its edges covered
+     while it parallaxes up to 7px against the pointer — and the
+     frame tilts by at most 1.6deg. It settles back to flat on leave. */
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    summary:hover .portrait__frame {
+      transform:
+        perspective(1100px)
+        rotateY(calc(var(--portrait-x, 0) * 1.6deg))
+        rotateX(calc(var(--portrait-y, 0) * -1.6deg));
+    }
+    summary:hover .portrait__image {
+      transform:
+        scale(1.04)
+        translate3d(calc(var(--portrait-x, 0) * -7px), calc(var(--portrait-y, 0) * -7px), 0);
+    }
+    summary:hover .portrait__light { opacity: 1; }
+  }
+
   .portrait__prompt {
     display: flex; justify-content: space-between; align-items: center;
     min-height: 3rem; gap: 1rem;
@@ -67,18 +185,33 @@
     font-size: var(--text-small);
   }
   summary:hover .portrait__prompt, summary:focus-visible .portrait__prompt { color: var(--color-accent-ink); }
-  .portrait__toggle { font-size: 1.5rem; }
+  .portrait__toggle { font-size: 1.5rem; line-height: 1; transition: transform var(--duration-quick) var(--ease-standard); }
   details[open] .portrait__toggle { transform: rotate(45deg); }
+
+  /* The note flows in the document when opened — no overlay, no
+     fixed height, nothing to clip on a narrow screen or at zoom. */
   .portrait__message {
-    position: absolute; bottom: 0; inset-inline: 0; height: 6.5rem;
-    margin: 0; padding-top: 0.8rem;
-    font-size: 0.875rem; line-height: 1.5;
+    display: grid;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    animation: reveal-enter var(--duration-reveal) var(--ease-emphasized);
     color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.6;
   }
-  .portrait__caption {
-    position: absolute; bottom: 0;
-    font: 500 0.625rem var(--font-instrument);
-    text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--color-text-on-paper-faint);
+  .portrait__message p { margin: 0; }
+  .portrait__sign {
+    color: var(--color-text-on-paper);
+    font-family: var(--font-display);
+    font-size: var(--text-body);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 47.99rem) {
+    .portrait { max-width: 20rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .portrait__message { animation: none; }
   }
 </style>

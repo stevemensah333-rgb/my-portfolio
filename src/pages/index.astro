@@ -40,20 +40,17 @@ const structuredData = {
 <BaseLayout {title} {description} {structuredData} ogType="profile" area="home">
   <section class="hero" aria-labelledby="hero-title" data-workspace-section="top" data-workspace-label="Home">
     <div class="page-shell hero__shell">
-      <header class="hero__identity">
-        <div class="hero__masthead">
-          <p class="mono-label">Stephen’s engineering workspace</p>
-          <p class="mono-label">01 / Identity</p>
-        </div>
+      <!-- 1 · WHO — the identity marker. Masthead scale, not a poster. -->
+      <div class="hero__identity">
         <InteractiveName />
-      </header>
+      </div>
 
+      <!-- 2 · WHAT — the dominant element of the viewport. -->
       <div class="hero__message">
-        <p class="mono-label hero__eyebrow">AI engineering / Software reliability</p>
         <h1 id="hero-title" class="hero__headline">I make AI features <em>reliable enough</em> to ship.</h1>
         <p class="hero__support">
-          I build and debug LLM-powered software. Explore the work to see the
-          failures, the interventions, and the limits of the evidence.
+          I build and debug LLM-powered software: the context a model sees, the checks
+          its answers must pass, and what happens when they don’t.
         </p>
         <div class="hero__actions" role="group" aria-label="Primary actions">
           <a class="button button--accent" href={`mailto:${PUBLIC_EMAIL}`}>Email me <span aria-hidden="true">↗</span></a>
@@ -62,8 +59,12 @@ const structuredData = {
         <p class="hero__availability"><span aria-hidden="true"></span>Open to entry-level AI engineering roles</p>
       </div>
 
-      <div class="hero__visual"><StephenPortrait /></div>
+      <!-- 3 · PROOF — a compact signpost toward the engineering work. -->
       <div class="hero__proof"><ProofTeaser /></div>
+
+      <!-- The human focal object. Last in reading order; beside the
+           text column from 48rem, after the proof cue below it. -->
+      <div class="hero__portrait"><StephenPortrait /></div>
     </div>
   </section>
 
@@ -154,50 +155,72 @@ const structuredData = {
   <SiteFooter slot="footer" /></BaseLayout>
 
 <style>
-  /* Home-only composition; the established shell and other areas are unchanged. */
+  /* Home-only composition; the established shell and other areas are unchanged.
+
+     THE HIERARCHY (AGENTS.md §11). One dominant typographic idea:
+     the statement. The name is the identity marker above it at
+     masthead scale, the portrait is the human anchor beside it, and
+     the proof cue is a small signpost at the foot of the text
+     column. Three things, in reading order — WHO, WHAT, PROOF. */
   .hero { background: var(--color-sheet); color: var(--color-text-on-paper); }
   .hero__shell {
     display: grid;
-    gap: 2.5rem;
-    padding-block: 2rem 4rem;
+    gap: 2.25rem;
+    padding-block: clamp(1.75rem, 3vw, 2.75rem) clamp(2.5rem, 5vw, 4.25rem);
   }
-  .hero__identity { min-width: 0; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-rule-on-paper-strong); }
-  .hero__masthead { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
-  .hero__masthead p { margin: 0; font-size: 0.625rem; }
-  .hero__message { display: grid; align-content: start; gap: 1.5rem; }
-  .hero__eyebrow { margin: 0; color: var(--color-text-on-paper-faint); font-size: 0.625rem; }
+  .hero__identity {
+    min-width: 0;
+    padding-bottom: var(--space-5);
+    border-bottom: 1px solid var(--color-rule-on-paper-strong);
+  }
+  .hero__message {
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+    container-type: inline-size;
+  }
 
-  /* ONE DOMINANT IDEA. The interactive name above is the masthead and
-     the focal point of this viewport; the headline is the statement
-     under it, not a rival poster. It therefore sits on the same
-     statement scale as every other page's h1 (Lab, Profile, case
-     studies) and inherits the display weight/tracking from the global
-     h1 rule instead of overriding them. Measure is left to the grid
-     column, so it reads as two lines rather than a tall block. */
-  .hero__headline { margin: 0; font-size: var(--text-feature); line-height: var(--leading-statement); }
+  /* THE STATEMENT — the largest type in the viewport. It carries the
+     display weight/tracking from the global h1 rule; only the scale
+     is hero-specific. Like the name, it is sized against its own
+     column (`cqi`), so the two keep their ratio (~1.3–1.5×) at every
+     width, with or without the desktop rail. */
+  .hero__headline {
+    margin: 0;
+    max-width: 22ch;
+    font-size: clamp(2.375rem, 9.6cqi, 4.25rem);
+    line-height: 1.04;
+  }
   .hero__headline em { font-style: normal; color: var(--color-accent-ink); }
-  .hero__support { max-width: 37ch; margin: 0; color: var(--color-text-on-paper-muted); font-size: var(--text-body-large); line-height: 1.65; }
-  .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem 1.75rem; }
-  .hero__availability { display: flex; align-items: baseline; gap: 0.5rem; margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--color-text-on-paper-faint); }
+  .hero__support { max-width: 40ch; margin: 0; color: var(--color-text-on-paper-muted); font-size: var(--text-body-large); line-height: 1.6; }
+  .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.75rem; }
+  .hero__availability { display: flex; align-items: baseline; gap: 0.5rem; margin: 0; font-size: 0.75rem; color: var(--color-text-on-paper-faint); }
   /* The same "open to roles" mark the control rail carries — one
      meaning, one size, one colour. */
   .hero__availability span { width: var(--node-status); height: var(--node-status); flex-shrink: 0; background: var(--color-accent); border-radius: 50%; }
-  .hero__visual { min-width: 0; }
-  .hero__proof { max-width: 42rem; }
+  .hero__portrait { min-width: 0; }
+  .hero__proof { min-width: 0; }
+
+  /* ASYMMETRICAL COMPOSITION. A dominant text column (WHO → WHAT →
+     PROOF, in that order) against one strong portrait region that
+     sits at the top of the second column and leaves the space under
+     it empty. Not three columns, not three equal blocks. Any extra
+     height goes to the last row, so the text column never spreads. */
   @media (min-width: 48rem) {
     .hero__shell {
-      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr);
-      grid-template-areas: "identity identity" "message visual" "proof visual";
-      column-gap: clamp(2rem, 4vw, 5rem);
-      row-gap: 2.5rem;
+      grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+      grid-template-rows: auto auto 1fr;
+      grid-template-areas:
+        "identity portrait"
+        "message  portrait"
+        "proof    portrait";
+      column-gap: clamp(2rem, 4vw, 4.5rem);
+      row-gap: clamp(1.75rem, 2.4vw, 2.5rem);
     }
     .hero__identity { grid-area: identity; }
     .hero__message { grid-area: message; }
-    .hero__visual { grid-area: visual; padding-top: 2.25rem; }
-    .hero__proof { grid-area: proof; }
-  }
-  @media (max-width: 30rem) {
-    .hero__masthead { flex-direction: column; gap: 0.5rem; }
+    .hero__proof { grid-area: proof; align-self: start; }
+    .hero__portrait { grid-area: portrait; align-self: start; }
   }
 
   /* ============================================================
