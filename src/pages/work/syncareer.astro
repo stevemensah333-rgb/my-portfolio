@@ -5,13 +5,20 @@
  * Structure (AGENTS.md §5): 01 PRODUCT → 02 FAILURE → 03 INVESTIGATION →
  * 04 INTERVENTION → 05 RESULT, with the seven-stage system inside 03.
  *
+ * Composition: five sections, each anchored by a large artifact —
+ *   01 PRODUCT       the SynAI interface (product record beside it)
+ *   02 FAILURE       the documented old contract, as a dark slab
+ *   03 INVESTIGATION the interactive seven-stage system (the spine)
+ *   04 INTERVENTION  the before/after contract, at display scale
+ *   05 RESULT        the evidence boundary itself
+ *
  * Density rule: every fact is explained once, on the section that owns it
  * (see the doc comment in src/data/syncareerInvestigation.ts). The other
- * sections reference or visualise it — stage 04 points back to 02, stage 06
- * points forward to 04, and the deployment status lives only in 05.
+ * sections reference or visualise it — stage 04 points back to 02, stage 05
+ * to 02 and 04, stage 06 to 04, and the deployment status lives only in 05.
  *
- * Composition: large artifact + short explanation, asymmetric fields, dark
- * slabs for anything being inspected. No JavaScript gates any of it.
+ * No JavaScript gates any of it: the whole story reads top to bottom, and
+ * the Lab (/lab/) is where the same records become operable.
  */
 import { GMAIL_COMPOSE_URL } from '../../config/site';
 import { syncareer } from '../../data/registry';
@@ -197,17 +204,42 @@ const [dashboard, opportunities] = syncareerProduct.surfaces;
           <p class="failure__impact">{failureRecord.impact}</p>
         </div>
 
-        <div class="failure__classes">
-          <p class="mono-label">Observed failure classes</p>
-          <ol>
-            {failureRecord.classes.map((item, index) => (
-              <li>
-                <span class="failure__num" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                <h3>{item.name}</h3>
-                <p>{item.note}</p>
-              </li>
-            ))}
-          </ol>
+        <div class="failure__field">
+          <!-- The large failure artifact: the old contract as documented —
+               what was sent, and what its absence of checks meant. -->
+          <figure class="failure__slab">
+            <figcaption class="failure__slab-label mono-label mono-label--inverse">
+              {failureRecord.oldContract.label} · documented shape
+            </figcaption>
+            <dl class="failure__slab-rows">
+              <div>
+                <dt>request</dt>
+                <dd>{failureRecord.oldContract.request}</dd>
+              </div>
+              {failureRecord.oldContract.gaps.map((gap) => (
+                <div data-missing="true">
+                  <dt>{gap.field}</dt>
+                  <dd>
+                    <span class="failure__gap" aria-hidden="true">—</span> {gap.note}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <figcaption class="failure__slab-source">{failureRecord.oldContract.source}</figcaption>
+          </figure>
+
+          <div class="failure__classes">
+            <p class="mono-label">Observed failure classes</p>
+            <ol>
+              {failureRecord.classes.map((item, index) => (
+                <li>
+                  <span class="failure__num" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <h3>{item.name}</h3>
+                  <p>{item.note}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
 
         <p class="failure__known">
@@ -259,6 +291,31 @@ const [dashboard, opportunities] = syncareerProduct.surfaces;
         <div class="region-body intervention">
           <h2 class="intervention__title">The repair is a contract.</h2>
           <p class="intervention__lede">{interventionRecord.lede}</p>
+
+          <!-- The large before/after artifact: the canonical contract
+               comparison, rendered once at display scale. The Lab’s
+               diagnosis stage re-exposes it at instrument scale. -->
+          <div class="intervention__compare">
+            <p class="mono-label">{interventionRecord.comparison.label}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Contract</th>
+                  <th scope="col">Before</th>
+                  <th scope="col">After</th>
+                </tr>
+              </thead>
+              <tbody>
+                {interventionRecord.comparison.items.map((item) => (
+                  <tr>
+                    <th scope="row">{item.name}</th>
+                    <td class="intervention__before">{item.before}</td>
+                    <td>{item.after}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           <ol class="intervention__responses">
             {interventionRecord.responses.map((item, index) => (
@@ -494,6 +551,81 @@ const [dashboard, opportunities] = syncareerProduct.surfaces;
     line-height: 1.6;
   }
 
+  /* The large failure artifact: the old contract as a payload under
+     inspection — a dark slab in the light page, the same instrument
+     language the spine uses. The absence is the point, so the missing
+     fields are marked in fail signal, not hidden. */
+  .failure__field {
+    display: grid;
+    gap: clamp(var(--space-6), 4vw, var(--space-8));
+  }
+
+  .failure__slab {
+    margin: 0;
+    border: 1px solid var(--color-rule-on-canvas-strong);
+    background: var(--color-deck-soft);
+  }
+
+  .failure__slab-label {
+    display: block;
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .failure__slab-rows {
+    margin: 0;
+  }
+
+  .failure__slab-rows > div {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-rule-on-canvas-soft);
+  }
+
+  .failure__slab-rows > div:last-child {
+    border-bottom: 0;
+  }
+
+  .failure__slab-rows dt {
+    color: var(--color-text-on-canvas-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .failure__slab-rows dd {
+    margin: 0;
+    color: var(--color-text-on-canvas);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .failure__slab-rows [data-missing='true'] dd {
+    color: var(--color-signal-fail-bright);
+  }
+
+  .failure__slab-source {
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck);
+    color: var(--color-text-on-canvas-faint);
+    font-size: var(--text-instrument-sm);
+    line-height: 1.5;
+  }
+
+  @media (min-width: 48rem) {
+    .failure__slab-rows > div {
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+      column-gap: var(--space-4);
+      align-items: baseline;
+    }
+  }
+
   /* ── 04 INTERVENTION ─────────────────────────────────────────────── */
 
   .intervention {
@@ -515,6 +647,54 @@ const [dashboard, opportunities] = syncareerProduct.surfaces;
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-body-large);
     line-height: 1.55;
+  }
+
+  /* The large before/after artifact — the canonical contract comparison,
+     at display scale. The rows state the change; the four responses below
+     state the engineering behind it. Nothing here is re-narrated. */
+  .intervention__compare {
+    display: grid;
+    gap: var(--space-3);
+    max-width: 56rem;
+  }
+
+  .intervention__compare table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .intervention__compare th,
+  .intervention__compare td {
+    padding: var(--space-3) var(--space-4) var(--space-3) 0;
+    vertical-align: top;
+    border-bottom: 1px solid var(--color-rule-on-paper-soft);
+  }
+
+  .intervention__compare thead th {
+    padding-block: var(--space-2);
+    border-bottom: 2px solid var(--color-rule-on-paper-strong);
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .intervention__compare tbody th {
+    width: 7rem;
+    font-weight: 600;
+  }
+
+  .intervention__compare tbody td {
+    color: var(--color-text-on-paper);
+    font-size: var(--text-small);
+    line-height: 1.55;
+  }
+
+  .intervention__before {
+    color: var(--color-text-on-paper-faint);
   }
 
   .intervention__responses {
@@ -666,17 +846,14 @@ const [dashboard, opportunities] = syncareerProduct.surfaces;
       margin-top: var(--space-8);
     }
 
-    .failure {
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    /* Statement reads full measure; below it the slab and the classes
+       stand as a pair, neither the same size as the other. */
+    .failure__field {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
       align-items: start;
     }
 
-    .failure__classes {
-      margin-top: var(--space-6);
-    }
-
     .failure__known {
-      grid-column: 1 / -1;
       justify-self: end;
       max-width: 34rem;
       padding-top: var(--space-4);
@@ -694,6 +871,48 @@ const [dashboard, opportunities] = syncareerProduct.surfaces;
     .outcome-grid {
       grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
       align-items: start;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    /* The comparison stacks: each contract row becomes a labelled block,
+       before and after each on its own line. */
+    .intervention__compare table,
+    .intervention__compare tbody,
+    .intervention__compare tr,
+    .intervention__compare th,
+    .intervention__compare td {
+      display: block;
+      width: auto;
+    }
+
+    .intervention__compare thead {
+      display: none;
+    }
+
+    .intervention__compare tbody th {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .intervention__compare tbody td {
+      padding-block: var(--space-2);
+    }
+
+    .intervention__compare tbody td::before {
+      color: var(--color-text-on-paper-faint);
+      font-family: var(--font-instrument);
+      font-size: var(--text-instrument-sm);
+      letter-spacing: var(--tracking-instrument);
+      text-transform: uppercase;
+    }
+
+    .intervention__compare tbody td:first-of-type::before {
+      content: 'Before · ';
+    }
+
+    .intervention__compare tbody td:last-of-type::before {
+      content: 'After · ';
     }
   }
 

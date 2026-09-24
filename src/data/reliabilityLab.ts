@@ -19,6 +19,9 @@ export type LabStageMeta = {
   state: string;
   inspection: LabInspection[];
   interventions?: string[];
+  /** The canonical before/after record (interventionRecord.comparison),
+      re-exposed at instrument scale for the diagnosis stage. */
+  comparison?: typeof interventionRecord.comparison;
   illustrative: boolean;
 };
 
@@ -59,8 +62,10 @@ const meta: Record<InvestigationStageId, LabStageMeta> = {
   },
   diagnosis: {
     state: 'contract diagnosis',
+    /* The Lab's compare step: the canonical before/after record, at
+       instrument scale. Its explanation lives in 04 INTERVENTION. */
+    comparison: interventionRecord.comparison,
     inspection: [
-      { label: 'Before / revised', value: 'One bullet and broad source ids → bounded context and validated citations.' },
       { label: 'Evidence', value: 'Comparison of documented contract shapes; no incident log exists.' },
     ],
     illustrative: false,
@@ -93,7 +98,7 @@ export const labCopy = {
   eyebrow: 'Reliability Lab · instrument',
   title: 'One payload, seven stages, one instrument.',
   intro:
-    'Inspect the request contract, validation rules, refusal path and output fixtures. The Syncareer case study explains the investigation; this instrument exposes its artifacts.',
+    'Inspect the request contract, validation rules, refusal path and output fixtures, and compare the contract before and after. The Syncareer case study explains the investigation; this instrument exposes its artifacts.',
   keys: 'Keyboard: arrow keys select a stage · Home / End jump · Previous and Next step · Replay returns to Input.',
   replay: 'Replay',
   prev: 'Previous',
