@@ -1,28 +1,33 @@
 /**
  * Reliability Lab — inspection metadata for the canonical Syncareer stages.
  *
- * Payload artifacts and stage order come from syncareerInvestigation.ts.
- * This file adds only concise instrument state; it does not retell the case
- * study or imply that an illustrative fixture is a captured run.
+ * Artifacts, summaries and hand-offs come from syncareerInvestigation.ts.
+ * This file adds only the instrument reading: what arrived at the stage,
+ * and what kind of evidence the reading is. It does not retell the case study.
+ *
+ * No second experiment. There is no historical log of constraint changes
+ * producing different outputs, so a simulated model would be a fabricated run.
  */
 
 import {
   investigationStages,
-  interventionRecord,
   type InvestigationStage,
   type InvestigationStageId,
 } from './syncareerInvestigation';
 
-export type LabInspection = { label: string; value: string };
+export type LabReading = 'source' | 'rules' | 'illustrative' | 'interpretation';
 
 export type LabStageMeta = {
+  /** Short system-state name for the payload at this stage. */
   state: string;
-  inspection: LabInspection[];
-  interventions?: string[];
-  /** The canonical before/after record (interventionRecord.comparison),
-      re-exposed at instrument scale for the diagnosis stage. */
-  comparison?: typeof interventionRecord.comparison;
-  illustrative: boolean;
+  /**
+   * What the instrument treats as having arrived. A label, not a second
+   * explanation. Fixture stages say so, so they are not read as the output
+   * of the previous stage.
+   */
+  received: string;
+  reading: LabReading;
+  readingLabel: string;
 };
 
 export type LabStage = InvestigationStage & { lab: LabStageMeta };
@@ -30,62 +35,45 @@ export type LabStage = InvestigationStage & { lab: LabStageMeta };
 const meta: Record<InvestigationStageId, LabStageMeta> = {
   input: {
     state: 'bounded request',
-    inspection: [
-      { label: 'System state', value: 'AssistantRequestV2; no server-side profile or history retrieval.' },
-      { label: 'Validation state', value: 'Opportunity, requirement-* and evidence-* are required before the gateway call.' },
-    ],
-    illustrative: false,
+    received: 'Product request · cv.rewrite_bullet',
+    reading: 'source',
+    readingLabel: 'Source · contract.ts',
   },
   'model-output': {
     state: 'untrusted gateway text',
-    inspection: [
-      { label: 'System state', value: 'Raw text; parsing, citation checks and review have not run yet.' },
-      { label: 'Evidence', value: 'Fixture only. No historical model output was captured.' },
-    ],
-    illustrative: true,
+    received: 'Not the output of stage 01 · old contract, bullet only',
+    reading: 'illustrative',
+    readingLabel: 'Illustrative fixture · not a captured output',
   },
   validation: {
     state: 'validation rules',
-    inspection: [
-      { label: 'Validation state', value: 'Contract rules from tracked source; this is not a test-run result.' },
-      { label: 'Order', value: 'Parse → allowed kind → supplied ids → grounding → factual-risk checks.' },
-    ],
-    illustrative: false,
+    received: '02 · raw model text',
+    reading: 'rules',
+    readingLabel: 'Rules from source · not a test-run result',
   },
   failure: {
     state: 'refusal · 422',
-    inspection: [
-      { label: 'Failure reason', value: 'no_safe_proposal: the proposal did not pass the required checks.' },
-      { label: 'System state', value: 'Reservation released; quota untouched; unsafe text cannot be accepted.' },
-    ],
-    illustrative: false,
+    received: '03 · rewrite with nothing to cite',
+    reading: 'source',
+    readingLabel: 'Handler behavior · not a captured incident',
   },
   diagnosis: {
     state: 'contract diagnosis',
-    /* The Lab's compare step: the canonical before/after record, at
-       instrument scale. Its explanation lives in 04 INTERVENTION. */
-    comparison: interventionRecord.comparison,
-    inspection: [
-      { label: 'Evidence', value: 'Comparison of documented contract shapes; no incident log exists.' },
-    ],
-    illustrative: false,
+    received: '04 · refusal, nothing applied',
+    reading: 'interpretation',
+    readingLabel: 'Interpretation · no incident log',
   },
   intervention: {
     state: 'fail-closed intervention',
-    inspection: [
-      { label: 'System state', value: 'Validate → authenticate → reserve → entitlement → gateway → validate output → commit; failures release.' },
-    ],
-    interventions: interventionRecord.responses.map((item) => item.name),
-    illustrative: false,
+    received: '05 · repair target is the contract',
+    reading: 'source',
+    readingLabel: 'Source · handler.ts',
   },
   output: {
     state: 'proposal · review required',
-    inspection: [
-      { label: 'Output', value: 'A cited proposal containing kind, text and sourceContextIds.' },
-      { label: 'Review state', value: 'A person must accept, edit or reject; nothing is applied automatically.' },
-      { label: 'Evidence', value: 'Illustrative fixture, not a captured live response.' },
-    ],
-    illustrative: true,
+    received: 'Not a captured result of stage 06 · revised shape',
+    reading: 'illustrative',
+    readingLabel: 'Illustrative fixture · not a live response',
   },
 };
 
@@ -95,14 +83,13 @@ export const labStages: LabStage[] = investigationStages.map((stage) => ({
 }));
 
 export const labCopy = {
-  eyebrow: 'Reliability Lab · instrument',
-  title: 'One payload, seven stages, one instrument.',
-  intro:
-    'Inspect the request contract, validation rules, refusal path and output fixtures, and compare the contract before and after. The Syncareer case study explains the investigation; this instrument exposes its artifacts.',
-  keys: 'Keyboard: arrow keys select a stage · Home / End jump · Previous and Next step · Replay returns to Input.',
+  eyebrow: 'Reliability Lab',
+  title: 'One payload, seven stages, one instrument',
+  keys: 'Arrows select a stage. Home and End jump. R replays. C compares.',
   replay: 'Replay',
   prev: 'Previous',
   next: 'Next',
+  compare: 'Before / after',
 } as const;
 
 export const labBoundary = {
@@ -111,4 +98,12 @@ export const labBoundary = {
   pointer:
     'No live-model evaluation, captured before/after output, failure rate, latency or quality score is available.',
   pointerLabel: 'Read the full evidence boundary',
+} as const;
+
+export const labCompareCopy = {
+  title: 'Before → after',
+  state: 'documented shapes · illustrative fixtures',
+  note: 'Contract rows are documented shapes. The two model texts are fixtures, not a captured pair.',
+  before: 'Before',
+  after: 'After',
 } as const;

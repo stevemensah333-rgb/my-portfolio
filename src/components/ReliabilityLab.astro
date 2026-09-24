@@ -1,21 +1,26 @@
 ---
 /**
- * Reliability Lab — the portfolio's signature instrument.
+ * Reliability Lab — one payload, seven stages, one instrument.
  *
- * One canonical selected-stage state drives the rail, panel, position,
- * keyboard controls and deep link. No autoplay or second progress cursor.
- * The case study explains the investigation; this Lab exposes its shared
- * artifacts and concise, stage-specific system state.
+ * The case study explains the investigation. This page lets a visitor
+ * inspect the same records: select a stage, step, replay, and compare
+ * the documented before/after. Each stage shows only its artifact, the
+ * evidence class, and the transition that produced the state.
  *
- * Without JavaScript every stage remains visible. Reduced motion disables
- * transitions; it does not remove or skip information.
+ * No autoplay. The marker moves; reduced motion snaps it. Without
+ * JavaScript every reading, including the comparison, stays in the page.
  */
-import { labStages, labCopy, labBoundary } from '../data/reliabilityLab';
+import { labBoundary, labCompareCopy, labCopy, labStages } from '../data/reliabilityLab';
+import { failureRecord, interventionRecord } from '../data/syncareerInvestigation';
 import { syncareer } from '../data/registry';
 import SectionFrame from './SectionFrame.astro';
 
 const first = labStages[0];
 const total = String(labStages.length).padStart(2, '0');
+const beforeFixture = labStages.find((stage) => stage.id === 'model-output');
+const afterFixture = labStages.find((stage) => stage.id === 'output');
+const beforeCode = beforeFixture?.artifact?.kind === 'code' ? beforeFixture.artifact : null;
+const afterCode = afterFixture?.artifact?.kind === 'code' ? afterFixture.artifact : null;
 ---
 
 <section
@@ -25,52 +30,50 @@ const total = String(labStages.length).padStart(2, '0');
   aria-labelledby="reliability-lab-title"
   data-workspace-section="reliability-lab"
 >
-  <!-- Instrumentation runs at the concentrated rhythm, not the
-     block-major air reserved for the identity band and the close. -->
-  <SectionFrame
-    coordinate="03 · Lab / Reliability"
-    status="Instrument"
-    surface="canvas"
-    density="default"
-  >
+  <SectionFrame coordinate="03 · Lab" status="cv.rewrite_bullet" surface="canvas" density="tight">
     <div class="page-shell lab__shell">
-      <!-- The header sits on the shared region grid: the index is a
-         margin apparatus like every other section, and the bench below
-         gets the full measure. One composition, both environments. -->
-      <header class="lab__header region-grid">
-        <aside class="region-rail">
-          <div class="region-index">
-            <span class="region-index__no">03</span>
-            <span class="region-index__rule"></span>
-            <span class="region-index__name">{labCopy.eyebrow}</span>
-          </div>
-        </aside>
-        <div class="region-body lab__header-copy">
-          <h1 id="reliability-lab-title" class="lab__title">{labCopy.title}</h1>
-          <p class="lab__intro">{labCopy.intro}</p>
-          <noscript>
-            <p class="lab__noscript">
-              Stage controls need JavaScript; all seven inspection records remain listed below. For
-              the full explanation, open the{' '}
-              <a class="text-link" href={syncareer.route}>
-                Syncareer case study
-                <span class="text-link__arrow" aria-hidden="true">→</span>
-              </a>
-            </p>
-          </noscript>
-        </div>
-      </header>
-
       <div class="lab__bench">
+        <header class="lab__head">
+          <h1 id="reliability-lab-title" class="lab__title">{labCopy.title}</h1>
+          <a class="text-link" href={`${syncareer.route}#investigation`}>
+            Syncareer case study
+            <span class="text-link__arrow" aria-hidden="true">→</span>
+          </a>
+        </header>
 
-        <!-- Pipeline: stage nodes + the payload travelling the track -->
-        <div class="lab__railscroll">
-          <div class="lab__railwrap">
+        <noscript>
+          <p class="lab__noscript">
+            Stage controls need JavaScript. All seven readings and the before/after comparison are
+            listed below. The explanation lives in the{' '}
+            <a class="text-link" href={syncareer.route}>
+              Syncareer case study
+              <span class="text-link__arrow" aria-hidden="true">→</span>
+            </a>
+          </p>
+        </noscript>
+
+        <nav class="lab__static-map" aria-label="Pipeline stages">
+          <ol>
+            {labStages.map((stage, index) => (
+              <li>
+                {index > 0 && <span class="lab__static-arrow" aria-hidden="true">→</span>}
+                <a href={`#lab-${stage.id}`}>
+                  <span>{stage.step}</span> {stage.label}
+                </a>
+              </li>
+            ))}
+          </ol>
+          <a href="#lab-compare">Before / after</a>
+        </nav>
+
+        <div class="lab__track-scroll" data-lab-scroll>
+          <div class="lab__track" data-lab-track>
             <div
               class="lab__rail"
               role="tablist"
-              aria-label="Reliability pipeline stages"
+              aria-label="Pipeline stages"
               aria-orientation="horizontal"
+              aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home End"
               data-lab-rail
             >
               {labStages.map((stage, index) => (
@@ -80,159 +83,252 @@ const total = String(labStages.length).padStart(2, '0');
                   id={`lab-tab-${stage.id}`}
                   class="lab__node"
                   data-stage-tab={stage.id}
-                  aria-controls={`lab-panel-${stage.id}`}
+                  aria-controls={`lab-${stage.id}`}
+                  aria-label={`${stage.step} ${stage.label}`}
                   aria-selected={index === 0 ? 'true' : 'false'}
                   tabindex={index === 0 ? 0 : -1}
                 >
-                  <span class="lab__node-step" aria-hidden="true">{stage.step}</span>
-                  <span class="lab__node-label">{stage.label}</span>
                   <span class="lab__node-mark" aria-hidden="true"></span>
+                  <span class="lab__node-step">{stage.step}</span>
+                  <span class="lab__node-label">{stage.label}</span>
                 </button>
               ))}
             </div>
+            <span class="lab__line" data-lab-line aria-hidden="true"></span>
+            <span class="lab__segment" data-lab-segment hidden aria-hidden="true"></span>
+            <span class="lab__marker" data-lab-marker aria-hidden="true"></span>
           </div>
         </div>
 
-        <p class="lab__readout">
-          <span class="mono-label mono-label--inverse" data-readout-label>
-            Active · {first?.step}
-          </span>
-          <span data-readout-text>{first?.lab.state}</span>
-        </p>
-
-        <!-- Transport -->
         <div class="lab__transport" role="group" aria-label="Stage navigation">
-          <button type="button" class="lab__btn lab__btn--ghost" data-lab-prev disabled>
+          <button type="button" class="lab__btn" data-lab-prev disabled>
             {labCopy.prev}
           </button>
           <button type="button" class="lab__btn" data-lab-replay>
             <span class="lab__btn-icon" aria-hidden="true">↺</span>
             {labCopy.replay}
           </button>
-          <button type="button" class="lab__btn lab__btn--ghost" data-lab-next>
+          <button type="button" class="lab__btn" data-lab-next>
             {labCopy.next}
           </button>
-          <p class="lab__position mono-label mono-label--inverse" data-lab-position>
-            {first?.step} / {total} · {first?.label}
+          <button
+            type="button"
+            class="lab__btn lab__btn--compare"
+            data-lab-compare
+            aria-pressed="false"
+            aria-controls="lab-compare"
+          >
+            {labCopy.compare}
+          </button>
+          <p class="lab__position" data-lab-position>
+            <span class="lab__position-count">
+              <span class="lab__position-step" data-lab-pos-step>{first?.step}</span>
+              <span aria-hidden="true"> / {total} · </span>
+            </span>
+            <span data-lab-pos-label>{first?.label}</span>
           </p>
         </div>
 
-        <!-- Payload viewport: one panel per stage -->
-        <div class="lab__viewport">
-          {labStages.map((stage, index) => (
-            <article
-              role="tabpanel"
-              id={`lab-panel-${stage.id}`}
-              aria-labelledby={`lab-tab-${stage.id}`}
-              class="lab__panel"
-              data-stage-panel={stage.id}
-              data-stage-state={stage.lab.state}
-              tabindex="0"
-              hidden={index !== 0}
-            >
-              <header class="lab__panel-top">
-                <span class="lab__tag">{stage.step} / {stage.label}</span>
-                {stage.lab.illustrative && (
-                  <span class="lab__chip lab__chip--illus">illustrative fixture</span>
-                )}
-              </header>
+        <div class="lab__well" data-lab-well>
+          {labStages.map((stage) => {
+            const artifact = stage.artifact;
+            return (
+              <article
+                role="tabpanel"
+                id={`lab-${stage.id}`}
+                aria-labelledby={`lab-tab-${stage.id}`}
+                class="lab__panel"
+                data-stage-panel={stage.id}
+                data-stage-state={stage.lab.state}
+                data-stage-reading={stage.lab.readingLabel}
+                tabindex="0"
+                hidden={stage.id !== 'input'}
+              >
+                <header class="lab__stage-head">
+                  <h2 class="lab__stage">
+                    <span class="lab__stage-step">{stage.step}</span>
+                    <span>{stage.label}</span>
+                  </h2>
+                  <p class="lab__stage-state">{stage.lab.state}</p>
+                  <p class="lab__stage-reading">{stage.lab.readingLabel}</p>
+                </header>
 
-              <h2 class="lab__panel-title">{stage.lab.state}</h2>
-
-              <div class="lab__payload">
-                {stage.artifact?.kind === 'code' && stage.artifact.code && (
-                  <figure class="lab__code" data-tone={stage.tone}>
-                    <figcaption class="mono-label mono-label--inverse">
-                      {stage.artifact.label}
-                    </figcaption>
-                    <!-- tabindex: the block scrolls horizontally on wide
-                         screens; a focusable scroll region is the
-                         keyboard-accessible path (WCAG 2.1.1). -->
-                    <pre tabindex="0"><code>{stage.artifact.code}</code></pre>
-                  </figure>
-                )}
-
-                {stage.artifact?.kind === 'checks' && stage.artifact.items && (
-                  <div class="lab__checks-block">
-                    <p class="mono-label">{stage.artifact.label} · rules, not a run result</p>
-                    <ul class="lab__checks" aria-label="Validation rules">
-                      {stage.artifact.items.map((item) => (
-                        <li>
-                          <span class="lab__checks-name">{item.name}</span>
-                          <span class="lab__checks-note">{item.note}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {stage.artifact?.kind === 'refusal' && stage.artifact.items && (
-                  <dl class="lab__record">
-                    {stage.artifact.items.map((item) => (
-                      <div>
-                        <dt>{item.name}</dt>
-                        <dd>{item.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
-
-                <!-- The diagnosis stage's compare: the canonical
-                     before/after record, re-exposed at instrument scale. -->
-                {stage.lab.comparison && (
-                  <div class="lab__compare-block">
-                    <p class="mono-label">{stage.lab.comparison.label}</p>
-                    <dl class="lab__compare">
-                      {stage.lab.comparison.items.map((item) => (
+                <div class="lab__artifact">
+                  {stage.id === 'diagnosis' && (
+                    <figure class="lab__plate lab__gaps" data-tone="failure">
+                      <figcaption class="lab__plate-label">{failureRecord.oldContract.label}</figcaption>
+                      <dl>
                         <div>
-                          <dt>{item.name}</dt>
-                          <dd>
-                            <span class="lab__compare-before">{item.before}</span>
-                            <span class="lab__compare-arrow" aria-hidden="true">→</span>
-                            <span>{item.after}</span>
-                          </dd>
+                          <dt>Request</dt>
+                          <dd>{failureRecord.oldContract.request}</dd>
                         </div>
-                      ))}
-                    </dl>
-                  </div>
-                )}
-              </div>
+                        {failureRecord.oldContract.gaps.map((gap) => (
+                          <div data-missing="true">
+                            <dt>{gap.field}</dt>
+                            <dd>{gap.note}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                      <p class="lab__source">{failureRecord.oldContract.source}</p>
+                    </figure>
+                  )}
 
-              {stage.lab.inspection.length > 0 && (
-                <dl class="lab__inspection">
-                  {stage.lab.inspection.map((item) => (
+                  {stage.id === 'intervention' && (
+                    <div class="lab__plate lab__changes">
+                      <p class="lab__plate-label">Documented responses</p>
+                      <ol>
+                        {interventionRecord.responses.map((item) => (
+                          <li>
+                            <p class="lab__change-name">{item.name}</p>
+                            <p class="lab__change-note">{item.note}</p>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+
+                  {artifact?.kind === 'code' && (
+                    <figure
+                      class="lab__plate lab__code"
+                      data-tone={stage.tone}
+                      data-illustrative={artifact.illustrative ? 'true' : undefined}
+                    >
+                      <figcaption class="lab__plate-label">{artifact.label}</figcaption>
+                      <pre tabindex="0"><code>{artifact.code}</code></pre>
+                    </figure>
+                  )}
+
+                  {artifact?.kind === 'checks' && artifact.items && (
+                    <div class="lab__plate lab__checks">
+                      <p class="lab__plate-label">{artifact.label}</p>
+                      <ol>
+                        {artifact.items.map((item) => (
+                          <li>
+                            <span class="lab__checks-name">{item.name}</span>
+                            {item.note && <span class="lab__checks-note">{item.note}</span>}
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+
+                  {artifact?.kind === 'refusal' && artifact.items && (
+                    <figure class="lab__plate lab__refusal" data-tone="failure">
+                      <figcaption class="lab__plate-label">{artifact.label}</figcaption>
+                      <dl>
+                        {artifact.items.map((item) => (
+                          <div>
+                            <dt>{item.name}</dt>
+                            <dd>{item.value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </figure>
+                  )}
+                </div>
+
+                <dl class="lab__transition">
+                  <div>
+                    <dt>Received</dt>
+                    <dd>{stage.lab.received}</dd>
+                  </div>
+                  <div>
+                    <dt>Because</dt>
+                    <dd>{stage.summary}</dd>
+                  </div>
+                  <div>
+                    <dt>Produced</dt>
+                    <dd>{stage.handedOff}</dd>
+                  </div>
+                </dl>
+
+                <footer class="lab__cite">
+                  <p>
+                    <span class="lab__cite-label">Read from</span>
+                    <span>{stage.evidence}</span>
+                  </p>
+                  <a class="text-link" href={`${syncareer.route}#stage-${stage.id}`}>
+                    Open stage {stage.step} in the case study
+                    <span class="text-link__arrow" aria-hidden="true">→</span>
+                  </a>
+                </footer>
+              </article>
+            );
+          })}
+
+          <div
+            id="lab-compare"
+            class="lab__compare"
+            role="region"
+            aria-labelledby="lab-compare-title"
+            data-lab-compare-panel
+            tabindex="-1"
+            hidden
+          >
+            <header class="lab__stage-head">
+              <h2 id="lab-compare-title" class="lab__stage">
+                <span>{labCompareCopy.title}</span>
+              </h2>
+              <p class="lab__stage-state">{labCompareCopy.state}</p>
+              <p class="lab__stage-reading" data-compare-note>{labCompareCopy.note}</p>
+            </header>
+
+            <p class="lab__plate-label lab__compare-label">{interventionRecord.comparison.label}</p>
+            <div class="lab__split">
+              <section class="lab__split-col lab__split-col--before" aria-labelledby="lab-compare-before">
+                <h3 id="lab-compare-before">{labCompareCopy.before}</h3>
+                <dl class="lab__pair">
+                  {interventionRecord.comparison.items.map((item) => (
                     <div>
-                      <dt>{item.label}</dt>
-                      <dd>{item.value}</dd>
+                      <dt>{item.name}</dt>
+                      <dd>{item.before}</dd>
                     </div>
                   ))}
                 </dl>
-              )}
+                <p class="lab__source">{failureRecord.oldContract.source}</p>
+                {beforeCode && (
+                  <figure class="lab__plate lab__code" data-tone="failure" data-illustrative="true">
+                    <figcaption class="lab__plate-label">{beforeCode.label}</figcaption>
+                    <pre tabindex="0"><code>{beforeCode.code}</code></pre>
+                  </figure>
+                )}
+              </section>
 
-              {stage.lab.interventions && (
-                <div class="lab__interventions">
-                  <p class="mono-label">Interventions · canonical case-study record</p>
-                  <ul>
-                    {stage.lab.interventions.map((item) => <li>{item}</li>)}
-                  </ul>
-                </div>
-              )}
+              <section class="lab__split-col lab__split-col--after" aria-labelledby="lab-compare-after">
+                <h3 id="lab-compare-after">{labCompareCopy.after}</h3>
+                <dl class="lab__pair">
+                  {interventionRecord.comparison.items.map((item) => (
+                    <div>
+                      <dt>{item.name}</dt>
+                      <dd>{item.after}</dd>
+                    </div>
+                  ))}
+                </dl>
+                {afterCode && (
+                  <figure class="lab__plate lab__code" data-illustrative="true">
+                    <figcaption class="lab__plate-label">{afterCode.label}</figcaption>
+                    <pre tabindex="0"><code>{afterCode.code}</code></pre>
+                  </figure>
+                )}
+              </section>
+            </div>
 
-              <p class="lab__handoff">
-                <a class="text-link" href={`${syncareer.route}#stage-${stage.id}`}>
-                  Open stage {stage.step} in the Syncareer case study
-                  <span aria-hidden="true">↗</span>
-                </a>
-              </p>
-            </article>
-          ))}
+            <p class="lab__cite">
+              <a class="text-link" href={`${syncareer.route}#intervention`}>
+                Open the comparison in the case study
+                <span class="text-link__arrow" aria-hidden="true">→</span>
+              </a>
+            </p>
+          </div>
         </div>
+
+        <p id="lab-keys" class="lab__keys">{labCopy.keys}</p>
       </div>
 
       <aside class="lab__boundary" aria-label="Evidence boundary for the Reliability Lab">
-        <p class="lab__boundary-intro">{labBoundary.intro}</p>
-        <p class="lab__boundary-pointer">{labBoundary.pointer}</p>
-        <p class="lab__case-link">
+        <p>{labBoundary.intro}</p>
+        <p>{labBoundary.pointer}</p>
+        <p>
           <a class="text-link" href={`${syncareer.route}#result`}>
             {labBoundary.pointerLabel}
             <span class="text-link__arrow" aria-hidden="true">→</span>
@@ -240,25 +336,28 @@ const total = String(labStages.length).padStart(2, '0');
         </p>
       </aside>
 
-      <p class="lab__keys mono-label mono-label--inverse">{labCopy.keys}</p>
-
       <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-lab-live></p>
     </div>
   </SectionFrame>
 </section>
 
 <script>
-  import { reserveStackHeight } from '../scripts/initTraceTabs';
-
-  /* Re-initializes on `astro:page-load` (the ClientRouter swaps the
-     shell without re-running bundled scripts); the marker keeps it
-     idempotent and the run-scoped AbortController removes the previous
-     run's window/media-query listeners. */
+  /**
+   * One stage index and one compare flag drive the track, the reading,
+   * the marker and the URL. Replay returns to input. Selecting a stage
+   * leaves compare. Reduced motion is a direct state change: scroll is
+   * instant, and the marker transition is cancelled in CSS.
+   */
   let teardown: (() => void) | null = null;
 
   const init = () => {
     const root = document.querySelector<HTMLElement>('[data-reliability-lab]');
-    if (!root || root.dataset.labEnhanced === '1') return;
+    if (!root) {
+      teardown?.();
+      teardown = null;
+      return;
+    }
+    if (root.dataset.labEnhanced === '1') return;
     root.dataset.labEnhanced = '1';
 
     teardown?.();
@@ -266,130 +365,291 @@ const total = String(labStages.length).padStart(2, '0');
     teardown = () => events.abort();
     const signal = events.signal;
 
-    {
-    const rail = root.querySelector<HTMLElement>('[data-lab-rail]');
     const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-stage-tab]')];
     const panels = [...root.querySelectorAll<HTMLElement>('[data-stage-panel]')];
+    const rail = root.querySelector<HTMLElement>('[data-lab-rail]');
+    const track = root.querySelector<HTMLElement>('[data-lab-track]');
+    const marker = root.querySelector<HTMLElement>('[data-lab-marker]');
+    const segment = root.querySelector<HTMLElement>('[data-lab-segment]');
+    const line = root.querySelector<HTMLElement>('[data-lab-line]');
     const previous = root.querySelector<HTMLButtonElement>('[data-lab-prev]');
     const replay = root.querySelector<HTMLButtonElement>('[data-lab-replay]');
     const next = root.querySelector<HTMLButtonElement>('[data-lab-next]');
-    const position = root.querySelector<HTMLElement>('[data-lab-position]');
-    const stateLabel = root.querySelector<HTMLElement>('[data-readout-label]');
-    const stateText = root.querySelector<HTMLElement>('[data-readout-text]');
+    const compareBtn = root.querySelector<HTMLButtonElement>('[data-lab-compare]');
+    const comparePanel = root.querySelector<HTMLElement>('[data-lab-compare-panel]');
+    const posStep = root.querySelector<HTMLElement>('[data-lab-pos-step]');
+    const posLabel = root.querySelector<HTMLElement>('[data-lab-pos-label]');
     const live = root.querySelector<HTMLElement>('[data-lab-live]');
+    const well = root.querySelector<HTMLElement>('[data-lab-well]');
+    const scroller = root.querySelector<HTMLElement>('[data-lab-scroll]');
 
-    if (rail && tabs.length > 0 && panels.length === tabs.length) {
-      /* Stages swap in place; reserving the tallest panel keeps the
-         evidence boundary and keys below the bench from jumping. */
-      reserveStackHeight(panels, signal);
+    if (!rail || !track || tabs.length === 0 || panels.length !== tabs.length) return;
 
-      const STORAGE_KEY = 'workspace:lab-stage';
-      const readStoredStage = () => {
-        try {
-          return sessionStorage.getItem(STORAGE_KEY);
-        } catch {
-          return null;
-        }
+    const stageIds = tabs.map((tab) => tab.dataset.stageTab ?? '');
+    const STORAGE_KEY = 'workspace:lab-stage';
+    let activeIndex = 0;
+    let comparing = false;
+    let resizeTimer = 0;
+
+    const clamp = (index: number) => Math.max(0, Math.min(tabs.length - 1, index));
+
+    const readStored = () => {
+      try {
+        return sessionStorage.getItem(STORAGE_KEY);
+      } catch {
+        return null;
+      }
+    };
+    const writeStored = (id: string) => {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, id);
+      } catch {
+        /* private mode */
+      }
+    };
+
+    const stageText = (index: number) => {
+      const tab = tabs[index];
+      const panel = panels[index];
+      return {
+        step: tab?.querySelector('.lab__node-step')?.textContent?.trim() ?? '',
+        label: tab?.querySelector('.lab__node-label')?.textContent?.trim() ?? '',
+        state: panel?.dataset.stageState ?? '',
+        reading: panel?.dataset.stageReading ?? '',
       };
-      const writeStoredStage = (id: string) => {
-        try {
-          sessionStorage.setItem(STORAGE_KEY, id);
-        } catch {}
-      };
+    };
 
-      const stageIds = tabs.map((tab) => tab.dataset.stageTab ?? '');
-      const panelById = new Map(panels.map((panel) => [panel.dataset.stagePanel ?? '', panel]));
-      const verticalRail = window.matchMedia('(max-width: 57.99rem)');
-      let activeIndex = 0;
+    const announceStage = (index: number, prefix = '') => {
+      if (!live) return;
+      const { step, label, state, reading } = stageText(index);
+      live.textContent = `${prefix}Stage ${step}, ${label}. ${state}. ${reading}.`.replace(/\s+/g, ' ').trim();
+    };
 
-      const setOrientation = () => {
-        rail.setAttribute('aria-orientation', verticalRail.matches ? 'vertical' : 'horizontal');
-      };
-      setOrientation();
-      verticalRail.addEventListener('change', setOrientation, { signal });
+    const placeMarker = () => {
+      if (!marker) return;
+      const mark = tabs[activeIndex]?.querySelector<HTMLElement>('.lab__node-mark');
+      if (!mark) return;
+      const trackBox = track.getBoundingClientRect();
+      const box = mark.getBoundingClientRect();
+      const x = box.left - trackBox.left + box.width / 2;
+      const y = box.top - trackBox.top + box.height / 2;
+      marker.style.left = `${x}px`;
+      marker.style.top = `${y}px`;
+      if (line) line.style.top = `${y}px`;
+      if (!segment) return;
+      const prev = !comparing && activeIndex > 0
+        ? tabs[activeIndex - 1]?.querySelector<HTMLElement>('.lab__node-mark')
+        : null;
+      if (!prev) {
+        segment.hidden = true;
+        return;
+      }
+      const prevBox = prev.getBoundingClientRect();
+      const prevX = prevBox.left - trackBox.left + prevBox.width / 2;
+      segment.hidden = false;
+      segment.style.top = `${y}px`;
+      segment.style.left = `${prevX}px`;
+      segment.style.width = `${Math.max(0, x - prevX)}px`;
+    };
 
-      const updateStage = (
-        requestedIndex: number,
-        options: { announce?: boolean; updateHash?: boolean } = {},
-      ) => {
-        const index = Math.max(0, Math.min(tabs.length - 1, requestedIndex));
-        const tab = tabs[index];
-        const id = stageIds[index];
-        const panel = panelById.get(id ?? '');
-        if (!tab || !id || !panel) return;
+    const scrollActive = () => {
+      const tab = tabs[activeIndex];
+      if (!tab || !scroller) return;
+      const scrollerBox = scroller.getBoundingClientRect();
+      const tabBox = tab.getBoundingClientRect();
+      const delta = tabBox.left - scrollerBox.left - (scrollerBox.width - tabBox.width) / 2;
+      if (Math.abs(delta) < 2) return;
+      scroller.scrollTo({ left: scroller.scrollLeft + delta, behavior: 'auto' });
+    };
 
-        // This index is the instrument's only mutable stage state.
-        activeIndex = index;
-        tabs.forEach((item, itemIndex) => {
-          const active = itemIndex === index;
-          item.setAttribute('aria-selected', String(active));
-          item.tabIndex = active ? 0 : -1;
-          item.dataset.active = String(active);
-          item.dataset.past = String(itemIndex < index);
-          item.dataset.future = String(itemIndex > index);
-        });
-        panels.forEach((item, itemIndex) => {
-          const active = itemIndex === index;
-          item.hidden = !active;
-          item.dataset.active = String(active);
-        });
-
-        const step = tab.querySelector('.lab__node-step')?.textContent?.trim() ?? '';
-        const label = tab.querySelector('.lab__node-label')?.textContent?.trim() ?? '';
-        if (stateLabel) stateLabel.textContent = `Active · ${step}`;
-        if (stateText) stateText.textContent = panel.dataset.stageState ?? '';
-        if (position) position.textContent = `${step} / ${String(tabs.length).padStart(2, '0')} · ${label}`;
-        if (previous) previous.disabled = index === 0;
-        if (next) next.disabled = index === tabs.length - 1;
-        if (options.announce && live) live.textContent = `Stage ${step}, ${label}. ${panel.dataset.stageState ?? ''}.`;
-        if (options.updateHash) {
-          history.replaceState(null, '', `${location.pathname}${location.search}#lab-${id}`);
-          writeStoredStage(id);
-        } else if (options.announce) {
-          // Preserve Lab stage across view-transition navigations where
-          // the hash may not be present (session-scoped, not a URL).
-          writeStoredStage(id);
-        }
-      };
-
-      const indexFromHash = () => stageIds.indexOf(location.hash.replace(/^#lab-/, ''));
-      const hashIndex = location.hash.startsWith('#lab-') ? indexFromHash() : -1;
-      const storedId = readStoredStage();
-      const storedIndex = storedId ? stageIds.indexOf(storedId) : -1;
-      const markedIndex = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
-      const initialIndex =
-        hashIndex >= 0 ? hashIndex : storedIndex >= 0 ? storedIndex : Math.max(0, markedIndex);
-      updateStage(initialIndex);
-
+    const render = () => {
       tabs.forEach((tab, index) => {
-        tab.addEventListener('click', () => updateStage(index, { announce: true, updateHash: true }));
-        tab.addEventListener('keydown', (event) => {
-          let nextIndex: number | null = null;
-          if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = activeIndex + 1;
-          else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = activeIndex - 1;
-          else if (event.key === 'Home') nextIndex = 0;
-          else if (event.key === 'End') nextIndex = tabs.length - 1;
-          if (nextIndex === null) return;
-          event.preventDefault();
-          const destination = Math.max(0, Math.min(tabs.length - 1, nextIndex));
-          tabs[destination]?.focus();
-          updateStage(destination, { announce: true, updateHash: true });
-        });
+        const active = index === activeIndex;
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+        tab.dataset.past = String(index < activeIndex);
+        tab.dataset.future = String(index > activeIndex);
       });
+      panels.forEach((panel, index) => {
+        panel.hidden = comparing || index !== activeIndex;
+      });
+      if (comparePanel) comparePanel.hidden = !comparing;
+      compareBtn?.setAttribute('aria-pressed', String(comparing));
+      root.dataset.comparing = comparing ? 'true' : 'false';
+      if (previous) previous.disabled = activeIndex === 0;
+      if (next) next.disabled = activeIndex === tabs.length - 1;
+      const { step, label } = stageText(activeIndex);
+      if (posStep) posStep.textContent = comparing ? '' : step;
+      if (posLabel) posLabel.textContent = comparing ? 'Before / after' : label;
+      placeMarker();
+    };
 
-      previous?.addEventListener('click', () => updateStage(activeIndex - 1, { announce: true, updateHash: true }));
-      next?.addEventListener('click', () => updateStage(activeIndex + 1, { announce: true, updateHash: true }));
-      replay?.addEventListener('click', () => updateStage(0, { announce: true, updateHash: true }));
+    const writeStageHash = (index: number) => {
+      const id = stageIds[index];
+      if (!id) return;
+      history.replaceState(null, '', `${location.pathname}${location.search}#lab-${id}`);
+      writeStored(id);
+    };
 
-      window.addEventListener('hashchange', () => {
-        const index = indexFromHash();
-        if (location.hash.startsWith('#lab-') && index >= 0) {
-          updateStage(index, { announce: true });
-          writeStoredStage(stageIds[index] ?? '');
+    const selectStage = (
+      requested: number,
+      options: { announce?: boolean; updateHash?: boolean; prefix?: string; focusPanel?: boolean } = {},
+    ) => {
+      const index = clamp(requested);
+      const focusWasCompare = document.activeElement === comparePanel;
+      comparing = false;
+      activeIndex = index;
+      render();
+      scrollActive();
+      if (options.updateHash) writeStageHash(index);
+      if (options.focusPanel) panels[index]?.focus();
+      else if (focusWasCompare) panels[index]?.focus();
+      if (options.announce) announceStage(index, options.prefix);
+    };
+
+    const setCompare = (on: boolean, options: { announce?: boolean; updateHash?: boolean } = {}) => {
+      const previousFocus = document.activeElement;
+      comparing = on;
+      render();
+      if (options.updateHash) {
+        if (on) history.replaceState(null, '', `${location.pathname}${location.search}#lab-compare`);
+        else writeStageHash(activeIndex);
+      }
+      if (on && previousFocus instanceof Element && panels.some((panel) => panel.contains(previousFocus))) {
+        comparePanel?.focus();
+      }
+      if (!on && previousFocus === comparePanel) panels[activeIndex]?.focus();
+      if (options.announce && live) {
+        if (on) {
+          const note = comparePanel?.querySelector('[data-compare-note]')?.textContent?.trim() ?? '';
+          live.textContent = `Comparing before and after. ${note}`;
+        } else {
+          announceStage(activeIndex);
         }
-      }, { signal });
+      }
+    };
+
+    const hashId = location.hash.startsWith('#lab-') ? location.hash.slice('#lab-'.length) : '';
+    const hashIndex = stageIds.indexOf(hashId);
+    const storedId = readStored();
+    const storedIndex = storedId ? stageIds.indexOf(storedId) : -1;
+    if (location.hash === '#lab-compare') {
+      comparing = true;
+      activeIndex = storedIndex >= 0 ? storedIndex : 0;
+    } else if (hashIndex >= 0) {
+      activeIndex = hashIndex;
+    } else if (storedIndex >= 0) {
+      activeIndex = storedIndex;
     }
-    }
+    render();
+    requestAnimationFrame(() => {
+      placeMarker();
+      if (hashIndex >= 0 || location.hash === '#lab-compare') scrollActive();
+    });
+
+    const stepFromKey = (key: string) => {
+      if (key === 'ArrowRight' || key === 'ArrowDown') return activeIndex + 1;
+      if (key === 'ArrowLeft' || key === 'ArrowUp') return activeIndex - 1;
+      if (key === 'Home') return 0;
+      if (key === 'End') return tabs.length - 1;
+      return null;
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => {
+        selectStage(index, { announce: true, updateHash: true });
+      });
+      tab.addEventListener('keydown', (event) => {
+        const nextIndex = stepFromKey(event.key);
+        if (nextIndex === null) return;
+        event.preventDefault();
+        const destination = clamp(nextIndex);
+        selectStage(destination, { announce: true, updateHash: true });
+        tabs[destination]?.focus();
+      });
+    });
+
+    const onReadingKey = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element) || !(event.currentTarget instanceof Element)) return;
+      if (target !== event.currentTarget && target.closest('pre, a, button, input, textarea, select')) return;
+      const nextIndex = stepFromKey(event.key);
+      if (nextIndex === null) return;
+      event.preventDefault();
+      selectStage(clamp(nextIndex), { announce: true, updateHash: true, focusPanel: true });
+    };
+    panels.forEach((panel) => panel.addEventListener('keydown', onReadingKey));
+    comparePanel?.addEventListener('keydown', onReadingKey);
+
+    previous?.addEventListener('click', () => selectStage(activeIndex - 1, { announce: true, updateHash: true }));
+    next?.addEventListener('click', () => selectStage(activeIndex + 1, { announce: true, updateHash: true }));
+    replay?.addEventListener('click', () => selectStage(0, { announce: true, updateHash: true, prefix: 'Replayed. ' }));
+    compareBtn?.addEventListener('click', () => setCompare(!comparing, { announce: true, updateHash: true }));
+
+    root.addEventListener('keydown', (event) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target;
+      if (!(target instanceof Element) || target.closest('pre, a, input, textarea, select')) return;
+      if (event.key === 'r' || event.key === 'R') {
+        event.preventDefault();
+        selectStage(0, { announce: true, updateHash: true, prefix: 'Replayed. ' });
+      } else if (event.key === 'c' || event.key === 'C') {
+        event.preventDefault();
+        setCompare(!comparing, { announce: true, updateHash: true });
+      }
+    });
+
+    let touch: { x: number; y: number; block: boolean } | null = null;
+    well?.addEventListener('touchstart', (event) => {
+      if (event.touches.length !== 1) {
+        touch = null;
+        return;
+      }
+      const target = event.target;
+      const point = event.touches[0];
+      if (!point) return;
+      touch = {
+        x: point.clientX,
+        y: point.clientY,
+        block: target instanceof Element && Boolean(target.closest('pre, a, button')),
+      };
+    }, { passive: true, signal });
+    well?.addEventListener('touchend', (event) => {
+      if (!touch || touch.block) {
+        touch = null;
+        return;
+      }
+      const point = event.changedTouches[0];
+      const origin = touch;
+      touch = null;
+      if (!point) return;
+      const dx = point.clientX - origin.x;
+      const dy = point.clientY - origin.y;
+      if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+      selectStage(activeIndex + (dx < 0 ? 1 : -1), { announce: true, updateHash: true });
+    }, { passive: true, signal });
+    well?.addEventListener('touchcancel', () => {
+      touch = null;
+    }, { signal });
+
+    window.addEventListener('hashchange', () => {
+      if (location.hash === '#lab-compare') {
+        setCompare(true, { announce: true });
+        return;
+      }
+      const index = location.hash.startsWith('#lab-') ? stageIds.indexOf(location.hash.slice('#lab-'.length)) : -1;
+      if (index >= 0) {
+        selectStage(index, { announce: true });
+        writeStored(stageIds[index] ?? '');
+      }
+    }, { signal });
+
+    window.addEventListener('resize', () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(placeMarker, 100);
+    }, { signal });
+
+    document.fonts?.ready.then(() => placeMarker()).catch(() => {});
   };
 
   init();
@@ -400,123 +660,176 @@ const total = String(labStages.length).padStart(2, '0');
   .lab {
     background: var(--color-deck);
     color: var(--color-text-on-canvas);
-    --lab-fail: var(--color-signal-fail-bright);
+    --lab-mark: 0.625rem;
+    --lab-mark-top: 0.85rem;
   }
 
   .lab__shell {
     display: grid;
-    gap: var(--space-5);
+    gap: var(--space-4);
   }
 
-  .lab__header-copy { gap: var(--space-3); }
-
-  .lab__title {
-    max-width: 18ch;
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: var(--text-feature);
-    font-weight: 600;
-    letter-spacing: var(--tracking-display);
-    line-height: var(--leading-statement);
-  }
-
-  .lab__intro {
-    max-width: var(--width-reading);
-    margin: 0;
-    color: var(--color-text-on-canvas-muted);
-    font-size: var(--text-body-large);
-    line-height: 1.55;
-  }
-
-  .lab__noscript {
-    max-width: var(--width-reading);
-    margin: 0;
-    padding-left: var(--space-4);
-    border-left: 2px solid var(--color-accent);
-    color: var(--color-text-on-canvas);
-    font-size: var(--text-small);
-    line-height: 1.55;
-  }
-
-  .lab__noscript .text-link { color: var(--color-accent-bright); }
-
+  /* One framed instrument. The tick marks it as the live surface. */
   .lab__bench {
     position: relative;
     display: grid;
-    gap: var(--space-5);
-    padding: var(--space-5);
+    gap: var(--space-4);
+    padding: var(--space-4);
     border: 1px solid var(--color-rule-on-canvas-strong);
     background: var(--color-deck-soft);
   }
 
   .lab__bench::before {
+    content: '';
     position: absolute;
     top: -1px;
     left: -1px;
     width: 3rem;
     height: 2px;
     background: var(--color-accent);
-    content: '';
   }
 
-  .lab__railscroll { min-width: 0; }
-  .lab__railwrap { width: 100%; }
+  .lab__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2) var(--space-4);
+    align-items: end;
+  }
+
+  .lab__nameplate {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .lab__title {
+    margin: 0;
+    color: var(--color-text-on-canvas-muted);
+  }
+
+  .lab__lede {
+    margin: 0;
+    color: var(--color-text-on-canvas-muted);
+    font-size: var(--text-small);
+    line-height: 1.45;
+  }
+
+  .lab__noscript {
+    margin: 0;
+    padding-left: var(--space-3);
+    border-left: 2px solid var(--color-accent);
+    color: var(--color-text-on-canvas);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .lab__static-map {
+    display: none;
+  }
+
+  /* The track is the instrument: one line, seven stations, one payload. */
+  .lab__track-scroll {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 6px 4px;
+    margin-inline: -4px;
+    scroll-padding-inline: var(--space-3);
+  }
+
+  .lab__track {
+    position: relative;
+    min-width: 36.75rem;
+  }
 
   .lab__rail {
+    position: relative;
+    z-index: 1;
     display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    border-block: 1px solid var(--color-rule-on-canvas);
+    grid-template-columns: repeat(7, minmax(5.25rem, 1fr));
   }
 
   .lab__node {
     display: grid;
     justify-items: center;
-    align-content: center;
-    gap: var(--space-1);
-    min-width: 0;
+    align-content: start;
+    gap: 0.35rem;
     min-height: 5.5rem;
-    padding: var(--space-2);
+    padding: var(--lab-mark-top) var(--space-1) var(--space-3);
     border: 0;
-    border-right: 1px solid var(--color-rule-on-canvas-soft);
     background: transparent;
     color: var(--color-text-on-canvas-muted);
     cursor: pointer;
     font: inherit;
     text-align: center;
+    touch-action: manipulation;
   }
 
-  .lab__node:last-child { border-right: 0; }
-
-  .lab__node-step {
-    color: var(--color-text-on-canvas-muted);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.06em;
-  }
-
-  .lab__node-label {
-    color: inherit;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.035em;
-    line-height: 1.35;
-    overflow-wrap: anywhere;
-    text-transform: uppercase;
-  }
-
-  /* Stage node — the same registration node the capability triggers
-     and the project inspector use, so a node is one size site-wide. */
   .lab__node-mark {
-    width: var(--node-size);
-    height: var(--node-size);
+    position: relative;
+    z-index: 2;
+    width: var(--lab-mark);
+    height: var(--lab-mark);
     border: 1px solid var(--color-rule-on-canvas-strong);
     border-radius: 50%;
     background: var(--color-deck);
   }
 
+  .lab__node-step,
+  .lab__node-label {
+    font-family: var(--font-instrument);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .lab__node-step {
+    color: var(--color-text-on-canvas-faint);
+  }
+
+  .lab__node-label {
+    max-width: 8.5rem;
+  }
+
+  .lab__line,
+  .lab__segment,
+  .lab__marker {
+    position: absolute;
+    top: calc(var(--lab-mark-top) + var(--lab-mark) / 2);
+    pointer-events: none;
+  }
+
+  .lab__line {
+    z-index: 0;
+    right: calc(100% / 14);
+    left: calc(100% / 14);
+    height: 1px;
+    background: var(--color-rule-on-canvas-strong);
+    transform: translateY(-50%);
+  }
+
+  .lab__segment {
+    z-index: 0;
+    height: 2px;
+    background: var(--color-accent);
+    transform: translateY(-50%);
+    transition: left var(--duration-base) var(--ease-emphasized), width var(--duration-base) var(--ease-emphasized);
+  }
+
+  .lab__marker {
+    z-index: 3;
+    left: calc(100% / 14);
+    width: 1rem;
+    height: 1rem;
+    background: var(--color-accent);
+    transform: translate(-50%, -50%);
+    transition: left var(--duration-base) var(--ease-emphasized);
+  }
+
   .lab__node:hover,
   .lab__node:focus-visible {
-    background: var(--color-deck-inset);
     color: var(--color-text-on-canvas);
   }
 
@@ -526,10 +839,16 @@ const total = String(labStages.length).padStart(2, '0');
     box-shadow: inset 0 -2px 0 var(--color-accent);
   }
 
-  .lab__node[aria-selected='true'] .lab__node-step { color: var(--color-accent-text); }
   .lab__node[aria-selected='true'] .lab__node-mark {
-    border-color: var(--color-accent);
-    background: var(--color-accent);
+    opacity: 0;
+  }
+
+  .lab__node[aria-selected='true'] .lab__node-step {
+    color: var(--color-accent-text);
+  }
+
+  .lab__node[aria-selected='true'] .lab__node-label {
+    color: var(--color-accent-text);
   }
 
   .lab__node[data-past='true'] .lab__node-mark {
@@ -537,25 +856,26 @@ const total = String(labStages.length).padStart(2, '0');
     background: var(--color-text-on-canvas-faint);
   }
 
-  .lab__node[data-stage-tab='failure'][data-past='true'] .lab__node-mark {
-    border-color: var(--lab-fail);
-    background: var(--lab-fail);
+  .lab__node[data-future='true'] {
+    color: var(--color-text-on-canvas-faint);
   }
 
-  .lab__node[data-future='true'] { color: var(--color-text-on-canvas-faint); }
-  .lab__node[data-future='true'] .lab__node-mark { background: transparent; }
+  .lab__node[data-future='true'] .lab__node-mark {
+    background: var(--color-deck);
+  }
 
-  .lab__readout {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--space-2) var(--space-3);
-    min-height: 1.25rem;
-    margin: 0;
-    color: var(--color-text-on-canvas-muted);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    line-height: 1.5;
+  .lab__node[data-stage-tab='failure']:not([aria-selected='true']) .lab__node-step {
+    color: var(--color-signal-fail-text);
+  }
+
+  .lab__node[data-stage-tab='failure'][data-past='true'] .lab__node-mark,
+  .lab__node[data-stage-tab='failure'][aria-selected='true'] .lab__node-mark {
+    border-color: var(--color-signal-fail);
+    background: var(--color-signal-fail);
+  }
+
+  .lab__node[data-stage-tab='failure'][aria-selected='true'] .lab__node-mark {
+    opacity: 0;
   }
 
   .lab__transport {
@@ -563,8 +883,6 @@ const total = String(labStages.length).padStart(2, '0');
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
   .lab__btn {
@@ -574,343 +892,589 @@ const total = String(labStages.length).padStart(2, '0');
     gap: var(--space-2);
     min-height: 2.75rem;
     padding: 0 var(--space-3);
-    border: 1px solid var(--color-accent);
+    border: 1px solid var(--color-rule-on-canvas-strong);
     background: transparent;
-    color: var(--color-accent-text);
+    color: var(--color-text-on-canvas);
     cursor: pointer;
-    font-family: var(--font-mono);
+    font-family: var(--font-instrument);
     font-size: 0.6875rem;
-    letter-spacing: var(--tracking-meta);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1;
     text-transform: uppercase;
+    white-space: nowrap;
+    touch-action: manipulation;
   }
 
   .lab__btn:hover:not(:disabled),
   .lab__btn:focus-visible {
-    background: var(--color-accent);
-    color: var(--color-on-accent);
-  }
-
-  .lab__btn--ghost {
-    border-color: var(--color-rule-on-canvas);
-    color: var(--color-text-on-canvas);
-  }
-
-  .lab__btn--ghost:hover:not(:disabled),
-  .lab__btn--ghost:focus-visible {
     border-color: var(--color-accent);
-    background: transparent;
     color: var(--color-accent-text);
   }
 
   .lab__btn:disabled {
-    border-color: var(--color-rule-on-canvas-soft);
+    border-color: var(--color-rule-on-canvas);
     color: var(--color-text-on-canvas-faint);
     cursor: not-allowed;
   }
 
-  .lab__btn-icon { font-size: 0.75rem; line-height: 1; }
-  .lab__position { margin: 0 0 0 auto; }
-  .lab__viewport { display: grid; }
-
-  .lab__panel {
-    display: grid;
-    gap: var(--space-4);
-    min-width: 0;
-    padding: var(--space-4);
-    border: 1px solid var(--color-rule-on-canvas);
-    background: var(--color-canvas-soft);
+  .lab__btn-icon {
+    font-size: 0.875rem;
+    line-height: 1;
   }
 
-  .lab__panel[hidden] { display: none; }
-  .lab__panel:focus-visible { outline-offset: -2px; }
-
-  .lab__panel-top {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2);
+  .lab__btn--compare {
+    margin-left: auto;
   }
 
-  .lab__tag,
-  .lab__chip {
-    padding: 0.2rem 0.45rem;
-    border: 1px solid var(--color-rule-on-canvas);
+  .lab__btn--compare[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  .lab__btn--compare[aria-pressed='true']:hover,
+  .lab__btn--compare[aria-pressed='true']:focus-visible {
+    background: var(--color-accent-deep);
+    border-color: var(--color-accent-deep);
+    color: var(--color-on-accent);
+  }
+
+  .lab__position {
+    margin: 0;
     color: var(--color-text-on-canvas-muted);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.05em;
+    font-family: var(--font-instrument);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
     line-height: 1.4;
     text-transform: uppercase;
   }
 
-  .lab__tag { background: var(--color-canvas); }
-  .lab__chip--illus { border-style: dotted; }
-
-  .lab__panel-title {
-    margin: 0;
-    color: var(--color-text-on-canvas);
-    font-size: 1.0625rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    text-transform: capitalize;
+  .lab__position-step {
+    color: var(--color-accent-text);
   }
 
-  .lab__payload { display: grid; gap: var(--space-3); min-width: 0; }
-  .lab__code { display: grid; gap: var(--space-2); min-width: 0; margin: 0; }
+  .lab[data-comparing='true'] .lab__position-count {
+    display: none;
+  }
+
+  .lab[data-comparing='true'] .lab__position {
+    color: var(--color-accent-text);
+  }
+
+  /* The reading: current stage, then its artifact, then the transition. */
+  .lab__well {
+    display: grid;
+    min-width: 0;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-rule-on-canvas);
+    touch-action: pan-y;
+  }
+
+  .lab__panel,
+  .lab__compare {
+    display: grid;
+    grid-area: 1 / 1;
+    gap: var(--space-4);
+    align-content: start;
+    min-width: 0;
+    scroll-margin-top: calc(var(--shell-control) + 1.25rem);
+  }
+
+  .lab__panel[hidden],
+  .lab__compare[hidden] {
+    display: none;
+  }
+
+  .lab__panel:focus-visible,
+  .lab__compare:focus-visible {
+    outline-offset: 4px;
+  }
+
+  .lab__stage-head {
+    display: grid;
+    gap: 0;
+  }
+
+  .lab__stage {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    margin: 0;
+    color: var(--color-accent-text);
+    font-family: var(--font-instrument);
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1.15;
+    text-transform: uppercase;
+  }
+
+  .lab__stage-step {
+    color: var(--color-accent-text);
+  }
+
+  .lab__stage-state {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-on-canvas);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .lab__stage-reading {
+    margin: var(--space-1) 0 0;
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    font-weight: 500;
+    line-height: 1.45;
+  }
+
+  .lab__artifact {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .lab__plate {
+    min-width: 0;
+    margin: 0;
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck-inset);
+  }
+
+  .lab__plate[data-tone='failure'] {
+    border-color: var(--color-signal-fail);
+  }
+
+  .lab__plate[data-illustrative='true'] {
+    border-style: dotted;
+  }
+
+  .lab__plate-label,
+  .lab__compare-label {
+    margin: 0;
+    padding: var(--space-3);
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    line-height: 1.45;
+  }
 
   .lab__code pre {
     max-width: 100%;
-    min-width: 0;
     margin: 0;
     padding: var(--space-3);
     overflow-x: auto;
-    border: 1px solid var(--color-rule-on-canvas);
-    background: var(--color-canvas);
+    border-top: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck);
     color: var(--color-text-on-canvas);
-    font-family: var(--font-mono);
+    font-family: var(--font-instrument);
     font-size: 0.75rem;
+    font-weight: 500;
     line-height: 1.55;
     tab-size: 2;
   }
 
-  .lab__code[data-tone='failure'] pre { border-color: var(--color-signal-fail); }
+  .lab__code pre:focus-visible {
+    outline-offset: -2px;
+  }
 
-  .lab__checks-block { display: grid; gap: var(--space-2); }
-  .lab__checks-block > p { margin: 0; }
-
-  .lab__checks {
-    display: grid;
-    gap: 1px;
+  .lab__checks ol,
+  .lab__changes ol,
+  .lab__gaps dl,
+  .lab__refusal,
+  .lab__pair {
     margin: 0;
     padding: 0;
-    border: 1px solid var(--color-rule-on-canvas);
-    background: var(--color-rule-on-canvas);
     list-style: none;
+  }
+
+  .lab__checks ol {
+    display: grid;
+    gap: 1px;
+    border-top: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-rule-on-canvas);
   }
 
   .lab__checks li {
     display: grid;
-    grid-template-columns: minmax(8rem, 0.65fr) minmax(0, 1.35fr);
-    gap: var(--space-3);
+    grid-template-columns: minmax(7.5rem, 0.55fr) minmax(0, 1.45fr);
+    gap: var(--space-2) var(--space-3);
     align-items: start;
     padding: var(--space-3);
-    background: var(--color-canvas);
+    background: var(--color-deck);
   }
 
   .lab__checks-name,
-  .lab__checks-note {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    line-height: 1.55;
+  .lab__checks-note,
+  .lab__gaps dt,
+  .lab__gaps dd,
+  .lab__refusal dt,
+  .lab__refusal dd,
+  .lab__pair dt,
+  .lab__pair dd,
+  .lab__change-name {
+    font-family: var(--font-instrument);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.5;
   }
 
-  .lab__checks-name {
+  .lab__checks-name,
+  .lab__gaps dt,
+  .lab__refusal dt,
+  .lab__pair dt,
+  .lab__change-name {
     color: var(--color-text-on-canvas);
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
 
-  .lab__checks-note { color: var(--color-text-on-canvas-muted); }
-
-  .lab__compare-block { display: grid; gap: var(--space-2); }
-  .lab__compare-block > p { margin: 0; }
-
-  .lab__record,
-  .lab__compare {
-    display: grid;
-    gap: var(--space-1);
-    margin: 0;
-    border-left: 2px solid var(--color-signal-fail);
-    background: var(--color-canvas);
+  .lab__checks-note,
+  .lab__gaps dd,
+  .lab__refusal dd,
+  .lab__pair dd {
+    color: var(--color-text-on-canvas-muted);
   }
 
-  .lab__compare { border-left-color: var(--color-accent); }
+  .lab__gaps dl,
+  .lab__refusal dl,
+  .lab__pair {
+    display: grid;
+    border-top: 1px solid var(--color-rule-on-canvas);
+  }
 
-  .lab__record div,
-  .lab__compare div {
+  .lab__gaps div,
+  .lab__refusal div,
+  .lab__pair div {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 0.4fr) minmax(0, 1.6fr);
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-canvas-soft);
+    background: var(--color-deck);
+  }
+
+  .lab__gaps div:last-child,
+  .lab__refusal div:last-child,
+  .lab__pair div:last-child {
+    border-bottom: 0;
+  }
+
+  .lab__gaps [data-missing='true'] dd {
+    color: var(--color-signal-fail-text);
+  }
+
+  .lab__source {
+    margin: 0;
+    padding: var(--space-3);
+    border-top: 1px solid var(--color-rule-on-canvas);
+    color: var(--color-text-on-canvas-muted);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .lab__changes ol {
+    display: grid;
+    border-top: 1px solid var(--color-rule-on-canvas);
+  }
+
+  .lab__changes li {
     display: grid;
     gap: var(--space-1);
     padding: var(--space-3);
     border-bottom: 1px solid var(--color-rule-on-canvas-soft);
+    background: var(--color-deck);
   }
 
-  .lab__record div:last-child,
-  .lab__compare div:last-child { border-bottom: 0; }
-
-  .lab__record dt,
-  .lab__compare dt,
-  .lab__inspection dt {
-    color: var(--color-text-on-canvas-faint);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+  .lab__changes li:last-child {
+    border-bottom: 0;
   }
 
-  .lab__record dd,
-  .lab__compare dd {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    align-items: baseline;
+  .lab__change-note {
     margin: 0;
     color: var(--color-text-on-canvas-muted);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    line-height: 1.55;
+    font-size: var(--text-small);
+    line-height: 1.5;
   }
 
-  .lab__record dd { color: var(--color-text-on-canvas); }
-  .lab__compare-before { color: var(--color-text-on-canvas-faint); }
-  .lab__compare-arrow { color: var(--color-accent-text); }
-
-  .lab__inspection {
+  .lab__transition {
     display: grid;
     gap: 0;
     margin: 0;
     border-block: 1px solid var(--color-rule-on-canvas);
   }
 
-  .lab__inspection div {
+  .lab__transition div {
     display: grid;
-    grid-template-columns: minmax(8rem, 0.32fr) minmax(0, 1fr);
+    grid-template-columns: 6.25rem minmax(0, 1fr);
     gap: var(--space-3);
+    align-items: baseline;
     padding: var(--space-3) 0;
     border-bottom: 1px solid var(--color-rule-on-canvas-soft);
   }
 
-  .lab__inspection div:last-child { border-bottom: 0; }
-  .lab__inspection dt { margin: 0; }
-  .lab__inspection dd {
-    margin: 0;
-    color: var(--color-text-on-canvas-muted);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    line-height: 1.55;
+  .lab__transition div:last-child {
+    border-bottom: 0;
   }
 
-  .lab__interventions { display: grid; gap: var(--space-2); }
-  .lab__interventions > p { margin: 0; }
-  .lab__interventions ul {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    margin: 0;
-    padding: 0;
-    border: 1px solid var(--color-rule-on-canvas);
-    background: var(--color-rule-on-canvas);
-    list-style: none;
+  .lab__transition dt {
+    color: var(--color-text-on-canvas-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
-  .lab__interventions li {
-    padding: var(--space-3);
-    background: var(--color-canvas);
+  .lab__transition dd {
+    margin: 0;
     color: var(--color-text-on-canvas-muted);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-size: var(--text-small);
     line-height: 1.5;
   }
 
-  .lab__handoff {
+  .lab__cite {
+    display: grid;
+    gap: var(--space-2);
     margin: 0;
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
-  .lab__handoff .text-link,
-  .lab__case-link .text-link { color: var(--color-text-on-canvas); }
+  .lab__cite p {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .lab__cite-label {
+    color: var(--color-text-on-canvas-faint);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .lab__cite .text-link {
+    justify-self: start;
+    color: var(--color-text-on-canvas);
+  }
+
+  .lab__compare-label {
+    padding: 0;
+  }
+
+  .lab__split {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .lab__split-col {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-width: 0;
+    padding-top: var(--space-3);
+    border-top: 2px solid var(--color-rule-on-canvas-strong);
+  }
+
+  .lab__split-col--before {
+    border-top-color: var(--color-signal-fail);
+  }
+
+  .lab__split h3 {
+    margin: 0;
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
+  }
+
+  .lab__split-col--before h3 {
+    color: var(--color-signal-fail-text);
+  }
+
+  .lab__split-col--after h3 {
+    color: var(--color-text-on-canvas);
+  }
+
+  .lab__pair {
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck-inset);
+  }
+
+  .lab__keys {
+    margin: 0;
+    color: var(--color-text-on-canvas-muted);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+  }
 
   .lab__boundary {
     display: grid;
-    gap: var(--space-4);
-    padding: var(--space-4);
-    border: 1px dotted var(--color-rule-on-canvas);
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px dotted var(--color-rule-on-canvas);
   }
 
-  .lab__boundary-intro,
-  .lab__boundary-pointer {
+  .lab__boundary p {
     max-width: var(--width-content);
     margin: 0;
     color: var(--color-text-on-canvas-muted);
-    font-size: 0.875rem;
-    line-height: 1.6;
-  }
-
-  .lab__boundary-pointer {
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--color-rule-on-canvas);
-    color: var(--color-text-on-canvas-muted);
     font-size: var(--text-small);
+    line-height: 1.55;
   }
 
-  .lab__case-link { margin: 0; }
-  .lab__keys { margin: 0; color: var(--color-text-on-canvas-muted); }
+  .lab__boundary .text-link {
+    color: var(--color-text-on-canvas);
+  }
 
   @media (min-width: 48rem) {
-    .lab__bench { padding: var(--space-6); }
-    .lab__panel { padding: var(--space-5); }
+    .lab__bench {
+      padding: var(--space-5);
+    }
+
+    .lab__split {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-5);
+    }
+
+    .lab__code pre {
+      white-space: pre;
+    }
   }
 
-  @media (max-width: 57.99rem) {
-    .lab__bench { gap: var(--space-4); padding: var(--space-4); }
-    .lab__rail { grid-template-columns: minmax(0, 1fr); }
-    .lab__node {
-      grid-template-columns: 2.5rem minmax(0, 1fr) 0.75rem;
-      justify-items: start;
-      min-height: 2.9rem;
-      padding: var(--space-2) var(--space-3);
-      border-right: 0;
-      border-bottom: 1px solid var(--color-rule-on-canvas-soft);
-      text-align: left;
-    }
-    .lab__node:last-child { border-bottom: 0; }
-    .lab__node-label { font-size: 0.75rem; }
-    .lab__node-mark { justify-self: center; }
-    .lab__node[aria-selected='true'] { box-shadow: inset 2px 0 0 var(--color-accent); }
-    .lab__transport { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .lab__position { grid-column: 1 / -1; margin: 0; }
-    /* Code wraps instead of scrolling horizontally on narrow screens —
-       a focus-scrolled region is a poor fit for touch, and wrapping
-       loses nothing here. */
+  @media (max-width: 47.99rem) {
     .lab__code pre {
       white-space: pre-wrap;
       overflow-wrap: anywhere;
     }
   }
 
-  @media (max-width: 30rem) {
-    .lab__bench { padding: var(--space-3); }
-    .lab__panel { padding: var(--space-3); }
+  @media (max-width: 42rem) {
+    .lab__head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .lab__btn {
+      padding-inline: var(--space-1);
+    }
+
+    .lab__transport {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .lab__btn--compare,
+    .lab__position {
+      grid-column: 1 / -1;
+      margin-left: 0;
+    }
+
     .lab__checks li,
-    .lab__inspection div { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
-    .lab__interventions ul { grid-template-columns: minmax(0, 1fr); }
-    .lab__position { font-size: 0.625rem; }
+    .lab__gaps div,
+    .lab__refusal div,
+    .lab__pair div,
+    .lab__transition div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-1);
+    }
   }
 
+  :global(html:not(.js)) .lab__static-map {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  :global(html:not(.js)) .lab__static-map ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  :global(html:not(.js)) .lab__static-map li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  :global(html:not(.js)) .lab__static-map a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    color: var(--color-text-on-canvas);
+    font-family: var(--font-instrument);
+    font-size: var(--text-instrument-sm);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  :global(html:not(.js)) .lab__static-arrow {
+    color: var(--color-text-on-canvas-faint);
+  }
+
+  :global(html:not(.js)) .lab__track-scroll,
   :global(html:not(.js)) .lab__transport,
-  :global(html:not(.js)) .lab__readout { display: none; }
+  :global(html:not(.js)) .lab__keys {
+    display: none;
+  }
+
+  :global(html:not(.js)) .lab__well {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    border-top: 0;
+    padding-top: 0;
+  }
 
   :global(html:not(.js)) .lab__panel,
-  :global(html:not(.js)) .lab__panel[hidden] {
+  :global(html:not(.js)) .lab__panel[hidden],
+  :global(html:not(.js)) .lab__compare,
+  :global(html:not(.js)) .lab__compare[hidden] {
     display: grid !important;
-    margin-bottom: var(--space-4);
-  }
-
-  :global(html:not(.js)) .lab__panel + .lab__panel {
+    grid-area: auto;
     padding-top: var(--space-4);
-    border-top: 1px solid var(--color-rule-on-canvas-soft);
+    border-top: 1px solid var(--color-rule-on-canvas);
   }
 
-  :global(html:not(.js)) .lab__rail { display: none; }
+  @media (forced-colors: active) {
+    .lab__marker {
+      background: CanvasText;
+      outline: 2px solid CanvasText;
+    }
 
-  @media (prefers-reduced-motion: reduce) {
-    .lab *,
-    .lab *::before,
-    .lab *::after {
-      scroll-behavior: auto !important;
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+    .lab__node[aria-selected='true'] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+
+    .lab__btn--compare[aria-pressed='true'] {
+      outline: 2px solid Highlight;
+    }
+
+    .lab__segment {
+      background: Highlight;
     }
   }
 </style>
+
