@@ -980,15 +980,16 @@ select {
   }
 }
 
-/* Scoped component styles stay authoritative for their internal
-   states. These section-qualified selectors are the final
-   composition constraints, so the hierarchy also holds at wide
-   view. */
-section#reliability-lab .lab__title { font-size: clamp(1.5rem, 2.5vw, 2.25rem); }
-section#reliability-lab .lab__intro { max-width: 34rem; font-size: var(--text-small); }
-section#reliability-lab .lab__bench { border-color: var(--color-rule-on-canvas-strong); background: var(--color-deck-inset); }
-section#reliability-lab .lab__boundary,
-section#reliability-lab .lab__keys { opacity: 0.72; }
+/* Lab composition constraint: the title stays an instrument label.
+   The track and the reading carry the hierarchy, at every width. */
+section#reliability-lab .lab__title {
+  font-family: var(--font-instrument);
+  font-size: var(--text-instrument-sm);
+  font-weight: 500;
+  letter-spacing: var(--tracking-instrument);
+  line-height: 1.4;
+  text-transform: uppercase;
+}
 
 @media (min-width: 64rem) {
   /* Profile composition: the writing columns dominate, the rails
@@ -1018,8 +1019,6 @@ section#reliability-lab .lab__keys { opacity: 0.72; }
 /* On mobile, keep the order and dominant objects, but turn every
    horizontal relationship into a clean vertical one. */
 @media (max-width: 59.99rem) {
-  section#reliability-lab .lab__bench { gap: var(--space-4); }
-  section#reliability-lab .lab__transport { padding-top: var(--space-3); }
   section#about .about__body,
   section#experience .region-body { max-width: none; }
 }
