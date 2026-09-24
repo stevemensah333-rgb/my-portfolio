@@ -47,7 +47,7 @@ Do not copy another portfolio's identity, layout, copy, illustrations, or intera
 
 The intended primary interaction concepts are:
 
-1. Interactive 3D Stephen.
+1. Stephen's portrait — the hero identity element.
 2. Interactive name.
 3. Project cluster/pile.
 4. Syncareer engineering investigation.
@@ -57,7 +57,7 @@ Treat these as purposeful parts of the visitor journey, not a checklist to crowd
 
 Secondary interactions are disclosure, inspection, visible focus states, and subtle transitions. Keep them quiet and predictable.
 
-The 3D experience must be specifically about Stephen, not an arbitrary 3D object. It must have a useful static/accessibility fallback, remain understandable without motion, and be budgeted for performance and mobile. No content or essential action may depend on successful 3D rendering. If an interaction uses drag, provide an equivalent keyboard and touch-friendly path.
+Stephen's identity is the real portrait, not a 3D character or generated stand-in. The hero portrait sits in a simple interaction boundary that may later support subtle pointer-responsive depth, lighting, and hover/focus response; it remains fundamentally a real photograph — no WebGL, no Three.js, no model asset. If an interaction uses drag, provide an equivalent keyboard and touch-friendly path.
 
 Do not add:
 
@@ -117,7 +117,7 @@ Accessibility is a design requirement, not a final polish pass.
 
 The project uses Astro with strict TypeScript, plain CSS, small amounts of client-side JavaScript, and static output. Prefer the existing stack and maintain Vercel static-deployment compatibility. Verify `package.json` and the code before relying on implementation details.
 
-Use the smallest maintainable implementation and fewest dependencies that satisfy the interaction. Do not add React, WebGL/3D tooling, large animation libraries, backend infrastructure, a database, or global state without a concrete implementation reason. The interactive 3D Stephen concept is a reason to evaluate a suitable 3D technique, not a reason to add unrelated complexity.
+Use the smallest maintainable implementation and fewest dependencies that satisfy the interaction. Do not add React, WebGL/3D tooling, large animation libraries, backend infrastructure, a database, or global state without a concrete implementation reason. The 3D avatar concept is abandoned: the human identity layer uses the real portrait. Do not reintroduce WebGL, Three.js, or model assets.
 
 - Keep browser navigation, reloads, anchor links, and shareable project URLs working; do not make the site depend on opaque client-side state.
 - Existing public URLs `/`, `/work/syncareer/`, `/about`, `/contact`, and `/case-study` are commitments. Do not break them without a deliberate redirect decision.
