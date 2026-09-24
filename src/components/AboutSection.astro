@@ -6,8 +6,9 @@
  * short paragraphs, set at the page's airiest rhythm. No instrument
  * vocabulary — no rail, no read-out, no tags — because this is the
  * person the instruments belong to. The SectionFrame seam and
- * coordinate stay: they are how the system marks a region, and the
- * portrait keeps a single hairline frame like a print hung on paper.
+ * coordinate stay: they are how the system marks a region. The
+ * portrait is a transparent cut-out, so it has no box — it stands on
+ * a single baseline rule, the same way it does in the home hero.
  *
  * The portrait is the real photograph (public/images/stephen.{png,webp},
  * 500×500): no canvas, no particles, no 3D, no reconstruction.
@@ -108,14 +109,14 @@ import SectionFrame from './SectionFrame.astro';
     color: var(--color-accent-text);
   }
 
-  /* The portrait is a real photograph hung as a small squared print:
-     one mat, one hairline, no caption, no read-out. */
+  /* The portrait is a transparent cut-out: no mat, no fill, no frame
+     — any of those would draw back the rectangle the cut-out removes.
+     Its cropped lower edge stands on one rule, the baseline it shares
+     with the home hero. No caption, no read-out. */
   .about__portrait {
     width: min(100%, 14rem);
     margin: 0;
-    padding: var(--space-2);
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-sheet-soft);
+    border-bottom: 1px solid var(--color-rule-on-paper-strong);
   }
 
   .about__portrait img {

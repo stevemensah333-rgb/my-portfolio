@@ -1200,10 +1200,15 @@ article.case-page .outcome-grid {
   align-items: start;
 }
 
-article.case-page .product-record dt { opacity: 0.76; }
+/* Quieter via the faint token, not opacity: opacity dropped these
+   12px labels to 4.4:1. The faint token stays ≥5:1 on every sheet. */
+article.case-page .product-record dt { color: var(--color-text-on-paper-faint); }
 
 @media (max-width: 47.99rem) {
   article.case-page .outcome-grid { grid-template-columns: 1fr; }
 }
 
-.section-frame.section-frame .section-frame__status { opacity: 0.62; }
+/* Same rule for the 11px region status: opacity took it to 3.3:1 on
+   paper and 3.6:1 on the deck. The faint token is remapped on dark
+   surfaces, so one declaration serves both. */
+.section-frame.section-frame .section-frame__status { color: var(--color-text-on-paper-faint); }

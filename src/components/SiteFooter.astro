@@ -26,10 +26,14 @@ const year = new Date().getFullYear();
     </p>
   </div>
 
-  <p class="page-shell site-footer__tagline">
-    Built and written by Stephen Mensah in Berekuso, Ghana. Content is grounded in public
-    repositories; anything not yet verified is labelled UNKNOWN.
-  </p>
+  <div class="page-shell">
+    <p class="site-footer__tagline">
+      <span>
+        Built and written by Stephen Mensah in Berekuso, Ghana. Content is grounded in public
+        repositories; anything not yet verified is labelled UNKNOWN.
+      </span>
+    </p>
+  </div>
 </footer>
 
 <style>
@@ -120,6 +124,11 @@ const year = new Date().getFullYear();
     color: var(--color-text-on-canvas-muted);
     font-size: var(--text-small);
     line-height: 1.55;
+  }
+
+  /* The rule spans the shell; only the sentence keeps reading measure. */
+  .site-footer__tagline span {
+    display: block;
     max-width: var(--width-reading);
   }
 

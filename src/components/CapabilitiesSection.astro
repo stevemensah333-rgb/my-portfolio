@@ -265,7 +265,7 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
             {capabilities.map((capability, index) => {
               const isActive = capability.id === initialId;
               return (
-                <article
+                <div
                   id={`cap-panel-${capability.id}`}
                   class="capabilities__panel"
                   role="tabpanel"
@@ -310,7 +310,7 @@ const isExternal = (href?: string) => !!href && href.startsWith('http');
                       ))}
                     </ul>
                   </div>
-                </article>
+                </div>
               );
             })}
             <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-cap-status></p>
