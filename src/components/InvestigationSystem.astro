@@ -117,30 +117,6 @@ const total = String(stages.length).padStart(2, '0');
                 </div>
               )}
 
-              {artifact && artifact.kind === 'compare' && (
-                <div class="system__compare">
-                  <p class="mono-label">{artifact.label}</p>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th scope="col">Contract</th>
-                        <th scope="col">Before</th>
-                        <th scope="col">Revised</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {artifact.items.map((item) => (
-                        <tr>
-                          <th scope="row">{item.name}</th>
-                          <td>{item.before}</td>
-                          <td>{item.after}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
               <p class="system__handoff">
                 <span class="mono-label">
                   {next ? `Hands on → ${next.step} ${next.label}` : 'Hands on → the user'}
@@ -453,8 +429,7 @@ const total = String(stages.length).padStart(2, '0');
   }
 
   .system__checks,
-  .system__record,
-  .system__compare {
+  .system__record {
     display: grid;
     gap: var(--space-3);
     max-width: 46rem;
@@ -516,39 +491,6 @@ const total = String(stages.length).padStart(2, '0');
     margin: 0;
     font-size: var(--text-small);
     line-height: 1.45;
-  }
-
-  .system__compare table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: var(--text-small);
-    text-align: left;
-  }
-
-  .system__compare th,
-  .system__compare td {
-    padding: var(--space-3) var(--space-3) var(--space-3) 0;
-    vertical-align: top;
-    border-bottom: 1px solid var(--color-rule-on-paper-soft);
-  }
-
-  .system__compare thead th {
-    border-bottom: 1px solid var(--color-rule-on-paper-strong);
-    color: var(--color-text-on-paper-faint);
-    font-family: var(--font-instrument);
-    font-size: var(--text-instrument-sm);
-    font-weight: 500;
-    letter-spacing: var(--tracking-instrument);
-    text-transform: uppercase;
-  }
-
-  .system__compare tbody th {
-    width: 7rem;
-    font-weight: 600;
-  }
-
-  .system__compare tbody td {
-    color: var(--color-text-on-paper-muted);
   }
 
   .system__handoff,
@@ -640,40 +582,6 @@ const total = String(stages.length).padStart(2, '0');
 
     .system__stage {
       padding-left: var(--space-5);
-    }
-
-    .system__compare table,
-    .system__compare tbody,
-    .system__compare tr,
-    .system__compare th,
-    .system__compare td {
-      display: block;
-      width: auto;
-    }
-
-    .system__compare thead {
-      display: none;
-    }
-
-    .system__compare tbody th {
-      border-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    .system__compare tbody td::before {
-      color: var(--color-text-on-paper-faint);
-      font-family: var(--font-instrument);
-      font-size: var(--text-instrument-sm);
-      letter-spacing: var(--tracking-instrument);
-      text-transform: uppercase;
-    }
-
-    .system__compare tbody td:first-of-type::before {
-      content: 'Before · ';
-    }
-
-    .system__compare tbody td:last-of-type::before {
-      content: 'Revised · ';
     }
   }
 </style>

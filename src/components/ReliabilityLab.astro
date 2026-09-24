@@ -177,19 +177,24 @@ const total = String(labStages.length).padStart(2, '0');
                   </dl>
                 )}
 
-                {stage.artifact?.kind === 'compare' && stage.artifact.items && (
-                  <dl class="lab__compare">
-                    {stage.artifact.items.map((item) => (
-                      <div>
-                        <dt>{item.name}</dt>
-                        <dd>
-                          <span class="lab__compare-before">{item.before}</span>
-                          <span class="lab__compare-arrow" aria-hidden="true">→</span>
-                          <span>{item.after}</span>
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
+                <!-- The diagnosis stage's compare: the canonical
+                     before/after record, re-exposed at instrument scale. -->
+                {stage.lab.comparison && (
+                  <div class="lab__compare-block">
+                    <p class="mono-label">{stage.lab.comparison.label}</p>
+                    <dl class="lab__compare">
+                      {stage.lab.comparison.items.map((item) => (
+                        <div>
+                          <dt>{item.name}</dt>
+                          <dd>
+                            <span class="lab__compare-before">{item.before}</span>
+                            <span class="lab__compare-arrow" aria-hidden="true">→</span>
+                            <span>{item.after}</span>
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
                 )}
               </div>
 
@@ -706,6 +711,9 @@ const total = String(labStages.length).padStart(2, '0');
   }
 
   .lab__checks-note { color: var(--color-text-on-canvas-muted); }
+
+  .lab__compare-block { display: grid; gap: var(--space-2); }
+  .lab__compare-block > p { margin: 0; }
 
   .lab__record,
   .lab__compare {

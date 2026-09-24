@@ -9,15 +9,20 @@
  * ONE EXPLANATION PER FACT (AGENTS.md §5). Each export below declares the
  * single surface that explains a fact in prose, named in its doc comment:
  *
- *   §01 PRODUCT       syncareerProduct   the product, its workflow, its record
- *   §02 FAILURE       failureRecord      the observed failure and its classes
+ *   §01 PRODUCT       syncareerProduct    the product, its workflow, its record
+ *   §02 FAILURE       failureRecord       the observed failure, its classes, and
+ *                                         the documented old contract (the large
+ *                                         failure artifact)
  *   §03 INVESTIGATION investigationStages the seven-stage system, stage by stage
- *   §04 INTERVENTION  interventionRecord  what changed, and where it lives
+ *   §04 INTERVENTION  interventionRecord  what changed, the before/after record
+ *                                         (the large anchor), and where it lives
  *   §05 RESULT        evidenceBoundary    what exists / what was never measured
  *
  * Every other view — the Reliability Lab, the work archive, the case-page
  * navigation — renders a label, a citation, a visual or a link back here.
- * It must not re-explain these facts in its own words.
+ * It must not re-explain these facts in its own words. Inside the seven-stage
+ * system the pointer rule holds: stage 04 points at 02, stage 05 at 02 and 04,
+ * stage 06 at 04 — no fact is explained twice.
  *
  * Illustrative model text is labelled at the point of display, as required by
  * AGENTS.md §5. The reason those fixtures exist is stated once, in §05.
@@ -87,6 +92,25 @@ export const failureRecord = {
   ],
   known:
     'Recorded in the project’s own AI-application guidance notes and visible in the previous request shape. This is a reading of the code and notes, not a captured incident report — no live failure log exists.',
+  /**
+   * THE PROBLEM’s large failure artifact — the old contract, as documented.
+   * Rendered once, in 02 FAILURE, as the section’s anchor. The values are
+   * the documented old shape (the project’s guidance notes), not a captured
+   * log; the classes above are the same record read as a list, and the
+   * stage 02 fixture in 03 is what this contract produced (illustrative).
+   */
+  oldContract: {
+    label: 'Old contract · cv.rewrite_bullet',
+    source:
+      'As documented in the project’s AI-application guidance notes — no captured log exists.',
+    request: 'The selected bullet — one string, nothing else.',
+    gaps: [
+      { field: 'requirement', note: 'not sent' },
+      { field: 'evidence records', note: 'not sent' },
+      { field: 'provenance', note: 'not sent' },
+      { field: 'validation', note: 'none — the reply was cast to a type, not checked' },
+    ],
+  },
 } as const;
 
 export type InvestigationStageId =
@@ -101,12 +125,7 @@ export type InvestigationStageId =
 export type InvestigationArtifact =
   | { kind: 'code'; label: string; code: string; illustrative?: boolean }
   | { kind: 'checks'; label: string; items: { name: string; note?: string }[] }
-  | { kind: 'refusal'; label: string; items: { name: string; value: string }[] }
-  | {
-      kind: 'compare';
-      label: string;
-      items: { name: string; before: string; after: string }[];
-    };
+  | { kind: 'refusal'; label: string; items: { name: string; value: string }[] };
 
 export type InvestigationStage = {
   id: InvestigationStageId;
@@ -177,7 +196,7 @@ if (!hasRequirement || !hasEvidence || !hasOpportunity) {
     title: 'Ungrounded rewrite (illustrative)',
     summary: 'A plausible bullet the supplied evidence does not support.',
     detail:
-      'ILLUSTRATIVE. The old contract sent the selected bullet and nothing else, so the model worked without the requirement and without the wider evidence. The shape below is inferred from that contract and the recorded failure classes. It is a fixture, not a transcription.',
+      'ILLUSTRATIVE — inferred from the old contract and the recorded failure classes, not a captured output. The old contract sent the bullet alone; the failure it reproduces is set out in 02 FAILURE.',
     handedOff: 'Raw model text. An HTTP 200 from the gateway is not treated as a result.',
     evidence:
       'Failure shape from docs/AI_APPLICATION_GUIDANCE.md.',
@@ -198,7 +217,7 @@ improving speed by 40%.`,
     title: 'Parse, then check the citations',
     summary: 'Model output is a proposal, not an answer.',
     detail:
-      'Raw text is stripped of code fences and parsed as JSON; the kind must be one the task is allowed to return, and sourceContextIds must be a non-empty subset of the ids the request actually supplied. A bullet rewrite must also cite at least one requirement-* and one evidence-* id before the request can consume quota. Only then does the application layer check for newly introduced numbers, job skills copied without evidence, employers presented as experience, and coursework upgraded to employment.',
+      'Raw text is stripped of code fences and parsed as JSON; the kind must be one the task is allowed to return, and sourceContextIds must be a non-empty subset of the ids the request actually supplied. A bullet rewrite must also cite at least one requirement-* and one evidence-* id before the request can consume quota. Only then do the factual-risk checks run — what they flag is set out in 04 INTERVENTION.',
     handedOff:
       'A Proposal, or one of the named refusals: model_not_json, model_kind, model_unknown_source_id, model_missing_grounding.',
     evidence:
@@ -245,20 +264,11 @@ improving speed by 40%.`,
     title: 'Both sides of the contract were too thin',
     summary: 'The repair was to the contract, not to the model.',
     detail:
-      'Read against the old shapes: the request carried one bullet and no provenance, the response carried text and broad source ids, and the interface invented a rationale for it. Neither side gave the server anything to check a claim against — which is why the repair targets the contract rather than the model, the provider or the prompt alone. The opportunity and application drawers already had an authenticated call, a quota seam and explicit accept/reject/undo, so the change could extend that seam instead of adding a provider, an AI framework, a vector store or a generic prompt API.',
+      'Read against the old shape set out in 02 FAILURE, neither side of the contract gave the server anything to check a claim against — which is why the repair targets the contract rather than the model, the provider or the prompt alone. The opportunity and application drawers already had an authenticated call, a quota seam and explicit accept/reject/undo, so the change could extend that seam instead of adding a provider, an AI framework, a vector store or a generic prompt API. The before/after it implies is set out in 04 INTERVENTION.',
     handedOff: 'A target for the repair: a richer, bounded request and a validated, cited response.',
     evidence:
       'Interpretation of the old and revised contracts in docs/AI_APPLICATION_GUIDANCE.md.',
     tone: 'technical',
-    artifact: {
-      kind: 'compare',
-      label: 'Old shape → revised shape',
-      items: [
-        { name: 'Request', before: 'One selected bullet', after: 'Allowlisted context items with provenance, size limits, and a required requirement/evidence pair' },
-        { name: 'Response', before: 'Text plus broad source ids', after: 'kind, text, and sourceContextIds drawn from the ids actually supplied' },
-        { name: 'Trust', before: 'Remote JSON cast to a type', after: 'Runtime validation, a citation subset check, and factual-risk checks' },
-      ],
-    },
   },
   {
     id: 'intervention',
@@ -267,7 +277,7 @@ improving speed by 40%.`,
     title: 'The same seam, in a fail-closed order',
     summary: 'Bounded in, validated out, nothing applied automatically.',
     detail:
-      'At this point the pipeline changes shape: the request is built from allowlisted items only, and a reply has to survive parsing, citation and risk checks before it can become a proposal. The engineering responses themselves are set out once in 04 INTERVENTION; what this stage adds is the order they run in, and the rule that every failure after the reservation releases it.',
+      'This is where the pipeline changes shape. The four engineering responses are set out in 04 INTERVENTION; what this stage adds is the order they run in, and the rule that every failure after the reservation releases it.',
     handedOff: 'A Proposal the interface can review, or a refusal that cost nothing.',
     evidence:
       'Tracked career-guidance v2 source (handler.ts, prompts.ts). Deployment status: 05 RESULT.',
@@ -325,18 +335,31 @@ if (!validated.ok) {
  */
 export const interventionRecord = {
   lede: 'A request/response contract: allowlisted context in, validated and cited proposals out, and nothing applied automatically.',
+  /**
+   * THE INTERVENTION’s large before/after artifact — the canonical contract
+   * comparison. Rendered once as the 04 anchor on the case page; the Lab’s
+   * diagnosis stage re-exposes it at instrument scale. Stage 05 points here.
+   */
+  comparison: {
+    label: 'The contract, before → after',
+    items: [
+      { name: 'Request', before: 'One selected bullet', after: 'Allowlisted context items with provenance, size limits, and a required requirement/evidence pair' },
+      { name: 'Response', before: 'Text plus broad source ids', after: 'kind, text, and sourceContextIds drawn from the ids actually supplied' },
+      { name: 'Trust', before: 'Remote JSON cast to a type', after: 'Runtime validation, a citation subset check, and factual-risk checks' },
+    ],
+  },
   responses: [
     {
       name: 'Bounded, task-family server prompts',
-      note: 'Ten tasks, each with its own server-side prompt built only from the supplied context. Job text, CV text, labels and the user instruction are all treated as untrusted data; the server never retrieves profile data, history or transcripts.',
+      note: 'Ten tasks, each with its own server-side prompt built only from the supplied context. Job text, CV text, labels and the user instruction are treated as untrusted data.',
     },
     {
       name: 'Allowlisted context with size limits',
-      note: 'Context items carry an id, label, provenance and content, drawn from a fixed provenance list. Limits: 12 items, 8,000 characters each, 24,000 in total, and 2,000 for the instruction.',
+      note: 'Context may enter only as allowlisted items with a fixed provenance list. Limits: 12 items, 8,000 characters each, 24,000 in total, and 2,000 for the instruction.',
     },
     {
       name: 'Citation enforcement',
-      note: 'A bullet rewrite cannot reach the model without a requirement-* and evidence-* pair, and its proposal must cite ids that exist on the request. Missing grounding is a refusal, not a warning.',
+      note: 'Missing grounding is a refusal, not a warning — the request is checked before the model is called, and the reply is checked against the ids the request supplied.',
     },
     {
       name: 'Factual-risk checks and explicit review',
@@ -408,38 +431,4 @@ export const evidenceBoundary = {
   },
 } as const;
 
-/**
- * Condensed causal trace — DERIVED from the canonical exports above, never
- * independently authored, so no second narrative can drift from this file.
- */
-const stageById = (id: InvestigationStageId) => investigationStages.find((stage) => stage.id === id);
 
-const slug = (name: string) =>
-  name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
-
-const rawArtifact = stageById('model-output')?.artifact;
-const validArtifact = stageById('output')?.artifact;
-const validationArtifact = stageById('validation')?.artifact;
-
-export const causalTrace = {
-  /** 02 MODEL OUTPUT — the illustrative ungrounded rewrite. */
-  raw: rawArtifact?.kind === 'code' ? rawArtifact.code : '',
-  /** 07 OUTPUT AFTERWARD — the illustrative cited proposal. */
-  valid: validArtifact?.kind === 'code' ? validArtifact.code : '',
-  /** 03 VALIDATION — the canonical contract checks. */
-  gates:
-    validationArtifact?.kind === 'checks'
-      ? validationArtifact.items.map((item) => ({
-          id: slug(item.name),
-          label: item.name,
-          rule: item.note ?? '',
-        }))
-      : [],
-  /** 02 FAILURE — the canonical observed failure classes. */
-  failureClasses: failureRecord.classes.map((item) => ({ name: item.name, note: item.note })),
-  /** 04 INTERVENTION — the canonical engineering responses. */
-  interventions: interventionRecord.responses.map((item) => item.name),
-} as const;
