@@ -1,20 +1,92 @@
 ---
-import { projects, syncareer } from '../../data/registry';
+/**
+ * WORK — the project archive.
+ *
+ * One set of project objects, one composition. The CSS grid below IS
+ * the final, inspectable composition (large flagship artifact on the
+ * left, two compact secondary artifacts on the right, ~65/35). That
+ * grid is what no-JS and reduced-motion visitors see.
+ *
+ * With JavaScript and motion allowed, a small scroll-linked engine
+ * measures each artifact's resting place and offsets it into a compact
+ * pile. Scroll progress through the stage then runs one deterministic
+ * sequence: CLUSTER → SEPARATE → REVEAL → INSPECT. No physics, no drag,
+ * no scroll hijacking — the page scrolls normally and only the
+ * composition reads the progress.
+ *
+ * Every artifact is real project material or says plainly that none
+ * exists (AGENTS.md §5–6):
+ *   Syncareer    three interface captures of the live product
+ *   SessionBook  an implementation excerpt from the public repository
+ *   Koranco      a record sheet — no public repository or screenshots
+ */
+import { projects, syncareer, sessionbook, koranco } from '../../data/registry';
+import type { Project } from '../../data/projects';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const title = 'Work — Project Archive | Stephen Mensah';
 const description =
-  'A project archive for inspecting Stephen Mensah\'s real engineering work, its visual artifacts, and the evidence behind each case study.';
+  'The things Stephen Mensah built: Syncareer, a live AI-integrated career workspace; SessionBook, a booking backend; and Koranco Farms, a farm management MVP. Each with its artifacts and evidence boundary.';
 
-const imageArtifacts = syncareer.evidence.filter((item) => item.kind === 'artifact-image');
-const archiveEntries = projects.map((project, index) => ({
-  project,
-  index,
-  isFlagship: project.id === 'syncareer',
-}));
+const captures = syncareer.evidence.filter(
+  (item): item is Extract<(typeof syncareer.evidence)[number], { kind: 'artifact-image' }> =>
+    item.kind === 'artifact-image',
+);
+
+/* SessionBook's artifact is the implementation excerpt that already
+   lives in the registry (one canonical copy; labelled as it is on the
+   case page). */
+const sessionbookExcerpt = sessionbook.stages?.find((stage) => stage.id === 'model-output');
+const sessionbookFixes = sessionbook.stages?.find((stage) => stage.id === 'intervention')?.fixes ?? [];
+
+/* Koranco's record sheet repeats only the module names already stated
+   on /work/koranco/ and in the registry. */
+const korancoModules = ['Attendance checking', 'Farm produce management', 'Employee management'];
+
+const statusLabel: Record<Project['status'], string> = {
+  live: 'Live',
+  mvp: 'MVP',
+  'in-development': 'In development',
+  coursework: 'Coursework',
+  experiment: 'Experiment',
+};
+
+type Entry = {
+  project: Project;
+  number: string;
+  role: string;
+  artifact: string;
+  meta: string;
+};
+
+const entries: Record<'syncareer' | 'sessionbook' | 'koranco', Entry> = {
+  syncareer: {
+    project: syncareer,
+    number: '01',
+    role: 'Flagship case',
+    artifact: `${captures.length} interface captures`,
+    meta: 'TypeScript · Supabase · Edge Functions',
+  },
+  sessionbook: {
+    project: sessionbook,
+    number: '02',
+    role: 'Current project',
+    artifact: 'Implementation excerpt',
+    meta: 'FastAPI · Postgres',
+  },
+  koranco: {
+    project: koranco,
+    number: '03',
+    role: 'Delivered MVP',
+    artifact: 'Record only',
+    meta: koranco.stack.join(' · '),
+  },
+};
 
 const responsiveAsset = (href: string, width: 1440 | 1800 | 2400, format: 'png' | 'webp') =>
   href.replace(/-2400\.png$/, `-${width}.${format}`);
+const srcset = (href: string, format: 'png' | 'webp') =>
+  ([1440, 1800, 2400] as const).map((w) => `${responsiveAsset(href, w, format)} ${w}w`).join(', ');
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -38,12 +110,7 @@ const structuredData = {
   },
 };
 
-const phases = [
-  { index: '01', label: 'Cluster' },
-  { index: '02', label: 'Separate' },
-  { index: '03', label: 'Reveal' },
-  { index: '04', label: 'Inspect' },
-];
+const phases = ['Cluster', 'Separate', 'Reveal', 'Inspect'];
 ---
 
 <BaseLayout
@@ -57,200 +124,241 @@ const phases = [
   area="work"
 >
   <article class="archive" data-archive>
-    <header
-      class="archive-hero page-shell"
-      data-workspace-section="top"
-      data-workspace-label="Archive"
-    >
-      <div class="archive-hero__rule" aria-hidden="true">
-        <span class="mono-label">02 · Work</span>
-        <span class="archive-hero__rule-line"></span>
-        <span class="mono-label mono-label--bare">Project archive</span>
-      </div>
-
-      <div class="archive-hero__grid">
-        <div class="archive-hero__copy">
-          <p class="mono-label mono-label--state">Evidence-led projects</p>
-          <h1>From a cluster to a set of cases.</h1>
-          <p class="archive-hero__lede">
-            The work starts as a physical stack. Scroll through it to separate the artifacts,
-            reveal their shape, and choose the case you want to inspect.
-          </p>
-          <a class="text-link" href="#archive-cluster">
-            Enter the archive <span class="text-link__arrow" aria-hidden="true">↓</span>
-          </a>
-        </div>
-
-        <aside class="archive-hero__logic" aria-label="Archive interaction sequence">
-          <p class="mono-label mono-label--bare">Scroll sequence</p>
-          <ol>
-            {phases.map((phase) => (
-              <li>
-                <span>{phase.index}</span>
-                <span>{phase.label}</span>
-              </li>
-            ))}
-          </ol>
-        </aside>
-      </div>
-    </header>
-
     <section
-      id="archive-cluster"
       class="archive-stage"
       data-archive-stage
-      data-workspace-section="archive"
+      data-workspace-section="top"
       data-workspace-label="Project archive"
-      aria-labelledby="archive-stage-title"
+      aria-labelledby="archive-title"
     >
       <div class="archive-stage__sticky">
-        <div class="archive-stage__topline page-shell">
-          <p class="mono-label mono-label--bare">02 / Work / Archive</p>
-          <div class="archive-stage__readout">
-            <span class="archive-stage__readout-label">State</span>
-            <span data-archive-state aria-live="polite">Cluster</span>
-          </div>
-        </div>
-
-        <div class="archive-stage__heading page-shell">
-          <div>
-            <h2 id="archive-stage-title">A deliberate pile of engineering artifacts.</h2>
-            <p>
-              Keep scrolling. The offsets loosen, the flagship comes forward, and every card
-              resolves into a direct route to its case study.
+        <header class="archive-head page-shell">
+          <div class="archive-head__copy">
+            <p class="mono-label mono-label--state">02 · Work · Project archive</p>
+            <h1 id="archive-title">Things I built.</h1>
+            <p class="archive-head__lede">
+              A live career platform, a booking backend, and a farm management MVP. Each
+              artifact opens a case study with its evidence and its limits.
             </p>
           </div>
-          <div class="archive-stage__meter" aria-hidden="true">
-            <span data-archive-progress></span>
+
+          <!-- Scroll-state readout. Decorative mirror of the composition,
+               so it is hidden from assistive technology; no information
+               lives only here. -->
+          <div class="archive-head__instrument" aria-hidden="true">
+            <ol class="archive-phases">
+              {phases.map((phase, index) => (
+                <li data-archive-phase={index} data-active={index === 3 ? 'true' : undefined}>{phase}</li>
+              ))}
+            </ol>
+            <span class="archive-meter"><span data-archive-progress></span></span>
           </div>
-        </div>
+        </header>
 
-        <div class="archive-stage__workspace page-shell" data-archive-visual>
-          <ol class="archive-stage__phases" aria-label="Archive scroll sequence">
-            {phases.map((phase, phaseIndex) => (
-              <li data-archive-phase={phaseIndex} data-active={phaseIndex === 0 ? 'true' : undefined}>
-                <span>{phase.index}</span>
-                <span>{phase.label}</span>
-              </li>
-            ))}
-          </ol>
-
-          <ol class="archive-stage__cards" aria-label="Projects">
-            {archiveEntries.map(({ project, index, isFlagship }) => (
-              <li
-                class:list={['archive-card', isFlagship && 'archive-card--flagship']}
-                data-archive-card
+        <div class="archive-field page-shell">
+          <ol class="archive-artifacts" data-archive-field aria-label="Projects, flagship first">
+            <!-- 01 · SYNCAREER — the largest object on the page. -->
+            <li class="artifact artifact--flagship" data-artifact>
+              <a
+                class="artifact__link"
+                href={syncareer.route}
+                aria-labelledby="artifact-syncareer-name"
+                aria-describedby="artifact-syncareer-short"
               >
-                <a
-                  class="archive-card__link"
-                  href={project.route}
-                  aria-labelledby={`archive-card-${project.id}-title`}
-                >
-                  <span class="archive-card__surface">
-                    <span class="archive-card__header">
-                      <span class="archive-card__kind">
-                        {isFlagship ? 'Flagship case' : 'Project record'}
+                <span class="artifact__object" data-artifact-object>
+                  <span class="artifact__tab" aria-hidden="true">
+                    <span>{entries.syncareer.number}</span>{syncareer.name}
+                  </span>
+                  <span class="artifact__plate artifact__plate--captures">
+                    {captures.map((capture, index) => (
+                      <span
+                        class:list={['capture', `capture--${index}`]}
+                        data-capture={index}
+                      >
+                        <picture>
+                          <source
+                            type="image/webp"
+                            srcset={srcset(capture.href, 'webp')}
+                            sizes={index === 0 ? '(min-width: 60rem) 48vw, 92vw' : '(min-width: 60rem) 18vw, 36vw'}
+                          />
+                          <img
+                            src={responsiveAsset(capture.href, 1440, 'png')}
+                            srcset={srcset(capture.href, 'png')}
+                            sizes={index === 0 ? '(min-width: 60rem) 48vw, 92vw' : '(min-width: 60rem) 18vw, 36vw'}
+                            width="2400"
+                            height="1302"
+                            alt={capture.alt}
+                            loading={index === 0 ? 'eager' : 'lazy'}
+                            fetchpriority={index === 0 ? 'high' : undefined}
+                            decoding="async"
+                          />
+                        </picture>
                       </span>
-                      <span class:list={['archive-card__status', `archive-card__status--${project.status}`]}>
-                        <span class="archive-card__status-dot" aria-hidden="true"></span>
-                        {project.status.replace(/-/g, ' ')}
-                      </span>
+                    ))}
+                  </span>
+                </span>
+
+                <span class="artifact__label" data-artifact-label>
+                  <span class="artifact__heading">
+                    <span class="artifact__kicker">
+                      {entries.syncareer.number} · {entries.syncareer.role} · {entries.syncareer.artifact}
                     </span>
-
-                    {isFlagship ? (
-                      <span class="archive-card__screens" aria-label={`${project.name} visual artifacts`}>
-                        {imageArtifacts.map((artifact, artifactIndex) => (
-                          <span
-                            class:list={[
-                              'archive-card__screen',
-                              artifactIndex === 0 && 'archive-card__screen--primary',
-                            ]}
-                          >
-                            <picture>
-                              <source
-                                type="image/webp"
-                                srcset={`${responsiveAsset(artifact.href, 1440, 'webp')} 1440w, ${responsiveAsset(artifact.href, 1800, 'webp')} 1800w, ${responsiveAsset(artifact.href, 2400, 'webp')} 2400w`}
-                                sizes={artifactIndex === 0 ? '(min-width: 48rem) 51vw, 88vw' : '(min-width: 48rem) 15vw, 35vw'}
-                              />
-                              <img
-                                src={artifact.href}
-                                srcset={`${responsiveAsset(artifact.href, 1440, 'png')} 1440w, ${responsiveAsset(artifact.href, 1800, 'png')} 1800w, ${responsiveAsset(artifact.href, 2400, 'png')} 2400w`}
-                                sizes={artifactIndex === 0 ? '(min-width: 48rem) 51vw, 88vw' : '(min-width: 48rem) 15vw, 35vw'}
-                                width="2400"
-                                height="1302"
-                                alt={artifact.alt}
-                                loading="lazy"
-                                decoding="async"
-                              />
-                            </picture>
-                          </span>
-                        ))}
+                    <h2 class="artifact__name" id="artifact-syncareer-name">{syncareer.name}</h2>
+                  </span>
+                  <span class="artifact__detail">
+                    <span class="artifact__short" id="artifact-syncareer-short">{syncareer.short}</span>
+                    <span class="artifact__meta">
+                      <span class:list={['artifact__status', `artifact__status--${syncareer.status}`]}>
+                        <span class="artifact__dot" aria-hidden="true"></span>{statusLabel[syncareer.status]}
                       </span>
-                    ) : (
-                      <span class="archive-card__record" aria-hidden="true">
-                        <span class="archive-card__record-index">{String(index + 1).padStart(2, '0')}</span>
-                        <span class="archive-card__record-label">System record</span>
-                        <span class="archive-card__record-name">{project.name}</span>
-                        <span class="archive-card__record-rule"></span>
-                        <span class="archive-card__record-stack">
-                          {project.stack.slice(0, 3).map((item) => <span>{item}</span>)}
-                        </span>
-                      </span>
-                    )}
-
-                    <span class="archive-card__body">
-                      <span class="archive-card__index">{String(index + 1).padStart(2, '0')}</span>
-                      <span class="archive-card__name-wrap">
-                        <h3 id={`archive-card-${project.id}-title`}>{project.name}</h3>
-                        <span class="archive-card__short">{project.short}</span>
-                      </span>
-                    </span>
-
-                    <span class="archive-card__footer">
-                      <span class="archive-card__stack mono-label mono-label--bare">
-                        {project.stack.slice(0, isFlagship ? 4 : 3).join(' · ')}
-                      </span>
-                      <span class="archive-card__inspect">
-                        Inspect <span aria-hidden="true">↗</span>
-                      </span>
+                      <span class="artifact__stack">{entries.syncareer.meta}</span>
+                      <span class="artifact__open">Open case study <span aria-hidden="true">→</span></span>
                     </span>
                   </span>
-                </a>
-              </li>
-            ))}
+                </span>
+              </a>
+            </li>
+
+            <!-- 02 · SESSIONBOOK — a code artifact from the repository. -->
+            <li class="artifact artifact--sessionbook" data-artifact>
+              <a
+                class="artifact__link"
+                href={sessionbook.route}
+                aria-labelledby="artifact-sessionbook-name"
+                aria-describedby="artifact-sessionbook-short"
+              >
+                <span class="artifact__object" data-artifact-object>
+                  <span class="artifact__tab" aria-hidden="true">
+                    <span>{entries.sessionbook.number}</span>{sessionbook.name}
+                  </span>
+                  <span class="artifact__plate artifact__plate--code on-deck">
+                    <span class="code-sheet__head">
+                      <span>{sessionbookExcerpt?.codeLabel ?? 'Implementation excerpt'}</span>
+                      <span>check_availability</span>
+                    </span>
+                    {sessionbookExcerpt?.code && (
+                      <pre class="code-sheet__body"><code>{sessionbookExcerpt.code}</code></pre>
+                    )}
+                    {sessionbookFixes.length > 0 && (
+                      <span class="code-sheet__foot">{sessionbookFixes[0]}</span>
+                    )}
+                  </span>
+                </span>
+
+                <span class="artifact__label" data-artifact-label>
+                  <span class="artifact__heading">
+                    <span class="artifact__kicker">
+                      {entries.sessionbook.number} · {entries.sessionbook.role} · {entries.sessionbook.artifact}
+                    </span>
+                    <h2 class="artifact__name" id="artifact-sessionbook-name">{sessionbook.name}</h2>
+                  </span>
+                  <span class="artifact__detail">
+                    <span class="artifact__short" id="artifact-sessionbook-short">{sessionbook.short}</span>
+                    <span class="artifact__meta">
+                      <span class:list={['artifact__status', `artifact__status--${sessionbook.status}`]}>
+                        <span class="artifact__dot" aria-hidden="true"></span>{statusLabel[sessionbook.status]}
+                      </span>
+                      <span class="artifact__stack">{entries.sessionbook.meta}</span>
+                      <span class="artifact__open">Open <span aria-hidden="true">→</span></span>
+                    </span>
+                  </span>
+                </span>
+              </a>
+            </li>
+
+            <!-- 03 · KORANCO — a record sheet; says plainly there is no public artifact. -->
+            <li class="artifact artifact--koranco" data-artifact>
+              <a
+                class="artifact__link"
+                href={koranco.route}
+                aria-labelledby="artifact-koranco-name"
+                aria-describedby="artifact-koranco-short"
+              >
+                <span class="artifact__object" data-artifact-object>
+                  <span class="artifact__tab" aria-hidden="true">
+                    <span>{entries.koranco.number}</span>{koranco.name}
+                  </span>
+                  <span class="artifact__plate artifact__plate--record">
+                    <span class="record-sheet__head">
+                      <span>Module index</span>
+                      <span class="record-sheet__stamp">No public artifact</span>
+                    </span>
+                    <span class="record-sheet__rows">
+                      {korancoModules.map((module, index) => (
+                        <span class="record-sheet__row">
+                          <span>{String(index + 1).padStart(2, '0')}</span>
+                          <span>{module}</span>
+                        </span>
+                      ))}
+                    </span>
+                  </span>
+                </span>
+
+                <span class="artifact__label" data-artifact-label>
+                  <span class="artifact__heading">
+                    <span class="artifact__kicker">
+                      {entries.koranco.number} · {entries.koranco.role} · {entries.koranco.artifact}
+                    </span>
+                    <h2 class="artifact__name" id="artifact-koranco-name">{koranco.name}</h2>
+                  </span>
+                  <span class="artifact__detail">
+                    <span class="artifact__short" id="artifact-koranco-short">{koranco.short}</span>
+                    <span class="artifact__meta">
+                      <span class:list={['artifact__status', `artifact__status--${koranco.status}`]}>
+                        <span class="artifact__dot" aria-hidden="true"></span>{statusLabel[koranco.status]}
+                      </span>
+                      <span class="artifact__stack">{entries.koranco.meta}</span>
+                      <span class="artifact__open">Open <span aria-hidden="true">→</span></span>
+                    </span>
+                  </span>
+                </span>
+              </a>
+            </li>
           </ol>
 
-          <p class="archive-stage__caption">
-            <span class="mono-label mono-label--bare">Scroll to separate</span>
-            <span aria-hidden="true">↓</span>
+          <p class="archive-hint" aria-hidden="true" data-archive-hint>
+            Scroll to separate <span>↓</span>
           </p>
         </div>
       </div>
     </section>
 
+    <!-- The evidence boundary for the archive's own artifacts, stated
+         in this view (AGENTS.md §5). -->
     <footer
-      class="archive-end page-shell"
-      data-workspace-section="inspect"
-      data-workspace-label="Inspect"
+      class="archive-boundary page-shell"
+      data-workspace-section="boundary"
+      data-workspace-label="Evidence boundary"
+      aria-labelledby="archive-boundary-title"
     >
-      <p class="mono-label">03 · Inspect</p>
-      <div class="archive-end__copy">
-        <h2>Choose an artifact to inspect.</h2>
-        <p>
-          Each project keeps its own route, evidence boundary, and technical record. The stack
-          is only the index; the case study is where the decisions are explained.
-        </p>
+      <p class="mono-label">What the artifacts are</p>
+      <div class="archive-boundary__body">
+        <h2 id="archive-boundary-title">Every object above is real material, or says it isn’t.</h2>
+        <dl class="archive-boundary__list">
+          <div>
+            <dt><a href={syncareer.route}>{syncareer.name}</a></dt>
+            <dd>Screenshots of the live product’s interface.</dd>
+          </div>
+          <div>
+            <dt><a href={sessionbook.route}>{sessionbook.name}</a></dt>
+            <dd>An excerpt of the booking service code in the public repository.</dd>
+          </div>
+          <div>
+            <dt><a href={koranco.route}>{koranco.name}</a></dt>
+            <dd>No public repository or screenshots exist. The record lists the modules that were delivered.</dd>
+          </div>
+        </dl>
       </div>
     </footer>
   </article>
 </BaseLayout>
 
 <script>
-  /* The ClientRouter swaps the shell without re-running bundled
-     scripts, so the pile engine re-initializes on `astro:page-load`
-     (fired on first load too). The marker keeps it idempotent; the
-     run-scoped AbortController removes the previous run's
-     window/media-query listeners. */
+  /* ARCHIVE ENGINE — scroll progress → composition.
+     The ClientRouter swaps pages without re-running bundled scripts,
+     so init runs on `astro:page-load` (also fired on first load). A
+     marker keeps it idempotent; an AbortController removes the
+     previous run's listeners. */
   let teardown: (() => void) | null = null;
 
   const init = () => {
@@ -264,147 +372,219 @@ const phases = [
     const signal = events.signal;
 
     const stage = archive.querySelector<HTMLElement>('[data-archive-stage]');
-    const visual = archive.querySelector<HTMLElement>('[data-archive-visual]');
+    const field = archive.querySelector<HTMLElement>('[data-archive-field]');
     const sticky = archive.querySelector<HTMLElement>('.archive-stage__sticky');
-    const cards = Array.from(archive.querySelectorAll<HTMLElement>('[data-archive-card]'));
+    const hint = archive.querySelector<HTMLElement>('[data-archive-hint]');
+    const meter = archive.querySelector<HTMLElement>('[data-archive-progress]');
     const phaseItems = Array.from(archive.querySelectorAll<HTMLElement>('[data-archive-phase]'));
-    const stateReadout = archive.querySelector<HTMLElement>('[data-archive-state]');
-    const progressReadout = archive.querySelector<HTMLElement>('[data-archive-progress]');
+    const items = Array.from(archive.querySelectorAll<HTMLElement>('[data-artifact]')).map((item) => ({
+      item,
+      object: item.querySelector<HTMLElement>('[data-artifact-object]')!,
+      label: item.querySelector<HTMLElement>('[data-artifact-label]')!,
+      captures: Array.from(item.querySelectorAll<HTMLElement>('[data-capture]')),
+      rest: { cx: 0, cy: 0 },
+    }));
+    if (!stage || !field || !sticky || items.length === 0) return;
 
-    if (stage && visual && sticky && cards.length > 0) {
     const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const desktopQuery = window.matchMedia('(min-width: 48rem)');
-    const phaseLabels = ['Cluster', 'Separate', 'Reveal', 'Inspect'];
-    const clusterLayouts = [
-      { x: 0, y: 0, rotation: -2 },
-      { x: 0.028, y: -0.05, rotation: 3.5 },
-      { x: -0.03, y: 0.045, rotation: -4.5 },
+    /* Must match the CSS pile-mode query below. */
+    const pileQuery = window.matchMedia('(min-width: 60rem) and (min-height: 40rem)');
+
+    /* THE PILE. Offsets are fractions of the field, relative to its
+       centre; scale shrinks each object so the cluster is compact.
+       Back objects sit higher so every tab stays readable. Index
+       order = stacking order: the flagship lies on top. */
+    const pile = [
+      { x: -0.03, y: 0.06, rotate: -1.6, scale: 0.66 },
+      { x: 0.17, y: -0.14, rotate: 4.2, scale: 0.82 },
+      { x: -0.19, y: -0.1, rotate: -5.4, scale: 0.82 },
     ];
+    /* Flagship captures fan out from behind the primary screen. */
+    const fanFrom = [
+      { x: 0, y: 0, rotate: 0 },
+      { x: -0.34, y: 0.12, rotate: -5 },
+      { x: -0.28, y: -0.16, rotate: 6 },
+    ];
+
+    const clamp = (v: number, min = 0, max = 1) => Math.min(Math.max(v, min), max);
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+    let mode: 'pile' | 'stack' | 'static' = 'static';
     let frame = 0;
+    let forced = false;
     let previousPhase = -1;
-    let focusedCard: HTMLElement | null = null;
-    let scrollBound = false;
+    let fieldW = 0;
+    let fieldH = 0;
 
-    const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
-    const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount;
-
-    const getProgress = () => {
-      if (reducedQuery.matches) return 1;
-      const travel = Math.max(stage.offsetHeight - sticky.offsetHeight, 1);
-      const stageTop = stage.getBoundingClientRect().top;
-      return clamp(-stageTop / travel, 0, 1);
+    const clearAll = () => {
+      for (const entry of items) {
+        entry.object.style.transform = '';
+        entry.item.style.zIndex = '';
+        entry.label.style.opacity = '';
+        entry.label.style.transform = '';
+        entry.label.style.pointerEvents = '';
+        entry.captures.forEach((capture) => (capture.style.transform = ''));
+      }
+      if (hint) hint.style.opacity = '';
     };
 
-    const updatePhase = (progress: number) => {
-      const phase = progress < 0.16 ? 0 : progress < 0.43 ? 1 : progress < 0.76 ? 2 : 3;
+    /* Measure resting (untransformed) centres relative to the field.
+       Runs on init and resize only, never per scroll frame. */
+    const measure = () => {
+      for (const entry of items) entry.object.style.transform = 'none';
+      const fieldRect = field.getBoundingClientRect();
+      fieldW = fieldRect.width;
+      fieldH = fieldRect.height;
+      for (const entry of items) {
+        const rect = entry.object.getBoundingClientRect();
+        entry.rest = {
+          cx: rect.left - fieldRect.left + rect.width / 2,
+          cy: rect.top - fieldRect.top + rect.height / 2,
+        };
+      }
+    };
+
+    const setPhase = (phase: number) => {
       if (phase === previousPhase) return;
       previousPhase = phase;
-      stage.dataset.archivePhase = phaseLabels[phase].toLowerCase();
-      if (stateReadout) stateReadout.textContent = phaseLabels[phase];
-      phaseItems.forEach((item, index) => {
-        item.dataset.active = index === phase ? 'true' : 'false';
-      });
+      stage.dataset.archivePhase = ['cluster', 'separate', 'reveal', 'inspect'][phase];
+      phaseItems.forEach((li, index) => (li.dataset.active = index === phase ? 'true' : 'false'));
     };
 
-    /* MOBILE EQUIVALENT: below 48rem the pile does not exist — the CSS
-       stacks the cards in reading order and the transforms must not
-       fight it, so the inline state is removed rather than computed. */
-    const clearCard = (card: HTMLElement) => {
-      for (const name of ['--card-x', '--card-y', '--card-rotation', '--card-lift', '--card-progress']) {
-        card.style.removeProperty(name);
-      }
-      card.style.zIndex = '';
+    const stageProgress = () => {
+      if (forced) return 1;
+      const travel = Math.max(stage.offsetHeight - sticky.offsetHeight, 1);
+      return clamp(-stage.getBoundingClientRect().top / travel);
+    };
+
+    /* DESKTOP: one progress value drives the whole sequence.
+         0.00–0.12  CLUSTER   pile holds
+         0.12–0.66  SEPARATE  objects travel to their places (staggered)
+         0.45–0.78  REVEAL    captures fan out, labels arrive
+         0.80–1.00  INSPECT   final composition, every route open */
+    const renderPile = () => {
+      const p = stageProgress();
+      items.forEach((entry, index) => {
+        const spot = pile[index] ?? pile[pile.length - 1];
+        const e = ease(clamp((p - 0.12 - index * 0.06) / 0.42));
+        const dx = fieldW / 2 + spot.x * fieldW - entry.rest.cx;
+        const dy = fieldH / 2 + spot.y * fieldH - entry.rest.cy;
+        const k = 1 - e;
+        entry.object.style.transform =
+          `translate3d(${(dx * k).toFixed(1)}px, ${(dy * k).toFixed(1)}px, 0) ` +
+          `rotate(${(spot.rotate * k).toFixed(2)}deg) scale(${lerp(spot.scale, 1, e).toFixed(4)})`;
+        entry.item.style.zIndex = String(10 - index);
+
+        const r = ease(clamp((p - 0.5 - index * 0.06) / 0.2));
+        entry.label.style.opacity = r.toFixed(3);
+        entry.label.style.transform = `translate3d(0, ${((1 - r) * 14).toFixed(1)}px, 0)`;
+        entry.label.style.pointerEvents = r > 0.6 ? '' : 'none';
+
+        if (entry.captures.length > 1) {
+          const f = ease(clamp((p - 0.45) / 0.28));
+          entry.captures.forEach((capture, ci) => {
+            if (ci === 0) return;
+            const from = fanFrom[ci] ?? fanFrom[fanFrom.length - 1];
+            const w = capture.offsetWidth;
+            capture.style.transform =
+              `translate3d(${(from.x * w * (1 - f)).toFixed(1)}px, ${(from.y * w * (1 - f)).toFixed(1)}px, 0) ` +
+              `rotate(${(from.rotate * (1 - f)).toFixed(2)}deg)`;
+          });
+        }
+      });
+
+      if (hint) hint.style.opacity = String(1 - clamp(p / 0.12));
+      if (meter) meter.style.transform = `scaleX(${p.toFixed(4)})`;
+      setPhase(p < 0.12 ? 0 : p < 0.5 ? 1 : p < 0.8 ? 2 : 3);
+    };
+
+    /* NARROW: no pile, no pinning. Each artifact starts tucked under
+       the one above (offset, slightly turned) and settles into place
+       as it crosses the lower half of the viewport. Same four ideas,
+       read one object at a time. */
+    const stackTurn = [0, 2.4, -2.8];
+    const renderStack = () => {
+      const vh = window.innerHeight;
+      items.forEach((entry, index) => {
+        if (index === 0 || forced) {
+          entry.object.style.transform = '';
+          entry.label.style.opacity = '';
+          entry.label.style.transform = '';
+          return;
+        }
+        const top = entry.item.getBoundingClientRect().top;
+        const e = ease(clamp((vh * 0.96 - top) / (vh * 0.5)));
+        const k = 1 - e;
+        entry.object.style.transform =
+          `translate3d(0, ${(-48 * k).toFixed(1)}px, 0) rotate(${((stackTurn[index] ?? 0) * k).toFixed(2)}deg)`;
+        entry.item.style.zIndex = String(index + 1);
+        const r = clamp((e - 0.35) / 0.55);
+        entry.label.style.opacity = r.toFixed(3);
+        entry.label.style.transform = `translate3d(0, ${((1 - r) * 10).toFixed(1)}px, 0)`;
+      });
     };
 
     const update = () => {
       frame = 0;
-      if (!desktopQuery.matches) {
-        cards.forEach(clearCard);
-        return;
-      }
-      const progress = getProgress();
-      const width = visual.clientWidth;
-      const height = visual.clientHeight;
-
-      cards.forEach((card, index) => {
-        const layout = clusterLayouts[index] ?? clusterLayouts[clusterLayouts.length - 1];
-        const cardProgress = reducedQuery.matches
-          ? 1
-          : clamp((progress - (0.08 + index * 0.075)) / 0.67, 0, 1);
-        const clusterX = layout.x * width;
-        const clusterY = layout.y * height;
-        const clusterRotation = layout.rotation;
-
-        const finalPositions = [
-          { x: -0.18 * width, y: 0.01 * height, rotation: -1 },
-          { x: 0.29 * width, y: -0.19 * height, rotation: 1.5 },
-          { x: 0.29 * width, y: 0.22 * height, rotation: -1.25 },
-        ];
-        const finalPosition = finalPositions[index] ?? finalPositions[finalPositions.length - 1];
-        const x = lerp(clusterX, finalPosition.x, cardProgress);
-        const y = lerp(clusterY, finalPosition.y, cardProgress);
-        const rotation = lerp(clusterRotation, finalPosition.rotation, cardProgress);
-        const lift = lerp(3 + (cards.length - index) * 2, 12 + (cards.length - index) * 3, cardProgress);
-
-        card.style.setProperty('--card-x', `${x}px`);
-        card.style.setProperty('--card-y', `${y}px`);
-        card.style.setProperty('--card-rotation', `${rotation}deg`);
-        card.style.setProperty('--card-lift', `${lift}px`);
-        card.style.setProperty('--card-progress', cardProgress.toFixed(3));
-        card.style.zIndex = focusedCard === card ? '40' : String(Math.round(10 + cardProgress * 10 - index));
-      });
-
-      if (progressReadout) progressReadout.style.width = `${progress * 100}%`;
-      updatePhase(progress);
+      if (mode === 'pile') renderPile();
+      else if (mode === 'stack') renderStack();
     };
-
     const requestUpdate = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(update);
+      if (!frame) frame = window.requestAnimationFrame(update);
     };
 
-    /* Scroll drives the pile only where the pile runs. Reduced motion
-       gets the final state directly: one update, no scroll listener. */
-    const bindScroll = () => {
-      if (scrollBound) return;
-      scrollBound = true;
-      window.addEventListener('scroll', requestUpdate, { passive: true, signal });
-    };
-    const unbindScroll = () => {
-      if (!scrollBound) return;
-      scrollBound = false;
-      window.removeEventListener('scroll', requestUpdate);
-    };
     const syncMode = () => {
-      if (desktopQuery.matches && !reducedQuery.matches) bindScroll();
-      else unbindScroll();
-      requestUpdate();
+      const next = reducedQuery.matches ? 'static' : pileQuery.matches ? 'pile' : 'stack';
+      stage.dataset.archiveMode = next;
+      archive.classList.toggle('is-animated', next !== 'static');
+      clearAll();
+      mode = next;
+      previousPhase = -1;
+      if (mode === 'pile') measure();
+      if (mode === 'static') setPhase(3);
+      update();
     };
 
-    window.addEventListener('resize', requestUpdate, { passive: true, signal });
+    /* KEYBOARD: focusing any artifact presents the finished
+       composition, so the focused link, its label and its outline are
+       where they appear. Leaving the archive hands control back to
+       scroll. A short settle class animates the change (not under
+       reduced motion — that mode never runs this engine). */
+    let settleTimer = 0;
+    const settle = () => {
+      archive.classList.add('is-settling');
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(() => archive.classList.remove('is-settling'), 480);
+    };
+    field.addEventListener('focusin', () => {
+      if (forced || mode === 'static') return;
+      forced = true;
+      settle();
+      requestUpdate();
+    }, { signal });
+    field.addEventListener('focusout', (event) => {
+      if (field.contains(event.relatedTarget as Node | null)) return;
+      if (!forced) return;
+      forced = false;
+      settle();
+      requestUpdate();
+    }, { signal });
+
+    window.addEventListener('scroll', requestUpdate, { passive: true, signal });
+    window.addEventListener('resize', () => {
+      if (mode === 'pile') measure();
+      requestUpdate();
+    }, { passive: true, signal });
     reducedQuery.addEventListener('change', syncMode, { signal });
-    desktopQuery.addEventListener('change', syncMode, { signal });
+    pileQuery.addEventListener('change', syncMode, { signal });
+
+    /* Fonts and the flagship image can shift the grid after first
+       paint; re-measure once they settle. */
+    document.fonts?.ready.then(() => { if (mode === 'pile') { measure(); requestUpdate(); } });
+    window.addEventListener('load', () => { if (mode === 'pile') { measure(); requestUpdate(); } }, { once: true, signal });
+
     syncMode();
-
-    cards.forEach((card) => {
-      const link = card.querySelector<HTMLAnchorElement>('a');
-      if (!link) return;
-
-      // Cards are absolute during the pile; raising the focused card
-      // keeps its outline visible above its neighbours. Links already
-      // provide the native Enter and touch activation paths.
-      link.addEventListener('focusin', () => {
-        focusedCard = card;
-        card.style.zIndex = '40';
-      }, { signal });
-
-      link.addEventListener('focusout', () => {
-        if (focusedCard !== card) return;
-        focusedCard = null;
-        requestUpdate();
-      }, { signal });
-    });
-  }
   };
 
   init();
@@ -412,701 +592,787 @@ const phases = [
 </script>
 
 <style>
+  /* ============================================================
+     THE ARCHIVE
+     Default styles describe the FINAL composition. Motion is an
+     overlay applied by the engine, never the source of layout.
+     ============================================================ */
+
   .archive {
     border-bottom: var(--border-default);
   }
 
-  .archive-hero {
-    display: grid;
-    gap: clamp(var(--space-6), 5vw, var(--space-9));
-    padding-block: clamp(2rem, 6vw, 5.5rem) clamp(3rem, 7vw, 6.5rem);
+  .archive-stage {
+    position: relative;
+    background: var(--color-sheet-soft);
+    /* The pile may lean an object past the field edge; clip (not
+       hidden) so no horizontal scrollbar appears and sticky still
+       works. */
+    overflow-x: clip;
   }
 
-  .archive-hero__rule {
+  .archive-stage__sticky {
     display: grid;
-    grid-template-columns: auto minmax(2rem, 1fr) auto;
-    gap: var(--space-3);
-    align-items: center;
+    align-content: start;
+    gap: clamp(var(--space-5), 3vw, var(--space-7));
+    padding-block: clamp(var(--space-6), 4vw, var(--space-8)) clamp(var(--space-8), 6vw, var(--space-9));
   }
 
-  .archive-hero__rule-line {
-    height: 1px;
-    background: var(--color-rule-on-paper);
-  }
+  /* ---------- Head ------------------------------------------- */
 
-  .archive-hero__grid {
+  .archive-head {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(12rem, 0.5fr);
-    gap: clamp(var(--space-7), 8vw, var(--space-10));
+    gap: var(--space-5);
     align-items: end;
   }
 
-  .archive-hero__copy {
+  .archive-head__copy {
     display: grid;
-    gap: var(--space-5);
-    max-width: 52rem;
+    gap: var(--space-3);
   }
 
-  /* Same statement scale as every other area opener (Profile, Lab,
-     case studies). The archive's visual weight belongs to the pile
-     below, not to a poster-sized heading; only the Home thesis is
-     set larger than this (AGENTS.md §11). */
-  .archive-hero h1 {
-    max-width: 18ch;
+  .archive-head h1 {
     margin: 0;
     font-size: var(--text-feature);
     line-height: var(--leading-statement);
   }
 
-  .archive-hero__lede {
-    max-width: 38rem;
+  .archive-head__lede {
+    max-width: 44ch;
     margin: 0;
     color: var(--color-text-on-paper-muted);
-    font-size: var(--text-body-large);
+    font-size: var(--text-body);
     line-height: 1.55;
   }
 
-  .archive-hero__logic {
-    align-self: end;
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-rule-on-paper-strong);
+  .archive-head__instrument {
+    display: none;
   }
 
-  .archive-hero__logic ol {
-    display: grid;
-    gap: 0;
-    margin: var(--space-4) 0 0;
+  .archive-phases {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .archive-hero__logic li {
-    display: grid;
-    grid-template-columns: 2rem 1fr;
-    gap: var(--space-3);
-    padding-block: var(--space-2);
-    border-bottom: 1px solid var(--color-rule-on-paper-soft);
-    color: var(--color-text-on-paper-muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-micro);
-    letter-spacing: var(--tracking-instrument);
-    text-transform: uppercase;
-  }
-
-  .archive-hero__logic li span:first-child {
-    color: var(--color-accent-text);
-  }
-
-  .archive-stage {
-    position: relative;
-    min-height: 340vh;
-    background: var(--color-paper-soft);
-    border-top: 1px solid var(--color-rule-on-paper-strong);
-    /* The pile may park a card a few px past the field edge at some
-       desktop widths; clip horizontally so the document never gains a
-       horizontal scrollbar. `clip` (not `hidden`) does not create a
-       scroll container, so the sticky viewport keeps working. */
-    overflow-x: clip;
-  }
-
-  .archive-stage__sticky {
-    position: sticky;
-    top: var(--shell-control);
-    display: grid;
-    grid-template-rows: auto auto minmax(0, 1fr);
-    height: calc(100svh - var(--shell-control));
-    min-height: 42rem;
-    padding-block: var(--space-5) var(--space-6);
-  }
-
-  .archive-stage__topline {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-  }
-
-  .archive-stage__readout {
-    display: inline-flex;
-    gap: var(--space-2);
-    align-items: baseline;
-    color: var(--color-accent-text);
-    font-family: var(--font-mono);
-    font-size: var(--text-micro);
-    letter-spacing: var(--tracking-instrument);
-    text-transform: uppercase;
-  }
-
-  .archive-stage__readout-label {
+  .archive-phases li {
+    white-space: nowrap;
     color: var(--color-text-on-paper-faint);
+    font-family: var(--font-instrument);
+    font-size: var(--text-micro);
+    letter-spacing: var(--tracking-instrument);
+    text-transform: uppercase;
   }
 
-  .archive-stage__heading {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.42fr);
-    gap: var(--space-6);
-    align-items: end;
-    padding-block: var(--space-4) var(--space-3);
+  .archive-phases li[data-active='true'] {
+    color: var(--color-accent-text);
   }
 
-  .archive-stage__heading h2 {
-    max-width: 25ch;
-    margin: 0;
-    font-size: clamp(1.25rem, 2.2vw, 2rem);
-  }
-
-  .archive-stage__heading p {
-    max-width: 38rem;
-    margin-top: var(--space-2);
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-small);
-    line-height: 1.5;
-  }
-
-  .archive-stage__meter {
-    align-self: end;
+  .archive-meter {
+    display: block;
     height: 2px;
-    margin-bottom: var(--space-2);
+    margin-top: var(--space-3);
     background: var(--color-rule-on-paper);
   }
 
-  .archive-stage__meter span {
+  .archive-meter span {
     display: block;
-    width: 0;
     height: 100%;
     background: var(--color-accent);
-    transition: width var(--duration-quick) linear;
+    transform: scaleX(1);
+    transform-origin: left center;
   }
 
-  .archive-stage__workspace {
+  /* ---------- Field (narrow default: stacked + offset) -------- */
+
+  .archive-field {
     position: relative;
-    min-height: 0;
   }
 
-  .archive-stage__workspace::before,
-  .archive-stage__workspace::after {
-    position: absolute;
-    z-index: 0;
-    color: var(--color-text-on-paper-faint);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    pointer-events: none;
-  }
-
-  .archive-stage__workspace::before {
-    top: 0;
-    left: 0;
-    content: 'ARTIFACT FIELD';
-  }
-
-  .archive-stage__workspace::after {
-    right: 0;
-    bottom: 0;
-    content: 'NORMAL SCROLL / NO DRAG';
-  }
-
-  .archive-stage__phases {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 5;
-    display: flex;
-    gap: var(--space-3);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .archive-stage__phases li {
+  .archive-artifacts {
     display: grid;
-    grid-template-columns: auto auto;
-    gap: var(--space-2);
-    align-items: center;
-    color: var(--color-text-on-paper-faint);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transition: color var(--duration-quick) var(--ease-standard);
-  }
-
-  .archive-stage__phases li span:first-child {
-    color: var(--color-text-on-paper-muted);
-  }
-
-  .archive-stage__phases li[data-active='true'],
-  .archive-stage__phases li[data-active='true'] span:first-child {
-    color: var(--color-accent-text);
-  }
-
-  .archive-stage__cards {
-    position: absolute;
-    inset: var(--space-6) 0 var(--space-5);
-    z-index: 1;
+    gap: clamp(var(--space-7), 8vw, var(--space-9));
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .archive-card {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: min(28rem, 35vw);
-    opacity: 1;
-    transform: translate3d(calc(-50% + var(--card-x, 0px)), calc(-50% + var(--card-y, 0px)), 0)
-      rotate(var(--card-rotation, 0deg));
-    transform-origin: center center;
-    transition: opacity var(--duration-base) var(--ease-standard);
-    will-change: transform;
+  .artifact {
+    position: relative;
+    min-width: 0;
   }
 
-  .archive-card--flagship {
-    width: min(51rem, 59vw);
+  /* Offset composition: the flagship takes the full measure; the
+     secondaries step in from alternate sides at a smaller size. */
+  .artifact--sessionbook {
+    width: min(100%, 36rem);
+    margin-left: auto;
+    padding-left: clamp(0rem, 6vw, 3rem);
   }
 
-  .archive-card__link {
-    display: block;
+  .artifact--koranco {
+    width: min(100%, 32rem);
+    padding-right: clamp(0rem, 8vw, 4rem);
+  }
+
+  .artifact__link {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: var(--space-4);
+    height: 100%;
     color: inherit;
     text-decoration: none;
   }
 
-  .archive-card__surface {
-    display: grid;
-    gap: var(--space-4);
-    min-height: 100%;
-    padding: clamp(var(--space-4), 2vw, var(--space-6));
-    border: 1px solid var(--color-rule-on-paper-strong);
-    background: var(--color-sheet-high);
-    box-shadow: 0 var(--card-lift, 5px) 0 rgb(21 24 28 / 10%);
-    transition:
-      box-shadow var(--duration-base) var(--ease-emphasized),
-      background-color var(--duration-quick) var(--ease-standard),
-      transform var(--duration-base) var(--ease-emphasized);
+  .artifact__link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 6px;
   }
 
-  .archive-card__link:hover .archive-card__surface,
-  .archive-card__link:focus-visible .archive-card__surface {
-    background: var(--color-sheet-raised);
-    box-shadow: 0 calc(var(--card-lift, 5px) + 5px) 0 rgb(21 24 28 / 16%);
-    transform: translateY(-3px);
+  /* ---------- The object ------------------------------------- */
+
+  .artifact__object {
+    position: relative;
+    display: block;
+    min-height: 0;
+    margin-top: 1.625rem; /* room for the tab */
+    transform-origin: center center;
+    will-change: transform;
   }
 
-  .archive-card__header,
-  .archive-card__footer {
-    display: flex;
+  .artifact__tab {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    z-index: 3;
+    display: inline-flex;
+    gap: var(--space-2);
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-  }
-
-  .archive-card__kind,
-  .archive-card__status,
-  .archive-card__inspect {
-    color: var(--color-text-on-paper-muted);
-    font-family: var(--font-mono);
+    height: 1.625rem;
+    padding-inline: var(--space-3);
+    border: 1px solid var(--color-rule-on-paper-strong);
+    border-bottom: 0;
+    background: var(--color-sheet-raised);
+    color: var(--color-text-on-paper);
+    font-family: var(--font-instrument);
     font-size: var(--text-micro);
-    letter-spacing: 0.08em;
-    line-height: 1.3;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    white-space: nowrap;
   }
 
-  .archive-card__kind {
+  .artifact__tab span {
     color: var(--color-accent-text);
   }
 
-  .archive-card__status {
-    display: inline-flex;
+  .artifact--sessionbook .artifact__tab {
+    right: 0;
+    left: auto;
+  }
+
+  .artifact__plate {
+    position: relative;
+    display: block;
+    height: 100%;
+    border: 1px solid var(--color-rule-on-paper-strong);
+    box-shadow:
+      0 1px 0 rgb(21 24 28 / 6%),
+      0 14px 28px -18px rgb(21 24 28 / 45%);
+    transition: translate var(--duration-base) var(--ease-emphasized);
+  }
+
+  .artifact__link:hover .artifact__plate,
+  .artifact__link:focus-visible .artifact__plate {
+    translate: 0 -4px;
+  }
+
+  /* Flagship: a set of real screen captures laid over one another. */
+  .artifact__plate--captures {
+    aspect-ratio: 16 / 10.5;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .capture {
+    position: absolute;
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--color-rule-on-paper-strong);
+    background: var(--color-sheet-raised);
+    box-shadow:
+      0 1px 0 rgb(21 24 28 / 6%),
+      0 18px 32px -20px rgb(21 24 28 / 50%);
+  }
+
+  .capture picture,
+  .capture img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .capture img {
+    object-fit: cover;
+    object-position: top left;
+  }
+
+  .capture--0 {
+    inset: 0 17% 12% 0;
+    z-index: 1;
+  }
+
+  .capture--1,
+  .capture--2 {
+    z-index: 2;
+    width: 36%;
+    aspect-ratio: 2400 / 1302;
+  }
+
+  .capture--1 {
+    top: 9%;
+    right: 0;
+  }
+
+  .capture--2 {
+    right: 9%;
+    bottom: 0;
+  }
+
+  /* SessionBook: a code sheet — technical material, so it is set on
+     the instrument surface (DARK = INSTRUMENTATION). */
+  .artifact__plate--code {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    overflow: hidden;
+    border-color: var(--color-deck-inset);
+    background: var(--color-deck);
+    color: var(--color-text-on-canvas);
+  }
+
+  .code-sheet__head,
+  .code-sheet__foot {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-text-on-canvas-faint);
+    font-family: var(--font-instrument);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .code-sheet__head {
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+  }
+
+  .code-sheet__head span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .code-sheet__head span:first-child {
+    flex: 0 0 auto;
+  }
+
+  .code-sheet__head span:first-child {
+    color: var(--color-accent-text);
+  }
+
+  .code-sheet__foot {
+    border-top: 1px solid var(--color-rule-on-canvas);
+    color: var(--color-signal-pass-text);
+  }
+
+  .code-sheet__body {
+    overflow: hidden;
+    margin: 0;
+    padding: var(--space-3);
+    color: var(--color-text-on-canvas);
+    font-family: var(--font-instrument);
+    font-size: clamp(0.625rem, 0.8vw, 0.75rem);
+    line-height: 1.6;
+    white-space: pre;
+    mask-image: linear-gradient(to right, #000 88%, transparent);
+  }
+
+  /* Koranco: a record sheet. The stamp is the honest part. */
+  .artifact__plate--record {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4) var(--space-4);
+    background:
+      linear-gradient(var(--color-rule-on-paper-soft) 1px, transparent 1px) 0 0 / 100% 1.75rem,
+      var(--color-sheet-raised);
+  }
+
+  .record-sheet__head {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    gap: var(--space-3);
+    color: var(--color-text-on-paper-faint);
+    font-family: var(--font-instrument);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .record-sheet__stamp {
+    padding: 0.2rem 0.45rem;
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent-text);
+    transform: rotate(-2deg);
+  }
+
+  .record-sheet__rows {
+    display: grid;
+    align-content: center;
+  }
+
+  .record-sheet__row {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    align-items: baseline;
+    padding-block: var(--space-2);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+    font-weight: 600;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.2;
+  }
+
+  .record-sheet__row span:first-child {
+    color: var(--color-accent-text);
+    font-family: var(--font-instrument);
+    font-size: var(--text-micro);
+    font-weight: 500;
+  }
+
+  /* ---------- The catalogue label ----------------------------- */
+
+  .artifact__label {
+    display: grid;
     gap: var(--space-2);
+  }
+
+  .artifact__heading,
+  .artifact__detail {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .artifact__kicker,
+  .artifact__status,
+  .artifact__stack,
+  .artifact__open {
+    font-family: var(--font-instrument);
+    font-size: var(--text-micro);
+    letter-spacing: 0.06em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .artifact__kicker {
     color: var(--color-text-on-paper-faint);
   }
 
-  .archive-card__status-dot {
+  .artifact__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 2vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: var(--tracking-display);
+    line-height: 1.05;
+  }
+
+  .artifact--flagship .artifact__name {
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    line-height: 0.95;
+  }
+
+  .artifact__short {
+    max-width: 48ch;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+    line-height: 1.45;
+  }
+
+  .artifact__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    align-items: center;
+  }
+
+  .artifact__status {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    color: var(--color-text-on-paper);
+  }
+
+  .artifact__dot {
     width: var(--node-status);
     height: var(--node-status);
     border-radius: 50%;
     background: var(--color-accent);
   }
 
-  .archive-card__status--live .archive-card__status-dot,
-  .archive-card__status--mvp .archive-card__status-dot {
+  .artifact__status--live .artifact__dot,
+  .artifact__status--mvp .artifact__dot {
     background: var(--color-signal-pass);
   }
 
-  .archive-card__screens {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 17%;
-    gap: var(--space-2);
-    min-height: 0;
-  }
-
-  .archive-card__screen {
-    display: block;
-    overflow: hidden;
-    border: 1px solid var(--color-rule-on-paper);
-    background: var(--color-paper-inset);
-  }
-
-  .archive-card__screen--primary {
-    grid-row: span 2;
-  }
-
-  .archive-card__screen picture,
-  .archive-card__screen img {
-    display: block;
-    width: 100%;
-  }
-
-  .archive-card__screen img {
-    height: 100%;
-    object-fit: cover;
-    object-position: top left;
-  }
-
-  .archive-card__screen--primary img {
-    aspect-ratio: 2400 / 1302;
-  }
-
-  .archive-card__screen:not(.archive-card__screen--primary) img {
-    aspect-ratio: 2400 / 1302;
-  }
-
-  .archive-card__record {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: var(--space-2) var(--space-4);
-    align-items: baseline;
-    min-height: clamp(10rem, 16vw, 15rem);
-    padding: var(--space-4);
-    border: 1px solid var(--color-rule-on-paper);
-    background:
-      linear-gradient(var(--color-rule-on-paper-soft) 1px, transparent 1px) 0 0 / 100% 2rem,
-      var(--color-paper-soft);
-  }
-
-  .archive-card__record-index {
-    grid-row: span 2;
-    color: var(--color-accent-text);
-    font-family: var(--font-display);
-    font-size: clamp(3rem, 7vw, 6.25rem);
-    font-weight: 600;
-    line-height: 0.8;
-    letter-spacing: var(--tracking-display);
-  }
-
-  .archive-card__record-label,
-  .archive-card__record-stack {
-    color: var(--color-text-on-paper-muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-micro);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .archive-card__record-name {
-    grid-column: 2;
-    color: var(--color-text-on-paper);
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 3.2vw, 2.75rem);
-    font-weight: 600;
-    line-height: 1;
-  }
-
-  .archive-card__record-rule {
-    grid-column: 2;
-    height: 1px;
-    background: var(--color-rule-on-paper-strong);
-  }
-
-  .archive-card__record-stack {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-3);
-    grid-column: 2;
+  .artifact__stack {
     color: var(--color-text-on-paper-faint);
-    line-height: 1.4;
   }
 
-  .archive-card__record-stack span + span::before {
-    margin-right: var(--space-3);
-    color: var(--color-rule-on-paper-strong);
-    content: '/';
-  }
-
-  .archive-card__body {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: var(--space-3);
-    align-items: start;
-  }
-
-  .archive-card__index {
+  .artifact__open {
+    margin-left: auto;
     color: var(--color-accent-text);
-    font-family: var(--font-mono);
-    font-size: var(--text-micro);
-    letter-spacing: 0.08em;
   }
 
-  .archive-card__name-wrap {
-    display: grid;
-    gap: var(--space-2);
+  .artifact__link:hover .artifact__name,
+  .artifact__link:focus-visible .artifact__name {
+    color: var(--color-accent-text);
   }
 
-  .archive-card h3 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.45rem, 3vw, 2.8rem);
-    font-weight: 600;
-    letter-spacing: var(--tracking-display);
-    line-height: 0.98;
-  }
+  /* ---------- Scroll hint ------------------------------------- */
 
-  .archive-card--flagship h3 {
-    font-size: clamp(2rem, 4.4vw, 4.25rem);
-  }
-
-  .archive-card__short {
-    max-width: 52ch;
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-small);
-    line-height: 1.45;
-  }
-
-  .archive-card__footer {
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--color-rule-on-paper);
-  }
-
-  .archive-card__stack {
-    max-width: 68%;
-    color: var(--color-text-on-paper-faint);
-    line-height: 1.4;
-  }
-
-  .archive-card__stack::before {
+  .archive-hint {
     display: none;
   }
 
-  .archive-card__inspect {
-    flex: 0 0 auto;
-    color: var(--color-accent-text);
-  }
+  /* ============================================================
+     PILE MODE — wide and tall enough for the composition to live in
+     one viewport. The grid is the resting (INSPECT) state.
+     Must match `pileQuery` in the script.
+     ============================================================ */
 
-  .archive-stage__caption {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    z-index: 4;
-    display: flex;
-    gap: var(--space-2);
-    align-items: center;
-    margin: 0;
-    color: var(--color-text-on-paper-faint);
-    font-family: var(--font-mono);
-    font-size: var(--text-micro);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .archive-stage__caption > span:last-child {
-    color: var(--color-accent-text);
-    font-size: var(--text-small);
-  }
-
-  .archive-end {
-    display: grid;
-    grid-template-columns: minmax(10rem, 0.45fr) minmax(0, 1.55fr);
-    gap: var(--rail-gap);
-    padding-block: clamp(3rem, 7vw, 7rem);
-  }
-
-  .archive-end__copy {
-    display: grid;
-    gap: var(--space-4);
-    max-width: var(--width-reading);
-  }
-
-  .archive-end h2 {
-    margin: 0;
-    font-size: clamp(1.5rem, 3vw, 2.6rem);
-  }
-
-  .archive-end p:last-child {
-    color: var(--color-text-on-paper-muted);
-    font-size: var(--text-body-large);
-    line-height: 1.55;
-  }
-
-  @media (max-width: 63.99rem) {
+  @media (min-width: 60rem) and (min-height: 40rem) {
     .archive-stage__sticky {
-      min-height: 38rem;
-    }
-  }
-
-  @media (max-width: 47.99rem) {
-    .archive-hero__grid,
-    .archive-stage__heading,
-    .archive-end {
-      grid-template-columns: 1fr;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: clamp(var(--space-5), 2.6vh, var(--space-7));
+      height: calc(100svh - var(--shell-control));
+      max-height: 60rem;
+      padding-block: clamp(var(--space-5), 4vh, var(--space-8)) clamp(var(--space-5), 3.5vh, var(--space-7));
     }
 
-    .archive-hero__logic {
-      max-width: 22rem;
+    .archive-head {
+      grid-template-columns: minmax(0, 1.8fr) minmax(17rem, 1fr);
+      column-gap: clamp(1.5rem, 3vw, 3rem);
     }
 
-    /* MOBILE EQUIVALENT — the pile is a desktop instrument. On a
-       touch screen the correct form of "separate the artifacts" is
-       the archive itself: cards stacked in reading order, native
-       scroll, nothing pinned, nothing overlapping. Same content,
-       same routes; the scroll choreography is not carried over. */
-    .archive-stage {
-      min-height: 0;
-    }
-
-    .archive-stage__sticky {
-      position: static;
+    .archive-head__instrument {
       display: block;
-      height: auto;
-      min-height: 0;
-      padding-block: var(--space-4) var(--space-6);
+      padding-bottom: var(--space-1);
     }
 
-    .archive-stage__heading {
-      gap: var(--space-3);
-      margin-bottom: var(--space-5);
-    }
-
-    .archive-stage__heading p {
-      max-width: 34rem;
-    }
-
-    /* Pile instrumentation has no state to report here. */
-    .archive-stage__readout,
-    .archive-stage__meter,
-    .archive-stage__phases,
-    .archive-stage__caption {
-      display: none;
-    }
-
-    .archive-stage__workspace::before,
-    .archive-stage__workspace::after {
-      content: none;
-    }
-
-    .archive-stage__cards {
-      position: static;
-      display: grid;
-      gap: var(--space-5);
-      inset: auto;
-    }
-
-    .archive-card,
-    .archive-card--flagship {
-      position: static;
-      width: 100%;
-      transform: none;
-      will-change: auto;
-    }
-
-    .archive-card__surface {
-      gap: var(--space-3);
-      padding: var(--space-4);
-    }
-
-    .archive-card__screens {
-      grid-template-columns: minmax(0, 1fr) 22%;
-    }
-
-    .archive-card__record {
-      min-height: 9.5rem;
-    }
-
-    .archive-card h3,
-    .archive-card--flagship h3 {
-      font-size: clamp(1.8rem, 8vw, 3rem);
-    }
-
-    .archive-card__short {
-      font-size: 0.8125rem;
-    }
-  }
-
-  @media (max-width: 30rem) {
-    .archive-hero__rule {
-      grid-template-columns: auto minmax(1rem, 1fr);
-    }
-
-    .archive-hero__rule .mono-label:last-child {
-      display: none;
-    }
-
-    .archive-card__footer {
+    /* Compact head: title and lede share a line so the artifacts
+       keep the height. */
+    .archive-head__copy {
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: clamp(1.5rem, 3vw, 3rem);
       align-items: end;
     }
 
-    .archive-card__stack {
-      max-width: 62%;
+    .archive-head__copy > .mono-label {
+      grid-column: 1 / -1;
     }
 
-    .archive-card__inspect {
-      font-size: 0.625rem;
+    .archive-head__lede {
+      max-width: 40ch;
+      font-size: var(--text-small);
+    }
+
+    .archive-field {
+      min-height: 0;
+    }
+
+    /* 65 / 35 — one dominant artifact, two compact ones. */
+    .archive-artifacts {
+      grid-template-columns: minmax(0, 1.8fr) minmax(17rem, 1fr);
+      grid-template-rows: minmax(0, 1.04fr) minmax(0, 0.96fr);
+      grid-template-areas:
+        'flagship second'
+        'flagship third';
+      gap: clamp(1.25rem, 3vh, 2.25rem) clamp(1.5rem, 3vw, 3rem);
+      height: 100%;
+    }
+
+    .artifact {
+      min-height: 0;
+    }
+
+    .artifact--flagship {
+      grid-area: flagship;
+    }
+
+    .artifact--sessionbook,
+    .artifact--koranco {
+      width: auto;
+      margin: 0;
+      padding: 0;
+    }
+
+    .artifact--sessionbook {
+      grid-area: second;
+    }
+
+    .artifact--koranco {
+      grid-area: third;
+    }
+
+    .artifact__link {
+      gap: var(--space-3);
+    }
+
+    .artifact__plate--captures {
+      aspect-ratio: auto;
+    }
+
+    /* Fixed-height cells: sheets fit their cell instead of spilling. */
+    .artifact__plate--code,
+    .artifact__plate--record {
+      overflow: hidden;
+    }
+
+    .code-sheet__body {
+      mask-image:
+        linear-gradient(to right, #000 88%, transparent),
+        linear-gradient(to bottom, #000 78%, transparent);
+      mask-composite: intersect;
+    }
+
+    .artifact__plate--record {
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4) var(--space-3);
+    }
+
+    .record-sheet__rows {
+      align-content: start;
+    }
+
+    .record-sheet__row {
+      padding-block: clamp(0.125rem, 0.7vh, 0.4rem);
+      font-size: clamp(0.9375rem, 1.25vw, 1.125rem);
+    }
+
+    /* The sheet sizes to its cell; when the cell is short, the index
+       turns sideways (three columns) so all three modules stay whole. */
+    .artifact__plate--record {
+      container-type: size;
+    }
+
+    @container (max-height: 10.5rem) {
+      .record-sheet__rows {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-3);
+        align-content: center;
+      }
+
+      .record-sheet__row {
+        grid-template-columns: 1fr;
+        gap: var(--space-1);
+        padding-block: var(--space-1) var(--space-2);
+        font-size: 0.875rem;
+        line-height: 1.15;
+      }
+    }
+
+    @container (max-height: 7.5rem) {
+      .record-sheet__row span:first-child {
+        display: none;
+      }
+
+      .record-sheet__row {
+        padding-block: var(--space-1);
+        font-size: 0.8125rem;
+      }
+    }
+
+    /* Flagship label: a wide strip — name on the left, orientation
+       on the right. */
+    .artifact--flagship .artifact__label {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      column-gap: var(--space-6);
+      align-items: end;
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-rule-on-paper-strong);
+    }
+
+    .artifact--sessionbook .artifact__label,
+    .artifact--koranco .artifact__label {
+      gap: var(--space-1);
+    }
+
+    .artifact--sessionbook .artifact__detail,
+    .artifact--koranco .artifact__detail {
+      gap: var(--space-1);
+    }
+
+    .artifact--sessionbook .artifact__short,
+    .artifact--koranco .artifact__short {
+      font-size: 0.8125rem;
+      line-height: 1.4;
+    }
+
+    .archive-hint {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      z-index: 20;
+      display: inline-flex;
+      gap: var(--space-2);
+      margin: 0;
+      padding: var(--space-2) var(--space-3);
+      background: var(--color-sheet-soft);
+      color: var(--color-text-on-paper-muted);
+      font-family: var(--font-instrument);
+      font-size: var(--text-micro);
+      letter-spacing: var(--tracking-instrument);
+      text-transform: uppercase;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%);
+    }
+
+    .archive-hint span {
+      color: var(--color-accent-text);
+    }
+
+    /* Animated pile: the stage gains scroll length and pins its
+       viewport. Only with JS and motion allowed. */
+    .archive.is-animated .archive-stage {
+      height: calc(100svh + 170svh);
+    }
+
+    .archive.is-animated .archive-stage__sticky {
+      position: sticky;
+      top: var(--shell-control);
+    }
+
+    /* While objects are piled, only the objects themselves take
+       pointer input — never the empty grid cell under them. */
+    .archive.is-animated .artifact__link {
+      pointer-events: none;
+    }
+
+    .archive.is-animated .artifact__object,
+    .archive.is-animated .artifact__label {
+      pointer-events: auto;
     }
   }
 
-  /* No-JS is a readable archive, not a frozen animation frame. */
-  :global(html:not(.js)) .archive-stage {
-    min-height: 0;
+  /* Short pile viewports: the secondary objects already say what
+     they are (code sheet header, record stamp), so their kicker
+     line yields its height to the artifact. */
+  @media (min-width: 60rem) and (min-height: 40rem) and (max-height: 52rem) {
+    .artifact--sessionbook .artifact__kicker,
+    .artifact--koranco .artifact__kicker {
+      display: none;
+    }
   }
 
-  :global(html:not(.js)) .archive-stage__sticky {
-    position: static;
-    display: block;
-    height: auto;
-    min-height: 0;
-    padding-block: var(--space-6);
+  /* Keyboard/focus hand-off animates briefly between states. */
+  .archive.is-settling .artifact__object,
+  .archive.is-settling .artifact__label,
+  .archive.is-settling .capture {
+    transition:
+      transform 420ms var(--ease-emphasized),
+      opacity 420ms var(--ease-standard);
   }
 
-  :global(html:not(.js)) .archive-stage__heading {
-    margin-bottom: var(--space-6);
+  @media (max-width: 30rem) {
+    .artifact__open {
+      margin-left: 0;
+    }
   }
 
-  :global(html:not(.js)) .archive-stage__workspace {
-    min-height: 0;
+  /* ---------- Boundary ---------------------------------------- */
+
+  .archive-boundary {
+    display: grid;
+    align-items: start;
+    gap: var(--space-5);
+    padding-block: clamp(3rem, 6vw, 5.5rem);
   }
 
-  :global(html:not(.js)) .archive-stage__phases,
-  :global(html:not(.js)) .archive-stage__caption,
-  :global(html:not(.js)) .archive-stage__meter {
-    display: none;
-  }
-
-  :global(html:not(.js)) .archive-stage__cards {
-    position: static;
+  .archive-boundary__body {
     display: grid;
     gap: var(--space-5);
+    max-width: var(--width-content);
   }
 
-  :global(html:not(.js)) .archive-card,
-  :global(html:not(.js)) .archive-card--flagship {
-    position: static;
-    width: 100%;
-    transform: none;
+  .archive-boundary h2 {
+    margin: 0;
+    font-size: var(--text-section);
   }
 
+  .archive-boundary__list {
+    display: grid;
+    margin: 0;
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+  }
+
+  .archive-boundary__list div {
+    display: grid;
+    gap: var(--space-1) var(--space-5);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--color-rule-on-paper);
+  }
+
+  .archive-boundary__list dt {
+    font-weight: 600;
+  }
+
+  .archive-boundary__list dt a {
+    color: inherit;
+  }
+
+  .archive-boundary__list dt a:hover,
+  .archive-boundary__list dt a:focus-visible {
+    color: var(--color-accent-text);
+  }
+
+  .archive-boundary__list dd {
+    margin: 0;
+    color: var(--color-text-on-paper-muted);
+    font-size: var(--text-small);
+  }
+
+  @media (min-width: 48rem) {
+    .archive-boundary {
+      grid-template-columns: minmax(10rem, 0.4fr) minmax(0, 1.6fr);
+      gap: var(--rail-gap);
+    }
+
+    .archive-boundary__list div {
+      grid-template-columns: 10rem minmax(0, 1fr);
+    }
+  }
+
+  /* ---------- Reduced motion ----------------------------------
+     The engine does not run; this guards the hover lift too. */
   @media (prefers-reduced-motion: reduce) {
-    .archive-stage__meter span,
-    .archive-stage__phases li,
-    .archive-card__surface {
+    .artifact__plate {
       transition: none;
     }
 
-    .archive-card__surface,
-    .archive-card__link:hover .archive-card__surface,
-    .archive-card__link:focus-visible .archive-card__surface {
-      transform: none;
+    .artifact__link:hover .artifact__plate,
+    .artifact__link:focus-visible .artifact__plate {
+      translate: none;
+    }
+
+    .artifact__object {
+      will-change: auto;
     }
   }
 </style>
