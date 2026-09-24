@@ -150,3 +150,19 @@ A revision is ready only when:
 - the design reads as one restrained system, with light used for information and dark for instrumentation;
 - all information remains accessible across keyboard, touch, reduced motion, narrow screens, zoom, and no-JavaScript conditions;
 - the implementation remains performant, maintainable, and proportionate to the work it demonstrates.
+
+## 11. HERO TYPOGRAPHIC PRIORITY
+
+The portfolio's primary hero statement must remain the dominant typographic element.
+
+The personal name is an identity/masthead element, not the hero headline.
+
+Avoid oversized name treatments that dominate the viewport or compete with the engineering thesis.
+
+The design should prioritize:
+
+1. engineering thesis
+
+2. visual proof
+
+3. personal identity

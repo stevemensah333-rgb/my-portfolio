@@ -447,11 +447,15 @@ const phases = [
     max-width: 52rem;
   }
 
+  /* Same statement scale as every other area opener (Profile, Lab,
+     case studies). The archive's visual weight belongs to the pile
+     below, not to a poster-sized heading; only the Home thesis is
+     set larger than this (AGENTS.md §11). */
   .archive-hero h1 {
-    max-width: 12ch;
+    max-width: 18ch;
     margin: 0;
-    font-size: clamp(3.25rem, 8vw, 7.5rem);
-    line-height: 0.94;
+    font-size: var(--text-feature);
+    line-height: var(--leading-statement);
   }
 
   .archive-hero__lede {
@@ -1037,10 +1041,6 @@ const phases = [
 
     .archive-hero__rule .mono-label:last-child {
       display: none;
-    }
-
-    .archive-hero h1 {
-      font-size: clamp(3rem, 16vw, 4.5rem);
     }
 
     .archive-card__footer {
