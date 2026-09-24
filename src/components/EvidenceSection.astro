@@ -72,7 +72,7 @@ import SectionFrame from './SectionFrame.astro';
 
           <div class="evidence__panels">
             {credentials.map((credential, index) => (
-              <article
+              <div
                 id={`credential-preview-${credential.id}`}
                 class="evidence__panel"
                 role="tabpanel"
@@ -141,7 +141,7 @@ import SectionFrame from './SectionFrame.astro';
                     <span class="text-link__arrow" aria-hidden="true">↗</span>
                   </a>
                 )}
-              </article>
+              </div>
             ))}
           </div>
           <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-evidence-status></p>
@@ -339,9 +339,12 @@ import SectionFrame from './SectionFrame.astro';
     border-top: 1px solid var(--color-rule-on-paper);
   }
 
+  /* Two columns, not three: the index column is narrow at every
+     width, so a right-hand result column squeezed record names to a
+     word per line. The result sits under the name instead. */
   .evidence__trigger {
     display: grid;
-    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
     align-items: start;
     gap: var(--space-2) var(--space-3);
     width: 100%;
@@ -399,7 +402,7 @@ import SectionFrame from './SectionFrame.astro';
     font-size: var(--text-micro);
     letter-spacing: 0.05em;
     line-height: 1.4;
-    text-align: right;
+    grid-column: 2;
     transition: color var(--duration-quick) var(--ease-standard);
   }
 
@@ -616,11 +619,6 @@ import SectionFrame from './SectionFrame.astro';
     .evidence__trigger {
       grid-template-columns: 2rem minmax(0, 1fr);
       padding-inline: var(--space-3);
-    }
-
-    .evidence__trigger-result {
-      grid-column: 2;
-      text-align: left;
     }
   }
 

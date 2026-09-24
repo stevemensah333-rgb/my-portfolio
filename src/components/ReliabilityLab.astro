@@ -133,7 +133,7 @@ const afterCode = afterFixture?.artifact?.kind === 'code' ? afterFixture.artifac
           {labStages.map((stage) => {
             const artifact = stage.artifact;
             return (
-              <article
+              <div
                 role="tabpanel"
                 id={`lab-${stage.id}`}
                 aria-labelledby={`lab-tab-${stage.id}`}
@@ -252,7 +252,7 @@ const afterCode = afterFixture?.artifact?.kind === 'code' ? afterFixture.artifac
                     <span class="text-link__arrow" aria-hidden="true">→</span>
                   </a>
                 </footer>
-              </article>
+              </div>
             );
           })}
 

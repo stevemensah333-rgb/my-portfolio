@@ -6,9 +6,15 @@
  * stand-in, no depth reconstruction. The frame is a simple
  * interaction boundary. Under a fine pointer it responds with three
  * small, related movements — the photograph shifts a few pixels
- * inside its frame, the frame tilts by under two degrees, and a soft
- * highlight follows the pointer. At rest (touch, keyboard, no
+ * inside its boundary and a soft highlight, clipped to Stephen's own
+ * silhouette, follows the pointer. At rest (touch, keyboard, no
  * JavaScript, reduced motion) it is the plain, uncropped photograph.
+ *
+ * The asset (public/images/stephen.{webp,png}, 500×500) is a cut-out
+ * with a transparent background, so there is no box: no fill, no
+ * border, no mat. The subject stands directly on the page sheet, and
+ * the photograph's cropped lower edge lands on the prompt's rule —
+ * the one line the portrait is allowed, and the one that grounds it.
  *
  * "A note from Stephen" is a native <details>: the whole portrait is
  * its summary, so tap, click, Enter and Space open it with no
@@ -19,16 +25,19 @@
   <details class="portrait__note">
     <summary aria-label="A note from Stephen">
       <span class="portrait__frame">
-        <img
-          class="portrait__image"
-          src="/images/stephen-480.webp"
-          srcset="/images/stephen-480.webp 480w, /images/stephen-800.webp 800w"
-          sizes="(min-width: 48rem) 26rem, 20rem"
-          alt="Stephen Mensah"
-          width="800" height="800"
-          fetchpriority="high" decoding="async"
-        />
-        <span class="portrait__light" aria-hidden="true"></span>
+        <span class="portrait__subject">
+          <picture>
+            <source type="image/webp" srcset="/images/stephen.webp" />
+            <img
+              class="portrait__image"
+              src="/images/stephen.png"
+              alt="Stephen Mensah"
+              width="500" height="500"
+              fetchpriority="high" decoding="async"
+            />
+          </picture>
+          <span class="portrait__light" aria-hidden="true"></span>
+        </span>
       </span>
       <span class="portrait__prompt">
         <span>A note from Stephen</span>
@@ -115,30 +124,40 @@
 
   /* THE FRAME — the interaction boundary. Square, so the photograph
      is never cropped to fit a shape, and the space is reserved so
-     the portrait never shifts the layout. At rest: no transform. */
+     the portrait never shifts the layout. It is invisible: the image
+     is a transparent cut-out, so a fill or border here would only
+     draw the rectangle the cut-out exists to remove. `overflow`
+     keeps the parallax headroom from spilling past the lower edge,
+     so the shoulders always meet the rule below cleanly. */
   .portrait__frame {
     display: block;
     position: relative;
     overflow: hidden;
     aspect-ratio: 1 / 1;
-    background: var(--color-sheet-inset);
-    border: 1px solid var(--color-rule-on-paper);
-    transition:
-      transform var(--duration-base) var(--ease-standard),
-      border-color var(--duration-quick) var(--ease-standard);
   }
+
+  /* The photograph and its highlight move together as one subject. */
+  .portrait__subject {
+    display: block;
+    position: absolute;
+    inset: 0;
+    transition: transform var(--duration-base) var(--ease-standard);
+  }
+
+  .portrait__subject picture { display: contents; }
 
   .portrait__image {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    transition: transform var(--duration-base) var(--ease-standard);
+    object-fit: contain;
   }
 
   /* Controlled lighting: a warm highlight positioned by the pointer.
      Soft-light keeps it inside the photograph's own value range
-     instead of washing it out. Hidden unless the frame is hovered. */
+     instead of washing it out, and the mask — the photograph's own
+     alpha — keeps it on Stephen, never on the empty sheet around
+     him. Hidden unless the frame is hovered. */
   .portrait__light {
     position: absolute;
     inset: 0;
@@ -150,30 +169,24 @@
       rgba(255, 250, 240, 0.6),
       rgba(255, 250, 240, 0) 72%
     );
+    -webkit-mask: url('/images/stephen.webp') center / 100% 100% no-repeat;
+    mask: url('/images/stephen.webp') center / 100% 100% no-repeat;
     transition: opacity var(--duration-base) var(--ease-standard);
   }
 
-  summary:hover .portrait__frame,
-  summary:focus-visible .portrait__frame {
-    border-color: var(--color-rule-on-paper-strong);
-  }
-
   /* DEPTH, ONLY WHERE IT CAN BE FELT. A fine pointer that can hover,
-     and a visitor who has not asked for less motion. The photograph
-     is pushed in by 4% — the headroom that keeps its edges covered
-     while it parallaxes up to 7px against the pointer — and the
-     frame tilts by at most 1.6deg. It settles back to flat on leave. */
+     and a visitor who has not asked for less motion. The subject is
+     pushed in by 5% — at the narrowest two-column frame (~250px) that
+     is ~6px of headroom, enough to keep its cropped lower edge below
+     the rule while it parallaxes (6px across, 4px up) against the
+     pointer.
+     No frame tilt: with no visible frame, a tilt would only lift the
+     shoulders off the baseline. It settles back on leave. */
   @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    summary:hover .portrait__frame {
+    summary:hover .portrait__subject {
       transform:
-        perspective(1100px)
-        rotateY(calc(var(--portrait-x, 0) * 1.6deg))
-        rotateX(calc(var(--portrait-y, 0) * -1.6deg));
-    }
-    summary:hover .portrait__image {
-      transform:
-        scale(1.04)
-        translate3d(calc(var(--portrait-x, 0) * -7px), calc(var(--portrait-y, 0) * -7px), 0);
+        scale(1.05)
+        translate3d(calc(var(--portrait-x, 0) * -6px), calc(var(--portrait-y, 0) * -4px), 0);
     }
     summary:hover .portrait__light { opacity: 1; }
   }
@@ -181,7 +194,9 @@
   .portrait__prompt {
     display: flex; justify-content: space-between; align-items: center;
     min-height: 3rem; gap: 1rem;
-    border-bottom: 1px solid var(--color-rule-on-paper-strong);
+    /* The baseline the cut-out stands on. */
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+    border-bottom: 1px solid var(--color-rule-on-paper);
     font-size: var(--text-small);
   }
   summary:hover .portrait__prompt, summary:focus-visible .portrait__prompt { color: var(--color-accent-ink); }

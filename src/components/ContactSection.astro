@@ -109,6 +109,14 @@ const secondaryLinks = [
     color: var(--color-text-on-paper);
   }
 
+  /* The terminus rule is the field's bottom edge, so nothing follows
+     it: the frame's bottom padding would leave a strip of sheet
+     between the rule and the footer. The terminus keeps its own gap
+     above the rule. */
+  .contact > :global(.section-frame) {
+    padding-bottom: 0;
+  }
+
   .contact__body {
     gap: var(--space-6);
   }
