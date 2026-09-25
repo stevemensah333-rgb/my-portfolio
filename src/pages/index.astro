@@ -9,9 +9,9 @@ import SiteFooter from '../components/SiteFooter.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionFrame from '../components/SectionFrame.astro';
 
-const title = 'Stephen Mensah — Software Engineer building reliable AI features';
+const title = 'Stephen Mensah — Software engineer building AI-powered products';
 const description =
-  'Stephen Mensah is a software engineer who builds and debugs LLM-powered software, with attention to reliability, validation, integration, and production behavior.';
+  'Stephen Mensah is a software engineer and Computer Science student at Ashesi University. He builds AI-powered applications and backend systems, and pays attention to what happens when model output has to work inside a real product.';
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -27,9 +27,10 @@ const structuredData = {
   jobTitle: 'Software Engineer',
   description,
   knowsAbout: [
-    'LLM reliability',
-    'Evidence-grounded AI integration',
-    'Structured output validation',
+    'AI-powered application development',
+    'Backend systems',
+    'Context handling and prompt design',
+    'Structured output and output validation',
     'FastAPI',
     'Postgres',
     'Concurrent transaction design',
@@ -47,16 +48,17 @@ const structuredData = {
 
       <!-- 2 · WHAT — the dominant element of the viewport. -->
       <div class="hero__message">
-        <h1 id="hero-title" class="hero__headline">I make AI features <em>reliable enough</em> to ship.</h1>
+        <h1 id="hero-title" class="hero__headline">Software engineer building <em>AI-powered products</em>.</h1>
         <p class="hero__support">
-          I build and debug LLM-powered software: the context a model sees, the checks
-          its answers must pass, and what happens when they don’t.
+          I care about what happens when AI output meets the constraints of a real
+          application: the context a model sees, the checks its answers must pass,
+          and what happens when they don’t.
         </p>
         <div class="hero__actions" role="group" aria-label="Primary actions">
-          <a class="button button--accent" href={`mailto:${PUBLIC_EMAIL}`}>Email me <span aria-hidden="true">↗</span></a>
-          <a class="text-link" href="/work/">Explore the work <span class="text-link__arrow" aria-hidden="true">→</span></a>
+          <a class="button button--accent" href="/work/">Explore my work <span aria-hidden="true">→</span></a>
+          <a class="text-link" href={`mailto:${PUBLIC_EMAIL}`}>Email me <span class="text-link__arrow" aria-hidden="true">↗</span></a>
         </div>
-        <p class="hero__availability"><span aria-hidden="true"></span>Open to entry-level AI engineering roles</p>
+        <p class="hero__availability"><span aria-hidden="true"></span>AI applications · Backend systems · Reliability</p>
       </div>
 
       <!-- 3 · PROOF — a compact signpost toward the engineering work. -->
@@ -85,8 +87,9 @@ const structuredData = {
             <h2 id="work-entry-title" class="work-entry__title">The work.</h2>
             <p class="work-entry__lede">
               Three projects, each with a case study and an honest evidence boundary.
-              Syncareer, the flagship, is a live career workspace whose AI help has to
-              cite its evidence.
+              Syncareer, the flagship, is an AI-powered career platform I built for
+              students. AI output can be useful without being reliable enough for a
+              product. I’m interested in the engineering work between those two states.
             </p>
           </header>
 
@@ -195,8 +198,9 @@ const structuredData = {
   .hero__support { max-width: 40ch; margin: 0; color: var(--color-text-on-paper-muted); font-size: var(--text-body-large); line-height: 1.6; }
   .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.75rem; }
   .hero__availability { display: flex; align-items: baseline; gap: 0.5rem; margin: 0; font-size: 0.75rem; color: var(--color-text-on-paper-faint); }
-  /* The same "open to roles" mark the control rail carries — one
-     meaning, one size, one colour. */
+  /* The accent mark the control rail uses for its live state, re-used
+     here as the bullet on the focus line — one marker, one size, one
+     colour. The line names what Stephen works on, not a seniority. */
   .hero__availability span { width: var(--node-status); height: var(--node-status); flex-shrink: 0; background: var(--color-accent); border-radius: 50%; }
   .hero__portrait { min-width: 0; }
   .hero__proof { min-width: 0; }

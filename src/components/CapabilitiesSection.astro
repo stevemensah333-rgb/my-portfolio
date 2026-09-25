@@ -48,8 +48,17 @@ const capabilities: Capability[] = [
     id: 'ai-applications',
     name: 'AI applications',
     statement:
-      'Building AI-enabled features where model output has to pass contracts and validation before it reaches a person — and debugging what happens when it does not.',
-    technologies: ['Python', 'TypeScript', 'FastAPI', 'Prompt design', 'Output validation', 'Evidence grounding'],
+      'Building features where model output has to be bounded, validated and useful inside the application — designing what the model is given, what shape it answers in, and what checks its reply has to pass before a person sees it.',
+    technologies: [
+      'Python',
+      'TypeScript',
+      'FastAPI',
+      'LLM/API integration',
+      'Prompt engineering',
+      'Context handling',
+      'Structured output',
+      'Output validation',
+    ],
     evidence: [
       {
         text: 'Bounded task-family server prompts with explicit rules for untrusted user data.',
@@ -87,7 +96,7 @@ const capabilities: Capability[] = [
     id: 'backend',
     name: 'Backend',
     statement:
-      'Services that own their contract — API design, data modelling, auth, and the concurrency and transaction decisions where correctness actually lives.',
+      'Services that own their contract — API design, data modelling, auth, and the concurrency and transaction decisions where correctness actually lives. In practice that means Python and FastAPI for the API surface, PostgreSQL for the records, and Pydantic for what is accepted at the edge.',
     technologies: ['Python', 'FastAPI', 'SQLAlchemy 2.0 (async)', 'Pydantic', 'PostgreSQL', 'MySQL', 'MongoDB', 'SQLite'],
     evidence: [
       {
@@ -129,11 +138,11 @@ const capabilities: Capability[] = [
     id: 'product-engineering',
     name: 'Product engineering',
     statement:
-      'The surfaces and the plumbing that turn a system into something a person can use: semantic interfaces, accessibility, deployment, and a repository history another engineer can read.',
+      'The surfaces and the plumbing that turn a system into something a person can use: accessible, responsive interfaces, application state, deployment, and a repository history another engineer can read. TypeScript and React on the surface; Git and Vercel for the history and the release.',
     technologies: ['TypeScript', 'React + Vite', 'Astro', 'HTML', 'CSS', 'Docker', 'Vercel', 'Git / GitHub'],
     evidence: [
       {
-        text: 'React + Vite product surfaces behind the live Syncareer workspace.',
+        text: 'React + Vite product surfaces behind the live Syncareer platform.',
         where: 'Syncareer',
         href: '/work/syncareer/',
       },
@@ -167,7 +176,7 @@ const capabilities: Capability[] = [
     id: 'data-ml',
     name: 'Data / ML',
     statement:
-      'Data preparation and supervised model fundamentals, learned where they bite: inconsistent input, evaluation beyond the happy path, output that varies.',
+      'Coursework and DataCamp practice, not production ML work: preparing inconsistent data, supervised model fundamentals, and evaluating output beyond the happy path instead of trusting a single run.',
     technologies: ['Python', 'SQL', 'Pandas', 'Data cleaning', 'Supervised ML'],
     evidence: [
       {

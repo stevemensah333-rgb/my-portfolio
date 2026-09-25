@@ -49,7 +49,7 @@ export const primaryDestinations: Destination[] = [
     label: 'Lab',
     href: '/lab/',
     index: '03',
-    description: 'One payload, seven stages, operable.',
+    description: 'One payload, seven stages: an instrument to inspect.',
   },
   {
     id: 'profile',

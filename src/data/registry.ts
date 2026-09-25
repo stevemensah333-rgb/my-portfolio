@@ -19,12 +19,12 @@ import type { Project } from './projects';
 export const syncareer: Project = {
   id: 'syncareer',
   name: 'Syncareer',
-  short: 'Opportunity-first career workspace: saved opportunity → tailored CV → interview prep → outcome.',
+  short: 'An AI-powered career platform I built for students: saved opportunity → tailored CV → interview prep → outcome.',
   status: 'live',
   // Product-level claim. The engineering narrative lives in
   // syncareerInvestigation.ts and is rendered by /work/syncareer/ (§5).
   claim:
-    'A free career workspace for African students and recent graduates. Everything an application needs — from the saved opportunity to the recorded outcome — is held in one record.',
+    'An AI-powered career platform I built for students: free to use, aimed at African students and recent graduates. Everything an application needs — from the saved opportunity to the recorded outcome — is held in one record.',
   evidence: [
     {
       kind: 'product',
@@ -64,7 +64,7 @@ export const syncareer: Project = {
 export const sessionbook: Project = {
   id: 'sessionbook',
   name: 'SessionBook',
-  short: 'A backend service that manages appointment / session bookings.',
+  short: 'A FastAPI booking backend I built for a voice agent, where the backend owns correctness.',
   status: 'mvp',
   claim:
     'A booking service with double-booking protection, timezone correctness, spoken-output design, and voice-agent integration. The backend owns the contract — availability, atomic booking, and confirmation — so the voice agent never decides correctness on its own.',
@@ -194,7 +194,7 @@ export const koranco: Project = {
   id: 'koranco',
   name: 'Koranco Farms',
   short:
-    'A farm management system built through the Ashesi Innovation Lab — attendance, produce and employee modules.',
+    'A farm management system I built through the Ashesi Innovation Lab — attendance, produce and employee modules.',
   status: 'mvp',
   claim:
     'Selected for a 6-week Ashesi Innovation Lab project with Koranco Farms. Built a farm management system addressing how production data is captured, organized and used — with attendance checking, farm produce management, and employee management modules.',

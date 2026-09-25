@@ -36,14 +36,14 @@ export const syncareerProduct = {
    * actually handles them.
    */
   record: [
-    { label: 'Product', value: 'Career workspace — free to use, no paid tier' },
+    { label: 'Product', value: 'AI-powered career platform — free to use, no paid tier' },
     { label: 'For', value: 'African students and recent graduates' },
     { label: 'Workflow', value: 'Opportunity → Evidence → CV → Interview → Next action → Outcome' },
     { label: 'Status', value: 'Live product' },
   ],
   /** §01 — the one path this case study examines. */
   scope:
-    'This case study examines one path inside the product: the CV assistant that rewrites a selected bullet for a selected job requirement.',
+    'This case study examines one path inside the product: the CV assistant that rewrites a selected bullet for a selected job requirement. The project exposed practical problems around model output, context, validation and consistency; I worked on the application layer around those failure modes rather than treating the model as the whole system. What I learned is where most of the work sits: not calling the model, but getting its output to behave consistently enough for the product around it.',
   /** §01 — the workflow the two supporting screenshots show. */
   surfaces: [
     {

@@ -1,6 +1,6 @@
 # Stephen Mensah — Portfolio
 
-My personal portfolio, focused on my work building and debugging LLM-powered software.
+My personal portfolio. I'm a software engineer who builds AI-powered applications and backend systems, with a focus on reliability.
 
 🌐 Live site: [stephen-mensah-portfolio.vercel.app](https://stephen-mensah-portfolio.vercel.app/)
 
@@ -13,7 +13,7 @@ My personal portfolio, focused on my work building and debugging LLM-powered sof
 
 ## Highlights
 
-- Syncareer engineering case study
+- Syncareer — an AI-powered career platform, and the engineering case study behind its AI feature
 - Project and technical work
 - Experience and selected credentials
 
