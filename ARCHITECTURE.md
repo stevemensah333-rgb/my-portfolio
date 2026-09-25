@@ -17,7 +17,7 @@ The persistent navigation surface is the **workspace rail**.
   full destination list. `Escape` closes the drawer; clicking a link
   closes it; breakpoint changes close it.
 - **Brand**: SM mark + name + role, fixed at the top.
-- **Status footer**: real status line ("Open to AI engineering roles")
+- **Status footer**: real status line ("Open to software engineering roles")
   + a contact CTA. No fake diagnostics.
 
 The rail is keyboard-operable (Tab + Enter), has visible focus, and uses

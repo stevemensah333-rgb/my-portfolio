@@ -94,7 +94,7 @@ export const labCopy = {
 
 export const labBoundary = {
   intro:
-    'Contracts, validation rules and refusal behavior are read from tracked Syncareer source. Model payloads are illustrative fixtures, not historical logs.',
+    'This is an instrument for exploring how AI output moves through an application — one of the failure patterns I encountered while building AI-powered software. It is a demonstration of a way of working, not a claim that AI reliability is solved. Contracts, validation rules and refusal behavior are read from tracked Syncareer source; model payloads are illustrative fixtures, not historical logs.',
   pointer:
     'No live-model evaluation, captured before/after output, failure rate, latency or quality score is available.',
   pointerLabel: 'Read the full evidence boundary',

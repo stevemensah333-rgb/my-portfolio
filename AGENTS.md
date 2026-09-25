@@ -12,8 +12,8 @@ The visitor journey is:
 
 The portfolio should quickly show who Stephen is, let a visitor inspect real engineering work, explain the thinking behind it, and make it easy to contact him.
 
-- **Default audience:** an engineering manager considering Stephen for an entry-level AI engineering role at a SaaS company.
-- **Positioning:** Stephen builds and debugs AI-enabled software, with particular attention to reliability, validation, integration, and how AI output behaves inside a real product. Support this with evidence; do not turn it into an unsupported outcome claim.
+- **Default audience:** an engineering manager considering Stephen for an entry-level software engineering role at a company building AI-powered products.
+- **Positioning:** Stephen is a software engineer who builds AI-powered applications and backend systems, with a focus on reliability — the engineering around AI failure modes: context, structured output, validation, integration and failure handling. He is early-career; reliability is a demonstrated way of working and a direction of development, not an established specialty. Never present him as an AI researcher, ML engineer, AI infrastructure engineer, or a senior AI reliability specialist, and never imply years of specialized production AI experience. Support every claim with evidence; do not turn it into an unsupported outcome claim.
 - **Primary action:** email Stephen to arrange a conversation. Keep email easy to find across the site, on every device, and without JavaScript.
 - **Homepage:** concise. Establish identity and direction, show a strong route into the work, and avoid turning the homepage into a duplicate of the full case study or Lab.
 
