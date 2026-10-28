@@ -9,14 +9,13 @@
  * unresolved qualifications stay attached in the note at the end.
  */
 import StephenPortrait from './StephenPortrait.astro';
-import { experiences } from '../../data/portfolio';
+import { education, experiences } from '../../data/portfolio';
 import { credentials } from '../../data/credentials';
 
-const roles = experiences.map((role) => ({
-  ...role,
-  date: role.dates.split('·')[0].trim(),
-  qualifier: role.dates.includes('·') ? role.dates.split('·').slice(1).join('·').trim() : '',
-}));
+/* Dates are fields in the record, not something to parse here. The first
+   three roles are the ones this section has room to name; the full list
+   is on the About page. */
+const roles = experiences.slice(0, 3);
 ---
 
 <section class="person page-shell" id="person" aria-labelledby="person-title">
@@ -45,9 +44,9 @@ const roles = experiences.map((role) => ({
         right context, and can every claim be traced back to something real?
       </p>
       <p>
-        That question has shaped three quite different projects — a student career platform, a
-        booking backend for a voice agent, and a farm records MVP. In each one my job was to make
-        the system around the interesting part behave predictably.
+        Three projects have carried that question: a student career platform, a booking backend for
+        a voice agent, and a farm records MVP built for a bad connection. In each, the job was the
+        same — make the system around the interesting part behave predictably.
       </p>
     </div>
 
@@ -60,19 +59,17 @@ const roles = experiences.map((role) => ({
             <p class="role__title">{role.role}</p>
           </div>
           <p class="role__what">{role.summary}</p>
-          <p class="role__date">{role.date}</p>
+          <p class="role__date">{role.dates}</p>
         </li>
       ))}
     </ul>
     <p class="person__note">
-      Titles and dates follow the supplied résumé. The AmaliTech date range and the Koranco
-      engagement attribution are still awaiting confirmation, so neither is presented as settled.
+      {`Titles and dates follow the supplied résumé. Still studying — ${education.programme}, ${education.institution}, class of ${education.expected}.`}
     </p>
 
     <div class="person__close">
       <p class="person__close-line">
-        I’m early in my career. These pages are built so you can check the work rather than take
-        my word for it.
+        These pages are built so the work can be checked rather than taken on trust.
       </p>
       <div class="person__close-actions">
         <a class="button button--secondary" href="/profile/">

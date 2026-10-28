@@ -4,16 +4,14 @@ import WorkbenchHero from '../components/home/WorkbenchHero.astro';
 import SelectedWork from '../components/home/SelectedWork.astro';
 import LabPreview from '../components/home/LabPreview.astro';
 import PersonSection from '../components/home/PersonSection.astro';
-import { PUBLIC_LINKS } from '../config/site';
+import { SITE, PUBLIC_LINKS, pageMeta } from '../config/site';
 
-const title = 'Stephen Mensah — Software engineer';
-const description =
-  'I build AI-powered products and the systems behind them. Syncareer, SessionBook and Koranco Farms — with the decisions, source and limits of each.';
+const { title, description, image, imageAlt } = pageMeta.home;
 
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: 'Stephen Mensah',
+  name: SITE.name,
   jobTitle: 'Software engineer',
   url: new URL('/', Astro.site).href,
   image: new URL('/images/stephen.webp', Astro.site).href,
@@ -21,7 +19,7 @@ const structuredData = {
 };
 ---
 
-<BaseLayout {title} {description} {structuredData}>
+<BaseLayout {title} {description} {structuredData} {image} {imageAlt}>
   <WorkbenchHero />
   <SelectedWork />
   <LabPreview />

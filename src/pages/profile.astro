@@ -14,45 +14,34 @@
  * supplied records do not settle is marked, not smoothed over.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { experiences, projectRecords } from '../data/portfolio';
+import { education, experiences, projectRecords } from '../data/portfolio';
 import { credentials } from '../data/credentials';
-import { PUBLIC_LINKS } from '../config/site';
+import { SITE, PUBLIC_LINKS, pageMeta } from '../config/site';
 
-const title = 'About — Stephen Mensah';
-const description =
-  'Stephen Mensah — software engineer and Computer Science student at Ashesi University, Ghana. Experience, the projects behind each capability, and a selected academic record.';
+const { title, description, image, imageAlt } = pageMeta.about;
 
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'ProfilePage',
-  name: 'About Stephen Mensah',
+  name: `About ${SITE.name}`,
   description,
   url: new URL('/profile/', Astro.site).href,
   mainEntity: {
     '@type': 'Person',
-    name: 'Stephen Mensah',
-    jobTitle: 'Software engineer',
+    name: SITE.name,
+    jobTitle: SITE.role,
     url: new URL('/profile/', Astro.site).href,
-    alumniOf: { '@type': 'CollegeOrUniversity', name: 'Ashesi University' },
+    alumniOf: { '@type': 'CollegeOrUniversity', name: education.institution },
     sameAs: [PUBLIC_LINKS.github, PUBLIC_LINKS.linkedin].filter(Boolean),
   },
 };
 
-/* The registry's date strings carry their own caveat ("· résumé; to
-   confirm"). Split it out rather than display or delete it: the row gets
-   a readable span, the caveat stays visible as a footnote. */
-const parseDates = (dates: string) => {
-  const [span, ...rest] = dates.split(' · ');
-  return { span, caveat: rest.join(' · '), unconfirmed: /to confirm/i.test(dates) };
-};
-
+/* Experience records are already structured in data/portfolio.ts: the
+   date range is a field, not a string to parse. Numbering is presentational. */
 const records = experiences.map((entry, index) => ({
   ...entry,
   n: String(index + 1).padStart(2, '0'),
-  ...parseDates(entry.dates),
 }));
-
-const unconfirmed = records.filter((entry) => entry.unconfirmed);
 
 /* Capability copy stays here; the release state does not — it is read
    from the registry so it always matches /work/ and the case study. */
@@ -80,11 +69,27 @@ const capabilities = [
     n: '03',
     kicker: 'Product thinking / Koranco Farms',
     title: 'Start with the actual workflow.',
-    text: 'Attendance, produce and employee records shaped around the documented farm-operations scope.',
+    text: 'Attendance, produce and employee records that keep working when the connection does not.',
     href: '/work/koranco/#built',
     link: 'Inspect Koranco',
   },
 ] as const;
+
+/* One line under each award: issuer, date, qualifier — with the issuer
+   dropped when it only repeats the award's own name. */
+const awardMeta = (credential: {
+  name: string;
+  issuer?: string;
+  date?: string;
+  detail?: string;
+}) =>
+  [
+    credential.issuer && credential.issuer !== credential.name ? credential.issuer : null,
+    credential.date,
+    credential.detail,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
 /* What each public derivative is, and what it does not contain. The
    originals in source-material/ are untouched; these copies were made
@@ -100,7 +105,7 @@ const evidenceNotes: Record<string, string> = {
 };
 ---
 
-<BaseLayout {title} {description} {structuredData} ogType="profile">
+<BaseLayout {title} {description} {structuredData} {image} {imageAlt} ogType="profile">
   <section class="about page-shell" aria-labelledby="profile-title">
     <header class="about__head" id="about">
       <p class="eyebrow rise" style="--i: 0">The workbench / About</p>
@@ -150,7 +155,9 @@ const evidenceNotes: Record<string, string> = {
       <dl class="register">
         <div>
           <dt>Studying</dt>
-          <dd>B.Sc. Computer Science, Ashesi University.</dd>
+          <dd>
+            {`${education.programme}, ${education.institution} — ${education.location}, expected ${education.expected}. GPA ${education.gpa}.`}
+          </dd>
         </div>
         <div>
           <dt>Building</dt>
@@ -179,8 +186,8 @@ const evidenceNotes: Record<string, string> = {
         <h2 id="experience-title">Work with other people.</h2>
       </div>
       <p class="record__note">
-        Role, dates and contribution are in the row. Open a record for the context it was written
-        in — and for what still needs confirming.
+        Role, dates and contribution are in the row. Open a record for what the work actually
+        involved.
       </p>
     </div>
 
@@ -198,12 +205,8 @@ const evidenceNotes: Record<string, string> = {
                   <span class="entry__role">{entry.role}</span>
                 </span>
                 <span class="entry__span">
-                  {entry.span}
-                  {entry.unconfirmed && (
-                    <span class="entry__flag">
-                      †<span class="visually-hidden"> date unconfirmed</span>
-                    </span>
-                  )}
+                  {entry.dates}
+                  {entry.current && <span class="entry__flag"> · now</span>}
                 </span>
                 <span class="entry__what">{entry.summary}</span>
                 <span class="entry__more" aria-hidden="true" />
@@ -225,11 +228,9 @@ const evidenceNotes: Record<string, string> = {
     </ol>
 
     <p class="record__foot">
-      <span aria-hidden="true">†</span> Dates come from the supplied résumé and are not yet
-      confirmed
-      {unconfirmed.length > 0 && ` (${unconfirmed.map((entry) => entry.organisation).join(', ')})`}
-      . The Koranco engagement attribution is likewise unresolved across the supplied records.
-      Neither is treated as settled here.
+      Roles, titles and dates follow the supplied <a href={PUBLIC_LINKS.resume}>résumé</a>, which
+      also records the Koranco engagement: a six-week project inside the Jul–Sep 2026 Innovation
+      Lab role.
     </p>
   </section>
 
@@ -241,8 +242,8 @@ const evidenceNotes: Record<string, string> = {
         <h2 id="capabilities-title">What the work shows.</h2>
       </div>
       <p class="record__note">
-        Each capability is one project, opened from the row. The release state under each is read
-        from the same record the archive uses.
+        One capability, one project. Open a row for the decisions and the limits; the release state
+        is the same one the archive shows.
       </p>
     </div>
 
@@ -273,8 +274,7 @@ const evidenceNotes: Record<string, string> = {
     </ul>
 
     <p class="record__foot">
-      A capability is not a claim of mastery. Each row links to the decisions, the limits and the
-      source behind it — including what has not been verified.
+      Each row opens the decisions, the sources and what has not been verified.
     </p>
   </section>
 
@@ -285,7 +285,7 @@ const evidenceNotes: Record<string, string> = {
         <h2 id="evidence-title">Selected, and kept in proportion.</h2>
       </div>
       <p class="record__note">
-        Result and issuer are in the row. Each preview is a public derivative of the supplied
+        Result, issuer and date are in the row. Each preview is a public copy of the supplied
         document, opened deliberately.
       </p>
     </div>
@@ -298,10 +298,8 @@ const evidenceNotes: Record<string, string> = {
               <summary>
                 <span class="award__who">
                   <span class="award__name">{credential.name}</span>
-                  {(credential.issuer || credential.detail) && (
-                    <span class="award__issuer">
-                      {[credential.issuer, credential.detail].filter(Boolean).join(' · ')}
-                    </span>
+                  {awardMeta(credential) && (
+                    <span class="award__issuer">{awardMeta(credential)}</span>
                   )}
                 </span>
                 <span class="award__result">{credential.result}</span>
@@ -333,9 +331,8 @@ const evidenceNotes: Record<string, string> = {
     </ul>
 
     <p class="record__foot">
-      No award, ranking or result is listed here that does not have a supplied document behind it.
-      The originals are retained unaltered; the previews above are reduced or cropped copies made
-      for publication.
+      Every result listed has a supplied document behind it. The originals are kept unaltered;
+      these previews are cropped copies made for publication.
     </p>
   </section>
 

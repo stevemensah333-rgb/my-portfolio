@@ -1,23 +1,29 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { pageMeta } from '../config/site';
 
-const title = 'Page not found | Stephen Mensah';
-const description = 'The requested page could not be found.';
+const { title, description, image, imageAlt } = pageMeta.notFound;
 ---
 
-<BaseLayout {title} {description} noindex canonical={false}>
+<BaseLayout {title} {description} {image} {imageAlt} noindex canonical={false}>
   <section class="not-found page-shell" aria-labelledby="not-found-title">
     <p class="mono-label">404 / Page not found</p>
     <h1 id="not-found-title">This page does not exist.</h1>
-    <p>The address may be outdated, or the page may have moved.</p>
-    <a class="button" href="/">Return home</a>
+    <p>The address may be outdated, or the page may have moved. The work, the Lab and the contact details are one link away.</p>
+    <div class="not-found__links">
+      <a class="button" href="/">Return home</a>
+      <a class="text-link" href="/work/">The work <span aria-hidden="true">↗</span></a>
+      <a class="text-link" href="/profile/">About <span aria-hidden="true">↗</span></a>
+    </div>
   </section>
 </BaseLayout>
 
 <style>
   .not-found {
     display: grid;
-    min-height: calc(100svh - var(--shell-control) - 2rem);
+    /* The contact block and footer follow, so the page does not need to
+       fill the viewport on its own. */
+    min-height: 44svh;
     align-content: center;
     justify-items: start;
     padding-block: var(--space-8);
@@ -40,7 +46,11 @@ const description = 'The requested page could not be found.';
     color: var(--color-text-on-paper-muted);
   }
 
-  .not-found .button {
+  .not-found__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-6);
     margin-top: var(--space-7);
   }
 </style>

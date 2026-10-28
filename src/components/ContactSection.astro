@@ -1,58 +1,67 @@
 ---
 /**
- * ContactSection — the closing composition, shared by every route.
+ * ContactSection — the closing composition, on every route.
  *
- * It is deliberately the largest, quietest block on the site: one
- * invitation, the address at a readable size, a copy action with
- * honest success/failure feedback, a real mailto, and the three
- * professional links. No form (there is no delivery behind it), no
- * forced compose window.
+ * One invitation, the address at display size, and three actions that all
+ * do something real:
  *
- * The email is a real mailto link in the HTML, so it works with
- * JavaScript disabled; the copy button is an enhancement.
+ *   Email Stephen   a plain `mailto:` — the visitor's own client, whatever
+ *                   it is. Nothing here forces a webmail compose window.
+ *   Copy email      a progressive enhancement, with explicit success and
+ *                   failure copy. If the clipboard is unavailable the
+ *                   address is selected instead, so ⌘/Ctrl + C still works.
+ *   GitHub / LinkedIn / Résumé   real destinations; the résumé is the PDF.
+ *
+ * There is no form: there is no delivery behind one, and a form that
+ * silently fails is worse than an address that works. That is stated, in
+ * one line, rather than implied.
+ *
+ * The address is in the HTML as a link, so the whole block works with
+ * JavaScript disabled; the copy button only appears when scripting runs.
  */
-import { PUBLIC_EMAIL, PUBLIC_LINKS } from '../config/site';
+import { SITE, externalLinks } from '../config/site';
 
-const links = [
-  { id: 'github', label: 'GitHub', href: PUBLIC_LINKS.github },
-  { id: 'linkedin', label: 'LinkedIn', href: PUBLIC_LINKS.linkedin },
-  { id: 'resume', label: 'Résumé', href: PUBLIC_LINKS.resume },
-].filter((link) => Boolean(link.href));
+const mailto = `mailto:${SITE.email}`;
 ---
 
 <section id="contact" class="contact" aria-labelledby="contact-title">
   <span id="contact-section"></span>
+
   <div class="contact__inner page-shell">
-    <div class="contact__label">
-      <p class="eyebrow">The next step</p>
-      <span class="contact__arrow" aria-hidden="true">↗</span>
+    <div class="contact__head">
+      <p class="eyebrow">Contact / The next step</p>
+      <h2 id="contact-title">Tell me what<br />you’re building.</h2>
     </div>
 
-    <div class="contact__grid">
-      <div class="contact__invite">
-        <h2 id="contact-title">Tell me what<br />you’re building.</h2>
-        <p class="contact__lead">
-          A role, a project, or a hard question about making an AI feature behave — email is the
-          fastest route, and it reaches me directly.
-        </p>
+    <div class="contact__panel">
+      <p class="contact__lead">
+        A role, a project, or a hard question about making an AI feature behave. Email reaches me
+        directly — no form, no queue.
+      </p>
+
+      <a class="contact__email" href={mailto}>
+        <span class="contact__email-text">{SITE.email}</span>
+        <span class="contact__email-icon" aria-hidden="true">↗</span>
+      </a>
+
+      <div class="contact__actions">
+        <a class="button contact__mail" href={mailto}>
+          Email Stephen <span aria-hidden="true">↗</span>
+        </a>
+        <button
+          class="button button--secondary contact__copy"
+          type="button"
+          data-copy-email={SITE.email}
+          hidden
+        >
+          Copy email
+        </button>
+        <p class="contact__status" role="status" aria-live="polite" data-copy-status></p>
       </div>
 
-      <div class="contact__panel">
-        <p class="contact__label-sm">Email</p>
-        <a class="contact__email" href={`mailto:${PUBLIC_EMAIL}`}>{PUBLIC_EMAIL}</a>
-
-        <div class="contact__actions">
-          <a class="button contact__mail" href={`mailto:${PUBLIC_EMAIL}`}>
-            Email Stephen <span aria-hidden="true">↗</span>
-          </a>
-          <button class="button button--secondary" data-copy-email={PUBLIC_EMAIL} hidden>
-            Copy email
-          </button>
-          <p class="contact__status" role="status" aria-live="polite"></p>
-        </div>
-
-        <ul class="contact__links">
-          {links.map((link) => (
+      <ul class="contact__links" aria-label="Elsewhere">
+        {
+          externalLinks.map((link) => (
             <li>
               <a
                 href={link.href}
@@ -60,132 +69,148 @@ const links = [
                 rel="noopener"
                 class:list={['contact__link', `contact__link--${link.id}`]}
               >
-                <span>{link.label}</span><span aria-hidden="true">↗</span>
+                <span class="contact__link-name">{link.label}</span>
+                <span class="contact__link-detail">{link.detail}</span>
+                <span class="contact__link-arrow" aria-hidden="true">
+                  ↗
+                </span>
               </a>
             </li>
-          ))}
-        </ul>
-      </div>
+          ))
+        }
+      </ul>
     </div>
   </div>
 </section>
 
 <script>
+  /* Success and failure both get a sentence. The button never lies about
+     what happened, and the status region is the thing that gets announced
+     — the label change on the button is only a visual echo. */
+  const reset = (button: HTMLButtonElement) => {
+    button.textContent = 'Copy email';
+    delete button.dataset.state;
+  };
+
   const init = () =>
     document.querySelectorAll<HTMLButtonElement>('[data-copy-email]').forEach((button) => {
       if (button.dataset.ready) return;
       button.dataset.ready = 'true';
       button.hidden = false;
+
+      const panel = button.closest('.contact__panel');
+      const status = panel?.querySelector<HTMLElement>('[data-copy-status]');
+
+      const fallback = () => {
+        /* No clipboard API, or the permission was refused. Select the
+           address so the keyboard shortcut still works, and say so. */
+        const address = panel?.querySelector<HTMLElement>('.contact__email-text');
+        if (address) {
+          const range = document.createRange();
+          range.selectNodeContents(address);
+          const selection = window.getSelection();
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+        if (status) {
+          status.dataset.state = 'error';
+          status.textContent =
+            'Copying is blocked in this browser. The address is selected — press Ctrl or ⌘ + C, or use Email Stephen.';
+        }
+        button.textContent = 'Copy failed';
+        window.setTimeout(() => reset(button), 3200);
+      };
+
       button.addEventListener('click', async () => {
-        const status = button.parentElement?.querySelector<HTMLElement>('[role="status"]');
         try {
           await navigator.clipboard.writeText(button.dataset.copyEmail || '');
-          if (status) status.textContent = 'Email copied to your clipboard.';
-          button.textContent = 'Copied';
-          setTimeout(() => {
-            button.textContent = 'Copy email';
-          }, 2200);
-        } catch {
-          /* No clipboard permission or no secure context. Select the
-             address instead, so the keyboard shortcut still works, and
-             say exactly what happened. */
-          const address = document.querySelector<HTMLElement>('.contact__email');
-          if (address) {
-            const range = document.createRange();
-            range.selectNodeContents(address);
-            const selection = window.getSelection();
-            selection?.removeAllRanges();
-            selection?.addRange(range);
-          }
           if (status) {
-            status.textContent =
-              'Copy is blocked in this browser. The address is selected — press Ctrl or ⌘ + C, or use Email Stephen.';
+            status.dataset.state = 'success';
+            status.textContent = `${button.dataset.copyEmail} copied to your clipboard.`;
           }
+          button.textContent = 'Copied';
+          window.setTimeout(() => reset(button), 2400);
+        } catch {
+          fallback();
         }
       });
     });
+
   init();
   document.addEventListener('astro:page-load', init);
 </script>
 
 <style>
   .contact {
-    border-top: 1px solid var(--color-rule);
+    border-top: 1px solid var(--color-rule-on-paper-strong);
     background:
-      radial-gradient(120% 90% at 100% 0%, rgba(25, 78, 71, 0.055), transparent 60%),
+      radial-gradient(95% 80% at 12% 0%, rgba(194, 99, 47, 0.06), transparent 62%),
       var(--color-paper);
-    padding-block: clamp(3.5rem, 7vw, 7rem);
+    padding-block: clamp(3rem, 6vw, 6rem) clamp(3rem, 6vw, 5.5rem);
   }
 
-  .contact__label {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    border-bottom: 2px solid var(--color-rule-strong);
-    padding-bottom: 0.9rem;
-  }
-  .contact__label .eyebrow {
-    margin-bottom: 0;
-  }
-  .contact__arrow {
-    font-size: clamp(1.6rem, 3vw, 2.4rem);
-    line-height: 0.8;
-    color: var(--color-copper-text);
-  }
-
-  .contact__grid {
+  .contact__inner {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
     gap: clamp(2rem, 5vw, 5rem);
     align-items: start;
-    padding-top: clamp(1.75rem, 3.5vw, 3rem);
+  }
+
+  .contact__head {
+    min-width: 0;
   }
 
   .contact h2 {
-    font-size: clamp(2.6rem, 6vw, 5.6rem);
-    line-height: 0.96;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5.6vw, 5rem);
+    line-height: 0.94;
     letter-spacing: -0.05em;
-    max-width: 15ch;
-  }
-  .contact__lead {
-    margin-top: 1.2rem;
-    max-width: 44ch;
-    font-size: clamp(0.98rem, 1.2vw, 1.08rem);
-    line-height: 1.6;
-    color: var(--color-ink-muted);
+    margin: 0;
+    max-width: 13ch;
   }
 
   .contact__panel {
     min-width: 0;
-    padding-top: 0.4rem;
+    padding-top: clamp(0.5rem, 2vw, 1.5rem);
   }
-  .contact__label-sm {
-    font-family: var(--font-instrument);
-    font-size: 0.66rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-ink-faint);
-    margin-bottom: 0.45rem;
+
+  .contact__lead {
+    font-size: clamp(0.98rem, 1.2vw, 1.08rem);
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+    max-width: 42ch;
   }
+
+  /* The address is the largest thing in the panel after the heading: it
+     is the action, so it should read like one. */
   .contact__email {
-    /* A standalone link, so it keeps a comfortable tap target at the
-       smallest sizes without changing its visual weight. */
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
+    gap: 0.5rem;
+    margin-top: clamp(1rem, 2vw, 1.5rem);
+    min-height: 52px;
     font-family: var(--font-display);
-    font-size: clamp(1.05rem, 2.1vw, 1.65rem);
-    line-height: 1.2;
-    letter-spacing: -0.02em;
+    font-size: clamp(1.25rem, 2.8vw, 2.15rem);
+    line-height: 1.15;
+    letter-spacing: -0.028em;
     color: var(--color-teal);
-    text-decoration-color: var(--color-rule-strong);
-    text-underline-offset: 0.22em;
+    text-decoration: none;
+    border-bottom: 2px solid currentColor;
+    padding-bottom: 0.18rem;
     overflow-wrap: anywhere;
+    transition: color 160ms var(--ease-standard);
   }
-  .contact__email:hover {
+  .contact__email:hover,
+  .contact__email:focus-visible {
     color: var(--color-copper-text);
-    text-decoration-color: currentColor;
+  }
+  .contact__email-icon {
+    font-family: var(--font-instrument);
+    font-size: 0.62em;
+    color: var(--color-copper-text);
+  }
+  .contact__email:hover .contact__email-icon {
+    color: currentColor;
   }
 
   .contact__actions {
@@ -193,71 +218,99 @@ const links = [
     flex-wrap: wrap;
     align-items: center;
     gap: 0.6rem 0.75rem;
-    margin-top: 1.35rem;
+    margin-top: 1.5rem;
   }
   .contact__actions .button {
     min-height: 48px;
   }
   .contact__mail {
-    min-width: 11rem;
+    min-width: 12rem;
     justify-content: space-between;
   }
+
   .contact__status {
     flex-basis: 100%;
+    margin: 0;
+    min-height: 1.4em;
     font-size: 0.78rem;
     line-height: 1.5;
-    color: var(--color-teal);
-    min-height: 1.2em;
+    color: var(--color-ink-muted);
+  }
+  .contact__status:empty {
+    min-height: 0;
+  }
+  /* State is carried by the words, not by the colour — the colour only
+     reinforces it. */
+  .contact__status[data-state='success'] {
+    color: var(--color-signal-pass);
+  }
+  .contact__status[data-state='error'] {
+    color: var(--color-signal-fail);
   }
 
   .contact__links {
     list-style: none;
-    margin: 1.5rem 0 0;
+    margin: clamp(1.5rem, 3vw, 2rem) 0 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    border-top: 1px solid var(--color-rule);
+    border-top: 1px solid var(--color-rule-on-paper-strong);
   }
   .contact__links li {
     border-bottom: 1px solid var(--color-rule);
-    border-right: 1px solid var(--color-rule);
-  }
-  .contact__links li:last-child {
-    border-right: 0;
   }
   .contact__link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
+    display: grid;
+    grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr) auto;
+    gap: 0.35rem 1rem;
+    align-items: baseline;
     min-height: 52px;
-    padding: 0.5rem 0.8rem;
-    font-size: 0.86rem;
+    padding: 0.7rem 0.25rem;
     text-decoration: none;
     color: var(--color-ink);
-    transition: background 160ms var(--ease-standard), color 160ms var(--ease-standard);
+    transition:
+      background 160ms var(--ease-standard),
+      color 160ms var(--ease-standard);
   }
-  .contact__link > span:last-child {
+  .contact__link-name {
+    font-weight: 500;
+    font-size: 0.92rem;
+  }
+  .contact__link-detail {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--color-ink-faint);
+  }
+  .contact__link-arrow {
+    font-family: var(--font-instrument);
+    font-size: 0.85rem;
     color: var(--color-copper-text);
   }
-  .contact__link:hover {
+  .contact__link:hover,
+  .contact__link:focus-visible {
     background: var(--color-paper-high);
     color: var(--color-teal);
   }
+  .contact__link:hover .contact__link-detail,
+  .contact__link:focus-visible .contact__link-detail {
+    color: var(--color-ink-muted);
+  }
 
-  @media (max-width: 60rem) {
-    .contact__grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
+  @media (max-width: 62rem) {
+    .contact__inner {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.75rem;
     }
     .contact h2 {
-      max-width: 18ch;
+      max-width: 16ch;
+    }
+    .contact__panel {
+      padding-top: 0;
     }
   }
 
   @media (max-width: 46rem) {
     .contact h2 {
-      font-size: clamp(2.3rem, 10.5vw, 3.2rem);
+      font-size: clamp(2.2rem, 10vw, 3.2rem);
     }
     .contact__actions .button {
       width: 100%;
@@ -265,11 +318,17 @@ const links = [
     .contact__mail {
       min-width: 0;
     }
-    .contact__links {
-      grid-template-columns: 1fr;
+    .contact__link {
+      grid-template-columns: minmax(0, 1fr) auto;
     }
-    .contact__links li {
-      border-right: 0;
+    .contact__link-detail {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .contact__link-arrow {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      align-self: center;
     }
   }
 </style>

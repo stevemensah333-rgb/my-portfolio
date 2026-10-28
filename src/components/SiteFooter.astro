@@ -1,34 +1,190 @@
-<footer class="footer page-shell">
-  <a href="/">Stephen Mensah</a>
-  <p>Built with care. Open for inspection.</p>
-  <a href="#main-content">Back to top ↑</a>
-</footer>
-<style>
-.footer{
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-block: 1.5rem;
-  border-top: 1px solid var(--color-rule);
-  font-size: 0.75rem;
-  color: var(--color-ink-faint);
-}
-.footer a{
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-}
-.footer p{
-  align-self: center;
-}
+---
+/**
+ * SiteFooter — the last line of every route.
+ *
+ * Three jobs, in this order: say who this is, give the same three routes
+ * the header gives (so a phone visitor who scrolled past the menu is not
+ * stranded), and offer the direct ways to reach a person. Nothing here is
+ * decorative.
+ *
+ * All facts come from site.ts, so the footer cannot drift from the header
+ * or the contact block.
+ */
+import { SITE, PUBLIC_LINKS, externalLinks } from '../config/site';
+import { navItems } from '../config/workspace';
 
-@media (max-width: 600px) {
-  .footer{
-    flex-wrap: wrap;
+const routes = navItems.filter((item) => item.id !== 'home' && item.id !== 'resume');
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer__inner page-shell">
+    <div class="footer__id">
+      <a class="footer__name" href="/">{SITE.name}</a>
+      <p class="footer__role">{SITE.role} · {SITE.location}</p>
+      <a class="footer__email" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+    </div>
+
+    <nav class="footer__nav" aria-label="Footer navigation">
+      <p class="footer__label">Pages</p>
+      <ul>
+        {
+          routes.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <nav class="footer__nav" aria-label="Elsewhere">
+      <p class="footer__label">Elsewhere</p>
+      <ul>
+        {
+          externalLinks.map((link) => (
+            <li>
+              <a href={link.href} target="_blank" rel="noopener">
+                {link.label}
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="footer__meta">
+      <p>© {year} {SITE.name}</p>
+      <a href="#main-content">Back to top ↑</a>
+    </div>
+  </div>
+  {PUBLIC_LINKS.resume && (
+    <span class="footer__source" hidden aria-hidden="true">
+      Résumé source: {PUBLIC_LINKS.resume}
+    </span>
+  )}
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+    background: var(--color-paper-soft);
+    padding-block: clamp(2rem, 3.5vw, 3rem) 1.25rem;
   }
-  .footer p{
-    order: 3;
-    flex-basis: 100%;
+
+  .footer__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 0.7fr)) minmax(0, 0.9fr);
+    gap: 1.5rem clamp(1.25rem, 3vw, 3rem);
+    align-items: start;
   }
-}
+
+  .footer__name {
+    display: inline-block;
+    min-height: 32px;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .footer__name:hover {
+    border-bottom-color: currentColor;
+  }
+  .footer__role {
+    margin-top: 0.2rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--color-ink-faint);
+  }
+  .footer__email {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    margin-top: 0.35rem;
+    font-size: 0.84rem;
+    color: var(--color-teal);
+    text-underline-offset: 3px;
+  }
+  .footer__email:hover {
+    color: var(--color-copper-text);
+  }
+
+  .footer__label {
+    font-family: var(--font-instrument);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+    margin-bottom: 0.35rem;
+  }
+  .footer__nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .footer__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    font-size: 0.84rem;
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .footer__nav a:hover,
+  .footer__nav a:focus-visible {
+    color: var(--color-teal);
+    border-bottom-color: currentColor;
+  }
+
+  .footer__meta {
+    display: grid;
+    gap: 0.25rem;
+    justify-items: start;
+    font-size: 0.75rem;
+    color: var(--color-ink-faint);
+  }
+  .footer__meta a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .footer__meta a:hover {
+    color: var(--color-teal);
+    border-bottom-color: currentColor;
+  }
+
+  @media (max-width: 62rem) {
+    .footer__inner {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .footer__id {
+      grid-column: 1 / -1;
+    }
+    .footer__meta {
+      grid-column: 1 / -1;
+      justify-items: start;
+    }
+  }
+
+  /* Pages and Elsewhere stay side by side even at 320px: two short
+     columns read faster than one long stack. */
+  @media (max-width: 30rem) {
+    .footer__inner {
+      gap: 1.25rem 1rem;
+    }
+    .footer__nav a {
+      min-height: 38px;
+      font-size: 0.82rem;
+    }
+    .footer__role {
+      font-size: 0.75rem;
+    }
+  }
 </style>

@@ -124,7 +124,7 @@ export const caseCopy: Record<ProjectId, Record<Exclude<CasePartKey, 'overview'>
   koranco: {
     visual: {
       title: 'A conceptual map, not a screenshot.',
-      note: 'Drawn from the written project scope. No application UI, capture, repository or deployment exists in the public record.',
+      note: 'Three record types, drawn from the written project scope. No application UI, capture or repository is public.',
       aliases: ['built'],
     },
     problem: {

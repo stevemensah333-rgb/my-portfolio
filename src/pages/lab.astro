@@ -1,10 +1,9 @@
 ---
 import ScenarioLab from '../components/ScenarioLab.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE, pageMeta } from '../config/site';
 
-const title = 'Reliability Lab — one rewrite, five checks | Stephen Mensah';
-const description =
-  'An illustrative, deterministic demonstration: one CV bullet followed through the context a request carries, an answer that context cannot support, the gate that refuses it, a cited proposal that passes, and the person who still decides. Fixtures and local checks only — no model call, no captured incident, no measured result.';
+const { title, description, image, imageAlt } = pageMeta.lab;
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -14,12 +13,12 @@ const structuredData = {
   url: new URL('/lab/', Astro.site).href,
   author: {
     '@type': 'Person',
-    name: 'Stephen Mensah',
+    name: SITE.name,
     url: new URL('/', Astro.site).href,
   },
 };
 ---
 
-<BaseLayout {title} {description} {structuredData}>
+<BaseLayout {title} {description} {structuredData} {image} {imageAlt}>
   <ScenarioLab />
 </BaseLayout>

@@ -35,6 +35,7 @@ const project = projects.find((entry) => entry.id === id)!;
 const record = projectRecords[id];
 const copy = caseCopy[id];
 const next = projects.find((entry) => entry.id === nextProject[id])!;
+const nextRecord = projectRecords[nextProject[id]];
 
 /* Product and source links only — the registry's other evidence kinds are
    images or illustrative notes, which belong inside the sections. */
@@ -146,13 +147,28 @@ const facts = [
     </CaseSection>
   </div>
 
-  <a class="next-project page-shell" href={next.route}>
-    <span>
-      <span class="eyebrow">Next project</span>
-      <strong>{next.name}</strong>
-    </span>
-    <span aria-hidden="true">↗</span>
-  </a>
+  {/* The hand-over completes the arc: a reader who has finished this
+      case study gets the next one, the whole register, or the way to get
+      in touch. Every one of those is a real destination. */}
+  <nav class="handover page-shell" aria-labelledby="handover-title">
+    <h2 id="handover-title" class="visually-hidden">After this case study</h2>
+
+    <a class="next-project" href={next.route}>
+      <span class="next-project__body">
+        <span class="eyebrow">Next case study</span>
+        <strong>{next.name}</strong>
+        <span class="next-project__claim">{nextRecord.title}</span>
+        <span class="next-project__state">{nextRecord.stateShort}</span>
+      </span>
+      <span class="next-project__arrow" aria-hidden="true">↗</span>
+    </a>
+
+    <ul class="handover__links">
+      <li><a class="text-link" href="/work/">All work <span aria-hidden="true">↗</span></a></li>
+      <li><a class="text-link" href="/profile/">About Stephen <span aria-hidden="true">↗</span></a></li>
+      <li><a class="text-link" href="/lab/">How the work is checked <span aria-hidden="true">↗</span></a></li>
+    </ul>
+  </nav>
 </article>
 
 <style>
@@ -171,12 +187,74 @@ const facts = [
     color: var(--color-accent-text);
   }
 
+  .handover {
+    padding-block: 0 0;
+  }
+
   .next-project {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: clamp(1.75rem, 3vw, 2.75rem);
     color: inherit;
     text-decoration: none;
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+  }
+  .next-project__body {
+    display: grid;
+    gap: 0.3rem;
+    min-width: 0;
   }
   .next-project .eyebrow {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
+  }
+  .next-project strong {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 3.6vw, 3.2rem);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+  .next-project__claim {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+    max-width: 44ch;
+  }
+  .next-project__state {
+    margin-top: 0.25rem;
+    font-family: var(--font-instrument);
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-accent-text);
+  }
+  .next-project__arrow {
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
+    line-height: 1;
+    color: var(--color-copper-text);
+  }
+  .next-project:hover strong {
+    color: var(--color-teal);
+  }
+
+  .handover__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.75rem;
+    margin: 0;
+    padding: 0.9rem 0 1.5rem;
+    list-style: none;
+    border-top: 1px solid var(--color-rule);
+  }
+  .handover__links .text-link {
+    font-size: 0.85rem;
+    color: var(--color-teal);
+    text-underline-offset: 3px;
+  }
+  .handover__links .text-link:hover {
+    color: var(--color-copper-text);
   }
 </style>

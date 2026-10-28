@@ -22,11 +22,10 @@
         and a check that refuses it because the claim it makes has no footing in the context it
         was given.
       </p>
-      <ul class="lab-notes">
-        <li>Illustrative fixture, labelled as such</li>
-        <li>Deterministic checks in the browser</li>
-        <li>No model call, no captured incident</li>
-      </ul>
+      <p class="lab-notes">
+        Illustrative fixture and deterministic checks in the browser — no model call, no captured
+        incident.
+      </p>
       <a class="text-link lab-copy__cta" href="/lab/">
         Open the Reliability Lab <span aria-hidden="true">↗</span>
       </a>
@@ -34,7 +33,7 @@
 
     <div class="check" data-check>
       <div class="check__head">
-        <span class="check__title">cv.rewrite_bullet · prebuilt example</span>
+        <span class="check__title">cv.rewrite_bullet</span>
         <span class="check__tag">Illustrative</span>
       </div>
 
@@ -48,7 +47,7 @@
         </div>
 
         <div class="check__block">
-          <p class="check__label">Illustrative model output</p>
+          <p class="check__label">Proposed bullet</p>
           <p class="check__proposal">
             “Results-driven engineer with <mark>5 years of Kubernetes experience</mark> who
             transformed deployments at Acme Corp.”
@@ -192,26 +191,24 @@
     max-width: 42ch;
   }
   .lab-notes {
-    list-style: none;
-    margin: 1.5rem 0 0;
-    padding: 0;
-    display: grid;
-    gap: 0.4rem;
+    position: relative;
+    margin: 1.4rem 0 0;
+    padding-left: 1rem;
+    max-width: 42ch;
     font-family: var(--font-instrument);
     font-size: 0.7rem;
+    line-height: 1.7;
     letter-spacing: 0.03em;
     color: var(--color-text-on-canvas-muted);
   }
-  .lab-notes li {
-    display: flex;
-    gap: 0.6rem;
-    align-items: baseline;
-  }
-  .lab-notes li::before {
-    content: '·';
-    color: var(--color-accent-bright);
-    font-size: 1rem;
-    line-height: 1;
+  .lab-notes::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 6px;
+    height: 1px;
+    background: var(--color-accent-bright);
   }
   .lab-copy__cta {
     margin-top: 1.6rem;

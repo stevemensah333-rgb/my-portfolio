@@ -3,21 +3,36 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseStudy from '../../components/case/CaseStudy.astro';
 import ModuleMap from '../../components/case/ModuleMap.astro';
 import { projectRecords } from '../../data/portfolio';
-import { PUBLIC_LINKS } from '../../config/site';
+import { koranco as korancoProject } from '../../data/registry';
+import { PUBLIC_LINKS, SITE, caseMeta, SOCIAL_IMAGE } from '../../config/site';
 
-const title = 'Koranco Farms — Connected farm records | Stephen Mensah';
-const description = projectRecords.koranco.summary;
+const meta = caseMeta({
+  name: korancoProject.name,
+  summary: projectRecords.koranco.summary,
+  image: '/social/koranco.png',
+  imageAlt: 'Koranco Farms — attendance, produce and employee records, drawn as a module map.',
+});
+const { title, description, image, imageAlt } = meta;
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'CreativeWork',
   name: 'Koranco Farms MVP',
   description,
   url: new URL('/work/koranco/', Astro.site).href,
-  author: { '@type': 'Person', name: 'Stephen Mensah' },
+  author: { '@type': 'Person', name: SITE.name },
 };
 ---
 
-<BaseLayout {title} {description} {structuredData} ogType="article">
+<BaseLayout
+  {title}
+  {description}
+  {structuredData}
+  {image}
+  {imageAlt}
+  imageWidth={SOCIAL_IMAGE.width}
+  imageHeight={SOCIAL_IMAGE.height}
+  ogType="article"
+>
   <CaseStudy id="koranco">
     <Fragment slot="visual">
       <div style="view-transition-name: artifact-koranco">
@@ -27,12 +42,12 @@ const structuredData = {
 
     <Fragment slot="problem">
       <p>
-        The supplied record describes a six-week engagement to understand how farm production data
-        was captured, organised and used — and then to build a management MVP around what that
-        turned out to be.
+        Farm records were being kept for the office, not for the field. The engagement’s job was to
+        find out how production data was actually captured, organised and used — and then to build
+        something that survived the conditions it was used in.
       </p>
       <p>
-        Three record types came out of it: who was present, what was produced, and who worked
+        Three record types came out of that: who was present, what was produced, and who worked
         there. They are the whole scope of the MVP; nothing else is claimed.
       </p>
     </Fragment>
@@ -42,10 +57,28 @@ const structuredData = {
         I did the software engineering for the three-module MVP during the six-week Ashesi
         Innovation Lab engagement, working alongside the farm-operations side of the project.
       </p>
-      <p>
-        The supplied records describe the implementation as FastAPI and PostgreSQL. Beyond that
-        stack the code is not public, so this page does not describe schemas, endpoints or
-        permissions — those would be guesses.
+
+      <ul class="role-list">
+        <li>
+          <strong>Offline-first field work</strong> — the modules were built so attendance, produce
+          and employee records can be entered where connectivity is poor, rather than only where
+          the office is.
+        </li>
+        <li>
+          <strong>Authentication and authorization</strong> — custom authentication with
+          role-based access, on FastAPI and PostgreSQL, so a farmhand and a manager do not see the
+          same records.
+        </li>
+        <li>
+          <strong>A public face for the farm</strong> — a website built for the business, to make it
+          findable and reachable. It is described, not linked: its address is not in the supplied
+          record.
+        </li>
+      </ul>
+
+      <p class="case-note">
+        Beyond the stack, the code is not public, so no schema, endpoint or permission rule is
+        described here — those would be guesses.
       </p>
     </Fragment>
 
@@ -59,17 +92,25 @@ const structuredData = {
           </dd>
         </div>
         <div>
+          <dt>Build for the connection the farm has</dt>
+          <dd>
+            Offline-first was the shape of the product, not a later optimisation: records are
+            captured in the field and reconciled afterwards, so a dropped connection does not stop
+            the day’s work.
+          </dd>
+        </div>
+        <div>
+          <dt>Decide access in the service</dt>
+          <dd>
+            Custom authentication and role-based authorization live on the backend, next to the
+            records they protect, rather than in the interface.
+          </dd>
+        </div>
+        <div>
           <dt>Deliver a working MVP within the engagement</dt>
           <dd>
             Six weeks, through the Ashesi Innovation Lab, delivered as a working MVP rather than a
             design document or a proposal.
-          </dd>
-        </div>
-        <div>
-          <dt>Describe only what the record supports</dt>
-          <dd>
-            Implementation detail — schemas, endpoints, permissions, interface — is not in the
-            public record, so it is not described here.
           </dd>
         </div>
       </dl>
@@ -82,8 +123,8 @@ const structuredData = {
         <div>
           <dt>Delivered</dt>
           <dd>
-            <strong>A working MVP, reported.</strong> Attendance, produce and employee records, built
-            through the six-week Innovation Lab engagement.
+            <strong>Three modules, working.</strong> Attendance, produce and employees, built through
+            the six-week Innovation Lab engagement.
           </dd>
         </div>
         <div>
@@ -103,13 +144,8 @@ const structuredData = {
         <li>No public repository, source excerpt or product screenshot</li>
         <li>No production deployment or farm-side adoption reported</li>
         <li>No measured operational outcome — no time saved, error rate or usage figure</li>
-        <li>Engagement attribution and exact dates still need owner confirmation</li>
+        <li>The farm’s website is described but not linked — its address is not in the record</li>
       </ul>
-
-      <p class="case-note">
-        The module map in 02 is a drawing of the written scope. It is not a reconstruction of an
-        interface that was seen, and it should not be read as one.
-      </p>
     </Fragment>
 
     <Fragment slot="sources">
@@ -117,7 +153,7 @@ const structuredData = {
         <li>
           <a href="/profile/">Profile and experience record</a>
           <span class="case-sources__tag">This site</span>
-          <span>Where the engagement sits alongside the rest of the work history.</span>
+          <span>The Jul–Sep 2026 Innovation Lab role this six-week engagement sits inside.</span>
         </li>
         <li>
           <a href={PUBLIC_LINKS.resume}>Résumé (PDF)</a>
@@ -131,9 +167,7 @@ const structuredData = {
         </li>
       </ul>
 
-      <p class="case-note">
-        No repository, deployment or product capture exists for this project, so none is linked.
-      </p>
+
     </Fragment>
   </CaseStudy>
 </BaseLayout>

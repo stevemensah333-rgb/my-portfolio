@@ -97,8 +97,10 @@ const number = partNumber(part);
     height: 0;
     overflow: hidden;
   }
+  /* Legacy alias anchors live at the section's top edge, so they share
+     the page's single scroll offset rather than adding their own. */
   .case-anchors > span {
     display: block;
-    scroll-margin-top: 7rem;
+    scroll-margin-top: 0;
   }
 </style>

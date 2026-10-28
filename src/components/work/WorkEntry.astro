@@ -34,34 +34,15 @@ const { id, order, scale = 'standard', priority = false, capture } = Astro.props
 const project = projects.find((entry) => entry.id === id)!;
 const record = projectRecords[id];
 
-/* Archive-specific wording. The long boundary text belongs to the case
-   page; here each line has to stay short enough to compare across three
-   rows without softening what is unresolved. */
-const archive = {
-  syncareer: {
-    kind: 'Flagship',
-    state: 'Live product · grounding revision awaits redeployment',
-    evidence: 'Live link, public source, real product captures',
-    purpose:
-      'An AI-powered career platform for African students: a saved opportunity, the tailored CV and the interview preparation sit inside one application record.',
-  },
-  sessionbook: {
-    kind: 'Backend',
-    state: 'Implemented MVP · no live calls retained',
-    evidence: 'Public source at commit 1264d9e',
-    purpose:
-      'A booking backend for a voice agent: availability, a row-locked booking transaction and a confirmation phrase designed to be read aloud.',
-  },
-  koranco: {
-    kind: 'Operations',
-    state: 'Delivered MVP · no production deployment evidenced',
-    evidence: 'No public source, no product captures',
-    purpose:
-      'Attendance, produce and employee records for a farm’s daily work, built through a six-week Ashesi Innovation Lab engagement.',
-  },
-} as const;
-
-const detail = archive[id];
+/* Archive rows read straight from the registry. Each entry carries a
+   short kind, state and evidence line there, so the register, the
+   homepage and the case study print the same words. */
+const detail = {
+  kind: record.kind,
+  state: record.stateShort,
+  evidence: record.evidenceShort,
+  purpose: record.purpose,
+};
 
 /* The artifact link and the text link go to the same place, so they are
    named differently on purpose: one describes the object, the other names

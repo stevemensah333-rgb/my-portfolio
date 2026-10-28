@@ -194,39 +194,73 @@ export const koranco: Project = {
   id: 'koranco',
   name: 'Koranco Farms',
   short:
-    'A farm management system I built through the Ashesi Innovation Lab — attendance, produce and employee modules.',
+    'A farm management system built through the Ashesi Innovation Lab — attendance, produce and employee records, built to hold up in low-connectivity field work.',
   status: 'mvp',
   claim:
-    'Selected for a 6-week Ashesi Innovation Lab project with Koranco Farms. Built a farm management system addressing how production data is captured, organized and used — with attendance checking, farm produce management, and employee management modules.',
+    'A farm management system for Koranco Farms, built during a six-week Ashesi Innovation Lab engagement: attendance, produce and employee records, designed to keep working where the connection does not.',
   evidence: [],
   claimLimit:
-    'The farm management system was built and delivered as a working MVP through the Innovation Lab. No public repository, production deployment, or farm-side usage figures exist. This engagement is described from the Innovation Lab brief and my résumé.',
-  stack: ['FastAPI', 'PostgreSQL'],
+    'Delivered as a working MVP through the Innovation Lab. No public repository, production deployment or farm-side usage figure exists, and the farm’s public website is not linked because its address is not in the supplied record. This account is drawn from the Innovation Lab brief and my résumé.',
+  stack: ['FastAPI', 'PostgreSQL', 'Role-based auth', 'Offline-first'],
   route: '/work/koranco/',
 };
 
 export const projects: Project[] = [syncareer, sessionbook, koranco];
 
 export const projectRecords = {
- syncareer: {
-  role:'Product & application engineering', title:'Career tools, with context.',
-  summary:'A career platform connecting saved opportunities, CV tailoring and interview preparation in one application record.',
-  status:'Existing platform · live link', implementation:'Grounding revision implemented', deployment:'Grounding revision awaits redeployment',
-  result:'A bounded request and cited proposal contract exists in source. Live model improvement has not been measured.',
-  boundary:'The existing platform and the revised reliability code have separate release states. The handoff records no redeployment or authenticated canary for the grounding revision.',
- },
- sessionbook: {
-  role:'Backend & integration engineering',title:'A voice asks. The backend decides.',
-  summary:'An appointment-booking backend for a voice agent. Availability, booking and confirmation remain application decisions.',
-  status:'MVP · implemented source',implementation:'HTTP tools + agent configuration implemented',deployment:'Live calls / deployment unverified',
-  result:'Four HTTP tools, a mounted router, a row-locking booking service and agent configuration are present at commit 1264d9e.',
-  boundary:'Repository inspection verifies written implementation, not a working phone call. No retained call evidence or deployment verification is available. The test file is empty and no migration versions exist.',
- },
- koranco: {
-  role:'Software engineering · farm operations',title:'A farm’s records, connected.',
-  summary:'Attendance, produce and employee records brought into a farm management MVP.',
-  status:'MVP · delivery reported',implementation:'Three-module MVP described in supplied records',deployment:'No production deployment evidenced',
-  result:'A delivered MVP is reported in the portfolio and résumé material. No public source, product captures or usage measurements are available.',
-  boundary:'The supplied portfolio attributes this six-week project to the Innovation Lab. Engagement attribution and internship dates remain unresolved across the supplied records; owner confirmation is required.',
- },
+  syncareer: {
+    role: 'Product & application engineering',
+    title: 'Career tools, with context.',
+    summary:
+      'A career platform connecting saved opportunities, CV tailoring and interview preparation in one application record.',
+    status: 'Live product',
+    implementation: 'Grounding revision in source',
+    deployment: 'Revision not yet redeployed',
+    result:
+      'A bounded request and cited-proposal contract is in source. The live model’s grounding has not been measured.',
+    boundary:
+      'The platform and the revised reliability code have separate release states: no redeployment or authenticated canary for the revision is recorded.',
+    /* Archive register — short enough for three rows to be compared. */
+    kind: 'Flagship',
+    stateShort: 'Live · revision in source',
+    evidenceShort: 'Live link, public source, real captures',
+    purpose:
+      'An AI-powered career platform for African students: a saved opportunity, the tailored CV and the interview preparation sit inside one application record.',
+  },
+  sessionbook: {
+    role: 'Backend & integration engineering',
+    title: 'A voice asks. The backend decides.',
+    summary:
+      'An appointment-booking backend for a voice agent. Availability, booking and confirmation stay application decisions.',
+    status: 'Implemented MVP',
+    implementation: 'HTTP tools + agent configuration in source',
+    deployment: 'No live calls verified',
+    result:
+      'Four HTTP tools, a mounted router, a row-locking booking service and the agent configuration are present at commit 1264d9e.',
+    boundary:
+      'Source verifies the written implementation, not a working phone call. No call recording or deployment check exists; the test file is empty and no migration version has been generated.',
+    kind: 'Backend',
+    stateShort: 'Implemented · no calls verified',
+    evidenceShort: 'Public source at commit 1264d9e',
+    purpose:
+      'A booking backend for a voice agent: availability, a row-locked booking transaction, and a confirmation phrase designed to be read aloud.',
+  },
+  koranco: {
+    role: 'Software engineering · farm operations',
+    title: 'A farm’s records, connected.',
+    summary:
+      'Attendance, produce and employee records brought into a farm management MVP that keeps working on a bad connection.',
+    status: 'MVP delivered',
+    implementation: 'Three-module MVP, per the résumé record',
+    deployment: 'No production deployment verified',
+    result:
+      'A working MVP is recorded in the résumé and the Innovation Lab brief: three modules, custom authentication and role-based access, and a public site for the farm.',
+    boundary:
+      'No public source, product capture or usage figure exists, and the farm’s site is not linked because its address is not in the record. The six-week engagement sits inside a Jul–Sep 2026 Innovation Lab role.',
+    kind: 'Operations',
+    stateShort: 'Delivered · no public build',
+    evidenceShort: 'No public source, no product captures',
+    purpose:
+      'Attendance, produce and employee records for a farm’s daily work, built offline-first through a six-week Ashesi Innovation Lab engagement.',
+  },
 } as const;
