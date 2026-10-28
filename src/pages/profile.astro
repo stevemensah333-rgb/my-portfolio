@@ -1,240 +1,1084 @@
 ---
+/**
+ * /profile/ — About.
+ *
+ * The last stop of the journey: HOME → WORK → LAB → PROFILE → CONTACT.
+ * It is a record, not a résumé page: identity first, then the work with
+ * other people, then the capabilities those projects carry, and only
+ * then the academic record. Achievements come after the engineering
+ * because they are the smaller claim, not the opening one.
+ *
+ * Every status on this page is read from the registry (registry.ts), so
+ * the release state here cannot drift from the archive or the case
+ * studies. Nothing about the person is invented to fill a slot: what the
+ * supplied records do not settle is marked, not smoothed over.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import {experiences,projectRecords} from '../data/portfolio';
-import {credentials} from '../data/credentials';
-const title='About — Stephen Mensah';
-const description='Software engineer and Computer Science student at Ashesi University. Experience, project-backed capabilities and selected achievements.';
-const structuredData={'@context':'https://schema.org','@type':'ProfilePage',name:'About Stephen Mensah',description,url:new URL('/profile/',Astro.site).href,mainEntity:{'@type':'Person',name:'Stephen Mensah'}};
+import { experiences, projectRecords } from '../data/portfolio';
+import { credentials } from '../data/credentials';
+import { PUBLIC_LINKS } from '../config/site';
+
+const title = 'About — Stephen Mensah';
+const description =
+  'Stephen Mensah — software engineer and Computer Science student at Ashesi University, Ghana. Experience, the projects behind each capability, and a selected academic record.';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  name: 'About Stephen Mensah',
+  description,
+  url: new URL('/profile/', Astro.site).href,
+  mainEntity: {
+    '@type': 'Person',
+    name: 'Stephen Mensah',
+    jobTitle: 'Software engineer',
+    url: new URL('/profile/', Astro.site).href,
+    alumniOf: { '@type': 'CollegeOrUniversity', name: 'Ashesi University' },
+    sameAs: [PUBLIC_LINKS.github, PUBLIC_LINKS.linkedin].filter(Boolean),
+  },
+};
+
+/* The registry's date strings carry their own caveat ("· résumé; to
+   confirm"). Split it out rather than display or delete it: the row gets
+   a readable span, the caveat stays visible as a footnote. */
+const parseDates = (dates: string) => {
+  const [span, ...rest] = dates.split(' · ');
+  return { span, caveat: rest.join(' · '), unconfirmed: /to confirm/i.test(dates) };
+};
+
+const records = experiences.map((entry, index) => ({
+  ...entry,
+  n: String(index + 1).padStart(2, '0'),
+  ...parseDates(entry.dates),
+}));
+
+const unconfirmed = records.filter((entry) => entry.unconfirmed);
+
+/* Capability copy stays here; the release state does not — it is read
+   from the registry so it always matches /work/ and the case study. */
+const capabilities = [
+  {
+    project: 'syncareer',
+    n: '01',
+    kicker: 'AI applications / Syncareer',
+    title: 'Put a boundary around the answer.',
+    text: 'Explicit context, a structured proposal contract and runtime checks in the source revision.',
+    href: '/work/syncareer/#intervention',
+    link: 'Inspect Syncareer',
+  },
+  {
+    project: 'sessionbook',
+    n: '02',
+    kicker: 'Backend engineering / SessionBook',
+    title: 'Keep correctness in the service.',
+    text: 'Typed HTTP tools, data modelling, transaction boundaries and spoken responses behind a voice agent.',
+    href: '/work/sessionbook/#architecture',
+    link: 'Inspect SessionBook',
+  },
+  {
+    project: 'koranco',
+    n: '03',
+    kicker: 'Product thinking / Koranco Farms',
+    title: 'Start with the actual workflow.',
+    text: 'Attendance, produce and employee records shaped around the documented farm-operations scope.',
+    href: '/work/koranco/#built',
+    link: 'Inspect Koranco',
+  },
+] as const;
+
+/* What each public derivative is, and what it does not contain. The
+   originals in source-material/ are untouched; these copies were made
+   for publication. */
+const evidenceNotes: Record<string, string> = {
+  sat: 'Score report excerpt: 1520 total, 730 Reading and Writing, 790 Math. No name, registration number or QR code appears in this public copy.',
+  ashesi:
+    'Letter excerpt: the greeting and the Dean’s List sentence for the January Term (Term Two) of the 2025/2026 academic year. No student number or address appears in this public copy.',
+  'commonwealth-essay':
+    'Certificate excerpt naming the award. No certificate number or signature block appears in this public copy.',
+  'national-sharks-quiz':
+    'Event photograph, supplied with the record. It shows the team competing; it is not a placement certificate.',
+};
 ---
-<BaseLayout {title} {description} {structuredData}>
- <section class="profile-opening page-shell section" id="about"><div><p class="eyebrow">About / The person behind the work</p><h1>Thoughtful systems.<br /><em>Human reasons.</em></h1><p class="lead">I’m Stephen Mensah, a software engineer and Computer Science student at Ashesi University in Ghana.</p><p>I build AI-powered applications and backend services. I’m interested in the details that make a feature useful: the context it receives, the records it changes, and what happens when something fails.</p><p>This is a practice I’m developing through real projects. You can follow the decisions in <a href="/work/">my work</a>.</p><nav class="profile-nav" aria-label="About sections"><a href="#experience">Experience ↓</a><a href="#capabilities">Capabilities ↓</a><a href="#evidence">Achievements ↓</a></nav></div><figure class="profile-photo"><img src="/images/stephen.webp" alt="Stephen Mensah" width="500" height="500" fetchpriority="high"/><figcaption>Stephen Mensah / Software engineer</figcaption></figure></section>
- <section class="page-shell profile-section" id="experience"><div class="section-head"><div><p class="eyebrow">Experience</p><h2>Work with<br />other people.</h2></div><p class="muted">Contributions first. Additional context on opening each record.</p></div><div class="experience-records">{experiences.map(e=><details class="experience-record"><summary><span><strong>{e.organisation}</strong><span>{e.role}</span></span><span class="experience-record__summary">{e.summary}</span><span class="experience-record__date">{e.dates}</span><span aria-hidden="true">+</span></summary><div class="experience-record__detail"><p>{e.detail}</p>{e.href&&<a class="text-link" href={e.href}>{e.link} ↗</a>}</div></details>)}</div><p class="profile-note">The public résumé is retained as supplied. The AmaliTech dates and Koranco engagement attribution need owner confirmation; neither is treated as settled here.</p></section>
- <section class="page-shell profile-section" id="capabilities"><span id="toolkit"></span><div class="section-head"><div><p class="eyebrow">Capabilities / Grounded in work</p><h2>What I bring<br />to a problem.</h2></div></div><div class="capability-grid"><a href="/work/syncareer/#intervention"><span class="eyebrow">01 / AI applications</span><h3>Put a boundary<br />around the answer.</h3><p>Explicit context, structured proposals and runtime checks in Syncareer’s source revision.</p><span class="text-link">Inspect Syncareer ↗</span><small>{projectRecords.syncareer.deployment}</small></a><a href="/work/sessionbook/#architecture"><span class="eyebrow">02 / Backend engineering</span><h3>Keep correctness<br />in the service.</h3><p>Typed HTTP tools, data modelling, transaction boundaries and spoken responses in SessionBook.</p><span class="text-link">Inspect SessionBook ↗</span><small>{projectRecords.sessionbook.deployment}</small></a><a href="/work/koranco/#built"><span class="eyebrow">03 / Product thinking</span><h3>Start with<br />the actual workflow.</h3><p>Attendance, produce and employee records shaped around the documented farm operations scope.</p><span class="text-link">Inspect Koranco ↗</span><small>Reported MVP / no public source</small></a></div></section>
- <section class="page-shell profile-section" id="evidence"><div class="section-head"><div><p class="eyebrow">Beyond the code</p><h2>A few other<br />things I’ve done.</h2></div><p class="muted">Selected academic and competition achievements. Source previews open deliberately.</p></div><div class="achievement-list">{credentials.map(c=><details class="achievement"><summary><span>{c.name}</span><strong>{c.result}</strong><span aria-hidden="true">+</span></summary><div class="achievement__body">{c.detail&&<p>{c.detail}</p>}{c.evidenceImage&&<figure><a href={c.evidenceImage} target="_blank" rel="noopener"><img src={c.evidenceImage} alt={c.evidenceAlt} width={c.evidenceWidth} height={c.evidenceHeight} loading="lazy"/></a><figcaption>{c.id==='sat'?'Cropped score section. Identifying record locator and QR code omitted from this public derivative.':'Supplied source image.'} <a href={c.evidenceImage} target="_blank" rel="noopener">Open preview ↗</a></figcaption></figure>}</div></details>)}</div></section>
+
+<BaseLayout {title} {description} {structuredData} ogType="profile">
+  <section class="about page-shell" aria-labelledby="profile-title">
+    <header class="about__head" id="about">
+      <p class="eyebrow rise" style="--i: 0">The workbench / About</p>
+      <div class="about__head-grid">
+        <h1 id="profile-title" class="rise" style="--i: 1">
+          Thoughtful systems.<br /><em>Human reasons.</em>
+        </h1>
+        <div class="about__note rise" style="--i: 2">
+          <p class="lead">
+            I’m Stephen Mensah, a software engineer and Computer Science student at Ashesi
+            University in Ghana.
+          </p>
+          <p class="about__body">
+            I build AI-powered applications and backend services. I’m interested in the details that
+            make a feature useful: the context it receives, the records it changes, and what happens
+            when something fails.
+          </p>
+          <p class="about__body">
+            This is a practice I’m developing through real projects — the evidence for each claim
+            below sits on <a href="/work/">the work</a>, not here.
+          </p>
+        </div>
+      </div>
+
+      <nav class="about__index" aria-label="About sections">
+        <a href="#experience">01 / Experience ↓</a>
+        <a href="#capabilities">02 / Capabilities ↓</a>
+        <a href="#evidence">03 / Academic record ↓</a>
+      </nav>
+    </header>
+
+    <div class="about__plate">
+      <figure class="portrait">
+        <img
+          src="/images/stephen.webp"
+          alt="Stephen Mensah"
+          width="500"
+          height="500"
+          fetchpriority="high"
+        />
+        <figcaption>
+          <span class="portrait__name">Stephen Mensah</span>
+          <span class="portrait__role">Software engineer / Ashesi University</span>
+        </figcaption>
+      </figure>
+
+      <dl class="register">
+        <div>
+          <dt>Studying</dt>
+          <dd>B.Sc. Computer Science, Ashesi University.</dd>
+        </div>
+        <div>
+          <dt>Building</dt>
+          <dd>
+            AI applications and backend services — <a href="/work/syncareer/">Syncareer</a>,
+            <a href="/work/sessionbook/">SessionBook</a> and
+            <a href="/work/koranco/">Koranco Farms</a> — each in a different release state, stated
+            where it appears.
+          </dd>
+        </div>
+        <div>
+          <dt>Documents</dt>
+          <dd>
+            <a href={PUBLIC_LINKS.resume} target="_blank" rel="noopener">Résumé (PDF) ↗</a> — the
+            document the workspace rail serves, supplied as-is.
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="record page-shell" id="experience" aria-labelledby="experience-title">
+    <div class="record__head">
+      <div>
+        <p class="eyebrow">01 / Experience</p>
+        <h2 id="experience-title">Work with other people.</h2>
+      </div>
+      <p class="record__note">
+        Role, dates and contribution are in the row. Open a record for the context it was written
+        in — and for what still needs confirming.
+      </p>
+    </div>
+
+    <ol class="entries">
+      {
+        records.map((entry) => (
+          <li>
+            <details class="entry">
+              <summary>
+                <span class="entry__n" aria-hidden="true">
+                  {entry.n}
+                </span>
+                <span class="entry__who">
+                  <strong>{entry.organisation}</strong>
+                  <span class="entry__role">{entry.role}</span>
+                </span>
+                <span class="entry__span">
+                  {entry.span}
+                  {entry.unconfirmed && (
+                    <span class="entry__flag">
+                      †<span class="visually-hidden"> date unconfirmed</span>
+                    </span>
+                  )}
+                </span>
+                <span class="entry__what">{entry.summary}</span>
+                <span class="entry__more" aria-hidden="true" />
+              </summary>
+              <div class="entry__body">
+                <p>{entry.detail}</p>
+                {entry.href && (
+                  <p class="entry__link">
+                    <a class="text-link" href={entry.href}>
+                      {entry.link} <span aria-hidden="true">↗</span>
+                    </a>
+                  </p>
+                )}
+              </div>
+            </details>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="record__foot">
+      <span aria-hidden="true">†</span> Dates come from the supplied résumé and are not yet
+      confirmed
+      {unconfirmed.length > 0 && ` (${unconfirmed.map((entry) => entry.organisation).join(', ')})`}
+      . The Koranco engagement attribution is likewise unresolved across the supplied records.
+      Neither is treated as settled here.
+    </p>
+  </section>
+
+  <section class="record page-shell" id="capabilities" aria-labelledby="capabilities-title">
+    <span id="toolkit" aria-hidden="true"></span>
+    <div class="record__head">
+      <div>
+        <p class="eyebrow">02 / Capabilities</p>
+        <h2 id="capabilities-title">What the work shows.</h2>
+      </div>
+      <p class="record__note">
+        Each capability is one project, opened from the row. The release state under each is read
+        from the same record the archive uses.
+      </p>
+    </div>
+
+    <ul class="caps">
+      {
+        capabilities.map((cap) => (
+          <li class="cap">
+            <span class="cap__n" aria-hidden="true">
+              {cap.n}
+            </span>
+            <div class="cap__body">
+              <p class="cap__kicker">{cap.kicker}</p>
+              <h3 class="cap__title">
+                <a href={cap.href}>{cap.title}</a>
+              </h3>
+              <p class="cap__text">{cap.text}</p>
+              <p class="cap__release">
+                <span class="cap__release-label">Release state</span>
+                {projectRecords[cap.project].deployment}
+              </p>
+            </div>
+            <span class="cap__go" aria-hidden="true">
+              ↗
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="record__foot">
+      A capability is not a claim of mastery. Each row links to the decisions, the limits and the
+      source behind it — including what has not been verified.
+    </p>
+  </section>
+
+  <section class="record page-shell" id="evidence" aria-labelledby="evidence-title">
+    <div class="record__head">
+      <div>
+        <p class="eyebrow">03 / Academic record</p>
+        <h2 id="evidence-title">Selected, and kept in proportion.</h2>
+      </div>
+      <p class="record__note">
+        Result and issuer are in the row. Each preview is a public derivative of the supplied
+        document, opened deliberately.
+      </p>
+    </div>
+
+    <ul class="awards">
+      {
+        credentials.map((credential) => (
+          <li>
+            <details class="award">
+              <summary>
+                <span class="award__who">
+                  <span class="award__name">{credential.name}</span>
+                  {(credential.issuer || credential.detail) && (
+                    <span class="award__issuer">
+                      {[credential.issuer, credential.detail].filter(Boolean).join(' · ')}
+                    </span>
+                  )}
+                </span>
+                <span class="award__result">{credential.result}</span>
+                <span class="award__more" aria-hidden="true" />
+              </summary>
+              <div class="award__body">
+                {credential.evidenceImage && (
+                  <figure class="award__figure">
+                    <img
+                      src={credential.evidenceImage}
+                      alt={credential.evidenceAlt}
+                      width={credential.evidenceWidth}
+                      height={credential.evidenceHeight}
+                      loading="lazy"
+                    />
+                    <figcaption>
+                      <span>{evidenceNotes[credential.id]}</span>
+                      <a href={credential.evidenceImage} target="_blank" rel="noopener">
+                        Open preview <span aria-hidden="true">↗</span>
+                      </a>
+                    </figcaption>
+                  </figure>
+                )}
+              </div>
+            </details>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="record__foot">
+      No award, ranking or result is listed here that does not have a supplied document behind it.
+      The originals are retained unaltered; the previews above are reduced or cropped copies made
+      for publication.
+    </p>
+  </section>
+
+  <footer class="about__close page-shell">
+    <p>
+      <span class="about__close-label">Reading on</span> The projects carry the evidence. The Lab
+      shows how one of them is checked.
+    </p>
+    <nav class="about__links" aria-label="Elsewhere">
+      <a class="text-link" href="/work/">The work <span aria-hidden="true">↗</span></a>
+      <a class="text-link" href="/lab/">Reliability Lab <span aria-hidden="true">↗</span></a>
+      <a class="text-link" href={PUBLIC_LINKS.resume} target="_blank" rel="noopener">
+        Résumé <span aria-hidden="true">↗</span>
+      </a>
+    </nav>
+  </footer>
 </BaseLayout>
+
 <style>
-.profile-opening{
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 4rem;
-  align-items: center;
-}
-.profile-opening h1{
-  font-size: clamp(3rem, 6vw, 6rem);
-  margin-bottom: 2rem;
-}
-.profile-opening h1 em{
-  font-style: normal;
-  color: var(--color-teal);
-}
-.profile-opening p + p{
-  margin-top: 1rem;
-}
-.profile-opening .lead{
-  max-width: 46ch;
-}
-.profile-photo{
-  background: var(--color-paper-soft);
-  padding-top: 2rem;
-  rotate: 3deg;
-  border: 1px solid var(--color-rule);
-  align-self: center;
-}
-.profile-photo img{width: 100%}
-.profile-photo figcaption{
-  background: var(--color-paper-raised);
-  padding: 0.8rem;
-  font-size: 0.7rem;
-  border-top: 1px solid var(--color-rule);
-}
-.profile-nav{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  font-size: 0.8rem;
-  margin-top: 2rem;
-}
-.profile-nav a{
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-}
-.profile-section{
-  padding-block: 4rem;
-  border-top: 1px solid var(--color-rule);
-}
-.experience-record,.achievement{
-  border-top: 1px solid var(--color-rule);
-  padding-block: 1rem;
-}
-.experience-record summary{
-  display: grid;
-  grid-template-columns: 1.3fr 1.2fr 0.8fr auto;
-  gap: 1.5rem;
-  align-items: center;
-  list-style: none;
-}
-.experience-record summary::-webkit-details-marker,
-.achievement summary::-webkit-details-marker{
-  display: none;
-}
-.experience-record summary > span:first-child{
-  display: grid;
-  gap: 0.25rem;
-}
-.experience-record strong{
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-.experience-record summary > span:first-child > span{
-  font-size: 0.8rem;
-  color: var(--color-ink-faint);
-}
-.experience-record__summary{
-  font-size: 0.85rem;
-  color: var(--color-ink-muted);
-}
-.experience-record__date{
-  font-size: 0.7rem;
-  color: var(--color-ink-faint);
-}
-.experience-record__detail{
-  max-width: 65ch;
-  margin-left: 30%;
-  font-size: 0.95rem;
-  padding-bottom: 1rem;
-}
-.profile-note{
-  font-size: 0.75rem;
-  color: var(--color-ink-faint);
-  margin-top: 1rem;
-}
-.capability-grid{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-.capability-grid > a{
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 1rem;
-  text-decoration: none;
-  border-top: 2px solid var(--color-teal);
-  padding: 1.5rem;
-  background: var(--color-paper-raised);
-}
-.capability-grid h3{
-  font-family: var(--font-display);
-  font-size: 2rem;
-}
-.capability-grid p{
-  font-size: 0.9rem;
-  color: var(--color-ink-muted);
-}
-.capability-grid .eyebrow{
-  margin: 0;
-  font-size: 0.65rem;
-}
-.capability-grid .eyebrow::before{
-  display: none;
-}
-.capability-grid .text-link{
-  margin-top: auto;
-  font-size: 0.8rem;
-}
-.capability-grid small{
-  font-size: 0.65rem;
-  color: var(--color-ink-faint);
-}
-.achievement summary{
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 2rem;
-  align-items: center;
-  list-style: none;
-}
-.achievement summary > span:first-child{
-  font-size: 0.95rem;
-}
-.achievement strong{
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 1.6rem;
-}
-.achievement__body{
-  padding-block: 1rem;
-}
-.achievement__body img{
-  max-width: 42rem;
-  width: 100%;
-  max-height: 35rem;
-  object-fit: contain;
-  object-position: left;
-}
-.achievement figcaption{
-  margin-top: 0.75rem;
-  font-size: 0.75rem;
-}
-/* Preview links are standalone actions: keep a real tap target. */
-.achievement figcaption a{
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-}
-.achievement__body > p{
-  margin-bottom: 1rem;
-}
+  .about {
+    padding-block: clamp(2rem, 4vw, 3.5rem) 0;
+  }
 
-@media (max-width: 900px) {
-  .capability-grid{
-    grid-template-columns: 1fr;
+  /* ---- opener ---------------------------------------------- */
+  .about__head-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: clamp(1.25rem, 4vw, 4rem);
+    align-items: start;
   }
-  .experience-record summary{
-    grid-template-columns: 1fr auto;
-  }
-  .experience-record__summary{
-    grid-column: 1 / -1;
-  }
-  .experience-record__date{
-    grid-row: 2;
-    grid-column: 1;
-  }
-  .experience-record summary > span:last-child{
-    grid-row: 1;
-    grid-column: 2;
-  }
-  .experience-record__detail{
-    margin-left: 0;
-  }
-  .profile-opening{
-    gap: 2rem;
-  }
-  .profile-photo{
-    rotate: 1deg;
-  }
-}
 
-@media (max-width: 600px) {
-  .profile-opening{
-    grid-template-columns: 1fr;
+  .about h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 4vw, 3.8rem);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    margin: 0;
+    max-width: 21ch;
   }
-  .profile-photo{
-    width: 75%;
-    justify-self: center;
+
+  .about h1 em {
+    font-style: normal;
+    color: var(--color-teal);
   }
-  .profile-section{
-    padding-block: 3rem;
+
+  .about__note {
+    min-width: 0;
+    /* Optically aligns the lead's cap height with the h1's, rather than
+       its line box. */
+    padding-top: 0.45rem;
   }
-  .achievement summary{
-    gap: 1rem;
-    grid-template-columns: 1fr auto;
+
+  .about__note .lead {
+    font-size: clamp(0.98rem, 1.2vw, 1.06rem);
+    max-width: 44ch;
   }
-  .achievement summary > span:first-child{
-    grid-column: 1 / -1;
+
+  .about__body {
+    margin-top: 0.85rem;
+    font-size: 0.93rem;
+    line-height: 1.62;
+    color: var(--color-ink-muted);
+    max-width: 46ch;
   }
-  .achievement strong{
-    font-size: 1.4rem;
+
+  .about__body a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
   }
-}
+
+  /* Section index. Mono, ruled, and a real 44px target on every link. */
+  .about__index {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+    margin-top: clamp(1.5rem, 2.5vw, 2rem);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .about__index a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-instrument);
+    font-size: 0.66rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-text-on-paper-faint);
+    text-decoration: none;
+  }
+
+  .about__index a:hover,
+  .about__index a:focus-visible {
+    color: var(--color-teal);
+  }
+
+  /* ---- identity plate -------------------------------------- */
+  .about__plate {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3.5vw, 3.5rem);
+    /* The register is shorter than the portrait. Centring asks the two
+       columns to sit as one plate; top-aligning would leave a void. */
+    align-items: center;
+    margin-top: clamp(2rem, 3.5vw, 3rem);
+    padding-top: clamp(1.5rem, 2.5vw, 2rem);
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+  }
+
+  .portrait {
+    margin: 0;
+    border: 1px solid var(--color-rule);
+    background: var(--color-sheet-raised);
+    max-width: 21rem;
+  }
+
+  /* An editorial 4:5 crop, not an ID photo: the full height of the
+     supplied frame is kept and the sides trim, so the face keeps its
+     headroom. */
+  .portrait img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 18%;
+  }
+
+  .portrait figcaption {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.7rem 0.85rem 0.8rem;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .portrait__name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .portrait__role {
+    font-family: var(--font-instrument);
+    font-size: 0.62rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .register {
+    margin: 0;
+    display: grid;
+    align-content: center;
+  }
+
+  .register > div {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 0.28fr) minmax(0, 1fr);
+    gap: 0.4rem 1.25rem;
+    padding: 1.05rem 0;
+    border-bottom: 1px solid var(--color-rule-soft);
+  }
+
+  .register dt {
+    font-family: var(--font-instrument);
+    font-size: 0.62rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-text-on-paper-faint);
+    padding-top: 0.22rem;
+  }
+
+  .register dd {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    max-width: 46ch;
+  }
+
+  .register dd a {
+    text-underline-offset: 3px;
+  }
+
+  /* ---- records --------------------------------------------- */
+  .record {
+    /* html carries scroll-padding-top for the rail; a second scroll
+       margin here would stack and leave ~200px of dead space above an
+       anchor destination. */
+    scroll-margin-top: 0;
+    padding-block: clamp(2.25rem, 3.6vw, 3.25rem);
+    margin-top: clamp(2.25rem, 3.6vw, 3.25rem);
+    border-top: 1px solid var(--color-rule-on-paper-strong);
+  }
+
+  .record__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 0.5rem clamp(1.25rem, 3vw, 3rem);
+    align-items: end;
+    margin-bottom: clamp(1.25rem, 2vw, 1.75rem);
+  }
+
+  .record__head h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin: 0;
+    max-width: 18ch;
+  }
+
+  .record__head .eyebrow {
+    margin-bottom: 0.75rem;
+  }
+
+  .record__note {
+    font-size: 0.84rem;
+    line-height: 1.6;
+    color: var(--color-text-on-paper-muted);
+    max-width: 42ch;
+    padding-bottom: 0.3rem;
+  }
+
+  .record__foot {
+    margin-top: 1rem;
+    font-size: 0.76rem;
+    line-height: 1.6;
+    color: var(--color-text-on-paper-faint);
+    max-width: 62ch;
+  }
+
+  /* ---- experience ------------------------------------------ */
+  .entries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .entries > li {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .entry > summary {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1.05fr) auto minmax(0, 1.5fr) 1rem;
+    gap: 0.3rem 1.5rem;
+    align-items: baseline;
+    padding: 0.95rem 0;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .entry > summary::-webkit-details-marker,
+  .award > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .entry > summary:focus-visible {
+    outline: 3px solid var(--color-accent-text);
+    outline-offset: 3px;
+  }
+
+  .entry__n,
+  .cap__n {
+    font-family: var(--font-instrument);
+    font-size: 0.64rem;
+    letter-spacing: 0.07em;
+    color: var(--color-text-on-paper-faint);
+    padding-top: 0.3rem;
+  }
+
+  .entry__who {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .entry__who strong {
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: -0.008em;
+  }
+
+  .entry__role {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+  }
+
+  .entry__span {
+    font-family: var(--font-instrument);
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+    color: var(--color-text-on-paper-faint);
+    white-space: nowrap;
+  }
+
+  .entry__flag {
+    margin-left: 0.15rem;
+    color: var(--color-accent-text);
+  }
+
+  .entry__what {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--color-ink-muted);
+    max-width: 44ch;
+  }
+
+  .entry__more,
+  .award__more {
+    justify-self: end;
+    font-family: var(--font-instrument);
+    font-size: 0.95rem;
+    line-height: 1;
+    color: var(--color-accent-text);
+  }
+
+  .entry__more::after,
+  .award__more::after {
+    content: '+';
+  }
+
+  .entry[open] > summary .entry__more::after,
+  .award[open] > summary .award__more::after {
+    content: '−';
+  }
+
+  .entry > summary:hover .entry__who strong {
+    color: var(--color-teal);
+  }
+
+  .entry__body {
+    display: grid;
+    gap: 0.55rem;
+    max-width: 62ch;
+    padding: 0 0 1.15rem calc(2.25rem + 1.5rem);
+  }
+
+  .entry__body p {
+    font-size: 0.88rem;
+    line-height: 1.62;
+    color: var(--color-ink-muted);
+    max-width: none;
+  }
+
+  .entry__link {
+    margin: 0;
+  }
+
+  .entry__link .text-link {
+    font-size: 0.84rem;
+    color: var(--color-teal);
+  }
+
+  .entry__link .text-link:hover {
+    color: var(--color-copper-text);
+  }
+
+  /* ---- capabilities ---------------------------------------- */
+  .caps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .cap {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+    gap: 0.3rem 1.25rem;
+    align-items: start;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .cap__body {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .cap__kicker {
+    margin: 0;
+    font-family: var(--font-instrument);
+    font-size: 0.62rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .cap__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.24rem, 1.8vw, 1.55rem);
+    font-weight: 500;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    max-width: 26ch;
+  }
+
+  /* One link per row: the heading carries the row's click target. */
+  .cap__title a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .cap__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .cap__title a:focus-visible::after {
+    outline: 3px solid var(--color-accent-text);
+    outline-offset: 3px;
+  }
+
+  .cap:hover .cap__title {
+    color: var(--color-teal);
+  }
+
+  .cap__text {
+    margin: 0;
+    font-size: 0.87rem;
+    line-height: 1.55;
+    color: var(--color-ink-muted);
+    max-width: 52ch;
+  }
+
+  .cap__release {
+    margin: 0.15rem 0 0;
+    font-family: var(--font-instrument);
+    font-size: 0.66rem;
+    line-height: 1.5;
+    letter-spacing: 0.03em;
+    color: var(--color-accent-text);
+  }
+
+  .cap__release-label {
+    margin-right: 0.5rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .cap__go {
+    font-family: var(--font-instrument);
+    font-size: 0.85rem;
+    color: var(--color-teal);
+    padding-top: 0.2rem;
+  }
+
+  /* ---- academic record ------------------------------------- */
+  .awards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .awards > li {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .award > summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 1rem;
+    gap: 0.3rem 1.25rem;
+    align-items: baseline;
+    padding: 0.95rem 0;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .award > summary:focus-visible {
+    outline: 3px solid var(--color-accent-text);
+    outline-offset: 3px;
+  }
+
+  .award__who {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .award__name {
+    font-size: 0.96rem;
+    font-weight: 500;
+  }
+
+  .award__issuer {
+    font-family: var(--font-instrument);
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.5;
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .award__result {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: -0.015em;
+    color: var(--color-teal);
+  }
+
+  .award__body {
+    display: grid;
+    gap: 0.8rem;
+    padding-bottom: 1.2rem;
+  }
+
+  .award__figure {
+    margin: 0;
+    display: grid;
+    gap: 0.55rem;
+    max-width: 40rem;
+  }
+
+  .award__figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 30rem;
+    object-fit: contain;
+    object-position: left;
+    border: 1px solid var(--color-rule);
+    background: var(--color-sheet-raised);
+  }
+
+  .award__figure figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .award__figure figcaption span {
+    flex: 1 1 18rem;
+    max-width: 52ch;
+  }
+
+  .award__figure figcaption a {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    min-height: 44px;
+    font-weight: 500;
+    color: var(--color-teal);
+    text-underline-offset: 3px;
+  }
+
+  .award__figure figcaption a:hover {
+    color: var(--color-copper-text);
+  }
+
+  /* ---- close ----------------------------------------------- */
+  .about__close {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem 2.5rem;
+    align-items: start;
+    margin-top: clamp(2rem, 3.5vw, 3rem);
+    padding-block: clamp(1.25rem, 2.2vw, 1.75rem) clamp(2rem, 3vw, 2.5rem);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .about__close p {
+    font-size: 0.84rem;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+    max-width: 58ch;
+  }
+
+  .about__close-label {
+    display: inline-block;
+    margin-right: 0.55rem;
+    font-family: var(--font-instrument);
+    font-size: 0.62rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-copper-text);
+  }
+
+  .about__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+  }
+
+  .about__links .text-link {
+    font-size: 0.85rem;
+    color: var(--color-teal);
+    text-underline-offset: 3px;
+  }
+
+  .about__links .text-link:hover {
+    color: var(--color-copper-text);
+  }
+
+  /* ---- narrow ---------------------------------------------- */
+  @media (max-width: 60rem) {
+    .about__head-grid,
+    .record__head {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.9rem;
+      align-items: start;
+    }
+
+    .about__plate {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .register {
+      align-content: start;
+    }
+
+    .portrait {
+      max-width: 20rem;
+    }
+
+    .about__close {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.5rem;
+    }
+  }
+
+  @media (max-width: 46rem) {
+    .entry > summary {
+      grid-template-columns: 1.9rem minmax(0, 1fr) 1rem;
+      gap: 0.25rem 0.75rem;
+      padding: 0.85rem 0;
+    }
+
+    .entry__n {
+      grid-row: 1;
+      grid-column: 1;
+    }
+
+    .entry__who {
+      grid-row: 1;
+      grid-column: 2;
+    }
+
+    .entry__more {
+      grid-row: 1;
+      grid-column: 3;
+    }
+
+    .entry__span {
+      grid-row: 2;
+      grid-column: 2;
+    }
+
+    .entry__what {
+      grid-row: 3;
+      grid-column: 2 / -1;
+    }
+
+    .entry__body {
+      padding-left: 0;
+    }
+
+    .cap {
+      grid-template-columns: 1.9rem minmax(0, 1fr);
+      gap: 0.3rem 0.75rem;
+    }
+
+    .cap__go {
+      display: none;
+    }
+
+    .award > summary {
+      grid-template-columns: minmax(0, 1fr) 1rem;
+      gap: 0.2rem 0.75rem;
+    }
+
+    .award__who {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .award__more {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .award__result {
+      grid-column: 1;
+      grid-row: 2;
+    }
+  }
+
+  @media (max-width: 22rem) {
+    .about__index {
+      gap: 0 1rem;
+    }
+
+    .register > div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.15rem;
+    }
+
+    .register dt {
+      padding-top: 0;
+    }
+
+    .entry__span {
+      white-space: normal;
+    }
+  }
+
+  /* The opener's arrival, same language as the archive. Nothing waits
+     on it, and motion-off lands in the same final state. */
+  .rise {
+    animation: about-arrive 420ms var(--ease-emphasized) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  @keyframes about-arrive {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise {
+      animation: none;
+    }
+  }
 </style>

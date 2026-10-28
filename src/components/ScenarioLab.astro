@@ -409,7 +409,9 @@ const branchB = [
             </div>
           )}
 
-          <span id="lab-output" class="anchor-target" aria-hidden="true"></span>
+          {stage.id === 'lab-revised' && (
+            <span id="lab-output" class="anchor-target" aria-hidden="true"></span>
+          )}
 
           {/* ---- 04 · cited proposal ---------------------------------- */}
           {stage.id === 'lab-revised' && (
