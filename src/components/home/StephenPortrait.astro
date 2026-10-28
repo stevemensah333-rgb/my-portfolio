@@ -44,7 +44,7 @@
         <span class="portrait__toggle" aria-hidden="true">+</span>
       </span>
     </summary>
-    <div class="portrait__message">
+    <div class="portrait__message motion-rise">
       <p>
         I’m most interested in what happens after the model answers. Did it see the
         right context? Can every claim be traced back to evidence?
@@ -209,7 +209,6 @@
     display: grid;
     gap: var(--space-3);
     padding-top: var(--space-4);
-    animation: reveal-enter var(--duration-reveal) var(--ease-emphasized);
     color: var(--color-ink-muted);
     font-size: var(--text-small);
     line-height: 1.6;
@@ -225,8 +224,5 @@
 
   @media (max-width: 47.99rem) {
     .portrait { max-width: 20rem; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .portrait__message { animation: none; }
   }
 </style>

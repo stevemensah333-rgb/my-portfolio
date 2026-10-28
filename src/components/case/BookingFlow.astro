@@ -11,6 +11,10 @@
  * the middle of the walk (diagnosis, intervention) are decisions, not
  * stops on the path, so they live in 05 Key decisions.
  *
+ * The block carries `view-transition-name: artifact-sessionbook`, the name
+ * the homepage ticket uses, so the homepage → case-study move is the same
+ * shared-element transition as the other two projects.
+ *
  * The steps read from the canonical stage record in the registry; this
  * component adds no facts of its own. Every step keeps its old anchor,
  * including the panel ids the earlier layout used.
@@ -44,7 +48,7 @@ const stages = path
   .filter((stage): stage is NonNullable<typeof stage> => Boolean(stage));
 ---
 
-<div class="flow">
+<div class="flow" style="view-transition-name: artifact-sessionbook">
   <div class="case-sim">
     <span class="case-sim__label">Simulation</span>
     <span>

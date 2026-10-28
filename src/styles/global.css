@@ -283,14 +283,39 @@
   --rail-col: 10.5rem;
   --rail-gap: clamp(1.5rem, 3vw, 3rem);
 
-  /* 2.10 Motion -------------------------------------------------- */
+  /* 2.10 Motion ---------------------------------------------------
+     One ladder, one source. Every duration and curve on the site is
+     read from these four values; the keyframes and the entrance
+     utilities that use them live in styles/motion.css.
 
-  --duration-quick: 120ms;
-  --duration-base: 220ms;
-  --duration-reveal: 420ms;
+     quick    feedback under the pointer or the finger (hover, press)
+     base     a state change you asked for (selected, opened, revealed)
+     reveal   a block or an object arriving on the page
+     settle   a shared object travelling between two pages
+     -------------------------------------------------------------- */
+
+  --duration-quick: 140ms;
+  --duration-base: 260ms;
+  --duration-reveal: 460ms;
+  --duration-settle: 520ms;
 
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Stagger: n steps of --stagger-step after --stagger-first, capped
+     so nothing waits long enough to read as missing. */
+  --stagger-first: 40ms;
+  --stagger-step: 55ms;
+  --stagger-cap: 190ms;
+
+  /* Press: one treatment for every link, button and summary. */
+  --press-opacity: 0.72;
+  --press-shift: 1px;
+
+  /* Selected: the current page, marked the same way at every
+     navigation surface that shows it. */
+  --selected-color: var(--color-copper-text);
+  --selected-underline: 2px;
 
   /* 2.11 Z-index ------------------------------------------------- */
 
@@ -353,11 +378,6 @@
   --width-page: 88rem;
   --page-gutter: clamp(1.25rem, 5vw, 5rem);
   
-  /* Motion overrides */
-  --duration-quick: 160ms;
-  --duration-base: 320ms;
-  --duration-reveal: 500ms;
-  
   /* Typography overrides */
   --text-micro: 0.75rem;
   --text-meta: 0.75rem;
@@ -380,7 +400,7 @@ p{max-width:70ch} a{color:inherit;text-underline-offset:.25em} img{max-width:100
 .section{padding-block:clamp(4rem,8vw,8rem)} .section-head{display:flex;gap:2rem;align-items:end;justify-content:space-between;margin-bottom:2.5rem}.section-head h2{max-width:17ch}.section-head p{max-width:35ch}
 .eyebrow,.mono-label{font-family:var(--font-instrument);font-size:.75rem;letter-spacing:.065em;text-transform:uppercase;line-height:1.5;color:var(--color-text-on-paper-faint)}
 .eyebrow{margin-bottom:1.4rem;display:flex;align-items:center;gap:.7rem}.eyebrow::before{content:'';width:1.6rem;height:2px;background:currentColor}.lead{font-size:clamp(1.08rem,1.5vw,1.25rem);color:var(--color-text-on-paper-muted);line-height:1.65}.muted{color:var(--color-text-on-paper-muted)}
-.actions{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-top:1.75rem}.button{min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:1.5rem;padding:.7rem 1.25rem;background:var(--color-text-on-paper);color:var(--color-sheet-raised);border:1px solid transparent;text-decoration:none;font-size:.9rem;font-weight:500;transition:background 160ms,transform 160ms}.button:hover{background:var(--teal);transform:translateY(-2px)}.button--secondary{background:transparent;color:inherit;border-color:var(--color-rule-on-paper-strong)}.button--secondary:hover{background:var(--color-sheet-soft);color:#171a1b}.text-link{display:inline-flex;align-items:center;gap:1rem;min-height:44px;font-weight:500;text-decoration-thickness:1px}.back-link{display:inline-block;min-height:44px;font-size:.9rem}.tag{display:inline-flex;align-items:center;gap:.45rem;font-size:.75rem;line-height:1.4;padding:.35rem .65rem;border:1px solid var(--rule);background:var(--color-sheet-raised)}.tag::before{content:'';height:6px;width:6px;background:var(--teal);border-radius:50%}
+.actions{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-top:1.75rem}.button{min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:1.5rem;padding:.7rem 1.25rem;background:var(--color-text-on-paper);color:var(--color-sheet-raised);border:1px solid transparent;text-decoration:none;font-size:.9rem;font-weight:500;transition:background var(--duration-quick) var(--ease-standard),transform var(--duration-quick) var(--ease-standard)}.button:hover{background:var(--teal);transform:translateY(-2px)}.button--secondary{background:transparent;color:inherit;border-color:var(--color-rule-on-paper-strong)}.button--secondary:hover{background:var(--color-sheet-soft);color:#171a1b}.text-link{display:inline-flex;align-items:center;gap:1rem;min-height:44px;font-weight:500;text-decoration-thickness:1px}.back-link{display:inline-block;min-height:44px;font-size:.9rem}.tag{display:inline-flex;align-items:center;gap:.45rem;font-size:.75rem;line-height:1.4;padding:.35rem .65rem;border:1px solid var(--rule);background:var(--color-sheet-raised)}.tag::before{content:'';height:6px;width:6px;background:var(--teal);border-radius:50%}
 .on-deck,.lab{background:var(--color-deck);color:var(--color-text-on-canvas);--color-text-on-paper:var(--color-text-on-canvas);--color-text-on-paper-muted:#bdbdb2;--color-text-on-paper-faint:#b3b4a9;--color-accent-text:#efac85;--color-signal-pass-text:#9acbb6;--color-signal-fail-text:#f1a7a6;--color-rule-on-paper:var(--color-rule-on-canvas)}
 .visually-hidden,.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .skip-link{position:fixed;z-index:200;top:1rem;left:1rem;padding:1rem;background:var(--color-sheet);transform:translateY(-200%)}.skip-link:focus{transform:none}
@@ -388,13 +408,13 @@ pre{max-width:100%;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;fon
    scroll-padding-top for the sticky rail; a scroll-margin on the
    target too would stack, leaving dead space above the heading. */
 section[id],article[id],details[id]{scroll-margin-top:0} summary{min-height:48px} details[open]>summary{margin-bottom:1rem}
-.case-opening{padding-block:3rem}.case-opening h1{font-size:clamp(3rem,5vw,5.3rem);max-width:22ch;margin-bottom:1.5rem}.case-intro{display:grid;grid-template-columns:1.5fr 1fr;gap:4rem;align-items:end;margin-block:2rem 3rem}.case-facts{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:0}.case-facts div{border-top:1px solid var(--rule);padding-top:.65rem}.case-facts dt{font-size:.75rem;color:var(--color-text-on-paper-faint)}.case-facts dd{margin:.3rem 0 0;font-size:.9rem}.case-nav{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;border-block:1px solid var(--rule);padding:.5rem 0;margin-top:2.5rem}.case-nav a{font-size:.85rem;min-height:40px;display:flex;align-items:center}.case-section{display:grid;grid-template-columns:1fr 2fr;gap:clamp(2rem,6vw,6rem);padding-block:4rem;border-bottom:1px solid var(--rule)}.case-section h2{font-size:clamp(2rem,3.2vw,3rem)}.case-section__body{display:grid;gap:1.5rem;min-width:0}.case-section__body>p{font-size:1.1rem}.boundary{border-left:3px solid var(--teal);padding:1.5rem 2rem;background:var(--color-sheet-soft)}.boundary p+p{margin-top:1rem}
+.case-opening{padding-block:3rem}.case-opening h1{font-size:clamp(3rem,5vw,5.3rem);max-width:22ch;margin-bottom:1.5rem}.case-intro{display:grid;grid-template-columns:1.5fr 1fr;gap:4rem;align-items:end;margin-block:2rem 3rem}.case-facts{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:0}.case-facts div{border-top:1px solid var(--rule);padding-top:.65rem}.case-facts dt{font-size:.75rem;color:var(--color-text-on-paper-faint)}.case-facts dd{margin:.3rem 0 0;font-size:.9rem}.case-nav{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;border-block:1px solid var(--rule);padding:.5rem 0;margin-top:2.5rem}.case-nav a{font-size:.85rem;min-height:44px;display:flex;align-items:center}.case-section{display:grid;grid-template-columns:1fr 2fr;gap:clamp(2rem,6vw,6rem);padding-block:4rem;border-bottom:1px solid var(--rule)}.case-section h2{font-size:clamp(2rem,3.2vw,3rem)}.case-section__body{display:grid;gap:1.5rem;min-width:0}.case-section__body>p{font-size:1.1rem}.boundary{border-left:3px solid var(--teal);padding:1.5rem 2rem;background:var(--color-sheet-soft)}.boundary p+p{margin-top:1rem}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.compare-sheet{padding:1.5rem;border:1px solid var(--rule);background:var(--color-sheet-raised)}.compare-sheet h3{margin-bottom:1rem}.compare-sheet p{margin-block:.75rem}.compare-sheet--after{border-top:3px solid var(--teal)}
 .region{padding-block:3rem}.region-grid{display:grid;grid-template-columns:1fr 3fr;gap:2rem}.region-title{font-size:2.5rem}.region-body{min-width:0}.region-index{display:flex;gap:1rem;font-size:.8rem}.region-index__rule{display:none}
-/* One entrance language: a short rise and fade, no rotation — a
-   rotation during entrance would widen the scroll area on a phone. */
-@keyframes sheet-enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}.enter{animation:sheet-enter 500ms var(--ease-emphasized) both}.enter:nth-child(2){animation-delay:70ms}.enter:nth-child(3){animation-delay:130ms}
-::view-transition-group(*){animation-duration:520ms;animation-timing-function:var(--ease-emphasized)}
+/* Motion lives in styles/motion.css: one set of keyframes, one entrance
+   utility, one press treatment. The page-level cross-fade below uses the
+   settle step of the same ladder. */
+::view-transition-group(*){animation-duration:var(--duration-settle);animation-timing-function:var(--ease-emphasized)}
 @media(max-width:700px){.section-head{display:block}.section-head p{margin-top:1rem}.case-intro,.case-section,.region-grid{grid-template-columns:1fr;gap:1.5rem}.compare-grid{grid-template-columns:1fr}.case-opening{padding-top:2rem}.case-nav{gap:.25rem 1.1rem}.case-facts{gap:1rem}.boundary{padding:1.2rem}.section{padding-block:3.5rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
 @media(forced-colors:active){.button,.tag{border:1px solid ButtonText}:focus-visible{outline:3px solid Highlight}}

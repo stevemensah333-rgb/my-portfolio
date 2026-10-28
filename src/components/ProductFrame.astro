@@ -96,7 +96,7 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
   </figcaption>
 
   <dialog id={`${id}-dialog`} class="frame-dialog" data-frame-dialog aria-label={`Inspect ${label}`}>
-    <div class="frame-dialog__inner">
+    <div class="frame-dialog__inner motion-rise">
       <div class="frame-dialog__top">
         <p class="mono-label">{label} · {width}×{height} · real artifact</p>
         <button type="button" class="frame-dialog__close" data-frame-close>Close · Esc</button>
@@ -127,9 +127,20 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
       const openBtn = fig.querySelector<HTMLButtonElement>('[data-frame-open]');
     const dialog = fig.querySelector<HTMLDialogElement>('[data-frame-dialog]');
     const closeBtn = fig.querySelector<HTMLButtonElement>('[data-frame-close]');
+    const inner = fig.querySelector<HTMLElement>('.frame-dialog__inner');
     if (!openBtn || !dialog) continue;
 
     let lastFocus: HTMLElement | null = null;
+
+    /* The dialog's arrival is the site's shared entrance class. Replaying
+       it on every open keeps the second open identical to the first; the
+       class is re-added after a reflow so the animation restarts. */
+    const replayEntrance = () => {
+      if (!inner) return;
+      inner.classList.remove('motion-rise');
+      void inner.offsetWidth;
+      inner.classList.add('motion-rise');
+    };
 
     const open = () => {
       lastFocus = document.activeElement as HTMLElement;
@@ -139,6 +150,7 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
         dialog.setAttribute('open', '');
         dialog.hidden = false;
       }
+      replayEntrance();
       closeBtn?.focus();
       document.documentElement.style.overflow = 'hidden';
     };
@@ -307,8 +319,9 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
     pointer-events: auto;
   }
 
-  /* touch fallback: no hover, so show inspect on focus and keep button reachable */
-  @media (hover: none) {
+  /* touch fallback: no hover, so the overlay is part of the flow rather
+     than a layer over the image, and the button is always reachable */
+  @media (hover: none), (pointer: coarse) {
     .frame-inspect {
       opacity: 1;
       transform: none;
@@ -332,8 +345,9 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
   .frame-inspect__btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-1);
-    min-height: 1.75rem;
+    min-height: 2.75rem;
     padding: 0 var(--space-2);
     border: 1px solid var(--color-accent);
     background: var(--color-paper);
@@ -403,18 +417,9 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
     background: var(--color-paper);
     border: 1px solid var(--color-rule-on-paper);
     padding: var(--space-4);
-    animation: frame-dialog-in var(--duration-reveal) var(--ease-emphasized);
-  }
-
-  @keyframes frame-dialog-in {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    /* Arrival comes from the shared vocabulary (styles/motion.css). */
+    --rise-from: 8px;
+    --stagger-first: 0ms;
   }
 
   .frame-dialog__top {
@@ -465,10 +470,8 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .frame-inspect,
-    .frame-dialog__inner {
+    .frame-inspect {
       transition: none;
-      animation: none;
     }
   }
 

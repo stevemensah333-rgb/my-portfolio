@@ -21,12 +21,12 @@ const { title, description, image, imageAlt } = pageMeta.work;
 <BaseLayout {title} {description} {image} {imageAlt}>
   <section class="archive page-shell" aria-labelledby="archive-title">
     <header class="archive__head">
-      <p class="eyebrow rise" style="--i: 0">The workbench / Three projects</p>
+      <p class="eyebrow motion-rise" style="--i: 0">The workbench / Three projects</p>
       <div class="archive__head-grid">
-        <h1 id="archive-title" class="rise" style="--i: 1">
+        <h1 id="archive-title" class="motion-rise" style="--i: 1">
           Built to be<br /><em>looked into.</em>
         </h1>
-        <div class="archive__head-note rise" style="--i: 2">
+        <div class="archive__head-note motion-rise" style="--i: 2">
           <p class="lead">
             Open any project for the decisions behind it. Each one keeps its capture or
             representation, its contribution, its release state and the limits of what has been
@@ -164,20 +164,6 @@ const { title, description, image, imageAlt } = pageMeta.work;
     }
   }
 
-  /* The opener's own arrival. The entries animate themselves; this keeps
-     the page from appearing all at once without gating anything. */
-  .rise {
-    animation: opener-arrive 420ms var(--ease-emphasized) both;
-    animation-delay: calc(var(--i, 0) * 70ms);
-  }
-  @keyframes opener-arrive {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
+  /* The opener arrives with the site's shared entrance class; the
+     entries animate themselves. Nothing is gated on either. */
 </style>
