@@ -1,0 +1,182 @@
+---
+/**
+ * CaseStudy — the shell every project page uses.
+ *
+ * Nine parts, always in this order, always with the same heading column
+ * and the same section index:
+ *
+ *   01 Overview        the claim, the facts, the release states
+ *   02 Project visual  the object: captures, or a labelled drawing
+ *   03 Problem         what was actually wrong
+ *   04 Contribution    what I did about it
+ *   05 Key decisions   the choices, with the detail kept optional
+ *   06 Result & status what exists, and what is deployed
+ *   07 Limitations     what is unproven
+ *   08 Sources         where it can be checked
+ *   09 Next project    the hand-over
+ *
+ * Everything factual about the project — name, title, summary, role,
+ * state, implementation, deployment, stack, evidence links — comes from
+ * the registry, so a case page cannot disagree with the archive. Each
+ * page supplies only the bodies of its own sections.
+ */
+import { projects } from '../../data/registry';
+import { projectRecords, type ProjectId } from '../../data/portfolio';
+import { caseCopy, caseParts, nextProject } from '../../data/caseStudies';
+import CaseSection from './CaseSection.astro';
+import '../../styles/case.css';
+
+interface Props {
+  id: ProjectId;
+}
+
+const { id } = Astro.props;
+const project = projects.find((entry) => entry.id === id)!;
+const record = projectRecords[id];
+const copy = caseCopy[id];
+const next = projects.find((entry) => entry.id === nextProject[id])!;
+
+/* Product and source links only — the registry's other evidence kinds are
+   images or illustrative notes, which belong inside the sections. */
+const evidenceLinks = project.evidence.filter(
+  (item) => item.kind === 'product' || item.kind === 'code',
+);
+
+const facts = [
+  { term: 'My contribution', value: record.role },
+  { term: 'Project state', value: record.status },
+  { term: 'Implementation', value: record.implementation },
+  { term: 'Deployment', value: record.deployment },
+];
+---
+
+<article class="case">
+  <header class="case-opening page-shell" id="overview">
+    <a class="back-link" href="/work/">← All work</a>
+    <p class="eyebrow">{project.name} / Engineering case study</p>
+    <h1>{record.title}</h1>
+
+    <div class="case-intro">
+      <div>
+        <p class="lead">{record.summary}</p>
+        {
+          evidenceLinks.length > 0 && (
+            <div class="actions">
+              {evidenceLinks.map((item) => (
+                <a class="text-link" href={item.href} target="_blank" rel="noopener">
+                  {item.label} <span aria-hidden="true">↗</span>
+                </a>
+              ))}
+            </div>
+          )
+        }
+      </div>
+
+      <dl class="case-facts">
+        {
+          facts.map((fact) => (
+            <div>
+              <dt>{fact.term}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    <p class="case-stack"><strong>Stack</strong> {project.stack.join(' / ')}</p>
+
+    <nav class="case-nav" aria-label="Case study sections">
+      {
+        caseParts.map((part, index) => (
+          <a href={`#${part.key}`}>
+            <span class="case-nav__n" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            {part.label}
+          </a>
+        ))
+      }
+    </nav>
+  </header>
+
+  <div class="page-shell case-body">
+    <CaseSection
+      part="visual"
+      title={copy.visual.title}
+      note={copy.visual.note}
+      aliases={copy.visual.aliases}
+      layout="full"
+    >
+      <slot name="visual" />
+    </CaseSection>
+
+    <CaseSection part="problem" title={copy.problem.title} note={copy.problem.note} aliases={copy.problem.aliases}>
+      <slot name="problem" />
+    </CaseSection>
+
+    <CaseSection
+      part="contribution"
+      title={copy.contribution.title}
+      note={copy.contribution.note}
+      aliases={copy.contribution.aliases}
+    >
+      <slot name="contribution" />
+    </CaseSection>
+
+    <CaseSection
+      part="decisions"
+      title={copy.decisions.title}
+      note={copy.decisions.note}
+      aliases={copy.decisions.aliases}
+    >
+      <slot name="decisions" />
+    </CaseSection>
+
+    <CaseSection part="result" title={copy.result.title} note={copy.result.note} aliases={copy.result.aliases}>
+      <slot name="result" />
+    </CaseSection>
+
+    <CaseSection part="limits" title={copy.limits.title} note={copy.limits.note} aliases={copy.limits.aliases}>
+      <slot name="limits" />
+    </CaseSection>
+
+    <CaseSection part="sources" title={copy.sources.title} note={copy.sources.note} aliases={copy.sources.aliases}>
+      <slot name="sources" />
+    </CaseSection>
+  </div>
+
+  <a class="next-project page-shell" href={next.route}>
+    <span>
+      <span class="eyebrow">Next project</span>
+      <strong>{next.name}</strong>
+    </span>
+    <span aria-hidden="true">↗</span>
+  </a>
+</article>
+
+<style>
+  .case-nav a {
+    gap: 0.45rem;
+    color: var(--color-text-on-paper-muted);
+    text-decoration: none;
+  }
+  .case-nav a:hover {
+    color: var(--color-accent-text);
+  }
+  .case-nav__n {
+    font-family: var(--font-instrument);
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: var(--color-accent-text);
+  }
+
+  .next-project {
+    color: inherit;
+    text-decoration: none;
+  }
+  .next-project .eyebrow {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+</style>

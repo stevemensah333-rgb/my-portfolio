@@ -1,0 +1,104 @@
+---
+/**
+ * CaseSection — one part of a case study, identical on all three pages.
+ *
+ * The heading column (coordinate, label, h2, optional note) and the body
+ * column are the same everywhere, so the reader learns the shape once.
+ * `layout="full"` drops the two-column split for the project visual,
+ * where the object needs the whole width.
+ */
+import { caseParts, partNumber, type CasePartKey } from '../../data/caseStudies';
+
+interface Props {
+  part: Exclude<CasePartKey, 'overview'>;
+  title: string;
+  note?: string;
+  aliases?: string[];
+  layout?: 'split' | 'full';
+}
+
+const { part, title, note, aliases = [], layout = 'split' } = Astro.props;
+const label = caseParts.find((entry) => entry.key === part)?.label ?? part;
+const number = partNumber(part);
+---
+
+<section
+  class:list={['case-section', `case-section--${layout}`]}
+  id={part}
+  aria-labelledby={`${part}-title`}
+>
+  {aliases.length > 0 && (
+    <span class="case-anchors" aria-hidden="true">
+      {aliases.map((alias) => <span id={alias}></span>)}
+    </span>
+  )}
+
+  <div class="case-section__head">
+    <p class="eyebrow">{number} / {label}</p>
+    <h2 id={`${part}-title`}>{title}</h2>
+    {note && <p class="case-section__note">{note}</p>}
+  </div>
+
+  <div class="case-section__body">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .case-section--full {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .case-section--full .case-section__head {
+    max-width: 54rem;
+  }
+  .case-section--full .case-section__head h2 {
+    max-width: 24ch;
+  }
+
+  /* On a wide screen the heading column holds its place while a long
+     body scrolls, so the reader never loses which part they are in. */
+  @media (min-width: 60rem) {
+    .case-section {
+      align-items: start;
+    }
+    .case-section__head {
+      position: sticky;
+      top: 6.5rem;
+    }
+    .case-section--full .case-section__head {
+      position: static;
+    }
+  }
+
+  .case-section__head h2 {
+    max-width: 18ch;
+    margin: 0;
+  }
+
+  .case-section__note {
+    margin-top: 1rem;
+    max-width: 38ch;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--color-text-on-paper-muted);
+  }
+
+  /* Landing marks for old anchors. Absolute, so they never become grid
+     items and cannot shift the section's two columns. */
+  .case-section {
+    position: relative;
+  }
+  .case-anchors {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+  .case-anchors > span {
+    display: block;
+    scroll-margin-top: 7rem;
+  }
+</style>

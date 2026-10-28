@@ -1,0 +1,198 @@
+---
+/**
+ * ModuleMap — Koranco's only visual, and it is a drawing.
+ *
+ * There is no product screenshot, no repository and no deployed URL in
+ * the public record, so this figure must not look like an application.
+ * It is a diagram of the documented scope: one operations record, three
+ * record types. It is labelled conceptual in three places — the stamp,
+ * the legend and the caption — because that is the fact most likely to
+ * be misread.
+ *
+ * The three modules and their one-line purposes come from the same
+ * written scope the archive and the homepage use.
+ */
+const modules = [
+  {
+    n: '01',
+    name: 'Attendance',
+    purpose: 'Capture worker presence.',
+    holds: 'Who was present',
+  },
+  {
+    n: '02',
+    name: 'Produce',
+    purpose: 'Organise production records.',
+    holds: 'What the farm produced',
+  },
+  {
+    n: '03',
+    name: 'Employees',
+    purpose: 'Maintain worker information.',
+    holds: 'Who works there',
+  },
+] as const;
+---
+
+<figure class="module-map">
+  <div class="module-map__stamp" aria-hidden="true">Conceptual</div>
+
+  <div class="module-map__root">
+    <span class="module-map__root-name">Koranco Farms</span>
+    <span class="module-map__root-note">one operations record</span>
+  </div>
+
+  <div class="module-map__grid">
+    {
+      modules.map((module) => (
+        <div class="module-map__module">
+          <span class="module-map__n">{module.n}</span>
+          <span class="module-map__name">{module.name}</span>
+          <span class="module-map__purpose">{module.purpose}</span>
+          <span class="module-map__holds">{module.holds}</span>
+        </div>
+      ))
+    }
+  </div>
+
+  <figcaption class="module-map__caption">
+    <span>Conceptual module map</span>
+    Drawn from the written project scope. Not application UI, not a screenshot, and not a
+    reconstruction of one.
+  </figcaption>
+</figure>
+
+<style>
+  .module-map {
+    position: relative;
+    margin: 0;
+    padding: clamp(1.25rem, 3cqi, 2.25rem);
+    border: 1px solid var(--color-rule);
+    background-color: #ece3d0;
+    background-image:
+      linear-gradient(var(--color-rule-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-rule-soft) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .module-map__stamp {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.35rem 0.7rem;
+    border-left: 1px solid var(--color-rule);
+    border-bottom: 1px solid var(--color-rule);
+    background: var(--color-paper-raised);
+    font-family: var(--font-instrument);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent-text);
+  }
+
+  .module-map__root {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.8rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--color-rule-strong);
+  }
+  .module-map__root-name {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+    letter-spacing: -0.02em;
+  }
+  .module-map__root-note {
+    font-family: var(--font-instrument);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent-text);
+  }
+
+  .module-map__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 2.1rem;
+  }
+
+  /* The branch from the root down to the three record types. Decorative,
+     so it is drawn with a pseudo-element rather than an SVG. */
+  .module-map__grid::before {
+    content: '';
+    position: absolute;
+    top: -1.35rem;
+    left: 50%;
+    width: 1px;
+    height: 1.35rem;
+    background: var(--color-rule-strong);
+  }
+
+  .module-map__module {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.85rem 0.9rem 1rem;
+    border: 1px solid var(--color-rule);
+    background: var(--color-paper-raised);
+    box-shadow: 0 12px 22px -20px var(--color-ink);
+  }
+  .module-map__n {
+    font-family: var(--font-instrument);
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    color: var(--color-accent-text);
+  }
+  .module-map__name {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.7vw, 1.3rem);
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+  .module-map__purpose {
+    font-size: 0.84rem;
+    line-height: 1.45;
+    color: var(--color-ink-muted);
+  }
+  .module-map__holds {
+    margin-top: 0.35rem;
+    padding-top: 0.45rem;
+    border-top: 1px solid var(--color-rule-soft);
+    font-family: var(--font-instrument);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-on-paper-faint);
+  }
+
+  .module-map__caption {
+    display: grid;
+    gap: 0.15rem;
+    margin-top: 1.35rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--color-rule-strong);
+    font-size: 0.76rem;
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+  }
+  .module-map__caption span {
+    font-family: var(--font-instrument);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent-text);
+  }
+
+  @media (max-width: 46rem) {
+    .module-map__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.6rem;
+      margin-top: 1.6rem;
+    }
+    .module-map__grid::before {
+      display: none;
+    }
+  }
+</style>
