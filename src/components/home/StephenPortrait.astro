@@ -28,12 +28,15 @@
         <span class="portrait__subject">
           <picture>
             <source type="image/webp" srcset="/images/stephen.webp" />
+            {/* The person section sits below the fold on the homepage, so
+                the portrait is not a priority fetch and does not compete
+                with the hero capture. */}
             <img
               class="portrait__image"
               src="/images/stephen.png"
               alt="Stephen Mensah"
               width="500" height="500"
-              fetchpriority="high" decoding="async"
+              loading="lazy" decoding="async"
             />
           </picture>
           <span class="portrait__light" aria-hidden="true"></span>

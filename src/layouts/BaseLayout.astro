@@ -139,21 +139,59 @@ const socialImageURL = new URL(image, Astro.site);
       <SiteFooter />
     </div>
     <script>
-      /* Focus after client-side navigation. Astro swaps the document
-         without moving focus, which would leave a keyboard visitor at
-         the top of the body with no announcement of the new page. On
-         every route change after the first load, focus the main region
-         (it is tabindex="-1", so it is focusable but not a tab stop).
-         A hash destination keeps its own scroll target. */
-      /* `astro:after-swap` only fires for client-side navigations; the
-         initial document load never reaches it. */
-      document.addEventListener('astro:after-swap', () => {
-        if (location.hash) return;
+      /* Focus and scroll after client-side navigation.
+         `astro:after-swap` only fires for client-side navigations; the
+         initial document load never reaches it, so the first paint keeps
+         the document's own focus and the skip link stays the first tab
+         stop.
+
+         Three rules, in the order they matter:
+         1. Focus moves to the main region, so a keyboard visitor is told
+            the page changed. `preventScroll` keeps that from moving the
+            page by itself.
+         2. A hash destination keeps its own scroll target.
+         3. A new page starts at the top, but a back/forward traversal
+            keeps the position the browser restored for that history
+            entry. Without that split, Back always reopened at the top.
+
+         The reset asks for `behavior: 'instant'` because <html> is set
+         to smooth scrolling for in-page anchors; a smooth reset is
+         animated and can be interrupted by the new page's layout, which
+         left new routes open part-way down. */
+      let preparing = false;
+      let traversal = false;
+
+      document.addEventListener('astro:before-preparation', (event) => {
+        preparing = true;
+        traversal = event.navigationType === 'traverse';
+      });
+
+      const settle = () => {
+        if (!preparing) return;
         const main = document.getElementById('main-content');
-        if (main) {
-          main.focus({ preventScroll: true });
-          window.scrollTo(0, 0);
+        main?.focus({ preventScroll: true });
+
+        /* A cross-page hash link: the browser resolves the fragment
+           against the new document, whose height is not final yet, so
+           the page can land past the heading it asked for. Resolve it
+           again once the route has loaded. `scroll-padding-top` on
+           <html> supplies the offset under the sticky header. */
+        if (location.hash) {
+          const target = document.getElementById(location.hash.slice(1));
+          target?.scrollIntoView({ behavior: 'instant', block: 'start' });
+          return;
         }
+
+        /* A traversal keeps the position the browser restored for that
+           history entry. */
+        if (traversal) return;
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      };
+
+      document.addEventListener('astro:after-swap', settle);
+      document.addEventListener('astro:page-load', () => {
+        settle();
+        preparing = false;
       });
     </script>
     <script is:inline>
