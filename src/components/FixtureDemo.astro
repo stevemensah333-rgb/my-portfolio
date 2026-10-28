@@ -27,5 +27,172 @@ run.addEventListener('click',()=>{stop();stage=-1;running=true;run.disabled=true
 pause.addEventListener('click',()=>{if(!running)return;paused=!paused;pause.textContent=paused?'Resume':'Pause';if(paused){clearTimeout(timer);status.textContent='Paused. Both fixtures remain available to inspect.'}else advance()});reset.addEventListener('click',renderExample);scenario.addEventListener('change',renderExample);media.addEventListener('change',()=>{if(media.matches&&running){clearTimeout(timer);stage=1;advance()}});document.addEventListener('visibilitychange',()=>{if(document.hidden&&running&&!paused)pause.click()});document.addEventListener('astro:before-swap',stop,{once:true});};init();document.addEventListener('astro:page-load',init);
 </script>
 <style>
-.demo-heading{display:grid;grid-template-columns:1.3fr 1fr;gap:4rem;align-items:end}.demo-heading h1{font-size:clamp(3.1rem,6vw,6rem)}.demo-heading h1 em{font-style:normal;color:#add0ba}.demo-heading .lead{font-size:1rem}.demo-boundary{font-size:.75rem;color:#bdbdb2;margin-top:1rem}.demo-context{display:flex;flex-wrap:wrap;gap:.5rem 2rem;padding:1.25rem 0;margin-block:2.5rem 1rem;border-block:1px solid #4a514b;align-items:center}.demo-context p{font-size:.8rem}.demo-context strong{font-size:.7rem;color:#add0ba;font-weight:400;margin-right:.5rem}.demo-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-block:1.5rem}.demo-controls label{font-size:.8rem}.demo-controls select{max-width:100%;padding:.7rem;background:#202824;color:#f4f0e6;border:1px solid #68766d;font-size:.8rem;min-height:48px}.demo-run{background:#bed7c0;color:#101315}.demo-controls .button--secondary{border-color:#68766d;color:#eae7df}.demo-branches{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}.demo-branch{padding:2rem;background:#1b2420;border:1px solid #51584f;min-width:0}.demo-branch h2{font-size:1.7rem;margin-block:1rem 1.5rem}.demo-branch pre,.demo-proposal{font:clamp(1.1rem,2vw,1.65rem)/1.45 var(--font-display);margin:0 0 1.5rem;min-height:9rem}.fixture-demo[data-scenario="missing"] .demo-branch pre,.fixture-demo[data-scenario="unknown"] .demo-branch pre{font-family:var(--font-instrument);font-size:.8rem}.demo-branch>p:last-child{font-size:.8rem;color:#bdbdb2}.demo-check{font-size:.8rem;color:#add0ba;margin-block:1.5rem .5rem}.demo-check--fail{color:#efac85}.citation-pair{display:flex;gap:.5rem;flex-wrap:wrap}.citation-pair span{font-size:.7rem;border:1px solid #68766d;padding:.3rem .5rem}.demo-progress{display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:1.5rem}.demo-progress span{font-size:.75rem;color:#aaa;font-family:var(--font-instrument)}.demo-progress [data-active]{color:#add0ba}.demo-announcement{font-size:.8rem;color:#bdbdb2;min-height:3rem;margin-top:1rem}.demo-scope{margin-block:1rem;border-block:1px solid #51584f;padding-block:1rem;font-size:.85rem}.demo-scope summary{display:flex;align-items:center}.demo-scope p+p{margin-top:1rem}@media(max-width:700px){.demo-heading,.demo-branches{grid-template-columns:1fr;gap:1.5rem}.demo-branch{padding:1.25rem}.demo-branch pre,.demo-proposal{min-height:0}.demo-context{margin-top:2rem}.demo-progress{gap:.6rem 1.5rem}}
+.demo-heading{
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 4rem;
+  align-items: end;
+}
+.demo-heading h1{
+  font-size: clamp(3.1rem, 6vw, 6rem);
+}
+.demo-heading h1 em{
+  font-style: normal;
+  color: var(--color-teal-bright);
+}
+.demo-heading .lead{
+  font-size: 1rem;
+}
+.demo-boundary{
+  font-size: 0.75rem;
+  color: var(--color-text-on-canvas-muted);
+  margin-top: 1rem;
+}
+.demo-context{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  padding: 1.25rem 0;
+  margin-block: 2.5rem 1rem;
+  border-block: 1px solid var(--color-rule-on-canvas);
+  align-items: center;
+}
+.demo-context p{
+  font-size: 0.8rem;
+}
+.demo-context strong{
+  font-size: 0.7rem;
+  color: var(--color-teal-bright);
+  font-weight: 400;
+  margin-right: 0.5rem;
+}
+.demo-controls{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin-block: 1.5rem;
+}
+.demo-controls label{
+  font-size: 0.8rem;
+}
+.demo-controls select{
+  max-width: 100%;
+  padding: 0.7rem;
+  background: var(--color-deck);
+  color: var(--color-paper-raised);
+  border: 1px solid var(--color-rule-on-canvas);
+  font-size: 0.8rem;
+  min-height: 48px;
+}
+.demo-run{
+  background: var(--color-teal-tint);
+  color: var(--color-deck);
+}
+.demo-controls .button--secondary{
+  border-color: var(--color-rule-on-canvas);
+  color: var(--color-text-on-canvas);
+}
+.demo-branches{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.demo-branch{
+  padding: 2rem;
+  background: var(--color-deck-soft);
+  border: 1px solid var(--color-rule-on-canvas);
+  min-width: 0;
+}
+.demo-branch h2{
+  font-size: 1.7rem;
+  margin-block: 1rem 1.5rem;
+}
+.demo-branch pre,
+.demo-proposal{
+  font: clamp(1.1rem, 2vw, 1.65rem) / 1.45 var(--font-display);
+  margin: 0 0 1.5rem;
+  min-height: 9rem;
+}
+.fixture-demo[data-scenario="missing"] .demo-branch pre,
+.fixture-demo[data-scenario="unknown"] .demo-branch pre{
+  font-family: var(--font-instrument);
+  font-size: 0.8rem;
+}
+.demo-branch > p:last-child{
+  font-size: 0.8rem;
+  color: var(--color-text-on-canvas-muted);
+}
+.demo-check{
+  font-size: 0.8rem;
+  color: var(--color-teal-bright);
+  margin-block: 1.5rem 0.5rem;
+}
+.demo-check--fail{
+  color: var(--color-accent-bright);
+}
+.citation-pair{
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.citation-pair span{
+  font-size: 0.7rem;
+  border: 1px solid var(--color-rule-on-canvas);
+  padding: 0.3rem 0.5rem;
+}
+.demo-progress{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.demo-progress span{
+  font-size: 0.75rem;
+  color: var(--color-text-on-canvas-muted);
+  font-family: var(--font-instrument);
+}
+.demo-progress [data-active]{
+  color: var(--color-teal-bright);
+}
+.demo-announcement{
+  font-size: 0.8rem;
+  color: var(--color-text-on-canvas-muted);
+  min-height: 3rem;
+  margin-top: 1rem;
+}
+.demo-scope{
+  margin-block: 1rem;
+  border-block: 1px solid var(--color-rule-on-canvas);
+  padding-block: 1rem;
+  font-size: 0.85rem;
+}
+.demo-scope summary{
+  display: flex;
+  align-items: center;
+}
+.demo-scope p + p{
+  margin-top: 1rem;
+}
+
+@media (max-width: 700px) {
+  .demo-heading,
+  .demo-branches{
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .demo-branch{
+    padding: 1.25rem;
+  }
+  .demo-branch pre,
+  .demo-proposal{
+    min-height: 0;
+  }
+  .demo-context{
+    margin-top: 2rem;
+  }
+  .demo-progress{
+    gap: 0.6rem 1.5rem;
+  }
+}
 </style>

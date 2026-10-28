@@ -27,5 +27,23 @@ const structuredData = {
   <script>
     const openDeepLink=()=>{if(location.hash.startsWith('#lab-')){const d=document.querySelector<HTMLDetailsElement>('.source-inspection__disclosure');if(d)d.open=true;}};openDeepLink();document.addEventListener('astro:page-load',openDeepLink);window.addEventListener('hashchange',openDeepLink);
   </script>
-  <style>.source-inspection{background:#101315;color:#eae7df}.source-inspection__disclosure>summary{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;padding-block:2rem;border-top:1px solid #51584f;font-size:.9rem}.source-inspection__disclosure>summary span:first-child{font-family:var(--font-display);font-size:2rem}</style>
+  <style>
+.source-inspection{
+  background: var(--color-deck);
+  color: var(--color-text-on-canvas);
+}
+.source-inspection__disclosure > summary{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  padding-block: 2rem;
+  border-top: 1px solid var(--color-rule-on-canvas);
+  font-size: 0.9rem;
+}
+.source-inspection__disclosure > summary span:first-child{
+  font-family: var(--font-display);
+  font-size: 2rem;
+}
+</style>
 </BaseLayout>

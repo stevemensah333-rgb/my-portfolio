@@ -300,24 +300,80 @@
 
 
 :root {
- --color-sheet:#f4f0e6; --color-sheet-raised:#fffcf5; --color-sheet-high:#fffcf5;
- --color-sheet-soft:#eae5d9; --color-sheet-inset:#dfd8ca;
- --color-text-on-paper:#171a1b; --color-text-on-paper-muted:#4e5652; --color-text-on-paper-faint:#5e625f;
- --color-accent:#a34f2d; --color-accent-ink:#923f21; --color-accent-text:#923f21;
- --teal:#194e47; --rule:#d4cfc3; --color-rule-on-paper:var(--rule);
- --shell-control:5rem; --width-page:88rem; --page-gutter:clamp(1.25rem,5vw,5rem);
- --duration-quick:160ms; --duration-base:320ms; --duration-reveal:500ms;
- --text-micro:.75rem; --text-meta:.75rem; --tracking-instrument:.06em;
+  /* ============================================================
+     Palette — warm paper, ink, copper with restrained deep teal
+     ============================================================ */
+  
+  /* Paper surfaces */
+  --color-paper: #F4F0E6;
+  --color-paper-raised: #FFFDF5;
+  --color-paper-high: #FFFCF5;
+  --color-paper-soft: #EAE5D9;
+  --color-paper-inset: #DFD8CA;
+  
+  /* Ink */
+  --color-ink: #171A1B;
+  --color-ink-muted: #4E5652;
+  --color-ink-faint: #5E625F;
+  
+  /* Copper accent */
+  --color-copper: #A34F2D;
+  --color-copper-ink: #923F21;
+  --color-copper-text: #923F21;
+  
+  /* Deep teal — for selected system or success moments */
+  --color-teal: #194E47;
+  --color-teal-light: #2C6249;
+  --color-teal-bright: #8FBFA5;
+  --color-teal-tint: #DDE7DF;
+  
+  /* Rules */
+  --color-rule: #D4CFC3;
+  --color-rule-soft: #E8E4D7;
+  --color-rule-strong: #7C7460;
+  
+  /* Override aliases for backward compatibility */
+  --color-sheet: var(--color-paper);
+  --color-sheet-raised: var(--color-paper-raised);
+  --color-sheet-high: var(--color-paper-high);
+  --color-sheet-soft: var(--color-paper-soft);
+  --color-sheet-inset: var(--color-paper-inset);
+  --color-text-on-paper: var(--color-ink);
+  --color-text-on-paper-muted: var(--color-ink-muted);
+  --color-text-on-paper-faint: var(--color-ink-faint);
+  --color-accent: var(--color-copper);
+  --color-accent-ink: var(--color-copper-ink);
+  --color-accent-text: var(--color-copper-text);
+  --teal: var(--color-teal);
+  --rule: var(--color-rule);
+  --color-rule-on-paper: var(--rule);
+  
+  /* Layout overrides */
+  --shell-control: 4rem;
+  --width-page: 88rem;
+  --page-gutter: clamp(1.25rem, 5vw, 5rem);
+  
+  /* Motion overrides */
+  --duration-quick: 160ms;
+  --duration-base: 320ms;
+  --duration-reveal: 500ms;
+  
+  /* Typography overrides */
+  --text-micro: 0.75rem;
+  --text-meta: 0.75rem;
+  --tracking-instrument: 0.06em;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:7rem;background:var(--color-sheet);color:var(--color-text-on-paper)}
+html{scroll-behavior:smooth;scroll-padding-top:6rem;background:var(--color-paper);color:var(--color-ink)}
 body{margin:0;font-family:var(--font-content);font-size:1rem;line-height:1.65;-webkit-font-smoothing:antialiased}
 h1,h2,h3,p,figure{margin:0} h1,h2,h3{line-height:1.12;font-weight:500;letter-spacing:-.04em}
 h1,h2{font-family:var(--font-display)} h1{font-size:clamp(3rem,6.5vw,6.5rem)} h2{font-size:clamp(2.2rem,4.5vw,4.2rem)} h3{font-size:1.45rem}
 p{max-width:70ch} a{color:inherit;text-underline-offset:.25em} img{max-width:100%;height:auto;display:block} button,input,select{font:inherit} button,summary{cursor:pointer} button{color:inherit} button:disabled{opacity:.5;cursor:default} [hidden]{display:none!important}
-:focus-visible{outline:3px solid var(--color-accent-text);outline-offset:5px}
-::selection{background:#d8e5da;color:#171a1b}
+:focus-visible{outline:3px solid var(--color-accent-text);outline-offset:3px}
+::selection{background:var(--color-teal-tint);color:var(--color-ink)}
 .page-shell{width:min(100%,var(--width-page));margin-inline:auto;padding-inline:var(--page-gutter)}
+.shell__field{min-width:0}
+.shell__main{min-width:0}
 .section{padding-block:clamp(4rem,8vw,8rem)} .section-head{display:flex;gap:2rem;align-items:end;justify-content:space-between;margin-bottom:2.5rem}.section-head h2{max-width:17ch}.section-head p{max-width:35ch}
 .eyebrow,.mono-label{font-family:var(--font-instrument);font-size:.75rem;letter-spacing:.065em;text-transform:uppercase;line-height:1.5;color:var(--color-text-on-paper-faint)}
 .eyebrow{margin-bottom:1.4rem;display:flex;align-items:center;gap:.7rem}.eyebrow::before{content:'';width:1.6rem;height:2px;background:currentColor}.lead{font-size:clamp(1.08rem,1.5vw,1.25rem);color:var(--color-text-on-paper-muted);line-height:1.65}.muted{color:var(--color-text-on-paper-muted)}
@@ -335,4 +391,4 @@ pre{max-width:100%;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;fon
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
 @media(forced-colors:active){.button,.tag{border:1px solid ButtonText}:focus-visible{outline:3px solid Highlight}}
 
-.on-deck .button--secondary:hover{background:#2b3b32;color:#f4f0e6}
+.on-deck .button--secondary:hover{background:#2b3b32;color:var(--color-paper-raised)}

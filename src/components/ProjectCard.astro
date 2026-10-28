@@ -10,5 +10,15 @@ const {id,priority=false,shared=true}=Astro.props; const record=projectRecords[i
   <div class="project-card__copy"><div class="project-card__heading"><h3><a href={project.route}>{project.name}</a></h3><span aria-hidden="true">↗</span></div><p>{record.summary}</p><div class="project-card__meta"><span class="tag">{record.status}</span><span>{record.role}</span></div><p class="project-card__stack">{project.stack.slice(0,3).join(' / ')}</p></div>
 </article>
 <style>
-.project-card{min-width:0}.project-card__art{display:block;text-decoration:none}.project-card__copy{padding-block:1.2rem;display:grid;gap:.7rem}.project-card__heading{display:flex;justify-content:space-between;align-items:center}.project-card h3{font-family:var(--font-display);font-size:2rem}.project-card h3 a{text-decoration:none}.project-card h3 a:hover{color:var(--color-accent-text)}.project-card__copy>p{font-size:.95rem;color:var(--color-text-on-paper-muted)}.project-card__meta{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem}.project-card__meta>span:last-child{font-size:.75rem;color:var(--color-text-on-paper-muted)}.project-card__copy .project-card__stack{font-size:.72rem;font-family:var(--font-instrument)}
+.project-card{min-width: 0}
+.project-card__art{display: block; text-decoration: none}
+.project-card__copy{padding-block: 1.2rem; display: grid; gap: 0.7rem}
+.project-card__heading{display: flex; justify-content: space-between; align-items: center}
+.project-card h3{font-family: var(--font-display); font-size: 2rem}
+.project-card h3 a{text-decoration: none}
+.project-card h3 a:hover{color: var(--color-accent-text)}
+.project-card__copy > p{font-size: 0.95rem; color: var(--color-ink-muted)}
+.project-card__meta{display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem}
+.project-card__meta > span:last-child{font-size: 0.75rem; color: var(--color-ink-muted)}
+.project-card__copy .project-card__stack{font-size: 0.72rem; font-family: var(--font-instrument)}
 </style>
