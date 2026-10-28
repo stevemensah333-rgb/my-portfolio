@@ -164,7 +164,9 @@ const year = new Date().getFullYear();
   .footer__meta a {
     display: inline-flex;
     align-items: center;
-    min-height: 40px;
+    /* 44px: "Back to top" is a standalone target at the end of every
+       page, so it meets the same touch size as the navigation. */
+    min-height: 44px;
     color: var(--color-ink-muted);
     text-decoration: none;
     border-bottom: 1px solid transparent;

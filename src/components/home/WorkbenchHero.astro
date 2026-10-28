@@ -149,7 +149,7 @@ import { SITE, PUBLIC_LINKS } from '../../config/site';
     font-family: var(--font-display);
     font-weight: 500;
     font-size: clamp(2.3rem, 3.95vw, 3.95rem);
-    line-height: 1.03;
+    line-height: var(--leading-display);
     letter-spacing: -0.045em;
     text-wrap: balance;
     max-width: 16ch;
@@ -355,10 +355,6 @@ import { SITE, PUBLIC_LINKS } from '../../config/site';
     }
     .hero__statement {
       font-size: clamp(2.2rem, 9.6vw, 3.1rem);
-      /* The tight editorial leading is a desktop gesture. On a phone
-         the same 1.03 lets descenders meet the next line's ascenders,
-         so it loosens as the type stacks. */
-      line-height: 1.12;
       max-width: 16ch;
       margin-bottom: 1rem;
     }
