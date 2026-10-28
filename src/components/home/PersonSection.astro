@@ -1,0 +1,281 @@
+---
+/**
+ * PersonSection — who is at the bench.
+ *
+ * Purpose distinct from the projects: a short, human account of how
+ * Stephen works, the real roles behind it, and one route to the full
+ * About page. No invented interests, no skill ratings, no numbers.
+ * Dates and attribution come from the shared experience records; the
+ * unresolved qualifications stay attached in the note at the end.
+ */
+import StephenPortrait from './StephenPortrait.astro';
+import { experiences } from '../../data/portfolio';
+import { credentials } from '../../data/credentials';
+
+const roles = experiences.map((role) => ({
+  ...role,
+  date: role.dates.split('·')[0].trim(),
+  qualifier: role.dates.includes('·') ? role.dates.split('·').slice(1).join('·').trim() : '',
+}));
+---
+
+<section class="person page-shell" id="person" aria-labelledby="person-title">
+  <div class="person__portrait">
+    <StephenPortrait />
+    <!-- Achievements stay secondary: one line each, with the source
+         document on the About page rather than here. -->
+    <ul class="person__marks" aria-label="Selected achievements">
+      {credentials.map((mark) => (
+        <li>
+          <span>{mark.name}</span>
+          <strong>{mark.result}</strong>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="person__body">
+    <p class="eyebrow">04 / The person</p>
+    <h2 id="person-title">Curious about the details.<br />Clear about the limits.</h2>
+
+    <div class="person__prose">
+      <p>
+        I’m Stephen, a software engineer and Computer Science student at Ashesi University in
+        Ghana. I like the part of the work that comes after the model answers: did it see the
+        right context, and can every claim be traced back to something real?
+      </p>
+      <p>
+        That question has shaped three quite different projects — a student career platform, a
+        booking backend for a voice agent, and a farm records MVP. In each one my job was to make
+        the system around the interesting part behave predictably.
+      </p>
+    </div>
+
+    <h3 class="person__sub">Where that work has happened</h3>
+    <ul class="roles">
+      {roles.map((role) => (
+        <li class="role">
+          <div class="role__where">
+            <p class="role__org">{role.organisation}</p>
+            <p class="role__title">{role.role}</p>
+          </div>
+          <p class="role__what">{role.summary}</p>
+          <p class="role__date">{role.date}</p>
+        </li>
+      ))}
+    </ul>
+    <p class="person__note">
+      Titles and dates follow the supplied résumé. The AmaliTech date range and the Koranco
+      engagement attribution are still awaiting confirmation, so neither is presented as settled.
+    </p>
+
+    <div class="person__close">
+      <p class="person__close-line">
+        I’m early in my career. These pages are built so you can check the work rather than take
+        my word for it.
+      </p>
+      <div class="person__close-actions">
+        <a class="button button--secondary" href="/profile/">
+          About Stephen <span aria-hidden="true">↗</span>
+        </a>
+        <a class="text-link" href="/Stephen-Mensah-Resume.pdf">Résumé <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .person {
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: start;
+    padding-block: clamp(3rem, 6vw, 6rem);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .person__portrait {
+    position: sticky;
+    top: 7rem;
+    min-width: 0;
+    max-width: 22rem;
+  }
+  .person__marks {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    border-top: 1px solid var(--color-rule);
+  }
+  .person__marks li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--color-rule-soft);
+    font-size: 0.78rem;
+    color: var(--color-ink-muted);
+  }
+  .person__marks strong {
+    flex: none;
+    font-weight: 500;
+    color: var(--color-ink);
+    font-size: 0.78rem;
+    text-align: right;
+  }
+
+  .person__body {
+    min-width: 0;
+  }
+  .person__body h2 {
+    font-size: clamp(2rem, 3.6vw, 3.3rem);
+    line-height: 1.04;
+    letter-spacing: -0.045em;
+    margin-bottom: 1.4rem;
+    max-width: 20ch;
+  }
+  .person__prose {
+    display: grid;
+    gap: 0.85rem;
+    max-width: 58ch;
+  }
+  .person__prose p {
+    color: var(--color-ink-muted);
+    font-size: 1rem;
+    line-height: 1.66;
+  }
+  .person__prose p:first-child {
+    color: var(--color-ink);
+  }
+
+  .person__sub {
+    margin-top: 2.2rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--color-rule-strong);
+    font-family: var(--font-instrument);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+
+  .roles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .role {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) auto;
+    gap: 0.35rem 1.5rem;
+    align-items: baseline;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .role__org {
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+  }
+  .role__title {
+    font-size: 0.78rem;
+    color: var(--color-teal);
+    margin-top: 0.15rem;
+  }
+  .role__what {
+    font-size: 0.87rem;
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+  }
+  .role__date {
+    font-family: var(--font-instrument);
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+    color: var(--color-ink-faint);
+    white-space: nowrap;
+  }
+
+  .person__note {
+    margin-top: 0.9rem;
+    font-size: 0.73rem;
+    line-height: 1.55;
+    color: var(--color-ink-faint);
+    max-width: 52ch;
+  }
+  .person__close {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--color-rule-strong);
+  }
+  .person__close-line {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    color: var(--color-ink);
+    max-width: 40ch;
+    text-wrap: balance;
+  }
+  .person__close-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    flex-wrap: wrap;
+    flex: none;
+  }
+  .person__close .button {
+    min-height: 44px;
+    flex: none;
+  }
+
+  @media (max-width: 62rem) {
+    .person {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .person__portrait {
+      position: static;
+      max-width: 15rem;
+      order: -1;
+    }
+    .person__marks {
+      margin-top: 1rem;
+    }
+    .role {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .role__what {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 46rem) {
+    .person {
+      gap: 1.6rem;
+    }
+    .person__portrait {
+      max-width: 12.5rem;
+    }
+    .person__body h2 {
+      font-size: clamp(1.95rem, 8.6vw, 2.5rem);
+    }
+    .person__close-actions {
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.25rem;
+    }
+    .person__close .button {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+</style>

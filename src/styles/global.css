@@ -364,8 +364,11 @@
   --tracking-instrument: 0.06em;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:6rem;background:var(--color-paper);color:var(--color-ink)}
-body{margin:0;font-family:var(--font-content);font-size:1rem;line-height:1.65;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;scroll-padding-top:6rem;background:var(--color-paper);color:var(--color-ink);overflow-x:clip}
+/* `clip` (not `hidden`) so a section's brief entrance rotation can
+   never produce a horizontal scrollbar, while position: sticky keeps
+   working against the viewport. */
+body{margin:0;font-family:var(--font-content);font-size:1rem;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
 h1,h2,h3,p,figure{margin:0} h1,h2,h3{line-height:1.12;font-weight:500;letter-spacing:-.04em}
 h1,h2{font-family:var(--font-display)} h1{font-size:clamp(3rem,6.5vw,6.5rem)} h2{font-size:clamp(2.2rem,4.5vw,4.2rem)} h3{font-size:1.45rem}
 p{max-width:70ch} a{color:inherit;text-underline-offset:.25em} img{max-width:100%;height:auto;display:block} button,input,select{font:inherit} button,summary{cursor:pointer} button{color:inherit} button:disabled{opacity:.5;cursor:default} [hidden]{display:none!important}
@@ -385,7 +388,9 @@ pre{max-width:100%;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;fon
 .case-opening{padding-block:3rem}.case-opening h1{font-size:clamp(3rem,5vw,5.3rem);max-width:22ch;margin-bottom:1.5rem}.case-intro{display:grid;grid-template-columns:1.5fr 1fr;gap:4rem;align-items:end;margin-block:2rem 3rem}.case-facts{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:0}.case-facts div{border-top:1px solid var(--rule);padding-top:.65rem}.case-facts dt{font-size:.75rem;color:var(--color-text-on-paper-faint)}.case-facts dd{margin:.3rem 0 0;font-size:.9rem}.case-nav{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;border-block:1px solid var(--rule);padding:.5rem 0;margin-top:2.5rem}.case-nav a{font-size:.85rem;min-height:40px;display:flex;align-items:center}.case-section{display:grid;grid-template-columns:1fr 2fr;gap:clamp(2rem,6vw,6rem);padding-block:4rem;border-bottom:1px solid var(--rule)}.case-section h2{font-size:clamp(2rem,3.2vw,3rem)}.case-section__body{display:grid;gap:1.5rem;min-width:0}.case-section__body>p{font-size:1.1rem}.boundary{border-left:3px solid var(--teal);padding:1.5rem 2rem;background:var(--color-sheet-soft)}.boundary p+p{margin-top:1rem}.next-project{display:flex;align-items:center;justify-content:space-between;gap:2rem;padding-block:3rem;text-decoration:none;border-bottom:1px solid var(--rule)}.next-project strong{font-family:var(--font-display);font-size:clamp(2rem,4vw,4rem);font-weight:500}.next-project span:last-child{font-size:3rem}.next-project:hover{color:var(--teal)}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.compare-sheet{padding:1.5rem;border:1px solid var(--rule);background:var(--color-sheet-raised)}.compare-sheet h3{margin-bottom:1rem}.compare-sheet p{margin-block:.75rem}.compare-sheet--after{border-top:3px solid var(--teal)}
 .region{padding-block:3rem}.region-grid{display:grid;grid-template-columns:1fr 3fr;gap:2rem}.region-title{font-size:2.5rem}.region-body{min-width:0}.region-index{display:flex;gap:1rem;font-size:.8rem}.region-index__rule{display:none}
-@keyframes sheet-enter{from{opacity:0;transform:translateY(20px) rotate(-2deg)}to{opacity:1;transform:none}}.enter{animation:sheet-enter 500ms var(--ease-emphasized) both}.enter:nth-child(2){animation-delay:70ms}.enter:nth-child(3){animation-delay:130ms}
+/* One entrance language: a short rise and fade, no rotation — a
+   rotation during entrance would widen the scroll area on a phone. */
+@keyframes sheet-enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}.enter{animation:sheet-enter 500ms var(--ease-emphasized) both}.enter:nth-child(2){animation-delay:70ms}.enter:nth-child(3){animation-delay:130ms}
 ::view-transition-group(*){animation-duration:520ms;animation-timing-function:var(--ease-emphasized)}
 @media(max-width:700px){.section-head{display:block}.section-head p{margin-top:1rem}.case-intro,.case-section,.region-grid{grid-template-columns:1fr;gap:1.5rem}.compare-grid{grid-template-columns:1fr}.case-opening{padding-top:2rem}.case-nav{gap:.25rem 1.1rem}.case-facts{gap:1rem}.boundary{padding:1.2rem}.section{padding-block:3.5rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}

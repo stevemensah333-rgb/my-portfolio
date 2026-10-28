@@ -1,0 +1,426 @@
+---
+/**
+ * WorkbenchHero — the homepage opening.
+ *
+ * Left: who Stephen is, what he builds, and where to go. Right: the
+ * bench — three project objects, each one a real link to its case
+ * study. The objects are ordinary anchors: usable before the entrance
+ * finishes, on touch, with a keyboard, and with JavaScript disabled.
+ *
+ * The entrance is one gesture with a stagger, not a sequence of
+ * animations: copy rises, then the three objects settle into their
+ * resting angle. Under reduced motion everything is simply present.
+ */
+import InteractiveName from './InteractiveName.astro';
+import ProjectArtifact from '../ProjectArtifact.astro';
+import { PUBLIC_EMAIL, PUBLIC_LINKS } from '../../config/site';
+---
+
+<section class="hero-wrap page-shell" aria-labelledby="hero-title">
+  <div class="hero">
+    <div class="hero__intro">
+      <div class="hero__id rise" style="--i: 0">
+        <span class="hero__portrait">
+          <img
+            src="/images/stephen-176.webp"
+            width="176"
+            height="176"
+            alt="Stephen Mensah"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </span>
+        <div class="hero__id-text">
+          <InteractiveName />
+          <span class="hero__role">Software engineer · Ghana</span>
+        </div>
+      </div>
+
+      <h1 id="hero-title" class="hero__statement rise" style="--i: 1">
+        I build <span class="no-break">AI-powered</span> products{' '}
+        <em>and the systems behind them.</em>
+      </h1>
+
+      <p class="hero__lead rise" style="--i: 2">
+        I’m a software engineer and Computer Science student at Ashesi. Three projects are on
+        the bench — an AI career platform, a voice-agent booking backend, and a farm records MVP.
+      </p>
+
+      <div class="hero__actions rise" style="--i: 3">
+        <a class="button hero__primary" href="/work/">View the work <span aria-hidden="true">↗</span></a>
+        <a class="text-link" href={`mailto:${PUBLIC_EMAIL}`}>Email me <span aria-hidden="true">↗</span></a>
+        {PUBLIC_LINKS.resume && (
+          <a class="text-link hero__resume" href={PUBLIC_LINKS.resume}>Résumé <span aria-hidden="true">↗</span></a>
+        )}
+      </div>
+    </div>
+
+    <div class="bench">
+      <div class="hero__rail rise" style="--i: 4">
+        <span class="hero__rail-label">The bench / three projects</span>
+        <span class="hero__rail-note">Captures and labelled representations</span>
+      </div>
+
+      <div class="bench__objects">
+        <div class="bench__item bench__item--syncareer" style="--i: 5; --rest-rotate: -1.1deg">
+          <ProjectArtifact id="syncareer" href="/work/syncareer/" priority capture="dashboard" />
+        </div>
+        <div class="bench__item bench__item--sessionbook" style="--i: 6; --rest-rotate: 1.5deg">
+          <ProjectArtifact id="sessionbook" href="/work/sessionbook/" />
+        </div>
+        <div class="bench__item bench__item--koranco" style="--i: 7; --rest-rotate: -1.8deg">
+          <ProjectArtifact id="koranco" href="/work/koranco/" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-wrap {
+    padding-block: clamp(1.25rem, 2.4vw, 2.5rem) clamp(2rem, 4vw, 4rem);
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(2rem, 4.5vw, 5rem);
+    /* The bench is taller than the copy by nature — a real capture, a
+       ticket and a map. Both columns start at the same line so the
+       opening reads as a workspace being set out, and the copy gets a
+       small optical offset from the rail. */
+    align-items: start;
+  }
+
+  /* ---- identity -------------------------------------------- */
+  .hero__intro {
+    padding-top: clamp(0.75rem, 1.8vw, 1.75rem);
+    min-width: 0;
+  }
+  .hero__id {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: clamp(1.25rem, 2.4vw, 2rem);
+  }
+  .hero__portrait {
+    flex: none;
+    display: block;
+    width: 3.25rem;
+    height: 3.25rem;
+    border: 1px solid var(--color-rule-strong);
+    background: var(--color-paper-soft);
+    overflow: hidden;
+  }
+  .hero__portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* The cut-out sits a little low; lift it so the face is centred. */
+    object-position: 50% 12%;
+    transform: scale(1.16);
+  }
+  .hero__id-text {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  /* The identity component is a container-query context; inside a flex
+     row it needs an explicit inline size. The name stays a masthead —
+     well below the statement (AGENTS.md §11). */
+  .hero__id-text :global(.identity) {
+    width: 100%;
+  }
+  .hero__id-text :global(.identity__name) {
+    font-size: clamp(1.3rem, 2.1vw, 1.6rem);
+    letter-spacing: 0.02em;
+  }
+  .hero__role {
+    font-family: var(--font-instrument);
+    font-size: 0.7rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+
+  .hero__statement {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.3rem, 3.95vw, 3.95rem);
+    line-height: 1.03;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+    max-width: 16ch;
+    margin-bottom: clamp(1rem, 1.8vw, 1.5rem);
+  }
+  .hero__statement em {
+    font-style: normal;
+    color: var(--color-teal);
+  }
+  .no-break {
+    white-space: nowrap;
+  }
+
+  .hero__lead {
+    max-width: 40ch;
+    font-size: clamp(1rem, 1.15vw, 1.075rem);
+    line-height: 1.62;
+    color: var(--color-ink-muted);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    margin-top: clamp(1.4rem, 2.4vw, 2rem);
+  }
+  .hero__primary {
+    min-width: 11.5rem;
+    justify-content: space-between;
+    white-space: nowrap;
+  }
+
+  /* ---- rail ------------------------------------------------ */
+  .hero__rail {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 2px solid var(--color-rule-strong);
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+    font-family: var(--font-instrument);
+    font-size: 0.65rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+  .hero__rail-label {
+    color: var(--color-ink);
+  }
+  .hero__rail-note {
+    text-align: right;
+  }
+
+  /* ---- the bench ------------------------------------------- */
+  .bench {
+    position: relative;
+    min-width: 0;
+  }
+  /* The bench top: a faint warm grid, so the objects read as resting
+     on a surface rather than floating over the page. */
+  .bench__objects {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.12fr 0.88fr;
+    align-items: stretch;
+    gap: 1rem;
+    padding-top: 0.35rem;
+    isolation: isolate;
+  }
+  /* One continuous object per card, even when the row stretches it. */
+  .bench__item > :global(.artifact) {
+    height: 100%;
+  }
+  .bench__objects::before {
+    content: '';
+    position: absolute;
+    inset: 0 -0.6rem -0.6rem;
+    z-index: -1;
+    background-image: radial-gradient(var(--color-rule) 0.5px, transparent 0.5px);
+    background-size: 13px 13px;
+    opacity: 0.55;
+    -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, #000 100%);
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, #000 100%);
+  }
+  .bench__item {
+    min-width: 0;
+    position: relative;
+    rotate: var(--rest-rotate, 0deg);
+    animation: object-settle 560ms var(--ease-emphasized) both;
+    animation-delay: calc(var(--i, 0) * 70ms + 220ms);
+  }
+  .bench__item--syncareer {
+    grid-column: 1 / -1;
+    z-index: 3;
+    /* Slightly inset, so the three objects read as a composition
+       rather than a column of full-width cards. */
+    width: 93%;
+  }
+  .bench__item--sessionbook {
+    z-index: 2;
+  }
+  .bench__item--koranco {
+    z-index: 1;
+    margin-top: 1.25rem;
+  }
+
+  /* ---- entrance -------------------------------------------- */
+  @keyframes copy-rise {
+    from {
+      opacity: 0;
+      translate: 0 12px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+  @keyframes object-settle {
+    from {
+      opacity: 0;
+      translate: 0 20px;
+      rotate: 0deg;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+      rotate: var(--rest-rotate, 0deg);
+    }
+  }
+  .rise {
+    animation: copy-rise 440ms var(--ease-emphasized) both;
+    animation-delay: calc(var(--i, 0) * 65ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise,
+    .bench__item {
+      animation: none;
+    }
+    .bench__item {
+      rotate: 0deg;
+    }
+  }
+
+  /* ---- tablet ---------------------------------------------
+     Below ~62rem the introduction takes the full width and the bench
+     follows it, still two objects wide. Nothing overlaps, nothing is
+     cut off. */
+  @media (max-width: 62rem) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: 2.25rem;
+      align-items: start;
+    }
+    .hero__statement {
+      max-width: 15ch;
+    }
+    .hero__lead {
+      max-width: 54ch;
+    }
+    /* Tablet: the introduction spreads into two columns so the
+       statement stays large without leaving a dead half-page. The
+       wrap is explicit — identity and statement in the left column,
+       the supporting sentence and actions in the right — because a
+       dense full-width statement packed into an implicit grid split
+       it into pieces. */
+    .hero__intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      column-gap: clamp(1.5rem, 4vw, 3rem);
+      align-items: end;
+      padding-top: 0;
+    }
+    .hero__id {
+      grid-column: 1;
+      grid-row: 1;
+      margin-bottom: 1rem;
+      align-self: start;
+    }
+    .hero__statement {
+      grid-column: 1;
+      grid-row: 2;
+      max-width: 13ch;
+      margin-bottom: 0;
+    }
+    .hero__lead {
+      grid-column: 2;
+      grid-row: 2;
+      max-width: 34ch;
+      padding-bottom: 0.2rem;
+    }
+    .hero__actions {
+      grid-column: 1 / -1;
+      grid-row: 3;
+      margin-top: 1.75rem;
+      row-gap: 0.75rem;
+    }
+    .bench {
+      margin-top: 0.5rem;
+    }
+    .bench__item--syncareer {
+      width: 100%;
+    }
+  }
+
+  /* ---- phone ------------------------------------------------
+     A deliberate single column: identity, statement, actions, then
+     the objects as vertical cards — Syncareer first, so a real
+     product is visible on the first screen. */
+  @media (max-width: 46rem) {
+    .hero-wrap {
+      padding-top: 1rem;
+    }
+    .hero {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    /* Phone: one column again — identity, statement, lead, actions. */
+    .hero__intro {
+      display: block;
+      padding-top: 0;
+    }
+    .hero__lead {
+      max-width: 42ch;
+      padding-bottom: 0;
+    }
+    .hero__id {
+      margin-bottom: 1.1rem;
+    }
+    .hero__portrait {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+    .hero__statement {
+      font-size: clamp(2.2rem, 9.6vw, 3.1rem);
+      max-width: 16ch;
+      margin-bottom: 1rem;
+    }
+    .hero__lead {
+      font-size: 0.99rem;
+      max-width: 42ch;
+    }
+    .hero__actions {
+      margin-top: 1.25rem;
+      gap: 0.4rem 1.25rem;
+    }
+    .hero__primary {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+    .hero__rail {
+      font-size: 0.62rem;
+      gap: 0.5rem;
+      margin-bottom: 1.1rem;
+    }
+    .hero__rail-note {
+      display: none;
+    }
+    /* Phone: the artifacts become full-width vertical cards, in
+       reading order, with no overlap and no side-by-side squeeze. */
+    .bench__objects {
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+      padding-top: 0.85rem;
+    }
+    .bench__objects::before {
+      display: none;
+    }
+    .bench__item {
+      rotate: 0deg;
+    }
+  }
+</style>

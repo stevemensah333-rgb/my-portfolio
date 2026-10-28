@@ -1,182 +1,673 @@
 ---
-interface Props { id: string; linked?: boolean; priority?: boolean; shared?: boolean; }
-const {id,linked=true,priority=false,shared=true}=Astro.props;
----
-<div class:list={['project-artifact',`project-artifact--${id}`,{'project-artifact--linked':linked}]} data-tilt transition:name={shared ? `artifact-${id}` : undefined}>
-  <div class="artifact-top"><span>{id==='syncareer'?'Syncareer / product capture':id==='sessionbook'?'SessionBook / tool exchange':'Koranco / module map'}</span><span aria-hidden="true">{linked?'↗':'＋'}</span></div>
-  {id==='syncareer'?<div class="capture-mat"><picture><source type="image/webp" srcset="/images/syncareer/dashboard-1440.webp 1440w, /images/syncareer/dashboard-1800.webp 1800w" sizes="(min-width: 900px) 55vw, 92vw"/><img src="/images/syncareer/dashboard-1440.png" width="2400" height="1302" alt="Real Syncareer dashboard: applications, CV strength and interview progress" fetchpriority={priority?'high':'auto'} loading={priority?'eager':'lazy'} /></picture><span class="capture-caption">A real product. One application record.</span></div>:
-   id==='sessionbook'?<div class="booking-art"><div class="booking-question"><span class="booking-label">Caller</span><p>“Is there a time<br />on Friday?”</p></div><div class="booking-route"><span>Voice agent</span><b aria-hidden="true">↓</b><code>POST /tools/check_availability</code><b aria-hidden="true">↓</b><span class="booking-slot">09:00 <i aria-hidden="true"></i> Available</span></div><p class="artifact-note">Illustrative exchange · source-defined route · no live call</p></div>:
-   <div class="farm-art"><div class="farm-origin"><span aria-hidden="true">⌁</span><p>One farm.<br />Three connected records.</p></div><div class="farm-modules"><span>Attendance<small>Presence</small></span><span>Produce<small>Output</small></span><span>Employees<small>People</small></span></div><p class="artifact-note">Conceptual module map · not a product screenshot</p></div>}
-  {linked&&<span class="artifact-open">Open project <span aria-hidden="true">↗</span></span>}
-</div>
-<script>
-const init=()=>{const media=matchMedia('(prefers-reduced-motion: reduce)');document.querySelectorAll<HTMLElement>('[data-tilt]').forEach(el=>{if(el.dataset.tiltReady)return;el.dataset.tiltReady='1';let frame=0;const reset=()=>{cancelAnimationFrame(frame);el.style.removeProperty('transform')};el.addEventListener('pointermove',e=>{if(media.matches||e.pointerType!=='mouse')return;cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{const r=el.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5;const y=(e.clientY-r.top)/r.height-.5;el.style.transform=`perspective(1200px) rotateX(${-y*3}deg) rotateY(${x*3}deg)`})});el.addEventListener('pointerleave',reset);media.addEventListener('change',reset);document.addEventListener('astro:before-swap',reset,{once:true});})};init();document.addEventListener('astro:page-load',init);
-</script>
-<style>
-.project-artifact{
-  position: relative;
-  border: 1px solid var(--color-rule);
-  background: var(--color-paper-raised);
-  box-shadow: 0 12px 24px -20px var(--color-ink);
-  transform-origin: center;
-  transition: transform 200ms var(--ease-standard);
-  overflow: hidden;
-  isolation: isolate;
-}
-.artifact-top{
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.8rem 1rem;
-  font-size: 0.7rem;
-  color: var(--color-ink-muted);
-  border-bottom: 1px solid var(--color-rule);
-}
-.artifact-top > span:last-child{
-  color: var(--color-copper-text);
-}
-.capture-mat{
-  background: var(--color-paper-soft);
-  padding: clamp(1rem, 3vw, 3rem) clamp(1rem, 3vw, 3rem) 0;
-}
-.capture-mat picture{
-  display: block;
-  box-shadow: 0 12px 25px var(--color-teal);
-  border: 1px solid var(--color-rule);
-}
-.capture-mat img{width: 100%; height: auto}
-.capture-caption{
-  display: block;
-  font-size: 0.72rem;
-  color: var(--color-teal);
-  padding: 1rem 0;
-}
-.booking-art{
-  background: var(--color-paper-soft);
-  padding: clamp(1.3rem, 3vw, 2.5rem);
-  color: var(--color-teal);
-}
-.booking-question{
-  display: flex;
-  gap: 1.5rem;
-  align-items: start;
-}
-.booking-label{
-  font-family: var(--font-instrument);
-  font-size: 0.65rem;
-  border: 1px solid var(--color-rule);
-  padding: 0.25rem 0.45rem;
-}
-.booking-question p{
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  line-height: 1.2;
-}
-.booking-route{
-  display: grid;
-  justify-items: center;
-  gap: 0.5rem;
-  margin-top: 1.4rem;
-}
-.booking-route > span:first-child{
-  font-size: 0.75rem;
-}
-.booking-route b{
-  font-weight: 400;
-  color: var(--color-teal-light);
-}
-.booking-route code{
-  font-size: clamp(0.6rem, 1vw, 0.8rem);
-  background: var(--color-teal);
-  color: var(--color-paper-raised);
-  padding: 0.65rem 0.9rem;
-}
-.booking-slot{
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--color-paper-raised);
-  border: 1px solid var(--color-rule);
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-}
-.booking-slot i{
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--color-teal);
-}
-.artifact-note{
-  font-size: 0.65rem;
-  text-align: center;
-  margin-top: 1.5rem;
-  color: var(--color-ink-muted);
-}
-.farm-art{
-  padding: clamp(1.25rem, 3vw, 2.5rem);
-  background: #ece2cd;
-}
-.farm-origin{
-  display: flex;
-  gap: 1.3rem;
-  align-items: center;
-}
-.farm-origin > span{
-  font-size: 4rem;
-  color: var(--color-copper);
-  line-height: 1;
-}
-.farm-origin p{
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
-  line-height: 1.15;
-}
-.farm-modules{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.65rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-rule-soft);
-}
-.farm-modules > span{
-  font-size: clamp(0.7rem, 1.2vw, 0.9rem);
-  font-weight: 500;
-}
-.farm-modules small{
-  display: block;
-  font-size: 0.65rem;
-  font-weight: 400;
-  margin-top: 0.3rem;
-  color: var(--color-ink-muted);
-}
-.artifact-open{
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-  background: var(--color-ink);
-  color: var(--color-paper-raised);
-  padding: 0.5rem 0.85rem;
-  font-size: 0.75rem;
-  display: flex;
-  gap: 1.5rem;
-  opacity: 0;
-  translate: 0 5px;
-  transition: opacity 160ms, translate 160ms;
-  pointer-events: none;
-}
-.project-artifact--linked:hover .artifact-open,
-:global(a:focus-visible) .artifact-open{
-  opacity: 1;
-  translate: 0 0;
+/**
+ * ProjectArtifact — the project's object.
+ *
+ * One component renders the visual identity of a project wherever it
+ * appears: the homepage bench, the work archive, and the opening of a
+ * case study. Because the same component renders in the same DOM shape
+ * on both ends, `transition:name` gives the homepage → case-study move
+ * its "open the object" feeling without a bespoke animation.
+ *
+ * Three artifacts, three kinds of evidence — never one generic card:
+ *
+ *   Syncareer   a real product capture (observed)
+ *   SessionBook a request → tool → confirmation exchange (illustrative,
+ *               built from routes that exist in source)
+ *   Koranco     a conceptual module map (explicitly not a screenshot)
+ *
+ * Everything here is readable without JavaScript, at 320px, and with
+ * motion disabled. The pointer tilt and the "Open" cursor chip are
+ * enhancements layered on a normal link.
+ */
+interface Props {
+  id: 'syncareer' | 'sessionbook' | 'koranco';
+  /** When present the artifact renders as a real link to the case study. */
+  href?: string;
+  priority?: boolean;
+  /** Set false when the same artifact is rendered twice on one page. */
+  shared?: boolean;
+  /** Which real Syncareer capture to show. */
+  capture?: 'dashboard' | 'opportunities' | 'synai';
+  /** Accessible name for the link. */
+  label?: string;
+  /**
+   * A compact specimen: the artifact without its rail and caption.
+   * Used where the surrounding copy already names the project and its
+   * state, so the object adds the visual and the caption would repeat
+   * the sentence next to it.
+   */
+  dense?: boolean;
 }
 
-@media (hover: none) {
-  .artifact-open{
-    opacity: 1;
-    translate: none;
-    position: static;
-    justify-content: space-between;
+const {
+  id,
+  href,
+  priority = false,
+  shared = true,
+  capture = 'dashboard',
+  label,
+  dense = false,
+} = Astro.props;
+
+const captures = {
+  dashboard: {
+    file: 'dashboard',
+    alt: 'Syncareer dashboard showing career readiness, applications, CV strength and interview progress for one student.',
+    caption: 'A real product capture — the student dashboard.',
+  },
+  opportunities: {
+    file: 'opportunities',
+    alt: 'Syncareer opportunities screen listing saved roles with match scores and CV tailoring actions.',
+    caption: 'A real product capture — saved opportunities.',
+  },
+  synai: {
+    file: 'synai-context',
+    alt: 'Syncareer SynAI screen showing career guidance built from a student profile, quick actions and a message input.',
+    caption: 'A real product capture — the SynAI guidance surface.',
+  },
+} as const;
+
+const shot = captures[capture];
+
+const chrome = {
+  syncareer: { label: 'Syncareer / product capture', state: 'Live product', verb: 'Open the case study' },
+  sessionbook: { label: 'SessionBook / booking exchange', state: 'Implemented MVP', verb: 'Open the case study' },
+  koranco: { label: 'Koranco / module map', state: 'Delivered MVP', verb: 'Open the case study' },
+}[id];
+
+const Tag = href ? 'a' : 'div';
+const name = id === 'syncareer' ? 'Syncareer' : id === 'sessionbook' ? 'SessionBook' : 'Koranco Farms';
+---
+
+<Tag
+  class:list={['artifact', `artifact--${id}`, { 'artifact--link': Boolean(href), 'artifact--dense': dense }]}
+  href={href}
+  data-artifact
+  transition:name={shared ? `artifact-${id}` : undefined}
+>
+  {href && <span class="visually-hidden">{label ?? `Open the ${name} case study:`}</span>}
+  {!dense && (
+    <span class="artifact__rail">
+      <span class="artifact__label">{chrome.label}</span>
+      <span class="artifact__state">
+        <span class="artifact__dot" aria-hidden="true"></span>{chrome.state}
+      </span>
+    </span>
+  )}
+
+  <span class="artifact__body">
+    {id === 'syncareer' && (
+      <span class="capture">
+        <span class="capture__mat">
+          <span class="capture__frame">
+            <span class="capture__tick" aria-hidden="true"></span>
+            <picture>
+              <source
+                type="image/webp"
+                srcset={`/images/syncareer/${shot.file}-1440.webp 1440w, /images/syncareer/${shot.file}-1800.webp 1800w`}
+                sizes="(min-width: 64rem) min(56rem, 46vw), calc(100vw - 4rem)"
+              />
+              <img
+                src={`/images/syncareer/${shot.file}-1440.png`}
+                width="2400"
+                height="1302"
+                alt={shot.alt}
+                fetchpriority={priority ? 'high' : 'auto'}
+                loading={priority ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </picture>
+          </span>
+        </span>
+      </span>
+    )}
+
+    {id === 'sessionbook' && (
+      <span class="ticket">
+        <span class="ticket__caller">
+          <span class="ticket__eyebrow">Caller</span>
+          <span class="ticket__quote">“Is there a time on Friday?”</span>
+        </span>
+        <span class="ticket__trace">
+          <span class="ticket__row">
+            <span class="ticket__tool">voice agent</span>
+            <span class="ticket__what">Passes the question on. The model does not decide.</span>
+          </span>
+          <span class="ticket__row">
+            <span class="ticket__tool">POST /tools/check_availability</span>
+            <span class="ticket__what">09:00 · 09:30 · 11:00 <em>Africa/Accra</em></span>
+          </span>
+          <span class="ticket__row">
+            <span class="ticket__tool">book_slot</span>
+            <span class="ticket__what">Locked in the transaction, then written once.</span>
+          </span>
+        </span>
+        <span class="ticket__stub">
+          <span class="ticket__eyebrow">Confirmation · safe to read aloud</span>
+          <span class="ticket__code">A3F9K2</span>
+          <span class="ticket__spoken">“You’re booked for Friday at 9:00 AM.”</span>
+        </span>
+      </span>
+    )}
+
+    {id === 'koranco' && (
+      <span class="map">
+        <span class="map__root">
+          <span class="map__root-label">Koranco Farms</span>
+          <span class="map__root-note">one operations record</span>
+        </span>
+        <span class="map__modules">
+          <span class="map__module">
+            <span class="map__n">01</span>
+            <span class="map__name">Attendance</span>
+            <span class="map__what">Capture worker presence.</span>
+          </span>
+          <span class="map__module">
+            <span class="map__n">02</span>
+            <span class="map__name">Produce</span>
+            <span class="map__what">Organise production records.</span>
+          </span>
+          <span class="map__module">
+            <span class="map__n">03</span>
+            <span class="map__name">Employees</span>
+            <span class="map__what">Maintain worker information.</span>
+          </span>
+        </span>
+      </span>
+    )}
+  </span>
+
+  <span class:list={['artifact__foot', { 'artifact__foot--plain': dense }]}>
+    <span class="artifact__caption">
+      {id === 'syncareer' && shot.caption}
+      {id === 'sessionbook' && 'Illustrative exchange · routes exist in source · no live call'}
+      {id === 'koranco' && 'Conceptual module map · no product screenshots exist'}
+    </span>
+    {href && !dense && (
+      <span class="artifact__open">
+        <span>{chrome.verb}</span><span aria-hidden="true">↗</span>
+      </span>
+    )}
+  </span>
+
+  {href && (
+    <span class="artifact__cursor" aria-hidden="true" data-artifact-cursor>
+      <span>Open</span><span>↗</span>
+    </span>
+  )}
+</Tag>
+
+<script>
+  /* Two small enhancements, both optional:
+     1. A local tilt (max 2.2°) that follows the pointer inside the
+        artifact — transforms only, no reflow, reset on leave.
+     2. A compact "Open ↗" chip that replaces the native cursor over
+        the artwork on fine pointers, so the whole object reads as one
+        action. Never applied on touch, with reduced motion, or when
+        the element is not a link.
+     Ordinary links keep their native cursor until (1) is running. */
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+  const init = () => {
+    document.querySelectorAll<HTMLElement>('[data-artifact]').forEach((el) => {
+      if (el.dataset.artifactReady === '1') return;
+      el.dataset.artifactReady = '1';
+      const isLink = el.tagName === 'A';
+      const chip = el.querySelector<HTMLElement>('[data-artifact-cursor]');
+      let frame = 0;
+      let chipFrame = 0;
+      let px = 0;
+      let py = 0;
+
+      const clearTilt = () => {
+        cancelAnimationFrame(frame);
+        el.style.removeProperty('--tilt-x');
+        el.style.removeProperty('--tilt-y');
+      };
+      const hideChip = () => {
+        cancelAnimationFrame(chipFrame);
+        el.classList.remove('is-pointing');
+      };
+
+      el.addEventListener(
+        'pointermove',
+        (event) => {
+          const pointer = event as PointerEvent;
+          if (!isLink || pointer.pointerType !== 'mouse') return;
+
+          if (!motion.matches) {
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(() => {
+              const box = el.getBoundingClientRect();
+              if (!box.width || !box.height) return;
+              const x = (pointer.clientX - box.left) / box.width - 0.5;
+              const y = (pointer.clientY - box.top) / box.height - 0.5;
+              el.style.setProperty('--tilt-x', `${(-y * 2.2).toFixed(2)}deg`);
+              el.style.setProperty('--tilt-y', `${(x * 2.2).toFixed(2)}deg`);
+            });
+          }
+
+          if (isLink && chip && fine.matches && !motion.matches) {
+            if (!el.classList.contains('is-pointing')) el.classList.add('is-pointing');
+            cancelAnimationFrame(chipFrame);
+            px = pointer.clientX;
+            py = pointer.clientY;
+            chipFrame = requestAnimationFrame(() => {
+              const box = el.getBoundingClientRect();
+              chip.style.transform = `translate3d(${Math.round(px - box.left)}px, ${Math.round(py - box.top)}px, 0)`;
+            });
+          }
+        },
+        { passive: true },
+      );
+
+      el.addEventListener('pointerleave', () => {
+        clearTilt();
+        hideChip();
+      });
+      el.addEventListener('pointercancel', () => {
+        clearTilt();
+        hideChip();
+      });
+      el.addEventListener('blur', hideChip, true);
+      motion.addEventListener('change', () => {
+        clearTilt();
+        hideChip();
+      });
+      document.addEventListener('astro:before-swap', () => {
+        clearTilt();
+        hideChip();
+      }, { once: true });
+    });
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .artifact {
+    container-type: inline-size;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--color-paper-raised);
+    border: 1px solid var(--color-rule);
+    color: var(--color-ink);
+    text-decoration: none;
+    box-shadow: 0 1px 0 rgba(23, 26, 27, 0.04), 0 26px 44px -40px rgba(23, 26, 27, 0.55);
+    transform: perspective(1400px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+    transition: transform 220ms var(--ease-standard), box-shadow 220ms var(--ease-standard),
+      border-color 160ms var(--ease-standard);
+    isolation: isolate;
   }
-}
+
+  /* A link artifact: whole surface is the target, so the press state
+     and the hover lift apply to the object the pointer is over. */
+  .artifact--link:hover {
+    border-color: var(--color-rule-strong);
+    box-shadow: 0 1px 0 rgba(23, 26, 27, 0.05), 0 34px 52px -38px rgba(23, 26, 27, 0.62);
+    translate: 0 -2px;
+  }
+  .artifact--link:active {
+    translate: 0 0;
+    transition-duration: 90ms;
+  }
+  .artifact--link:focus-visible {
+    outline: 3px solid var(--color-accent-text);
+    outline-offset: 4px;
+  }
+
+  /* On a fine pointer with motion allowed the chip becomes the cursor.
+     Added by the script, so no-JS keeps the native pointer. */
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .artifact--link.is-pointing {
+      cursor: none;
+    }
+  }
+
+  /* A dense specimen keeps the object and drops the chrome; the
+     caption stays in the accessibility tree, hidden visually. */
+  .artifact--dense {
+    box-shadow: 0 1px 0 rgba(23, 26, 27, 0.04);
+  }
+  .artifact--dense .map__modules {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .artifact--dense .map__module {
+    grid-template-columns: auto;
+  }
+  .artifact--dense .map__what {
+    grid-column: auto;
+  }
+
+  /* ---- rail ------------------------------------------------- */
+  .artifact__rail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.3rem var(--space-3);
+    padding: 0.58rem 0.85rem;
+    border-bottom: 1px solid var(--color-rule);
+    background: var(--color-paper-high);
+  }
+  .artifact__label {
+    font-family: var(--font-instrument);
+    font-size: 0.66rem;
+    flex: 1 1 auto;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: var(--color-ink-muted);
+    min-width: 0;
+  }
+  .artifact__state {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: none;
+    font-family: var(--font-instrument);
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-teal);
+    white-space: nowrap;
+  }
+  .artifact__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* The body grows so a card stretched by its grid row keeps one
+     continuous surface all the way to the footer. */
+  .artifact__body {
+    display: block;
+    position: relative;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .capture,
+  .ticket,
+  .map {
+    min-height: 100%;
+  }
+
+  /* ---- foot ------------------------------------------------- */
+  .artifact__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding: 0.58rem 0.85rem;
+    border-top: 1px solid var(--color-rule);
+    background: var(--color-paper-high);
+  }
+  .artifact__caption {
+    font-size: 0.7rem;
+    line-height: 1.4;
+    color: var(--color-ink-faint);
+    min-width: 0;
+  }
+  .artifact__open {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: none;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--color-teal);
+    white-space: nowrap;
+  }
+  .artifact--link:hover .artifact__open,
+  .artifact--link:focus-visible .artifact__open {
+    color: var(--color-copper-text);
+  }
+  @container (max-width: 26rem) {
+    .artifact__open span:first-child {
+      display: none;
+    }
+    .artifact__foot {
+      padding-block: 0.6rem;
+    }
+  }
+
+  /* ---- cursor chip ------------------------------------------ */
+  .artifact__cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 6;
+    display: none;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.6rem;
+    margin: -1.15rem 0 0 0.85rem;
+    background: var(--color-ink);
+    color: var(--color-paper-raised);
+    font-family: var(--font-instrument);
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 140ms var(--ease-standard);
+  }
+  .artifact__cursor > span:last-child {
+    color: var(--color-copper);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .artifact__cursor {
+      display: inline-flex;
+    }
+    .artifact.is-pointing .artifact__cursor {
+      opacity: 1;
+    }
+    .artifact--link:hover .artifact__cursor {
+      transition-duration: 0ms;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .artifact__cursor {
+      display: none;
+    }
+  }
+
+  /* ============================================================
+     Syncareer — the real capture
+     ============================================================ */
+  .capture {
+    display: block;
+    background:
+      linear-gradient(180deg, var(--color-paper-soft), var(--color-paper-high) 78%);
+    padding: clamp(0.7rem, 3.1cqi, 2.2rem);
+  }
+  .capture__mat {
+    display: block;
+    position: relative;
+  }
+  .capture__frame {
+    display: block;
+    position: relative;
+    border: 1px solid var(--color-rule);
+    background: var(--color-paper-raised);
+    box-shadow: 0 18px 30px -26px var(--color-ink);
+    overflow: hidden;
+    /* The product's own aspect ratio: the screenshot is never cropped. */
+    aspect-ratio: 2400 / 1302;
+  }
+  .capture__tick {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: clamp(1.25rem, 9cqi, 3rem);
+    height: 2px;
+    background: var(--color-copper);
+  }
+  .capture__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+    display: block;
+  }
+
+  /* ============================================================
+     SessionBook — the exchange, drawn
+     ============================================================ */
+  .ticket {
+    display: block;
+    background: var(--color-paper-soft);
+    color: var(--color-ink);
+  }
+  .ticket__caller {
+    display: block;
+    padding: clamp(0.7rem, 3.4cqi, 1.6rem) clamp(0.85rem, 3.8cqi, 1.8rem) clamp(0.55rem, 2.4cqi, 1.1rem);
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .ticket__eyebrow {
+    display: block;
+    font-family: var(--font-instrument);
+    font-size: clamp(0.55rem, 1.7cqi, 0.68rem);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+  .ticket__quote {
+    display: block;
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 5.2cqi, 2rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--color-teal);
+    text-wrap: balance;
+  }
+  .ticket__trace {
+    display: block;
+    padding: clamp(0.45rem, 2cqi, 0.85rem) clamp(0.85rem, 3.8cqi, 1.8rem);
+  }
+  .ticket__row {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .ticket__row:last-child {
+    border-bottom: 0;
+  }
+  .ticket__tool {
+    font-family: var(--font-instrument);
+    font-size: clamp(0.58rem, 2cqi, 0.72rem);
+    letter-spacing: 0.035em;
+    color: var(--color-copper-text);
+    overflow-wrap: anywhere;
+  }
+  .ticket__what {
+    font-size: clamp(0.72rem, 2.5cqi, 0.86rem);
+    line-height: 1.45;
+    color: var(--color-ink-muted);
+  }
+  .ticket__what em {
+    font-style: normal;
+    color: var(--color-teal);
+  }
+  .ticket__stub {
+    display: grid;
+    gap: 0.12rem;
+    padding: clamp(0.7rem, 3cqi, 1.25rem) clamp(0.85rem, 3.8cqi, 1.8rem) clamp(0.75rem, 3.2cqi, 1.4rem);
+    border-top: 1px dashed var(--color-rule-strong);
+    background: var(--color-paper-high);
+  }
+  .ticket__code {
+    font-family: var(--font-instrument);
+    font-size: clamp(1.15rem, 6cqi, 2.2rem);
+    letter-spacing: 0.14em;
+    line-height: 1.15;
+    color: var(--color-ink);
+  }
+  .ticket__spoken {
+    font-size: clamp(0.7rem, 2.4cqi, 0.84rem);
+    color: var(--color-ink-muted);
+  }
+
+  /* ============================================================
+     Koranco — the conceptual map
+     ============================================================ */
+  .map {
+    display: block;
+    background-color: #ece3d0;
+    background-image: linear-gradient(var(--color-rule-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-rule-soft) 1px, transparent 1px);
+    background-size: 22px 22px;
+    padding: clamp(0.85rem, 4cqi, 1.9rem);
+  }
+  .map__root {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.6rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--color-rule-strong);
+  }
+  .map__root-label {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 5cqi, 1.6rem);
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+  .map__root-note {
+    font-family: var(--font-instrument);
+    font-size: clamp(0.55rem, 1.9cqi, 0.7rem);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-copper-text);
+  }
+  .map__modules {
+    display: grid;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+  }
+  .map__module {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.5rem;
+    align-items: baseline;
+    padding: 0.45rem 0.5rem 0.45rem 0.65rem;
+    background: var(--color-paper-raised);
+    border: 1px solid var(--color-rule);
+  }
+  .map__n {
+    font-family: var(--font-instrument);
+    font-size: clamp(0.55rem, 1.9cqi, 0.68rem);
+    color: var(--color-copper-text);
+  }
+  .map__name {
+    font-size: clamp(0.78rem, 2.8cqi, 0.95rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .map__what {
+    grid-column: 2;
+    font-size: clamp(0.65rem, 2.1cqi, 0.78rem);
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+  }
+
+  /* On a very small render the artifact drops its decorative mat but
+     keeps every word. */
+  @container (max-width: 20rem) {
+    .capture {
+      padding: 0.5rem;
+    }
+    .artifact__foot {
+      flex-wrap: wrap;
+    }
+  }
 </style>
