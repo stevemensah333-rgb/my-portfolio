@@ -90,7 +90,7 @@ export const sessionbook: Project = {
       title: 'Caller asks for availability',
       summary: 'Contracts defined and routes wired.',
       detail:
-        'A caller asks for availability for a date. Pydantic contracts are defined for this boundary — AvailabilityRequest(date), BookingRequest with a phone regex — and HTTP tool routes are wired to serve the voice agent.',
+        'A caller asks for availability for a date. Pydantic contracts are defined for this boundary — AvailabilityRequest(date), BookingRequest with length-bounded fields and service-level phone validation — and HTTP tool routes are wired to serve the voice agent.',
       evidence: 'schemas.py defines the contracts; tool routes verified in the repository.',
       kind: 'input',
     },
@@ -106,8 +106,8 @@ export const sessionbook: Project = {
       kind: 'raw',
       code: `result = await db.execute(
     select(Slot).where(
-        Slot.start_time >= day_start,
-        Slot.start_time < day_end,
+        Slot.start_time >= datetime.combine(target_date, datetime.min.time(), PROVIDER_TZ),
+        Slot.start_time < datetime.combine(target_date, datetime.max.time(), PROVIDER_TZ),
         Slot.is_booked == False,
     )
 )`,
@@ -206,3 +206,27 @@ export const koranco: Project = {
 };
 
 export const projects: Project[] = [syncareer, sessionbook, koranco];
+
+export const projectRecords = {
+ syncareer: {
+  role:'Product & application engineering', title:'Career tools, with context.',
+  summary:'A career platform connecting saved opportunities, CV tailoring and interview preparation in one application record.',
+  status:'Existing platform · live link', implementation:'Grounding revision implemented', deployment:'Grounding revision awaits redeployment',
+  result:'A bounded request and cited proposal contract exists in source. Live model improvement has not been measured.',
+  boundary:'The existing platform and the revised reliability code have separate release states. The handoff records no redeployment or authenticated canary for the grounding revision.',
+ },
+ sessionbook: {
+  role:'Backend & integration engineering',title:'A voice asks. The backend decides.',
+  summary:'An appointment-booking backend for a voice agent. Availability, booking and confirmation remain application decisions.',
+  status:'MVP · implemented source',implementation:'HTTP tools + agent configuration implemented',deployment:'Live calls / deployment unverified',
+  result:'Four HTTP tools, a mounted router, a row-locking booking service and agent configuration are present at commit 1264d9e.',
+  boundary:'Repository inspection verifies written implementation, not a working phone call. No retained call evidence or deployment verification is available. The test file is empty and no migration versions exist.',
+ },
+ koranco: {
+  role:'Software engineering · farm operations',title:'A farm’s records, connected.',
+  summary:'Attendance, produce and employee records brought into a farm management MVP.',
+  status:'MVP · delivery reported',implementation:'Three-module MVP described in supplied records',deployment:'No production deployment evidenced',
+  result:'A delivered MVP is reported in the portfolio and résumé material. No public source, product captures or usage measurements are available.',
+  boundary:'The supplied portfolio attributes this six-week project to the Innovation Lab. Engagement attribution and internship dates remain unresolved across the supplied records; owner confirmation is required.',
+ },
+} as const;

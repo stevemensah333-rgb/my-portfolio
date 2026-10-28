@@ -1,5 +1,6 @@
 ---
 import ReliabilityLab from '../components/ReliabilityLab.astro';
+import FixtureDemo from '../components/FixtureDemo.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const title = 'Reliability Lab — One payload, seven stages | Stephen Mensah';
@@ -21,5 +22,10 @@ const structuredData = {
 ---
 
 <BaseLayout {title} {description} {structuredData}>
-  <ReliabilityLab />
+  <FixtureDemo />
+  <section id="source-inspection" class="source-inspection"><details class="source-inspection__disclosure" open={Astro.url.hash.startsWith('#lab-')}><summary class="page-shell"><span>Source inspection</span><span>Contract, seven-stage pipeline & comparison ↓</span></summary><ReliabilityLab /></details></section>
+  <script>
+    const openDeepLink=()=>{if(location.hash.startsWith('#lab-')){const d=document.querySelector<HTMLDetailsElement>('.source-inspection__disclosure');if(d)d.open=true;}};openDeepLink();document.addEventListener('astro:page-load',openDeepLink);window.addEventListener('hashchange',openDeepLink);
+  </script>
+  <style>.source-inspection{background:#101315;color:#eae7df}.source-inspection__disclosure>summary{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;padding-block:2rem;border-top:1px solid #51584f;font-size:.9rem}.source-inspection__disclosure>summary span:first-child{font-family:var(--font-display);font-size:2rem}</style>
 </BaseLayout>

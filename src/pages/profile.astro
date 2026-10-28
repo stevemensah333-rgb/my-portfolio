@@ -1,53 +1,17 @@
 ---
-import AboutSection from '../components/AboutSection.astro';
-import ExperienceSection from '../components/ExperienceSection.astro';
-import CapabilitiesSection from '../components/CapabilitiesSection.astro';
-import EvidenceSection from '../components/EvidenceSection.astro';
-import ContactSection from '../components/ContactSection.astro';
-import SiteFooter from '../components/SiteFooter.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-const title = 'Profile — About, Experience, Capabilities, Evidence | Stephen Mensah';
-const description =
-  'The person behind the work: about Stephen Mensah, where he has worked, the capabilities anchored to real projects, and the credentials that are easier to show than describe.';
-
-const structuredData = {
-  '@context': 'https://schema.org',
-  '@type': 'ProfilePage',
-  name: 'Profile — Stephen Mensah',
-  description,
-  url: new URL('/profile/', Astro.site).href,
-  mainEntity: {
-    '@type': 'Person',
-    name: 'Stephen Mensah',
-    url: new URL('/', Astro.site).href,
-  },
-};
+import {experiences,projectRecords} from '../data/portfolio';
+import {credentials} from '../data/credentials';
+const title='About — Stephen Mensah';
+const description='Software engineer and Computer Science student at Ashesi University. Experience, project-backed capabilities and selected achievements.';
+const structuredData={'@context':'https://schema.org','@type':'ProfilePage',name:'About Stephen Mensah',description,url:new URL('/profile/',Astro.site).href,mainEntity:{'@type':'Person',name:'Stephen Mensah'}};
 ---
-
 <BaseLayout {title} {description} {structuredData}>
-  <header class="profile-open page-shell" data-workspace-section="top" data-workspace-label="Profile">
-    <p class="mono-label">04 · Profile</p>
-    <h1>The person behind the work.</h1>
-  </header>
-  <AboutSection />
-  <ExperienceSection />
-  <CapabilitiesSection />
-  <EvidenceSection />
-  <ContactSection />
-  <SiteFooter slot="footer" />
+ <section class="profile-opening page-shell section" id="about"><div><p class="eyebrow">About / The person behind the work</p><h1>Thoughtful systems.<br /><em>Human reasons.</em></h1><p class="lead">I’m Stephen Mensah, a software engineer and Computer Science student at Ashesi University in Ghana.</p><p>I build AI-powered applications and backend services. I’m interested in the details that make a feature useful: the context it receives, the records it changes, and what happens when something fails.</p><p>This is a practice I’m developing through real projects. You can follow the decisions in <a href="/work/">my work</a>.</p><nav class="profile-nav" aria-label="About sections"><a href="#experience">Experience ↓</a><a href="#capabilities">Capabilities ↓</a><a href="#evidence">Achievements ↓</a></nav></div><figure class="profile-photo"><img src="/images/stephen.webp" alt="Stephen Mensah" width="500" height="500" fetchpriority="high"/><figcaption>Stephen Mensah / Software engineer</figcaption></figure></section>
+ <section class="page-shell profile-section" id="experience"><div class="section-head"><div><p class="eyebrow">Experience</p><h2>Work with<br />other people.</h2></div><p class="muted">Contributions first. Additional context on opening each record.</p></div><div class="experience-records">{experiences.map(e=><details class="experience-record"><summary><span><strong>{e.organisation}</strong><span>{e.role}</span></span><span class="experience-record__summary">{e.summary}</span><span class="experience-record__date">{e.dates}</span><span aria-hidden="true">+</span></summary><div class="experience-record__detail"><p>{e.detail}</p>{e.href&&<a class="text-link" href={e.href}>{e.link} ↗</a>}</div></details>)}</div><p class="profile-note">The public résumé is retained as supplied. The AmaliTech dates and Koranco engagement attribution need owner confirmation; neither is treated as settled here.</p></section>
+ <section class="page-shell profile-section" id="capabilities"><span id="toolkit"></span><div class="section-head"><div><p class="eyebrow">Capabilities / Grounded in work</p><h2>What I bring<br />to a problem.</h2></div></div><div class="capability-grid"><a href="/work/syncareer/#intervention"><span class="eyebrow">01 / AI applications</span><h3>Put a boundary<br />around the answer.</h3><p>Explicit context, structured proposals and runtime checks in Syncareer’s source revision.</p><span class="text-link">Inspect Syncareer ↗</span><small>{projectRecords.syncareer.deployment}</small></a><a href="/work/sessionbook/#architecture"><span class="eyebrow">02 / Backend engineering</span><h3>Keep correctness<br />in the service.</h3><p>Typed HTTP tools, data modelling, transaction boundaries and spoken responses in SessionBook.</p><span class="text-link">Inspect SessionBook ↗</span><small>{projectRecords.sessionbook.deployment}</small></a><a href="/work/koranco/#built"><span class="eyebrow">03 / Product thinking</span><h3>Start with<br />the actual workflow.</h3><p>Attendance, produce and employee records shaped around the documented farm operations scope.</p><span class="text-link">Inspect Koranco ↗</span><small>Reported MVP / no public source</small></a></div></section>
+ <section class="page-shell profile-section" id="evidence"><div class="section-head"><div><p class="eyebrow">Beyond the code</p><h2>A few other<br />things I’ve done.</h2></div><p class="muted">Selected academic and competition achievements. Source previews open deliberately.</p></div><div class="achievement-list">{credentials.map(c=><details class="achievement"><summary><span>{c.name}</span><strong>{c.result}</strong><span aria-hidden="true">+</span></summary><div class="achievement__body">{c.detail&&<p>{c.detail}</p>}{c.evidenceImage&&<figure><a href={c.evidenceImage} target="_blank" rel="noopener"><img src={c.evidenceImage} alt={c.evidenceAlt} width={c.evidenceWidth} height={c.evidenceHeight} loading="lazy"/></a><figcaption>{c.id==='sat'?'Cropped score section. Identifying record locator and QR code omitted from this public derivative.':'Supplied source image.'} <a href={c.evidenceImage} target="_blank" rel="noopener">Open preview ↗</a></figcaption></figure>}</div></details>)}</div></section>
 </BaseLayout>
-
 <style>
-  .profile-open {
-    display: grid;
-    gap: var(--space-3);
-    padding-block: clamp(2rem, 3.5vw, 3rem) var(--space-4);
-  }
-
-  .profile-open h1 {
-    max-width: 14ch;
-    margin: 0;
-    font-size: var(--text-feature);
-  }
+.profile-opening{display:grid;grid-template-columns:1.5fr 1fr;gap:4rem;align-items:center}.profile-opening h1{font-size:clamp(3rem,6vw,6rem);margin-bottom:2rem}.profile-opening h1 em{font-style:normal;color:var(--teal)}.profile-opening p+p{margin-top:1rem}.profile-opening .lead{max-width:46ch}.profile-photo{background:#e2e7d9;padding-top:2rem;rotate:3deg;border:1px solid #c1cbb8;align-self:center}.profile-photo img{width:100%}.profile-photo figcaption{background:var(--color-sheet-raised);padding:.8rem;font-size:.7rem;border-top:1px solid #c1cbb8}.profile-nav{display:flex;flex-wrap:wrap;gap:1rem;font-size:.8rem;margin-top:2rem}.profile-nav a{min-height:44px;display:flex;align-items:center}.profile-section{padding-block:4rem;border-top:1px solid var(--rule)}.experience-record,.achievement{border-top:1px solid var(--rule);padding-block:1rem}.experience-record summary{display:grid;grid-template-columns:1.3fr 1.2fr .8fr auto;gap:1.5rem;align-items:center;list-style:none}.experience-record summary::-webkit-details-marker,.achievement summary::-webkit-details-marker{display:none}.experience-record summary>span:first-child{display:grid;gap:.25rem}.experience-record strong{font-size:1.1rem;font-weight:500}.experience-record summary>span:first-child>span{font-size:.8rem;color:var(--color-text-on-paper-faint)}.experience-record__summary{font-size:.85rem;color:var(--color-text-on-paper-muted)}.experience-record__date{font-size:.7rem;color:var(--color-text-on-paper-faint)}.experience-record__detail{max-width:65ch;margin-left:30%;font-size:.95rem;padding-bottom:1rem}.profile-note{font-size:.75rem;color:var(--color-text-on-paper-faint);margin-top:1rem}.capability-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}.capability-grid>a{display:flex;flex-direction:column;align-items:start;gap:1rem;text-decoration:none;border-top:2px solid var(--teal);padding:1.5rem;background:var(--color-sheet-raised)}.capability-grid h3{font-family:var(--font-display);font-size:2rem}.capability-grid p{font-size:.9rem;color:var(--color-text-on-paper-muted)}.capability-grid .eyebrow{margin:0;font-size:.65rem}.capability-grid .eyebrow::before{display:none}.capability-grid .text-link{margin-top:auto;font-size:.8rem}.capability-grid small{font-size:.65rem;color:var(--color-text-on-paper-faint)}.achievement summary{display:grid;grid-template-columns:1fr auto auto;gap:2rem;align-items:center;list-style:none}.achievement summary>span:first-child{font-size:.95rem}.achievement strong{font-family:var(--font-display);font-weight:500;font-size:1.6rem}.achievement__body{padding-block:1rem}.achievement__body img{max-width:42rem;width:100%;max-height:35rem;object-fit:contain;object-position:left}.achievement figcaption{margin-top:.75rem;font-size:.75rem}.achievement__body>p{margin-bottom:1rem}@media(max-width:900px){.capability-grid{grid-template-columns:1fr}.experience-record summary{grid-template-columns:1fr auto}.experience-record__summary{grid-column:1/-1}.experience-record__date{grid-row:2;grid-column:1}.experience-record summary>span:last-child{grid-row:1;grid-column:2}.experience-record__detail{margin-left:0}.profile-opening{gap:2rem}.profile-photo{rotate:1deg}}@media(max-width:600px){.profile-opening{grid-template-columns:1fr}.profile-photo{width:75%;justify-self:center}.profile-section{padding-block:3rem}.achievement summary{gap:1rem;grid-template-columns:1fr auto}.achievement summary>span:first-child{grid-column:1/-1}.achievement strong{font-size:1.4rem}}
 </style>

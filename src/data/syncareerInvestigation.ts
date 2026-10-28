@@ -241,7 +241,7 @@ improving speed by 40%.`,
     title: 'The gate refuses it',
     summary: 'No citation, no quota, no apply.',
     detail:
-      'The rewrite from 02 arrives with nothing it can cite. The handler refuses it and says why, releases the idempotent reservation, and leaves the quota untouched, so a rejected request never bills. The text can stay on screen with its warning; it cannot be accepted. The failure classes that made this gate necessary are set out once in 02 FAILURE.',
+      'This stage applies the revised gate to the separate old-contract fixture for illustration. It is not a captured pipeline run: raw prose fails JSON parsing, and a structured rewrite without the required citations fails grounding. The source releases a reservation on failure and does not consume quota. The failure classes that motivated these checks are recorded in 02 FAILURE.',
     handedOff:
       'A refusal with a reason code, surfaced to the product. Nothing was applied and nothing was consumed.',
     evidence:

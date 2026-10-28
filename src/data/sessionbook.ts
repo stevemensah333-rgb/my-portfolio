@@ -93,9 +93,9 @@ export const sessionbookBoundary = {
     'AssemblyAI voice-agent integration implemented \u2014 agent configuration and tool routes verified in the repository',
   ] as const,
   missing: [
-    'No live deployment, no live calls, no latency or success data',
+    'Live deployment and live calls unverified; no retained latency or success measurements',
     'tests/test_booking.py is empty \u2014 no tests are written',
     'No migrations generated (Alembic configured, no versions)',
-    'Edge cases still open: date interpretation when times are busy or closed, and phone numbers without enough digits',
+    'Date interpretation for busy or closed times still needs call testing; phone normalization and 7–15 digit validation exist in source',
   ] as const,
 } as const;

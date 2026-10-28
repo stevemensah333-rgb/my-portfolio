@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {inspectFixture} from '../src/scripts/fixtureValidator.mjs';
+const ids=['requirement-2','evidence-1'];
+const proposal={kind:'rewrite',text:'Built Python and SQL queries to analyse 1,200 sales records.',sourceContextIds:ids};
+const run=p=>inspectFixture(JSON.stringify(p),ids);
+assert.equal(inspectFixture('Plain prose',ids).reason,'model_not_json');
+for(const p of [null,[],{},{...proposal,kind:'answer'},{...proposal,text:''}])assert.equal(run(p).ok,false);
+for(const citations of [[],['evidence-99'],['requirement-2','evidence-99'],[null],null])assert.equal(run({...proposal,sourceContextIds:citations}).reason,'model_unknown_source_id');
+for(const citations of [['requirement-2'],['evidence-1']])assert.equal(run({...proposal,sourceContextIds:citations}).reason,'model_missing_grounding');
+assert.deepEqual(run(proposal),{ok:true,reason:'review_required',message:'Shape and citations pass these local checks. A person must still review the claim.'});
+assert.equal(run({...proposal,text:'An unsupported claim with valid IDs'}).reason,'review_required','Citations do not establish semantic truth');
+assert.deepEqual(ids,['requirement-2','evidence-1'],'Checks must not mutate supplied context');
+console.log('Fixture checks passed: malformed shapes, prose, missing/unknown citations, review boundary and immutable inputs.');

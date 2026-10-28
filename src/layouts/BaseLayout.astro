@@ -5,6 +5,8 @@ import { ClientRouter } from 'astro:transitions';
 import WorkspaceRail from '../components/WorkspaceRail.astro';
 import '../styles/global.css';
 import '../styles/interactions.css';
+import SiteFooter from '../components/SiteFooter.astro';
+import ContactSection from '../components/ContactSection.astro';
 import displayFontURL from '@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2?url';
 import interFontURL from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import monoFontURL from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2?url';
@@ -88,7 +90,7 @@ const socialImageURL = new URL(image, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google-site-verification" content="n5Zp1r0200c1EAmsKwpPnrSlVwWY-pz7RMShX3SFCRg" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#101315" />
+    <meta name="theme-color" content="#f4f0e6" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content="Stephen Mensah" />
@@ -130,7 +132,8 @@ const socialImageURL = new URL(image, Astro.site);
         <main id="main-content" class="shell__main" tabindex="-1">
           <slot />
         </main>
-        <slot name="footer" />
+        <ContactSection />
+        <SiteFooter />
       </div>
     </div>
     <script is:inline>
@@ -138,7 +141,13 @@ const socialImageURL = new URL(image, Astro.site);
       // inline `classList.add('js')` above already ran, but keep it here
       // for any transition that bypasses the head script. No global store.
       (function () {
-        var apply = function () { document.documentElement.classList.add('js'); };
+        var apply = function () {
+          document.documentElement.classList.add('js');
+          var target = document.getElementById(location.hash.slice(1));
+          if (target) { var parent = target.closest('details'); if (parent) parent.open = true; }
+        };
+        window.addEventListener('hashchange', apply);
+        apply();
         document.addEventListener('astro:page-load', apply);
         document.addEventListener('astro:after-swap', apply);
       })();
@@ -147,31 +156,5 @@ const socialImageURL = new URL(image, Astro.site);
 </html>
 
 <style is:global>
-  /* THE SHELL — one control rail, one field.
-     Below 64rem the rail becomes a compact navigation control that
-     sits in the flow at the head of the page (see
-     WorkspaceRail.astro); above it, the two become columns and the
-     rail stays with the reader for the whole scroll. */
-  .shell {
-    display: block;
-    min-height: 100vh;
-  }
-
-  .shell__field,
-  .shell__main {
-    min-width: 0;
-  }
-
-  @media (min-width: 64rem) {
-    .shell {
-      display: grid;
-      grid-template-columns: var(--shell-rail) minmax(0, 1fr);
-      align-items: stretch;
-    }
-
-    .shell__field,
-    .shell__main {
-      min-width: 0;
-    }
-  }
+.shell{min-height:100vh}.shell__field,.shell__main{min-width:0}
 </style>

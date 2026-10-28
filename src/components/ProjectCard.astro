@@ -1,0 +1,14 @@
+---
+import ProjectArtifact from './ProjectArtifact.astro';
+import { projectRecords, type ProjectId } from '../data/portfolio';
+import { projects } from '../data/registry';
+interface Props { id:ProjectId; priority?:boolean; shared?:boolean; }
+const {id,priority=false,shared=true}=Astro.props; const record=projectRecords[id];const project=projects.find(p=>p.id===id)!;
+---
+<article class:list={['project-card',`project-card--${id}`]} id={id}>
+  <a class="project-card__art" href={project.route} aria-label={`Open ${project.name} case study`}><ProjectArtifact {id} {priority} {shared}/></a>
+  <div class="project-card__copy"><div class="project-card__heading"><h3><a href={project.route}>{project.name}</a></h3><span aria-hidden="true">↗</span></div><p>{record.summary}</p><div class="project-card__meta"><span class="tag">{record.status}</span><span>{record.role}</span></div><p class="project-card__stack">{project.stack.slice(0,3).join(' / ')}</p></div>
+</article>
+<style>
+.project-card{min-width:0}.project-card__art{display:block;text-decoration:none}.project-card__copy{padding-block:1.2rem;display:grid;gap:.7rem}.project-card__heading{display:flex;justify-content:space-between;align-items:center}.project-card h3{font-family:var(--font-display);font-size:2rem}.project-card h3 a{text-decoration:none}.project-card h3 a:hover{color:var(--color-accent-text)}.project-card__copy>p{font-size:.95rem;color:var(--color-text-on-paper-muted)}.project-card__meta{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem}.project-card__meta>span:last-child{font-size:.75rem;color:var(--color-text-on-paper-muted)}.project-card__copy .project-card__stack{font-size:.72rem;font-family:var(--font-instrument)}
+</style>

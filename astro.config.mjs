@@ -6,6 +6,8 @@ export default defineConfig({
     '/about': '/profile/#about',
     '/contact': '/#contact',
     '/case-study': '/work/syncareer/',
+    '/evidence/sat-score-report-full.jpg': '/evidence/sat-score-preview.jpg',
+    '/evidence/sat-results.pdf': '/evidence/sat-score-preview.jpg',
   },
   server: {
     host: '0.0.0.0',
