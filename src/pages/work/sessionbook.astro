@@ -1,16 +1,229 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import CaseHeader from '../../components/CaseHeader.astro';
-import SessionFlow from '../../components/SessionFlow.astro';
-import {projectRecords} from '../../data/portfolio';
-import {sessionbookMeta} from '../../data/sessionbook';
-const title='SessionBook — Booking backend for a voice agent | Stephen Mensah';
-const description=projectRecords.sessionbook.summary;
-const structuredData={'@context':'https://schema.org','@type':'CreativeWork',name:'SessionBook',description,url:new URL('/work/sessionbook/',Astro.site).href,author:{'@type':'Person',name:'Stephen Mensah'},about:{'@type':'SoftwareSourceCode',codeRepository:sessionbookMeta.repoUrl}};
+import CaseStudy from '../../components/case/CaseStudy.astro';
+import BookingFlow from '../../components/case/BookingFlow.astro';
+import { projectRecords } from '../../data/portfolio';
+import { sessionbookMeta, sessionbookBoundary } from '../../data/sessionbook';
+
+const title = 'SessionBook — Booking backend for a voice agent | Stephen Mensah';
+const description = projectRecords.sessionbook.summary;
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: 'SessionBook',
+  description,
+  url: new URL('/work/sessionbook/', Astro.site).href,
+  author: { '@type': 'Person', name: 'Stephen Mensah' },
+  about: { '@type': 'SoftwareSourceCode', codeRepository: sessionbookMeta.repoUrl },
+};
 ---
-<BaseLayout {title} {description} {structuredData} ogType="article"><article><CaseHeader id="sessionbook" sections={[{id:'primer',label:'The problem'},{id:'architecture',label:'Booking flow'},{id:'boundary',label:'Result & limits'}]}/><div class="page-shell">
- <section id="primer" class="case-section"><div><p class="eyebrow">The problem</p><h2>The conversation<br />can be flexible.<br />The booking can’t.</h2></div><div class="case-section__body"><p>A voice agent can ask a caller what time works. It shouldn’t decide whether a slot exists, whether someone else just booked it, or whether a confirmation is valid.</p><p>I built the FastAPI service behind that boundary: typed HTTP tools, availability queries, a transaction around booking, and responses designed to be read aloud.</p><aside class="boundary"><p><strong>Implementation verified, calls unverified.</strong> {projectRecords.sessionbook.boundary}</p></aside></div></section>
- <section id="architecture" class="case-section"><div><p class="eyebrow">One inspector</p><h2>From request<br />to read-back.</h2><p class="muted">Open any step. No backend connection is made by this view.</p></div><div class="case-section__body" id="trace"><span id="call-path"></span><SessionFlow/></div></section>
- <span id="evidence"></span><section id="boundary" class="case-section"><div><p class="eyebrow">Result & limits</p><h2>Written is a state.<br />Proven is another.</h2></div><div class="case-section__body"><p>{projectRecords.sessionbook.result}</p><div class="compare-grid"><div class="compare-sheet"><h3 id="sb-known-title">Present in source</h3><ul><li>Four mounted POST /tools routes</li><li>AssemblyAI agent configuration and creation script</li><li>SELECT … FOR UPDATE and unique slot constraint</li><li>Provider timezone: Africa/Accra</li><li>Phone normalization and 7–15 digit validation</li><li>Speakable confirmation and conflict responses</li></ul></div><div class="compare-sheet"><h3 id="sb-missing-title">Needs verification</h3><ul><li>Live voice or phone calls</li><li>Deployment and operational behaviour</li><li>Concurrent database execution tests</li><li>Empty tests/test_booking.py</li><li>No generated Alembic migration versions</li><li>Latency, reliability and usage outcomes</li></ul></div></div><details id="questions"><summary>Source, reference & remaining concerns</summary><p>Re-inspected at commit 1264d9e. The source supports integration code, not an independently verified end-to-end call. README setup instructions and an agent ID file do not establish deployment.</p><p>The service validates normalized phone numbers; the earlier portfolio claim that short numbers were still accepted was stale. Tool authentication and production readiness still need review.</p><a class="text-link" href={`${sessionbookMeta.repoUrl}/tree/1264d9e`} target="_blank" rel="noopener">Inspect pinned source ↗</a><br/><a class="text-link" href={sessionbookMeta.tutorialUrl} target="_blank" rel="noopener">Conceptual reference: AssemblyAI tutorial ↗</a></details></div></section>
- <a class="next-project" href="/work/koranco/"><span><span class="eyebrow">Next project</span><strong>Koranco Farms</strong></span><span aria-hidden="true">↗</span></a>
- </div></article></BaseLayout>
+
+<BaseLayout {title} {description} {structuredData} ogType="article">
+  <CaseStudy id="sessionbook">
+    <Fragment slot="visual">
+      <BookingFlow />
+    </Fragment>
+
+    <Fragment slot="problem">
+      <p>
+        A voice agent can ask a caller what time works. It shouldn’t decide whether a slot exists,
+        whether someone else just booked it, or whether a confirmation is valid.
+      </p>
+      <p>
+        That is the design problem in one line: the conversation is open, the booking is a
+        transaction. Everything in this service follows from keeping those two things apart.
+      </p>
+
+      <div class="compare-grid">
+        <div class="compare-sheet">
+          <h3>The agent owns</h3>
+          <ul>
+            <li>Transcription and turn-taking</li>
+            <li>Prompting and the decision to call a tool</li>
+            <li>Speech — how the answer is said</li>
+          </ul>
+        </div>
+        <div class="compare-sheet compare-sheet--after">
+          <h3>The backend owns</h3>
+          <ul>
+            <li>Which slots are actually free</li>
+            <li>Reserving one without double-booking</li>
+            <li>Timezones, confirmation codes, what to say when it fails</li>
+          </ul>
+        </div>
+      </div>
+    </Fragment>
+
+    <Fragment slot="contribution">
+      <p>
+        I built the FastAPI service behind that boundary: the HTTP tools the agent calls,
+        availability queries, the transaction around booking, and the responses designed to be read
+        aloud.
+      </p>
+
+      <ul class="role-list">
+        <li>
+          <strong>Four HTTP tools</strong> — <code>get_today</code>, <code>check_availability</code>,
+          <code>book_slot</code> and <code>confirm_booking</code>, mounted as
+          <code>POST /tools</code> routes the agent calls itself.
+        </li>
+        <li>
+          <strong>The booking service</strong> — <code>app/services/booking_service.py</code>:
+          availability, the locked booking transaction, confirmation codes and spoken labels.
+        </li>
+        <li>
+          <strong>The contracts</strong> — <code>schemas.py</code>: availability and booking
+          requests with length-bounded fields and service-level phone validation.
+        </li>
+        <li>
+          <strong>The agent configuration</strong> — <code>voice_agent/agent.json</code>: four tool
+          definitions pointing at those routes.
+        </li>
+      </ul>
+
+      <p class="case-note">
+        AssemblyAI owns the conversation. SessionBook owns the agent document and the backend the
+        agent calls — nothing here has to stream or persist a WebSocket.
+      </p>
+    </Fragment>
+
+    <Fragment slot="decisions">
+      <dl class="decision-list">
+        <div>
+          <dt>Lock the slot before checking it</dt>
+          <dd>
+            <code>book_slot</code> takes <code>SELECT … FOR UPDATE</code> inside a transaction, and
+            only then checks that the slot exists and is still free. The existence check happens
+            after the lock is held, so two concurrent callers cannot both pass the gate.
+          </dd>
+        </div>
+        <div>
+          <dt>Let the database be the final arbiter</dt>
+          <dd>
+            A unique slot constraint plus an <code>IntegrityError</code> fallback means the second
+            writer fails loudly instead of double-booking; the service raises
+            <code>SlotAlreadyBookedError</code>.
+          </dd>
+        </div>
+        <div>
+          <dt>Keep the clock provider-local</dt>
+          <dd>
+            Datetimes are timezone-aware and rendered for speech in Africa/Accra through
+            <code>ZoneInfo</code> — the provider’s clock, not the caller’s.
+          </dd>
+        </div>
+        <div>
+          <dt>Make the confirmation sayable</dt>
+          <dd>
+            Confirmation codes run six to ten characters with no 0/O or 1/I, and arrive with a
+            <code>spoken_confirmation</code> sentence so a caller can read the code back.
+          </dd>
+        </div>
+        <div>
+          <dt>Give failures something to say</dt>
+          <dd>
+            The tool routes return speakable sentences — 409 “That slot was just taken, would you
+            like another time?” and 404 for a slot that does not exist — so the agent can ask the
+            next question instead of apologising.
+          </dd>
+        </div>
+      </dl>
+    </Fragment>
+
+    <Fragment slot="result">
+      <p>{projectRecords.sessionbook.result}</p>
+
+      <dl class="case-states">
+        <div>
+          <dt>Implementation</dt>
+          <dd>
+            <strong>In source at commit 1264d9e.</strong> Four mounted tool routes, a row-locking
+            booking service, the Pydantic contracts and the agent configuration.
+          </dd>
+        </div>
+        <div>
+          <dt>Live calls</dt>
+          <dd>
+            <strong>Unverified.</strong> No call was made, retained or replayed, and no deployment
+            is verified.
+          </dd>
+        </div>
+      </dl>
+
+      <p class="case-sub">Present in source</p>
+      <ul class="case-evidence case-evidence--known">
+        {sessionbookBoundary.known.slice(0, 6).map((item) => <li>{item}</li>)}
+      </ul>
+    </Fragment>
+
+    <Fragment slot="limits">
+      <p>
+        Repository inspection verifies written implementation, not a working phone call. The
+        boundary between what exists and what has been proven is the whole point of this page, so
+        it stays stated rather than implied.
+      </p>
+
+      <ul class="case-evidence case-evidence--missing">
+        {sessionbookBoundary.missing.map((item) => <li>{item}</li>)}
+      </ul>
+
+      <p class="case-note">
+        Two corrections worth keeping: the earlier portfolio claim that short phone numbers were
+        still accepted was stale — the service validates normalised numbers at 7–15 digits — and
+        tool authentication has not been reviewed. The test file is empty and no Alembic migration
+        version has been generated.
+      </p>
+    </Fragment>
+
+    <Fragment slot="sources">
+      <ul class="case-sources">
+        <li>
+          <a href={sessionbookMeta.repoUrl} target="_blank" rel="noopener">Source repository</a>
+          <span class="case-sources__tag">GitHub</span>
+          <span>FastAPI service, agent configuration and setup notes.</span>
+        </li>
+        <li>
+          <a href={`${sessionbookMeta.repoUrl}/tree/${sessionbookMeta.repoCommit}`} target="_blank" rel="noopener">
+            Source at {sessionbookMeta.repoCommit}
+          </a>
+          <span class="case-sources__tag">{sessionbookMeta.repoCommitDate}</span>
+          <span>The commit this page was read against.</span>
+        </li>
+        <li>
+          <a href={sessionbookMeta.tutorialUrl} target="_blank" rel="noopener">
+            AssemblyAI HTTP tools tutorial
+          </a>
+          <span class="case-sources__tag">Reference</span>
+          <span>
+            Conceptual reference for the shape of the integration. Nothing here is claimed as an
+            implemented SessionBook feature.
+          </span>
+        </li>
+      </ul>
+
+      <p class="case-note">
+        There is no live demo to link to. The README’s setup instructions and an agent ID file do
+        not establish a deployment, and no call recording or transcript exists.
+      </p>
+    </Fragment>
+  </CaseStudy>
+</BaseLayout>
+
+<style>
+  .compare-sheet h3 {
+    font-size: 0.72rem;
+    font-family: var(--font-instrument);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-text-on-paper-faint);
+    margin-bottom: 0.8rem;
+  }
+  .compare-sheet ul {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+</style>
