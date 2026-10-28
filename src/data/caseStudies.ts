@@ -66,7 +66,7 @@ export const caseCopy: Record<ProjectId, Record<Exclude<CasePartKey, 'overview'>
     },
     decisions: {
       title: 'Fix the contract, not the model.',
-      note: 'The whole seven-stage investigation condenses to this comparison. The Lab holds the stage-by-stage version.',
+      note: 'The whole seven-stage investigation condenses to this comparison. The Lab runs one reply through the gate and the review.',
       aliases: [
         'investigation',
         'intervention',

@@ -23,3 +23,17 @@ My personal portfolio. I'm a software engineer who builds AI-powered application
 npm install
 npm run dev
 ```
+
+## Checks
+
+```bash
+npm run check   # astro check — types and templates
+npm test        # the Reliability Lab's scenario logic (node --test)
+npm run build   # static build
+```
+
+`src/scripts/labScenario.mjs` holds the one scenario `/lab/` demonstrates: the
+context a request carries, an unfit reply, the gate that refuses it, a cited
+proposal that passes, and the review a person still has to do. It is pure,
+deterministic and offline — the page renders its result and the tests assert it.
+No model is called.
