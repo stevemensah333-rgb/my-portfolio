@@ -13,5 +13,222 @@ const structuredData={'@context':'https://schema.org','@type':'ProfilePage',name
  <section class="page-shell profile-section" id="evidence"><div class="section-head"><div><p class="eyebrow">Beyond the code</p><h2>A few other<br />things I’ve done.</h2></div><p class="muted">Selected academic and competition achievements. Source previews open deliberately.</p></div><div class="achievement-list">{credentials.map(c=><details class="achievement"><summary><span>{c.name}</span><strong>{c.result}</strong><span aria-hidden="true">+</span></summary><div class="achievement__body">{c.detail&&<p>{c.detail}</p>}{c.evidenceImage&&<figure><a href={c.evidenceImage} target="_blank" rel="noopener"><img src={c.evidenceImage} alt={c.evidenceAlt} width={c.evidenceWidth} height={c.evidenceHeight} loading="lazy"/></a><figcaption>{c.id==='sat'?'Cropped score section. Identifying record locator and QR code omitted from this public derivative.':'Supplied source image.'} <a href={c.evidenceImage} target="_blank" rel="noopener">Open preview ↗</a></figcaption></figure>}</div></details>)}</div></section>
 </BaseLayout>
 <style>
-.profile-opening{display:grid;grid-template-columns:1.5fr 1fr;gap:4rem;align-items:center}.profile-opening h1{font-size:clamp(3rem,6vw,6rem);margin-bottom:2rem}.profile-opening h1 em{font-style:normal;color:var(--teal)}.profile-opening p+p{margin-top:1rem}.profile-opening .lead{max-width:46ch}.profile-photo{background:#e2e7d9;padding-top:2rem;rotate:3deg;border:1px solid #c1cbb8;align-self:center}.profile-photo img{width:100%}.profile-photo figcaption{background:var(--color-sheet-raised);padding:.8rem;font-size:.7rem;border-top:1px solid #c1cbb8}.profile-nav{display:flex;flex-wrap:wrap;gap:1rem;font-size:.8rem;margin-top:2rem}.profile-nav a{min-height:44px;display:flex;align-items:center}.profile-section{padding-block:4rem;border-top:1px solid var(--rule)}.experience-record,.achievement{border-top:1px solid var(--rule);padding-block:1rem}.experience-record summary{display:grid;grid-template-columns:1.3fr 1.2fr .8fr auto;gap:1.5rem;align-items:center;list-style:none}.experience-record summary::-webkit-details-marker,.achievement summary::-webkit-details-marker{display:none}.experience-record summary>span:first-child{display:grid;gap:.25rem}.experience-record strong{font-size:1.1rem;font-weight:500}.experience-record summary>span:first-child>span{font-size:.8rem;color:var(--color-text-on-paper-faint)}.experience-record__summary{font-size:.85rem;color:var(--color-text-on-paper-muted)}.experience-record__date{font-size:.7rem;color:var(--color-text-on-paper-faint)}.experience-record__detail{max-width:65ch;margin-left:30%;font-size:.95rem;padding-bottom:1rem}.profile-note{font-size:.75rem;color:var(--color-text-on-paper-faint);margin-top:1rem}.capability-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}.capability-grid>a{display:flex;flex-direction:column;align-items:start;gap:1rem;text-decoration:none;border-top:2px solid var(--teal);padding:1.5rem;background:var(--color-sheet-raised)}.capability-grid h3{font-family:var(--font-display);font-size:2rem}.capability-grid p{font-size:.9rem;color:var(--color-text-on-paper-muted)}.capability-grid .eyebrow{margin:0;font-size:.65rem}.capability-grid .eyebrow::before{display:none}.capability-grid .text-link{margin-top:auto;font-size:.8rem}.capability-grid small{font-size:.65rem;color:var(--color-text-on-paper-faint)}.achievement summary{display:grid;grid-template-columns:1fr auto auto;gap:2rem;align-items:center;list-style:none}.achievement summary>span:first-child{font-size:.95rem}.achievement strong{font-family:var(--font-display);font-weight:500;font-size:1.6rem}.achievement__body{padding-block:1rem}.achievement__body img{max-width:42rem;width:100%;max-height:35rem;object-fit:contain;object-position:left}.achievement figcaption{margin-top:.75rem;font-size:.75rem}.achievement__body>p{margin-bottom:1rem}@media(max-width:900px){.capability-grid{grid-template-columns:1fr}.experience-record summary{grid-template-columns:1fr auto}.experience-record__summary{grid-column:1/-1}.experience-record__date{grid-row:2;grid-column:1}.experience-record summary>span:last-child{grid-row:1;grid-column:2}.experience-record__detail{margin-left:0}.profile-opening{gap:2rem}.profile-photo{rotate:1deg}}@media(max-width:600px){.profile-opening{grid-template-columns:1fr}.profile-photo{width:75%;justify-self:center}.profile-section{padding-block:3rem}.achievement summary{gap:1rem;grid-template-columns:1fr auto}.achievement summary>span:first-child{grid-column:1/-1}.achievement strong{font-size:1.4rem}}
+.profile-opening{
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+.profile-opening h1{
+  font-size: clamp(3rem, 6vw, 6rem);
+  margin-bottom: 2rem;
+}
+.profile-opening h1 em{
+  font-style: normal;
+  color: var(--color-teal);
+}
+.profile-opening p + p{
+  margin-top: 1rem;
+}
+.profile-opening .lead{
+  max-width: 46ch;
+}
+.profile-photo{
+  background: var(--color-paper-soft);
+  padding-top: 2rem;
+  rotate: 3deg;
+  border: 1px solid var(--color-rule);
+  align-self: center;
+}
+.profile-photo img{width: 100%}
+.profile-photo figcaption{
+  background: var(--color-paper-raised);
+  padding: 0.8rem;
+  font-size: 0.7rem;
+  border-top: 1px solid var(--color-rule);
+}
+.profile-nav{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8rem;
+  margin-top: 2rem;
+}
+.profile-nav a{
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.profile-section{
+  padding-block: 4rem;
+  border-top: 1px solid var(--color-rule);
+}
+.experience-record,.achievement{
+  border-top: 1px solid var(--color-rule);
+  padding-block: 1rem;
+}
+.experience-record summary{
+  display: grid;
+  grid-template-columns: 1.3fr 1.2fr 0.8fr auto;
+  gap: 1.5rem;
+  align-items: center;
+  list-style: none;
+}
+.experience-record summary::-webkit-details-marker,
+.achievement summary::-webkit-details-marker{
+  display: none;
+}
+.experience-record summary > span:first-child{
+  display: grid;
+  gap: 0.25rem;
+}
+.experience-record strong{
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+.experience-record summary > span:first-child > span{
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+}
+.experience-record__summary{
+  font-size: 0.85rem;
+  color: var(--color-ink-muted);
+}
+.experience-record__date{
+  font-size: 0.7rem;
+  color: var(--color-ink-faint);
+}
+.experience-record__detail{
+  max-width: 65ch;
+  margin-left: 30%;
+  font-size: 0.95rem;
+  padding-bottom: 1rem;
+}
+.profile-note{
+  font-size: 0.75rem;
+  color: var(--color-ink-faint);
+  margin-top: 1rem;
+}
+.capability-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.capability-grid > a{
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 1rem;
+  text-decoration: none;
+  border-top: 2px solid var(--color-teal);
+  padding: 1.5rem;
+  background: var(--color-paper-raised);
+}
+.capability-grid h3{
+  font-family: var(--font-display);
+  font-size: 2rem;
+}
+.capability-grid p{
+  font-size: 0.9rem;
+  color: var(--color-ink-muted);
+}
+.capability-grid .eyebrow{
+  margin: 0;
+  font-size: 0.65rem;
+}
+.capability-grid .eyebrow::before{
+  display: none;
+}
+.capability-grid .text-link{
+  margin-top: auto;
+  font-size: 0.8rem;
+}
+.capability-grid small{
+  font-size: 0.65rem;
+  color: var(--color-ink-faint);
+}
+.achievement summary{
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 2rem;
+  align-items: center;
+  list-style: none;
+}
+.achievement summary > span:first-child{
+  font-size: 0.95rem;
+}
+.achievement strong{
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.6rem;
+}
+.achievement__body{
+  padding-block: 1rem;
+}
+.achievement__body img{
+  max-width: 42rem;
+  width: 100%;
+  max-height: 35rem;
+  object-fit: contain;
+  object-position: left;
+}
+.achievement figcaption{
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+}
+.achievement__body > p{
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+  .capability-grid{
+    grid-template-columns: 1fr;
+  }
+  .experience-record summary{
+    grid-template-columns: 1fr auto;
+  }
+  .experience-record__summary{
+    grid-column: 1 / -1;
+  }
+  .experience-record__date{
+    grid-row: 2;
+    grid-column: 1;
+  }
+  .experience-record summary > span:last-child{
+    grid-row: 1;
+    grid-column: 2;
+  }
+  .experience-record__detail{
+    margin-left: 0;
+  }
+  .profile-opening{
+    gap: 2rem;
+  }
+  .profile-photo{
+    rotate: 1deg;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-opening{
+    grid-template-columns: 1fr;
+  }
+  .profile-photo{
+    width: 75%;
+    justify-self: center;
+  }
+  .profile-section{
+    padding-block: 3rem;
+  }
+  .achievement summary{
+    gap: 1rem;
+    grid-template-columns: 1fr auto;
+  }
+  .achievement summary > span:first-child{
+    grid-column: 1 / -1;
+  }
+  .achievement strong{
+    font-size: 1.4rem;
+  }
+}
 </style>

@@ -11,16 +11,137 @@ const structuredData={'@context':'https://schema.org','@type':'Person',name:'Ste
 ---
 <BaseLayout {title} {description} {structuredData}>
  <section class="hero page-shell" aria-labelledby="hero-title">
-  <div class="hero__copy"><p class="eyebrow">Software engineer / Ghana</p><InteractiveName/><h1 id="hero-title">I build <span class="no-break">AI-powered</span> products <em>and the systems behind them.</em></h1><p class="lead">From the interface someone uses to the checks behind an AI response. Here’s the work, and how I think through it.</p><div class="actions"><a class="button" href="/work/">Explore my work <span aria-hidden="true">↗</span></a><a class="text-link" href={`mailto:${PUBLIC_EMAIL}`}>Email me ↗</a></div><p class="hero__foot">Computer Science at Ashesi University <span aria-hidden="true">·</span> <a href="/work/syncareer/">Start with Syncareer ↗</a></p></div>
-  <div class="hero__bench"><div class="hero__portrait enter"><StephenPortrait/></div><a class="hero__flagship enter" href="/work/syncareer/" aria-label="Open Syncareer case study"><ProjectArtifact id="syncareer" priority/></a><div class="hero__objects"><a class="hero__object enter" href="/work/sessionbook/" aria-label="Open SessionBook case study"><span class="mini-index">02 / SessionBook ↗</span><span class="mini-slot">Request → reserve → confirm</span><small>Implemented backend · no live demo</small></a><a class="hero__object hero__object--farm enter" href="/work/koranco/" aria-label="Open Koranco Farms case study"><span class="mini-index">03 / Koranco ↗</span><span class="mini-modules">Attendance / Produce / People</span><small>Conceptual map · reported MVP</small></a></div><p class="bench-caption"><span aria-hidden="true">↳</span> Open an artifact. Follow the engineering.</p></div>
+  <div class="hero__copy">
+    <p class="eyebrow">Software engineer / Ghana</p>
+    <InteractiveName/>
+    <h1 id="hero-title">I build <span class="no-break">AI-powered</span> products <em>and the systems behind them.</em></h1>
+    <p class="lead">From the interface someone uses to the checks behind an AI response. Here's the work, and how I think through it.</p>
+    <div class="actions">
+      <a class="button" href="/work/">Explore my work <span aria-hidden="true">↗</span></a>
+      <a class="text-link" href={`mailto:${PUBLIC_EMAIL}`}>Email me ↗</a>
+    </div>
+    <p class="hero__foot">Computer Science at Ashesi University <span aria-hidden="true">·</span> <a href="/work/syncareer/">Start with Syncareer ↗</a></p>
+  </div>
+  <div class="hero__bench">
+    <div class="hero__portrait enter"><StephenPortrait/></div>
+    <a class="hero__flagship enter" href="/work/syncareer/" aria-label="Open Syncareer case study"><ProjectArtifact id="syncareer" priority/></a>
+    <div class="hero__objects">
+      <a class="hero__object enter" href="/work/sessionbook/" aria-label="Open SessionBook case study">
+        <span class="mini-index">02 / SessionBook ↗</span>
+        <span class="mini-slot">Request → reserve → confirm</span>
+        <small>Implemented backend · no live demo</small>
+      </a>
+      <a class="hero__object hero__object--farm enter" href="/work/koranco/" aria-label="Open Koranco Farms case study">
+        <span class="mini-index">03 / Koranco ↗</span>
+        <span class="mini-modules">Attendance / Produce / People</span>
+        <small>Conceptual map · reported MVP</small>
+      </a>
+    </div>
+    <p class="bench-caption"><span aria-hidden="true">↳</span> Open an artifact. Follow the engineering.</p>
+  </div>
  </section>
  <section class="selected page-shell section" id="work" aria-labelledby="selected-title"><div class="section-head"><div><p class="eyebrow">Selected work / 01—03</p><h2 id="selected-title">Different problems.<br />The same care.</h2></div><a class="text-link" href="/work/">View the work archive ↗</a></div><div class="selected__grid"><ProjectCard id="syncareer" shared={false}/><ProjectCard id="sessionbook" shared={false}/><ProjectCard id="koranco" shared={false}/></div></section>
  <section class="lab-teaser on-deck"><div class="page-shell lab-teaser__grid"><div><p class="eyebrow">Reliability Lab</p><h2>Fluent isn’t<br />the same as true.</h2><p class="lead">What happens when an AI rewrite adds experience the source never mentioned? Inspect a local example, from refusal to human review.</p><a class="text-link" href="/lab/">Open the Lab <span aria-hidden="true">↗</span></a></div><a href="/lab/" class="teaser-fixture"><span class="mono-label">Illustrative fixture / not a live model call</span><p>“Five years of <s>Kubernetes</s><br />experience.”</p><span class="teaser-refusal">× Unsupported claim <span>Not in supplied evidence</span></span><span class="teaser-end">A proposal needs more than good wording. ↗</span></a></div></section>
  <section class="human page-shell section" id="profile"><p class="eyebrow">The person at the workbench</p><div class="human__grid"><h2>Curious about the details.<br />Clear about the limits.</h2><div><p class="lead">I’m Stephen, a software engineer and Computer Science student at Ashesi. My work spans AI applications, backend services and a farm management MVP.</p><p>I’m developing a practice around context, validation and thoughtful failure handling. The case studies show what exists and what I still need to test.</p><a class="text-link" href="/profile/">More about me & my experience ↗</a></div></div></section>
 </BaseLayout>
 <style>
-.hero{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(2rem,5vw,5rem);padding-block:clamp(2rem,3vw,3rem) 3rem;align-items:start}.hero__copy{position:relative;z-index:2;padding-top:2rem}.hero :global(.identity__name){font-size:1.35rem;letter-spacing:.04em}.hero__copy h1{font-size:clamp(3.2rem,4.55vw,4.8rem);letter-spacing:-.055em;line-height:1.02;margin-block:1rem 1.5rem;max-width:16ch}.no-break{white-space:nowrap}.hero__copy h1 em{font-style:normal;color:var(--teal)}.hero__copy .lead{font-size:1rem;max-width:42ch}.hero__foot{font-size:.7rem;color:var(--color-text-on-paper-faint);margin-top:2rem}.hero__foot>span{margin-inline:.4rem}.hero :global(.hero__flagship .capture-mat){padding:1.25rem 1.25rem 0}.hero :global(.hero__flagship .capture-mat picture){max-height:220px;overflow:hidden}.hero__bench{position:relative;display:grid;gap:1rem;padding-top:0}.hero__portrait{position:relative;justify-self:end;width:30%;z-index:2;margin-bottom:-1rem;margin-right:5%}.hero__flagship{display:block;position:relative;z-index:3;rotate:-3deg;text-decoration:none}.hero__objects{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;position:relative;z-index:4;margin-top:.25rem}.hero__object{display:grid;gap:1.2rem;padding:1.1rem;background:#e1e9df;border:1px solid #bdcabb;text-decoration:none;box-shadow:0 8px 20px -16px #171a1b88;rotate:2deg}.hero__object--farm{background:#ece2cd;rotate:-2deg}.mini-index{font-size:.7rem}.mini-slot,.mini-modules{font-family:var(--font-display);font-size:1.1rem;line-height:1.15;color:#194e47}.hero__object small{font-size:.6rem;color:#4e5652}.bench-caption{font-size:.72rem;text-align:right;color:var(--color-text-on-paper-faint);margin-top:.75rem}.bench-caption span{margin-right:1rem}.selected{border-top:1px solid var(--rule)}.selected__grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem 2.5rem}.selected__grid>:first-child{grid-column:1/-1}.lab-teaser{padding-block:clamp(3rem,6vw,6rem)}.lab-teaser__grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}.lab-teaser h2{font-size:clamp(2.8rem,4.3vw,4.7rem);margin-bottom:1.5rem}.lab-teaser .lead{font-size:1rem;margin-bottom:1.5rem}.teaser-fixture{text-decoration:none;border:1px solid #51584f;padding:2.5rem;background:#1c2522;display:grid;gap:2rem}.teaser-fixture>p{font:clamp(1.5rem,2.7vw,2.6rem)/1.25 var(--font-display)}.teaser-fixture s{text-decoration-color:#e3a07a}.teaser-refusal{color:#efac85;font-size:.85rem}.teaser-refusal span{display:block;color:#bdbdb2;font-size:.75rem;margin-top:.4rem}.teaser-end{font-size:.7rem;color:#bdbdb2;border-top:1px solid #51584f;padding-top:1rem}.human__grid{display:grid;grid-template-columns:1.2fr 1fr;gap:4rem}.human h2{font-size:clamp(2.2rem,3.6vw,3.5rem)}.human p+p{margin-block:1rem}.human .text-link{margin-top:1rem}
-@media(min-width:1000px){.selected__grid>:first-child{display:grid;grid-template-columns:1.6fr 1fr;align-items:center;gap:3rem}.selected__grid>:global(.project-card:first-child .project-card__copy){padding-block:0}}
-@media(max-width:900px){.hero{grid-template-columns:1fr 1fr;gap:2rem}.hero__copy h1{font-size:clamp(2.6rem,5.8vw,4rem)}.hero__objects{grid-template-columns:1fr}.hero__object{gap:.6rem}.hero__portrait{width:36%}.hero__bench{padding-top:0}.lab-teaser__grid{gap:2rem}.human__grid{gap:2rem}}
-@media(max-width:650px){.hero__copy{padding-top:0}.hero__flagship,.hero__object{rotate:0deg}.hero{grid-template-columns:1fr;padding-top:2.5rem;gap:1.5rem}.hero__copy h1{font-size:clamp(2.8rem,11.5vw,4.3rem);max-width:14ch}.hero__bench{padding-top:0;margin-top:-1rem}.hero__portrait{width:32%;margin-bottom:-1.5rem;margin-top:0;right:auto;top:auto}.hero__objects{grid-template-columns:1fr 1fr}.hero__flagship{rotate:-2deg}.hero__object{padding:.8rem}.mini-slot,.mini-modules{font-size:.95rem}.selected__grid,.lab-teaser__grid,.human__grid{grid-template-columns:1fr;gap:2rem}.selected__grid>:first-child{grid-column:auto}.teaser-fixture{padding:1.5rem}.hero__foot{margin-top:1.25rem}}
+.hero{
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  padding-block: clamp(2rem, 3vw, 3rem) 3rem;
+  align-items: start;
+}
+.hero__copy{
+  position: relative;
+  z-index: 2;
+  padding-top: 2rem;
+}
+.hero :global(.identity__name){
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+}
+.hero__copy h1{
+  font-size: clamp(3.2rem, 4.55vw, 4.8rem);
+  letter-spacing: -0.055em;
+  line-height: 1.02;
+  margin-block: 1rem 1.5rem;
+  max-width: 16ch;
+}
+.no-break{white-space: nowrap}
+.hero__copy h1 em{
+  font-style: normal;
+  color: var(--color-teal);
+}
+.hero__copy .lead{
+  font-size: 1rem;
+  max-width: 42ch;
+}
+.hero__foot{
+  font-size: 0.7rem;
+  color: var(--color-ink-faint);
+  margin-top: 2rem;
+}
+.hero__foot > span{margin-inline: 0.4rem}
+.hero :global(.hero__flagship .capture-mat){padding: 1.25rem 1.25rem 0}
+.hero :global(.hero__flagship .capture-mat picture){max-height: 220px; overflow: hidden}
+.hero__bench{position: relative; display: grid; gap: 1rem; padding-top: 0}
+.hero__portrait{position: relative; justify-self: end; width: 30%; z-index: 2; margin-bottom: -1rem; margin-right: 5%}
+.hero__flagship{display: block; position: relative; z-index: 3; rotate: -3deg; text-decoration: none}
+.hero__objects{display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; position: relative; z-index: 4; margin-top: 0.25rem}
+.hero__object{display: grid; gap: 1.2rem; padding: 1.1rem; background: var(--color-paper-soft); border: 1px solid var(--color-rule); text-decoration: none; box-shadow: 0 8px 20px -16px var(--color-ink); rotate: 2deg}
+.hero__object--farm{background: #ece2cd; rotate: -2deg}
+.mini-index{font-size: 0.7rem}
+.mini-slot,.mini-modules{font-family: var(--font-display); font-size: 1.1rem; line-height: 1.15; color: var(--color-teal)}
+.hero__object small{font-size: 0.6rem; color: var(--color-ink-muted)}
+.bench-caption{font-size: 0.72rem; text-align: right; color: var(--color-ink-faint); margin-top: 0.75rem}
+.bench-caption span{margin-right: 1rem}
+.selected{border-top: 1px solid var(--color-rule)}
+.selected__grid{display: grid; grid-template-columns: 1fr 1fr; gap: 3rem 2.5rem}
+.selected__grid > :first-child{grid-column: 1 / -1}
+.lab-teaser{padding-block: clamp(3rem, 6vw, 6rem)}
+.lab-teaser__grid{display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center}
+.lab-teaser h2{font-size: clamp(2.8rem, 4.3vw, 4.7rem); margin-bottom: 1.5rem}
+.lab-teaser .lead{font-size: 1rem; margin-bottom: 1.5rem}
+.teaser-fixture{text-decoration: none; border: 1px solid var(--color-rule-on-canvas); padding: 2.5rem; background: var(--color-deck-soft); display: grid; gap: 2rem}
+.teaser-fixture > p{font: clamp(1.5rem, 2.7vw, 2.6rem) / 1.25 var(--font-display)}
+.teaser-fixture s{text-decoration-color: var(--color-accent-bright)}
+.teaser-refusal{color: var(--color-accent-bright); font-size: 0.85rem}
+.teaser-refusal span{display: block; color: var(--color-text-on-canvas-muted); font-size: 0.75rem; margin-top: 0.4rem}
+.teaser-end{font-size: 0.7rem; color: var(--color-text-on-canvas-muted); border-top: 1px solid var(--color-rule-on-canvas); padding-top: 1rem}
+.human__grid{display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem}
+.human h2{font-size: clamp(2.2rem, 3.6vw, 3.5rem)}
+.human p + p{margin-block: 1rem}
+.human .text-link{margin-top: 1rem}
+
+@media (min-width: 1000px) {
+  .selected__grid > :first-child{display: grid; grid-template-columns: 1.6fr 1fr; align-items: center; gap: 3rem}
+  .selected__grid > :global(.project-card:first-child .project-card__copy){padding-block: 0}
+}
+@media (max-width: 900px) {
+  .hero{grid-template-columns: 1fr 1fr; gap: 2rem}
+  .hero__copy h1{font-size: clamp(2.6rem, 5.8vw, 4rem)}
+  .hero__objects{grid-template-columns: 1fr}
+  .hero__object{gap: 0.6rem}
+  .hero__portrait{width: 36%}
+  .hero__bench{padding-top: 0}
+  .lab-teaser__grid{gap: 2rem}
+  .human__grid{gap: 2rem}
+}
+@media (max-width: 650px) {
+  .hero__copy{padding-top: 0}
+  .hero__flagship,.hero__object{rotate: 0deg}
+  .hero{grid-template-columns: 1fr; padding-top: 2.5rem; gap: 1.5rem}
+  .hero__copy h1{font-size: clamp(2.8rem, 11.5vw, 4.3rem); max-width: 14ch}
+  .hero__bench{padding-top: 0; margin-top: -1rem}
+  .hero__portrait{width: 32%; margin-bottom: -1.5rem; margin-top: 0; right: auto; top: auto}
+  .hero__objects{grid-template-columns: 1fr 1fr}
+  .hero__flagship{rotate: -2deg}
+  .hero__object{padding: 0.8rem}
+  .mini-slot,.mini-modules{font-size: 0.95rem}
+  .selected__grid,.lab-teaser__grid,.human__grid{grid-template-columns: 1fr; gap: 2rem}
+  .selected__grid > :first-child{grid-column: auto}
+  .teaser-fixture{padding: 1.5rem}
+  .hero__foot{margin-top: 1.25rem}
+}
 </style>

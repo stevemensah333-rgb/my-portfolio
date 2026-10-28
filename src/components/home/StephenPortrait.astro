@@ -195,11 +195,11 @@
     display: flex; justify-content: space-between; align-items: center;
     min-height: 3rem; gap: 1rem;
     /* The baseline the cut-out stands on. */
-    border-top: 1px solid var(--color-rule-on-paper-strong);
-    border-bottom: 1px solid var(--color-rule-on-paper);
+    border-top: 1px solid var(--color-rule-strong);
+    border-bottom: 1px solid var(--color-rule);
     font-size: var(--text-small);
   }
-  summary:hover .portrait__prompt, summary:focus-visible .portrait__prompt { color: var(--color-accent-ink); }
+  summary:hover .portrait__prompt, summary:focus-visible .portrait__prompt { color: var(--color-copper-ink); }
   .portrait__toggle { font-size: 1.5rem; line-height: 1; transition: transform var(--duration-quick) var(--ease-standard); }
   details[open] .portrait__toggle { transform: rotate(45deg); }
 
@@ -210,13 +210,13 @@
     gap: var(--space-3);
     padding-top: var(--space-4);
     animation: reveal-enter var(--duration-reveal) var(--ease-emphasized);
-    color: var(--color-text-on-paper-muted);
+    color: var(--color-ink-muted);
     font-size: var(--text-small);
     line-height: 1.6;
   }
   .portrait__message p { margin: 0; }
   .portrait__sign {
-    color: var(--color-text-on-paper);
+    color: var(--color-ink);
     font-family: var(--font-display);
     font-size: var(--text-body);
     font-weight: 600;

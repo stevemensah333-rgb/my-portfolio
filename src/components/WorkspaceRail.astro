@@ -1,17 +1,253 @@
 ---
-import { primaryDestinations, destinationForPath, utilityDestinations } from '../config/workspace';
-const current = destinationForPath(Astro.url.pathname);
+import { navItems, currentNavItem } from '../config/workspace';
+const current = currentNavItem(Astro.url.pathname);
 ---
 <header class="site-nav">
   <div class="site-nav__inner page-shell">
-    <a class="site-brand" href="/" aria-label="Stephen Mensah — home"><span class="brand-mark" aria-hidden="true">sm<span>↗</span></span><span>Stephen Mensah<span class="brand-sub">Software engineer</span></span></a>
-    <nav aria-label="Main navigation">
-      {primaryDestinations.filter(d=>d.id!=='home').map(d=><a href={d.href} aria-current={current===d.id?'page':undefined}>{d.id==='profile'?'About':d.label}<span class="nav-dot" aria-hidden="true"></span></a>)}
+    <a href="/" class="site-brand" aria-label="Stephen Mensah — home">
+      <span class="brand-name">Stephen Mensah</span>
+    </a>
+    <nav class="site-nav__primary" aria-label="Main navigation">
+      {navItems.filter(item => item.id !== 'home').map(d => (
+        <a 
+          href={d.href} 
+          aria-current={current === d.id ? 'page' : undefined}
+          target={d.external ? '_blank' : undefined}
+          rel={d.external ? 'noopener' : undefined}
+        >
+          {d.label}
+          {current === d.id && <span class="nav-indicator" aria-hidden="true"></span>}
+        </a>
+      ))}
     </nav>
-    <div class="nav-utilities">{utilityDestinations.map(d=><a href={d.href} target={d.external?'_blank':undefined} rel={d.external?'noopener':undefined}>{d.label}<span aria-hidden="true">↗</span></a>)}</div>
+    <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span class="hamburger"></span>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <nav class="mobile-nav" aria-label="Main navigation">
+      {navItems.map(d => (
+        <a 
+          href={d.href} 
+          aria-current={current === d.id ? 'page' : undefined}
+          target={d.external ? '_blank' : undefined}
+          rel={d.external ? 'noopener' : undefined}
+        >
+          {d.label}
+          {current === d.id && <span class="nav-indicator" aria-hidden="true"></span>}
+        </a>
+      ))}
+    </nav>
   </div>
 </header>
+
+<script>
+  const init = () => {
+    const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+    const menu = document.querySelector<HTMLElement>('.mobile-menu');
+    
+    if (!toggle || !menu) return;
+    
+    const updateState = (isOpen: boolean) => {
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      menu.hidden = !isOpen;
+    };
+    
+    toggle.addEventListener('click', () => {
+      const isOpen = !menu.hidden;
+      updateState(isOpen);
+    });
+    
+    // Close menu when a link is clicked
+    menu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        updateState(false);
+      });
+    });
+    
+    // Close menu on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !menu.hidden) {
+        updateState(false);
+        toggle.focus();
+      }
+    });
+  };
+  
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>
+
 <style>
-.site-nav{position:sticky;top:0;z-index:50;background:#f4f0e6f5;border-bottom:1px solid var(--rule);backdrop-filter:blur(12px)}.site-nav__inner{min-height:80px;display:flex;align-items:center;justify-content:space-between;gap:2rem}.site-brand{display:flex;align-items:center;gap:.8rem;text-decoration:none;font-size:.9rem;font-weight:600;line-height:1.4}.brand-mark{position:relative;font-family:var(--font-display);font-size:2rem;font-weight:650;letter-spacing:-.1em;padding-right:.5rem}.brand-mark>span{position:absolute;right:-.1rem;top:-.4rem;font:1rem var(--font-content);color:var(--color-accent-text)}.brand-sub{display:block;color:var(--color-text-on-paper-faint);font-size:.7rem;font-weight:400}.site-nav nav,.nav-utilities{display:flex;gap:1.8rem;align-items:center}.site-nav nav>a,.nav-utilities a{min-height:44px;display:flex;align-items:center;gap:.5rem;text-decoration:none;font-size:.85rem}.nav-utilities a:last-child{color:var(--color-accent-text)}.nav-dot{width:5px;height:5px;border-radius:50%;background:currentColor;visibility:hidden}a[aria-current] .nav-dot{visibility:visible}a[aria-current]{color:var(--color-accent-text)}.site-nav a:hover{color:var(--color-accent-text)}
-@media(max-width:700px){.site-nav__inner{flex-wrap:wrap;gap:0 1rem;padding-block:.6rem;min-height:90px}.site-brand{font-size:.8rem}.brand-sub{display:none}.site-nav nav{order:3;width:100%;justify-content:center;gap:2rem;border-top:1px solid var(--rule);margin-top:.4rem}.nav-utilities{gap:1rem}.nav-utilities a{font-size:.75rem}.site-nav nav>a{min-height:36px}.brand-mark{font-size:1.7rem}}
+.site-nav{
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: var(--color-paper-raised);
+  border-bottom: 1px solid var(--color-rule);
+  backdrop-filter: blur(12px);
+}
+.site-nav__inner{
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.site-brand{
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--color-ink);
+  transition: color var(--duration-quick) var(--ease-standard);
+}
+.site-brand:hover{
+  color: var(--color-copper-text);
+}
+.brand-name{
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+.site-nav__primary{
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+.site-nav__primary a{
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  transition: color var(--duration-quick) var(--ease-standard);
+  position: relative;
+}
+.site-nav__primary a:hover{
+  color: var(--color-copper-text);
+}
+.site-nav__primary a[aria-current='page']{
+  color: var(--color-copper-text);
+}
+.nav-indicator{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-top: 2px;
+}
+.menu-toggle{
+  display: none;
+  min-height: 44px;
+  min-width: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+.hamburger{
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--color-ink);
+  position: relative;
+  transition: background var(--duration-quick) var(--ease-standard);
+}
+.hamburger::before,
+.hamburger::after{
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background: var(--color-ink);
+  transition: transform var(--duration-quick) var(--ease-standard);
+}
+.hamburger::before{top: -8px}
+.hamburger::after{top: 8px}
+
+.menu-toggle[aria-expanded="true"] .hamburger{
+  background: transparent;
+}
+.menu-toggle[aria-expanded="true"] .hamburger::before{
+  transform: rotate(45deg);
+  top: 0;
+}
+.menu-toggle[aria-expanded="true"] .hamburger::after{
+  transform: rotate(-45deg);
+  top: 0;
+}
+
+.mobile-menu{
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--color-paper-raised);
+  border-bottom: 1px solid var(--color-rule);
+  padding: 1rem 0;
+  z-index: 10;
+}
+.mobile-nav{
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-inline: var(--page-gutter);
+}
+.mobile-nav a{
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  padding-inline: 1rem;
+  transition: color var(--duration-quick) var(--ease-standard);
+  border-radius: 0;
+}
+.mobile-nav a:hover{
+  color: var(--color-copper-text);
+}
+.mobile-nav a[aria-current='page']{
+  color: var(--color-copper-text);
+  background: var(--color-paper-soft);
+}
+
+@media (max-width: 700px) {
+  .site-nav__primary{
+    display: none;
+  }
+  .menu-toggle{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mobile-menu{
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+  }
+  .mobile-nav{
+    padding-inline: 1rem;
+  }
+  .site-nav__inner{
+    min-height: 56px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hamburger::before,
+  .hamburger::after,
+  .hamburger{
+    transition: none;
+  }
+}
 </style>

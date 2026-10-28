@@ -14,4 +14,18 @@ const {id,sections}=Astro.props;const p=projects.find(p=>p.id===id)!;const r=pro
  <p class="case-stack"><strong>Stack</strong> {p.stack.join(' / ')}</p>
  <nav class="case-nav" aria-label="Case study sections">{sections.map(s=><a href={`#${s.id}`}>{s.label}</a>)}</nav>
 </header>
-<style>.case-result{margin-top:1.5rem;font-size:1rem;max-width:85ch}.case-stack{font-size:.8rem;color:var(--color-text-on-paper-faint);margin-top:.8rem}.case-stack strong{margin-right:1rem}</style>
+<style>
+.case-result{
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  max-width: 85ch;
+}
+.case-stack{
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+  margin-top: 0.8rem;
+}
+.case-stack strong{
+  margin-right: 1rem;
+}
+</style>
