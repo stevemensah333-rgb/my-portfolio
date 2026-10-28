@@ -10,21 +10,27 @@ import {
 } from '../../data/syncareerInvestigation';
 import { projectRecords } from '../../data/portfolio';
 import { syncareer } from '../../data/registry';
+import { SITE, caseMeta, SOCIAL_IMAGE } from '../../config/site';
 
 /* The two captions come from the product record, so the case page and
    the Lab describe the same screens the same way. */
 const dashboard = syncareerProduct.surfaces.find((surface) => surface.id === 'dashboard')!;
 const opportunities = syncareerProduct.surfaces.find((surface) => surface.id === 'opportunities')!;
 
-const title = 'Syncareer — Career tools, with context | Stephen Mensah';
-const description = projectRecords.syncareer.summary;
+const meta = caseMeta({
+  name: syncareer.name,
+  summary: projectRecords.syncareer.summary,
+  image: '/social/syncareer.png',
+  imageAlt: 'Syncareer — a live career platform, shown with the dashboard capture from the deployed product.',
+});
+const { title, description, image, imageAlt } = meta;
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'CreativeWork',
   name: 'Syncareer',
   description,
   url: new URL(syncareer.route, Astro.site).href,
-  author: { '@type': 'Person', name: 'Stephen Mensah' },
+  author: { '@type': 'Person', name: SITE.name },
   codeRepository: 'https://github.com/stevemensah333-rgb/syncareer',
 };
 ---
@@ -33,10 +39,11 @@ const structuredData = {
   {title}
   {description}
   {structuredData}
+  {image}
+  {imageAlt}
+  imageWidth={SOCIAL_IMAGE.width}
+  imageHeight={SOCIAL_IMAGE.height}
   ogType="article"
-  image="/images/syncareer/dashboard-1440.png"
-  imageWidth={2400}
-  imageHeight={1302}
 >
   <CaseStudy id="syncareer">
     <Fragment slot="visual">
@@ -104,9 +111,7 @@ const structuredData = {
         <p class="case-shape__foot">{failureRecord.oldContract.source}</p>
       </div>
 
-      <aside class="boundary">
-        <p><strong>Evidence class: documented failure pattern.</strong> {failureRecord.known}</p>
-      </aside>
+      <p class="case-note"><strong>Documented failure pattern.</strong> {failureRecord.known}</p>
     </Fragment>
 
     <Fragment slot="contribution">
@@ -149,9 +154,8 @@ const structuredData = {
       </div>
 
       <p class="case-note">
-        <strong>Evidence class: documented contract shapes.</strong> No captured before/after model
-        output exists. The two model texts in the Lab are labelled illustrative fixtures, not a
-        recorded pair.
+        <strong>Contract shapes, as documented.</strong> No captured before/after output exists; the
+        two replies in the Lab are labelled fixtures, not a recorded pair.
       </p>
 
       <details class="case-deeper">
@@ -169,10 +173,8 @@ const structuredData = {
 
       <div class="case-lab">
         <p>
-          <strong>The Lab follows one reply end to end.</strong> The context a request carries, a
-          fluent answer that context cannot support, the gate that refuses it, a cited proposal that
-          passes, and the person who still decides — with the contract and handler excerpts in the
-          inspector beside it.
+          <strong>The Lab runs one reply through this gate.</strong> Context, an unsupported answer,
+          the refusal, a cited proposal, and the person who still decides.
         </p>
         <ul class="case-lab__links">
           <li><a href="/lab/">Open the Reliability Lab ↗</a></li>
@@ -255,10 +257,9 @@ const structuredData = {
       </ul>
 
       <p class="case-note">
-        File citations on this page: <code>contract.ts</code>, <code>handler.ts</code>,
-        <code>parseModelProposal</code>, <code>index.test.ts</code>. The failure record is a reading
-        of the project’s AI-application guidance notes and the previous request shape — no captured
-        incident log exists.
+        Files cited: <code>contract.ts</code>, <code>handler.ts</code>,
+        <code>parseModelProposal</code>, <code>index.test.ts</code>. The failure record is read from
+        the project’s guidance notes and the previous request shape; no incident log exists.
       </p>
     </Fragment>
   </CaseStudy>

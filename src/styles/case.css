@@ -263,6 +263,9 @@
 }
 
 .case-sources a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-weight: 500;
   text-underline-offset: 3px;
 }

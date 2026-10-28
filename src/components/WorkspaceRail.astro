@@ -9,14 +9,15 @@
  * a client-side navigation.
  */
 import { navItems, currentNavItem } from '../config/workspace';
+import { SITE } from '../config/site';
 const current = currentNavItem(Astro.url.pathname);
 const primary = navItems.filter((item) => item.id !== 'home');
 ---
 <header class="site-nav">
   <div class="site-nav__inner page-shell">
-    <a href="/" class="site-brand" aria-label="Stephen Mensah — home">
+    <a href="/" class="site-brand" aria-label={`${SITE.name} — home`}>
       <span class="brand-mark" aria-hidden="true">SM</span>
-      <span class="brand-name">Stephen Mensah</span>
+      <span class="brand-name">{SITE.name}</span>
     </a>
     <nav class="site-nav__primary" aria-label="Main navigation">
       {primary.map((d) => (

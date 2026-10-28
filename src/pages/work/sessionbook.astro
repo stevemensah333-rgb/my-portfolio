@@ -3,22 +3,38 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseStudy from '../../components/case/CaseStudy.astro';
 import BookingFlow from '../../components/case/BookingFlow.astro';
 import { projectRecords } from '../../data/portfolio';
+import { sessionbook as sessionbookProject } from '../../data/registry';
 import { sessionbookMeta, sessionbookBoundary } from '../../data/sessionbook';
+import { SITE, caseMeta, SOCIAL_IMAGE } from '../../config/site';
 
-const title = 'SessionBook — Booking backend for a voice agent | Stephen Mensah';
-const description = projectRecords.sessionbook.summary;
+const meta = caseMeta({
+  name: sessionbookProject.name,
+  summary: projectRecords.sessionbook.summary,
+  image: '/social/sessionbook.png',
+  imageAlt: 'SessionBook — a booking backend where the service, not the voice agent, decides what is true.',
+});
+const { title, description, image, imageAlt } = meta;
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'CreativeWork',
   name: 'SessionBook',
   description,
   url: new URL('/work/sessionbook/', Astro.site).href,
-  author: { '@type': 'Person', name: 'Stephen Mensah' },
+  author: { '@type': 'Person', name: SITE.name },
   about: { '@type': 'SoftwareSourceCode', codeRepository: sessionbookMeta.repoUrl },
 };
 ---
 
-<BaseLayout {title} {description} {structuredData} ogType="article">
+<BaseLayout
+  {title}
+  {description}
+  {structuredData}
+  {image}
+  {imageAlt}
+  imageWidth={SOCIAL_IMAGE.width}
+  imageHeight={SOCIAL_IMAGE.height}
+  ogType="article"
+>
   <CaseStudy id="sessionbook">
     <Fragment slot="visual">
       <BookingFlow />
@@ -158,9 +174,7 @@ const structuredData = {
 
     <Fragment slot="limits">
       <p>
-        Repository inspection verifies written implementation, not a working phone call. The
-        boundary between what exists and what has been proven is the whole point of this page, so
-        it stays stated rather than implied.
+        The repository verifies written implementation, not a working phone call.
       </p>
 
       <ul class="case-evidence case-evidence--missing">
@@ -168,10 +182,9 @@ const structuredData = {
       </ul>
 
       <p class="case-note">
-        Two corrections worth keeping: the earlier portfolio claim that short phone numbers were
-        still accepted was stale — the service validates normalised numbers at 7–15 digits — and
-        tool authentication has not been reviewed. The test file is empty and no Alembic migration
-        version has been generated.
+        <strong>Corrected here:</strong> an earlier version of this page said short phone numbers
+        passed validation; the service normalises and requires 7–15 digits. Tool authentication has
+        not been reviewed, the test file is empty, and no migration version has been generated.
       </p>
     </Fragment>
 
@@ -202,8 +215,8 @@ const structuredData = {
       </ul>
 
       <p class="case-note">
-        There is no live demo to link to. The README’s setup instructions and an agent ID file do
-        not establish a deployment, and no call recording or transcript exists.
+        No demo is linked: setup instructions and an agent ID file do not establish a deployment,
+        and no call recording or transcript exists.
       </p>
     </Fragment>
   </CaseStudy>

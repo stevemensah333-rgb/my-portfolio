@@ -1,11 +1,12 @@
 /**
  * Site destinations — compact persistent navigation.
  *
- * Navigation structure: Stephen Mensah, Work, Lab, About, Résumé, Contact
- * About points to /profile/ route.
+ * The rail, the phone menu and the footer all read this list, so there is
+ * one navigation, described once.
  *
- * The navigation bar reads from this list. Every primary destination is a
- * real route, so "current" is derived from the pathname.
+ * Contact is a same-page anchor: the contact block is on every route, so
+ * the link never costs a page load. Everything else is a real route, and
+ * `current` is derived from the pathname.
  *
  * Adding a destination means: add an entry here, create the route, add
  * the route to the sitemap list. Nothing else.
@@ -50,7 +51,7 @@ export const navItems: NavItem[] = [
   {
     id: 'contact',
     label: 'Contact',
-    href: `/#contact`,
+    href: '#contact',
   },
 ];
 

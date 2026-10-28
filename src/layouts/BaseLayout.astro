@@ -7,6 +7,7 @@ import '../styles/interactions.css';
 import SiteFooter from '../components/SiteFooter.astro';
 import ContactSection from '../components/ContactSection.astro';
 import WorkspaceRail from '../components/WorkspaceRail.astro';
+import { SITE, DEFAULT_SOCIAL_IMAGE, SOCIAL_IMAGE } from '../config/site';
 import displayFontURL from '@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2?url';
 import interFontURL from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import monoFontURL from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2?url';
@@ -32,11 +33,11 @@ interface Props {
 const {
   title,
   description,
-  image = '/social-preview.png',
-  imageAlt = 'Stephen Mensah — software engineer building AI-powered products',
-  imageWidth = 1200,
-  imageHeight = 630,
-  imageType = 'image/png',
+  image = DEFAULT_SOCIAL_IMAGE.src,
+  imageAlt = DEFAULT_SOCIAL_IMAGE.alt,
+  imageWidth = SOCIAL_IMAGE.width,
+  imageHeight = SOCIAL_IMAGE.height,
+  imageType = SOCIAL_IMAGE.type,
   ogType = 'website',
   noindex = false,
   canonical = true,
@@ -90,10 +91,10 @@ const socialImageURL = new URL(image, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google-site-verification" content="n5Zp1r0200c1EAmsKwpPnrSlVwWY-pz7RMShX3SFCRg" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#f4f0e6" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="author" content="Stephen Mensah" />
+    <meta name="author" content={SITE.name} />
+    <meta name="theme-color" content="#F6F1E6" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     {canonical && <link rel="canonical" href={canonicalURL} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -104,7 +105,7 @@ const socialImageURL = new URL(image, Astro.site);
     <link rel="preload" href={monoFontURL} as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="en_GH" />
-    <meta property="og:site_name" content="Stephen Mensah" />
+    <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />

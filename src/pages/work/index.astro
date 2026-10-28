@@ -13,13 +13,12 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import WorkEntry from '../../components/work/WorkEntry.astro';
+import { pageMeta } from '../../config/site';
 
-const title = 'Work — Stephen Mensah';
-const description =
-  'Three engineering projects — Syncareer, SessionBook and Koranco Farms — with the part each one needed, the state it is actually in, its stack, and a case study for the decisions behind it.';
+const { title, description, image, imageAlt } = pageMeta.work;
 ---
 
-<BaseLayout {title} {description}>
+<BaseLayout {title} {description} {image} {imageAlt}>
   <section class="archive page-shell" aria-labelledby="archive-title">
     <header class="archive__head">
       <p class="eyebrow rise" style="--i: 0">The workbench / Three projects</p>
@@ -48,9 +47,8 @@ const description =
     <footer class="archive__close">
       <p class="archive__limits">
         <span class="archive__limits-label">Still open</span>
-        Syncareer’s grounding revision is in source but not redeployed. SessionBook has no retained
-        call evidence. Koranco has no public source, and its engagement attribution still needs
-        owner confirmation.
+        Syncareer’s grounding revision is in source, not redeployed. SessionBook has no retained
+        call evidence. Koranco has no public source or production deployment.
       </p>
       <nav class="archive__links" aria-label="Elsewhere">
         <a class="text-link" href="/lab/">

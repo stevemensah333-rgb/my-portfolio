@@ -13,7 +13,7 @@
  */
 import InteractiveName from './InteractiveName.astro';
 import ProjectArtifact from '../ProjectArtifact.astro';
-import { PUBLIC_EMAIL, PUBLIC_LINKS } from '../../config/site';
+import { SITE, PUBLIC_LINKS } from '../../config/site';
 ---
 
 <section class="hero-wrap page-shell" aria-labelledby="hero-title">
@@ -32,7 +32,7 @@ import { PUBLIC_EMAIL, PUBLIC_LINKS } from '../../config/site';
         </span>
         <div class="hero__id-text">
           <InteractiveName />
-          <span class="hero__role">Software engineer · Ghana</span>
+          <span class="hero__role">{SITE.role} · Ghana</span>
         </div>
       </div>
 
@@ -42,13 +42,14 @@ import { PUBLIC_EMAIL, PUBLIC_LINKS } from '../../config/site';
       </h1>
 
       <p class="hero__lead rise" style="--i: 2">
-        I’m a software engineer and Computer Science student at Ashesi. Three projects are on
-        the bench — an AI career platform, a voice-agent booking backend, and a farm records MVP.
+        A software engineer and Computer Science student at Ashesi. Three projects are on the
+        bench — an AI career platform, a voice-agent booking backend, and a farm records MVP built
+        for a bad connection.
       </p>
 
       <div class="hero__actions rise" style="--i: 3">
         <a class="button hero__primary" href="/work/">View the work <span aria-hidden="true">↗</span></a>
-        <a class="text-link" href={`mailto:${PUBLIC_EMAIL}`}>Email me <span aria-hidden="true">↗</span></a>
+        <a class="text-link" href={`mailto:${SITE.email}`}>Email me <span aria-hidden="true">↗</span></a>
         {PUBLIC_LINKS.resume && (
           <a class="text-link hero__resume" href={PUBLIC_LINKS.resume}>Résumé <span aria-hidden="true">↗</span></a>
         )}

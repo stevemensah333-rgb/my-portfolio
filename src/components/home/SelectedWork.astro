@@ -20,24 +20,26 @@ const record = {
 const stack = (id: string, count: number) =>
   (projects.find((project) => project.id === id)?.stack ?? []).slice(0, count).join(' · ');
 
+/* Every fact in these four rows comes from the registry, so the homepage
+   cannot claim a state the archive or the case study contradicts. */
 const facts = {
   syncareer: [
-    { term: 'My part', value: 'Product and application engineering' },
-    { term: 'State', value: 'Live product' },
-    { term: 'Reliability work', value: 'In source — awaiting redeployment' },
+    { term: 'My part', value: projectRecords.syncareer.role },
+    { term: 'State', value: projectRecords.syncareer.status },
+    { term: 'Reliability work', value: projectRecords.syncareer.implementation },
     { term: 'Stack', value: stack('syncareer', 4) },
   ],
   sessionbook: [
-    { term: 'My part', value: 'Backend and integration engineering' },
-    { term: 'State', value: 'Implemented MVP' },
-    { term: 'Live calls', value: 'Unverified — none retained' },
+    { term: 'My part', value: projectRecords.sessionbook.role },
+    { term: 'State', value: projectRecords.sessionbook.status },
+    { term: 'Live calls', value: projectRecords.sessionbook.deployment },
     { term: 'Stack', value: stack('sessionbook', 3) },
   ],
   koranco: [
-    { term: 'My part', value: 'Software engineering, farm operations' },
-    { term: 'State', value: 'Delivered MVP' },
-    { term: 'Public artifacts', value: 'No source, no screenshots' },
-    { term: 'Stack', value: stack('koranco', 2) },
+    { term: 'My part', value: projectRecords.koranco.role },
+    { term: 'State', value: projectRecords.koranco.status },
+    { term: 'Deployment', value: projectRecords.koranco.deployment },
+    { term: 'Stack', value: stack('koranco', 3) },
   ],
 };
 ---
@@ -48,15 +50,18 @@ const facts = {
     <div class="selected__head-grid">
       <h2 id="selected-title">The work, and<br />the evidence for it.</h2>
       <p class="lead">
-        Three projects at three different stages. Each case study keeps what is running, what is
-        only written, and what has never been tested in separate, labelled places.
+        Three projects at three different stages — the part I did, the state each one is really in,
+        and the evidence you can open.
       </p>
     </div>
   </header>
 
   <article class="feature" aria-labelledby="feature-syncareer">
     <div class="feature__copy">
-      <p class="kicker"><span class="kicker__n">01</span> Flagship · live product</p>
+      <p class="kicker">
+        <span class="kicker__n">01</span>
+        {record.syncareer.kind} · {record.syncareer.status}
+      </p>
       <h3 id="feature-syncareer">Syncareer</h3>
       <p class="feature__statement">
         One record from saved opportunity to recorded outcome.
@@ -66,9 +71,9 @@ const facts = {
         tailored CV and the interview preparation all sit inside one application record.
       </p>
       <p>
-        I built the product and its application layer. After the CV assistant produced fluent
-        bullets it could not support, I rebuilt the request and response contract around explicit
-        context and citations.
+        I built the product and its application layer. When the CV assistant produced fluent bullets
+        it could not support, I rebuilt the request and response contract around explicit context
+        and citations.
       </p>
       <dl class="facts">
         {facts.syncareer.map((fact) => (
@@ -113,7 +118,10 @@ const facts = {
   <div class="pair">
     <article class="mini" aria-labelledby="mini-sessionbook">
       <ProjectArtifact id="sessionbook" href="/work/sessionbook/" shared={false} dense />
-      <p class="kicker"><span class="kicker__n">02</span> Backend · implemented MVP</p>
+      <p class="kicker">
+        <span class="kicker__n">02</span>
+        {record.sessionbook.kind} · {record.sessionbook.status}
+      </p>
       <h3 id="mini-sessionbook">SessionBook</h3>
       <p class="mini__statement">The backend decides what is true. The agent only asks.</p>
       <p class="mini__body">
@@ -135,12 +143,15 @@ const facts = {
 
     <article class="mini" aria-labelledby="mini-koranco">
       <ProjectArtifact id="koranco" href="/work/koranco/" shared={false} dense />
-      <p class="kicker"><span class="kicker__n">03</span> Operations · delivered MVP</p>
+      <p class="kicker">
+        <span class="kicker__n">03</span>
+        {record.koranco.kind} · {record.koranco.status}
+      </p>
       <h3 id="mini-koranco">Koranco Farms</h3>
-      <p class="mini__statement">Three record types for a farm’s daily work.</p>
+      <p class="mini__statement">Three record types, built for a bad connection.</p>
       <p class="mini__body">
-        Attendance, produce and employee records, shaped during a six-week Ashesi Innovation Lab
-        engagement and delivered as a working MVP.
+        Attendance, produce and employee records for farm work, built offline-first during a
+        six-week Ashesi Innovation Lab engagement and delivered as a working MVP.
       </p>
       <dl class="facts facts--mini">
         {facts.koranco.map((fact) => (
@@ -157,10 +168,7 @@ const facts = {
   </div>
 
   <div class="selected__archive">
-    <p>
-      Each case study carries its own decision record, source links and the limits of what has
-      been verified.
-    </p>
+    <p>Every case study carries its decision record, its sources, and what has not been verified.</p>
     <a class="button button--secondary" href="/work/">
       All three projects <span aria-hidden="true">↗</span>
     </a>
