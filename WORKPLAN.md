@@ -25,7 +25,7 @@ Measured baseline (headless Chromium, 1440×900, `innerText` of `main`, `<pre>` 
 | `/work/syncareer/` | 1,205 | **≤ 850** | 25 | **≤ 14** | — |
 | `/work/sessionbook/` | 1,033 | **≤ 780** | 18 | ≤ 12 | — |
 | `/work/koranco/` | 637 | 600 | 12 | ≤ 10 | — |
-| `/lab/` | 1,533 | **≤ 900** (≤ 750 before the inspector) | 34 | **≤ 16** | 6.8 |
+| `/lab/` | 1,533 | **≤ 700** (≤ 450 before the inspector) | 34 | **≤ 12** | 6.8 |
 | `/profile/` | 669 | ≤ 620 | 11 | ≤ 8 | 4.4 |
 
 Targets are ceilings, not quotas. If a page reads better at 620 than at 560, 620 wins.
@@ -104,18 +104,25 @@ Files: `src/components/home/WorkbenchHero.astro`, `src/components/ProjectArtifac
 
 ---
 
-### Phase 2 — Lab: from manual to instrument (2 days)
+### Phase 2 — Lab: stop presenting, start testing (3 days)
 
-Files: `src/components/ScenarioLab.astro` (copy + layout), `src/scripts/labScenario.mjs` only if a label changes
+**Why this replaces the earlier "shorten the stages" plan.** Measured on the current build, `/lab/` has 10 interactive controls and not one of them changes an outcome: "Run" replays a fixed sequence (the page says so itself), two radios pick between branches the author wrote, and Accept/Edit/Reject operate on a draft that is deliberately never saved. The interaction is theatre, and the page's best idea — a deterministic gate — is buried under ~40 lines of 9.6px mono per screen. No visitor will interact with that.
 
-1. **Stage 1 — 330 words → ≤ 90.** The request table stays. One line above it: what this request is for. The preflight checklist becomes a five-row pass/fail strip (name + tick), with the explanatory sentences removed.
-2. **Stage 3 — 622 words → ≤ 220.** The refusal headline, the failing reason code, and one sentence. The full rule table moves behind a "Show the rule" disclosure inside the inspector.
-3. **Merge "human review" and "limits"** (396 words → ≤ 150). One panel: what a person does next, and the two things this demo can't prove.
-4. **Delete the two UI-explaining sentences** ("All five steps and their results are below…", "Running walks through them again; it does not change a single result.").
-5. **Hedges: 11 → 2.** One at the top ("No model is called. The checks run in your browser."), one at the end ("The result is illustrative; nothing is saved.").
-6. **Pipeline strip stays** — five steps, `1`–`5` keys, `#lab-*` deep links, rail state, static no-JS review, reduced-motion parity. The code inspector stays, collapsed by default.
+**The rebuild: the visitor tries to beat the gate.** The gate is real code that already exists; letting people attack it is the only honest interaction this site has that nobody else's does.
 
-**Done when:** ≤ 750 words before the inspector and ≤ 900 total; `npm test` still 13/13; every stage anchor still lands at `top = 96`; keyboard run/replay and typing-guard unchanged; a first-time reader sees the failing check within one screen.
+Files: `src/components/ScenarioLab.astro` (structure + copy), `src/scripts/labScenario.mjs` (expose the same checker the page uses), `src/pages/lab.astro`
+
+1. **One interaction, above the fold.** Reuse the existing deterministic checker; add a text field. As the visitor types (debounced ~120 ms), the verdict card returns **PASSED** or **REFUSED** plus one plain-language reason (""Kofi's Kitchens" isn't in the material I gave you"). No Run button. Three presets fill the field: **Invent a company**, **Cite nothing**, **Make it honest**. This is the page's only new logic; it calls `checkProposal()` exactly as the stage view did, so `npm test` keeps asserting the same function.
+2. **Cut the five-stage narrative to one bench.** Left: the supplied material as four readable chips (opportunity, requirement, evidence, bullet) — no request table, no version numbers, no `requestId`. Centre: the editable proposal. Right: the verdict. Everything the stages explained moves to the rule list or the inspector.
+3. **Rule list, one line each, expandable.** Five rules with their reason codes, closed by default. This replaces the 400-word refusal stage.
+4. **The real story, ~150 words.** What actually went wrong in Syncareer and what changed in the source revision. Before/after stays as one compact pair, not two branch panels.
+5. **One limits block, including the honest one:** the checker validates structure and citations, not truth — a well-cited sentence can still be wrong, which is why a person reviews it. This replaces the current 11 hedges with 2 sentences and makes the argument better than 622 words did.
+6. **Code inspector** stays as a collapsed `<details>` at the bottom.
+7. **Keep:** deep links (presets set `#lab-invented` / `#lab-nothing-cited` / `#lab-honest`, so a shared URL opens on that verdict), keyboard operation (the field is a real input; presets are buttons; the verdict is `aria-live`), reduced-motion parity, and the labelled static verdict with JS off. **Retire:** the `1`–`5` stage shortcuts, the pipeline strip, the Run/Replay button, the A/B radio toggle, and the accept/edit/reject sandbox.
+
+**Targets:** ≤ 450 words before the inspector, ≤ 700 total (from 1,533); labels 34 → ≤ 12 (from 34); interactive controls 5 (input, 3 presets, reset) instead of 10.
+
+**Done when:** a first-time visitor can get a refusal within one screen without scrolling; typing changes the verdict; `npm test` passes unchanged; every remaining anchor lands at `top = 96`; keyboard-only and no-JS paths both reach a stated verdict; and nothing on the page claims the checker tests truth.
 
 ---
 
@@ -188,7 +195,7 @@ Files: `src/styles/global.css`, component-local label rules, `README`-level note
 | --- | --- | --- | --- |
 | 0 | repeatable copy audit | 0.5 | yes |
 | 1 | hero composition + lift gesture | 1.5 | yes |
-| 2 | Lab reduction | 2.0 | yes |
+| 2 | Lab rebuild: test-the-gate bench | 3.0 | yes |
 | 3 | homepage trim | 1.0 | yes |
 | 4 | case-study consolidation | 1.5 | yes |
 | 5 | voice pass | 1.5 | yes |
@@ -197,7 +204,7 @@ Files: `src/styles/global.css`, component-local label rules, `README`-level note
 
 Roughly 10 half-day units. Phases 0–2 are the ones that change how the site reads; 3–6 are clean-up that can ship in any order after them.
 
-**If only one phase gets done, do Phase 2.** The Lab is the page that most needs to be shorter and is already 80% built.
+**If only one phase gets done, do Phase 2.** The Lab is the page most likely to be skipped by visitors and the one with a real idea buried in it — a deterministic gate they can attack. It is also the page that most needs to be shorter.
 
 ---
 
@@ -207,7 +214,8 @@ Roughly 10 half-day units. Phases 0–2 are the ones that change how the site re
 | --- | --- |
 | Trimming removes the honesty that makes the site different | §2 facts list; one hedge per project; Phase 7 diff review against the list |
 | Hero recomposition breaks the View Transition or tab order | DOM order stays = reading order; transition names untouched; keyboard walk in Phase 7 |
-| Lab loses its keyboard/deep-link behaviour while being shortened | `npm test` (13 assertions incl. gate codes) plus the anchor/keyboard probes run at the end of Phase 2 |
+| Lab rebuild loses keyboard/deep-link behaviour | The input is a native field and presets are buttons, so keyboard support is simpler than the current stage shortcuts; presets set hashes; `npm test` (gate codes) plus anchor/keyboard probes at the end of Phase 2 |
+| A visitor passes a nonsense sentence and concludes the checker is fake | Stated on the page: it validates structure and citations, not truth — and that is why a person reviews the result |
 | Copy drifts into marketing tone | §1 rules 6 and 10; no new adjectives; every claim traced to `src/data` |
 | Scope creep into a fifth redesign | The conceit work is Phase 1 only. Phases 3–6 touch copy and tokens, not structure. |
 
