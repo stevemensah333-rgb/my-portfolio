@@ -1,35 +1,185 @@
 ---
+/**
+ * /work/ — the archive.
+ *
+ * Distinct from the homepage: the homepage argues that the work exists
+ * and tells one project's story. This page is a register. Three projects
+ * in three release states, one structure each, so they can be compared
+ * at a glance and opened in a single click.
+ *
+ * The composition is short on purpose: a compact opener, then the three
+ * entries. Syncareer is prominent by scale — wider object, larger type,
+ * heavier rule — without changing the structure the other two use.
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProjectCard from '../../components/ProjectCard.astro';
-const title='Work — Stephen Mensah';
-const description='Three engineering projects: Syncareer, SessionBook and Koranco Farms. Inspect the product, contribution, implementation and evidence.';
+import WorkEntry from '../../components/work/WorkEntry.astro';
+
+const title = 'Work — Stephen Mensah';
+const description =
+  'Three engineering projects — Syncareer, SessionBook and Koranco Farms — with the part each one needed, the state it is actually in, its stack, and a case study for the decisions behind it.';
 ---
+
 <BaseLayout {title} {description}>
- <section class="archive page-shell section"><header class="section-head"><div><p class="eyebrow">The workbench / Three projects</p><h1>Built to be<br /><em>looked into.</em></h1></div><p class="lead">Open a project for the decisions behind it. Product captures, source contracts and the limits of what’s been verified.</p></header><h2 class="visually-hidden">Project case studies</h2><div class="archive__projects"><div class="enter"><ProjectCard id="syncareer" priority/></div><div class="enter"><ProjectCard id="sessionbook"/></div><div class="enter"><ProjectCard id="koranco"/></div></div></section>
+  <section class="archive page-shell" aria-labelledby="archive-title">
+    <header class="archive__head">
+      <p class="eyebrow rise" style="--i: 0">The workbench / Three projects</p>
+      <div class="archive__head-grid">
+        <h1 id="archive-title" class="rise" style="--i: 1">
+          Built to be<br /><em>looked into.</em>
+        </h1>
+        <div class="archive__head-note rise" style="--i: 2">
+          <p class="lead">
+            Open any project for the decisions behind it. Each one keeps its capture or
+            representation, its contribution, its release state and the limits of what has been
+            verified in separate, labelled places.
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <h2 class="visually-hidden">Project case studies</h2>
+
+    <div class="archive__entries">
+      <WorkEntry id="syncareer" order={1} scale="feature" priority capture="opportunities" />
+      <WorkEntry id="sessionbook" order={2} />
+      <WorkEntry id="koranco" order={3} />
+    </div>
+
+    <footer class="archive__close">
+      <p class="archive__limits">
+        <span class="archive__limits-label">Still open</span>
+        Syncareer’s grounding revision is in source but not redeployed. SessionBook has no retained
+        call evidence. Koranco has no public source, and its engagement attribution still needs
+        owner confirmation.
+      </p>
+      <nav class="archive__links" aria-label="Elsewhere">
+        <a class="text-link" href="/lab/">
+          How I check the work <span aria-hidden="true">↗</span>
+        </a>
+        <a class="text-link" href="/profile/">About Stephen <span aria-hidden="true">↗</span></a>
+      </nav>
+    </footer>
+  </section>
 </BaseLayout>
+
 <style>
-.archive h1{font-size: clamp(3.5rem, 7vw, 7rem)}
-.archive h1 em{font-style: normal; color: var(--color-teal)}
-.archive .section-head{margin-bottom: 4rem}
-.archive__projects{display: grid; grid-template-columns: 1fr 1fr; gap: 3rem}
-.archive__projects > div:first-child{grid-column: 1 / -1}
-.archive__projects > div{transform-origin: center}
-.archive__projects > div:nth-child(2){animation-name: unstack-left}
-.archive__projects > div:nth-child(3){animation-name: unstack-right}
+  .archive {
+    padding-block: clamp(2rem, 4vw, 3.5rem) clamp(2.5rem, 4.5vw, 4rem);
+  }
 
-@keyframes unstack-left{
-  from{transform: translate(10%, -30px) rotate(-4deg); opacity: 0.7}
-  to{transform: none; opacity: 1}
-}
+  /* ---- opener ---------------------------------------------- */
+  /* Compact by design: the register has to start inside the first
+     screen, so the opener states the frame and gets out of the way. */
+  .archive__head {
+    padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  }
+  .archive__head-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
+    gap: clamp(1.25rem, 4vw, 4rem);
+    align-items: end;
+  }
+  .archive h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 4.4vw, 4.2rem);
+    line-height: 1;
+    letter-spacing: -0.045em;
+    margin: 0;
+    max-width: 14ch;
+  }
+  .archive h1 em {
+    font-style: normal;
+    color: var(--color-teal);
+  }
+  .archive__head-note {
+    padding-bottom: 0.35rem;
+    min-width: 0;
+  }
+  .archive__head-note .lead {
+    font-size: clamp(0.98rem, 1.2vw, 1.06rem);
+    max-width: 44ch;
+  }
 
-@keyframes unstack-right{
-  from{transform: translate(-10%, -30px) rotate(4deg); opacity: 0.7}
-  to{transform: none; opacity: 1}
-}
+  /* ---- register -------------------------------------------- */
+  /* One register, three rows. Every entry uses the same two columns, so
+     the copy starts on the same line in all three and the page can be
+     read down the left edge. Syncareer is separated by scale and a
+     heavier rule, not by a different structure. */
+  .archive__entries {
+    display: grid;
+  }
 
-@media (max-width: 650px) {
-  .archive__projects{grid-template-columns: 1fr; gap: 2rem}
-  .archive__projects > div:first-child{grid-column: auto}
-  .archive .section-head{margin-bottom: 2rem}
-}
+  /* ---- close ----------------------------------------------- */
+  .archive__close {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(1.25rem, 3vw, 3rem);
+    align-items: start;
+    margin-top: clamp(2rem, 3.5vw, 3rem);
+    padding-top: clamp(1.25rem, 2.4vw, 1.75rem);
+    border-top: 1px solid var(--color-rule);
+  }
+  .archive__limits {
+    font-size: 0.84rem;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+    max-width: 62ch;
+  }
+  .archive__limits-label {
+    display: inline-block;
+    margin-right: 0.55rem;
+    font-family: var(--font-instrument);
+    font-size: 0.64rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-copper-text);
+  }
+  .archive__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+  }
+  .archive__links .text-link {
+    font-size: 0.86rem;
+    color: var(--color-teal);
+    text-underline-offset: 3px;
+  }
+  .archive__links .text-link:hover {
+    color: var(--color-copper-text);
+  }
+
+  /* ---- narrow ---------------------------------------------- */
+  @media (max-width: 60rem) {
+    .archive__head-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.85rem;
+      align-items: start;
+    }
+    .archive__head-note {
+      padding-bottom: 0;
+    }
+  }
+
+  @media (max-width: 46rem) {
+    .archive__close {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* The opener's own arrival. The entries animate themselves; this keeps
+     the page from appearing all at once without gating anything. */
+  .rise {
+    animation: opener-arrive 420ms var(--ease-emphasized) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+  @keyframes opener-arrive {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 </style>

@@ -1,0 +1,330 @@
+---
+/**
+ * WorkEntry — one project in the archive.
+ *
+ * The archive's job is comparison, so every project renders through the
+ * same structure: an artifact that is honest about what it shows, a short
+ * purpose, the part Stephen actually did, the release state as it stands,
+ * the evidence that exists, the stack, and one link into the case study.
+ *
+ * The artifact is the shared ProjectArtifact object, in its dense form:
+ * the object carries its own truthfulness caption, and the copy beside it
+ * carries the naming, the state and the call to action — so the same
+ * sentence is never printed twice.
+ *
+ * `scale="feature"` widens the object and the type for Syncareer. It does
+ * not change the structure: prominence is scale, not special pleading.
+ */
+import ProjectArtifact from '../ProjectArtifact.astro';
+import { projectRecords, type ProjectId } from '../../data/portfolio';
+import { projects } from '../../data/registry';
+
+interface Props {
+  id: ProjectId;
+  /** Position in the register, printed as the coordinate. */
+  order: number;
+  /** Wider artifact, larger type, heavier rule. Only Syncareer uses it. */
+  scale?: 'feature' | 'standard';
+  priority?: boolean;
+  /** Which real Syncareer capture to show, when id is syncareer. */
+  capture?: 'dashboard' | 'opportunities' | 'synai';
+}
+
+const { id, order, scale = 'standard', priority = false, capture } = Astro.props;
+const project = projects.find((entry) => entry.id === id)!;
+const record = projectRecords[id];
+
+/* Archive-specific wording. The long boundary text belongs to the case
+   page; here each line has to stay short enough to compare across three
+   rows without softening what is unresolved. */
+const archive = {
+  syncareer: {
+    kind: 'Flagship',
+    state: 'Live product · grounding revision awaits redeployment',
+    evidence: 'Live link, public source, real product captures',
+    purpose:
+      'An AI-powered career platform for African students: a saved opportunity, the tailored CV and the interview preparation sit inside one application record.',
+  },
+  sessionbook: {
+    kind: 'Backend',
+    state: 'Implemented MVP · no live calls retained',
+    evidence: 'Public source at commit 1264d9e',
+    purpose:
+      'A booking backend for a voice agent: availability, a row-locked booking transaction and a confirmation phrase designed to be read aloud.',
+  },
+  koranco: {
+    kind: 'Operations',
+    state: 'Delivered MVP · no production deployment evidenced',
+    evidence: 'No public source, no product captures',
+    purpose:
+      'Attendance, produce and employee records for a farm’s daily work, built through a six-week Ashesi Innovation Lab engagement.',
+  },
+} as const;
+
+const detail = archive[id];
+
+/* The artifact link and the text link go to the same place, so they are
+   named differently on purpose: one describes the object, the other names
+   the destination. */
+const artifactLabel = {
+  syncareer: `Syncareer ${capture === 'opportunities' ? 'opportunities screen' : 'dashboard'} — open the case study`,
+  sessionbook: 'SessionBook booking exchange — open the case study',
+  koranco: 'Koranco module map — open the case study',
+}[id];
+
+/* A gathering offset for the entrance: the three objects settle into the
+   register from a loose pile rather than sliding in from the edges. */
+const gather = {
+  syncareer: { x: '0px', y: '-14px', r: '-1.1deg' },
+  sessionbook: { x: '12px', y: '10px', r: '1.7deg' },
+  koranco: { x: '-12px', y: '12px', r: '-1.5deg' },
+}[id];
+
+const motionVars = `--i: ${order}; --from-x: ${gather.x}; --from-y: ${gather.y}; --from-r: ${gather.r}`;
+---
+
+<article class:list={['entry', `entry--${scale}`]} data-entry style={motionVars}>
+  <div class="entry__art">
+    <ProjectArtifact
+      {id}
+      href={project.route}
+      {priority}
+      dense
+      capture={capture}
+      label={artifactLabel}
+    />
+  </div>
+
+  <div class="entry__copy">
+    <p class="entry__kicker">
+      <span class="entry__n">{String(order).padStart(2, '0')}</span>
+      <span>{detail.kind}</span>
+    </p>
+
+    <h3 class="entry__name">{project.name}</h3>
+    <p class="entry__statement">{record.title}</p>
+    <p class="entry__purpose">{detail.purpose}</p>
+
+    <dl class="entry__facts">
+      <div class="entry__fact">
+        <dt>My part</dt>
+        <dd>{record.role}</dd>
+      </div>
+      <div class="entry__fact">
+        <dt>State</dt>
+        <dd>{detail.state}</dd>
+      </div>
+      <div class="entry__fact">
+        <dt>Evidence</dt>
+        <dd>{detail.evidence}</dd>
+      </div>
+      <div class="entry__fact">
+        <dt>Stack</dt>
+        <dd>{project.stack.slice(0, 3).join(' · ')}</dd>
+      </div>
+    </dl>
+
+    <a class="entry__cta" href={project.route}>
+      <span>Open the {project.name} case study</span>
+      <span class="entry__arrow" aria-hidden="true">↗</span>
+    </a>
+  </div>
+</article>
+
+<style>
+  .entry {
+    display: grid;
+    gap: clamp(1.1rem, 2.4vw, 1.6rem);
+    min-width: 0;
+    padding-block: clamp(1.75rem, 3.2vw, 2.5rem);
+    border-top: 1px solid var(--color-rule);
+    /* Restrained hover feedback: the entry's own edge warms up. It is
+       the same cue for the pointer and for keyboard focus, it costs no
+       movement, and it is never the only way to find the link. */
+    transition: border-color 220ms var(--ease-standard);
+  }
+  .entry:hover,
+  .entry:focus-within {
+    border-top-color: var(--color-copper);
+  }
+
+  /* The object is opaque from the first frame. It moves into its slot;
+     it does not fade in. Nothing on this page is hidden while an
+     animation runs, so the archive is readable and clickable at once. */
+  .entry__art {
+    min-width: 0;
+    animation: object-settle 460ms var(--ease-emphasized) both;
+    animation-delay: calc(var(--i, 0) * 70ms + 60ms);
+  }
+
+  .entry__copy {
+    display: grid;
+    gap: 0.7rem;
+    align-content: start;
+    min-width: 0;
+    animation: copy-arrive 320ms var(--ease-emphasized) both;
+    animation-delay: calc(var(--i, 0) * 70ms + 60ms);
+  }
+
+  .entry__kicker {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    font-family: var(--font-instrument);
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+  .entry__n {
+    color: var(--color-copper-text);
+  }
+
+  .entry__name {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 2.6vw, 2.35rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin-top: 0.1rem;
+  }
+
+  .entry__statement {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+    line-height: 1.28;
+    color: var(--color-teal);
+    text-wrap: balance;
+    max-width: 28ch;
+  }
+
+  .entry__purpose {
+    font-size: 0.94rem;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+    max-width: 46ch;
+  }
+
+  .entry__facts {
+    margin: 0.35rem 0 0;
+    border-top: 1px solid var(--color-rule);
+    max-width: 36rem;
+  }
+  .entry__fact {
+    display: grid;
+    grid-template-columns: minmax(5.25rem, 0.42fr) minmax(0, 1fr);
+    gap: 0.7rem;
+    padding: 0.42rem 0;
+    border-bottom: 1px solid var(--color-rule-soft);
+  }
+  .entry__fact dt {
+    font-family: var(--font-instrument);
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+    padding-top: 0.16rem;
+  }
+  .entry__fact dd {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  .entry__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 44px;
+    margin-top: 0.25rem;
+    justify-self: start;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--color-teal);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .entry__arrow {
+    display: inline-block;
+    transition: transform 200ms var(--ease-standard);
+  }
+  .entry__cta:hover {
+    color: var(--color-copper-text);
+  }
+  .entry:hover .entry__arrow,
+  .entry:focus-within .entry__arrow {
+    transform: translate(3px, -3px);
+  }
+  .entry__cta:focus-visible {
+    outline: 3px solid var(--color-accent-text);
+    outline-offset: 4px;
+  }
+
+  /* ---- row layout ------------------------------------------ */
+  /* From 56rem the object and its copy sit side by side. The column
+     ratio is identical on all three rows so the names, statements and
+     fact tables line up down the page. */
+  @media (min-width: 56rem) {
+    .entry {
+      grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+      gap: clamp(1.75rem, 3.4vw, 3.25rem);
+      align-items: start;
+      padding-block: clamp(2rem, 3.2vw, 2.75rem);
+    }
+    .entry__copy {
+      padding-top: 0.15rem;
+    }
+  }
+
+  /* ---- feature scale --------------------------------------- */
+  /* Prominence is scale, not a different structure: the flagships's band
+     is pressed onto the bench (a raised sheet, bled to the gutters but
+     with identical content columns), its rule is heavier, and its type
+     is two steps up. Rows two and three keep the plain paper. */
+  @media (min-width: 56rem) {
+    .entry--feature {
+      /* The band bleeds to the page gutter; the inner padding returns
+         the content to exactly the same columns as the rows below. */
+      margin-inline: calc(var(--page-gutter) * -1);
+      padding-inline: var(--page-gutter);
+      padding-block: clamp(2.25rem, 3.2vw, 2.9rem) clamp(2.5rem, 3.8vw, 3.25rem);
+      background: var(--color-paper-high);
+      border-top-width: 2px;
+    }
+    .entry--feature .entry__name {
+      font-size: clamp(2.6rem, 3.8vw, 3.4rem);
+    }
+    .entry--feature .entry__statement {
+      font-size: clamp(1.2rem, 1.7vw, 1.45rem);
+      max-width: 30ch;
+    }
+    .entry--feature .entry__copy {
+      gap: 0.8rem;
+    }
+  }
+
+  /* ---- entrance -------------------------------------------- */
+  /* The old archive threw its cards out from the centre with 4° of
+     rotation. This is the same idea, quieter: the objects arrive
+     gathered and settle flat into the register, top to bottom. Both
+     states are opaque, so a blocked or absent animation still leaves
+     a complete, readable page. */
+  @keyframes object-settle {
+    from {
+      transform: translate3d(var(--from-x, 0px), var(--from-y, -12px), 0)
+        rotate(var(--from-r, 0deg));
+    }
+    to {
+      transform: none;
+    }
+  }
+  @keyframes copy-arrive {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
