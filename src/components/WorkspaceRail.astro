@@ -33,7 +33,9 @@ const primary = navItems.filter((item) => item.id !== 'home');
       ))}
     </nav>
     <details class="menu">
-      <summary class="menu__toggle">
+      {/* The "Menu" label is hidden below 26rem to keep the brand room,
+          so the summary carries the name itself. */}
+      <summary class="menu__toggle" aria-label="Menu">
         <span class="menu__bars" aria-hidden="true"><i></i><i></i></span>
         <span class="menu__text">Menu</span>
       </summary>
@@ -147,9 +149,14 @@ const primary = navItems.filter((item) => item.id !== 'home');
     color: var(--color-ink);
     transition: color var(--duration-quick) var(--ease-standard);
   }
-  .site-nav__primary a:hover,
-  .site-nav__primary a[aria-current='page'] {
+  .site-nav__primary a:hover {
     color: var(--color-copper-text);
+  }
+  .site-nav__primary a[aria-current='page'] {
+    color: var(--selected-color);
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--selected-underline);
+    text-underline-offset: 0.4em;
   }
   .nav-indicator {
     width: 5px;
@@ -239,7 +246,10 @@ const primary = navItems.filter((item) => item.id !== 'home');
     border-bottom: 0;
   }
   .menu__panel a[aria-current='page'] {
-    color: var(--color-copper-text);
+    color: var(--selected-color);
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--selected-underline);
+    text-underline-offset: 0.4em;
   }
 
   @media (max-width: 800px) {

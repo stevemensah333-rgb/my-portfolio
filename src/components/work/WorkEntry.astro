@@ -54,18 +54,19 @@ const artifactLabel = {
 }[id];
 
 /* A gathering offset for the entrance: the three objects settle into the
-   register from a loose pile rather than sliding in from the edges. */
+   register from a loose pile rather than sliding in from the edges. It is
+   translation only — rotation would widen the page on a phone. */
 const gather = {
-  syncareer: { x: '0px', y: '-14px', r: '-1.1deg' },
-  sessionbook: { x: '12px', y: '10px', r: '1.7deg' },
-  koranco: { x: '-12px', y: '12px', r: '-1.5deg' },
+  syncareer: { x: '0px', y: '-14px' },
+  sessionbook: { x: '12px', y: '10px' },
+  koranco: { x: '-12px', y: '12px' },
 }[id];
 
-const motionVars = `--i: ${order}; --from-x: ${gather.x}; --from-y: ${gather.y}; --from-r: ${gather.r}`;
+const motionVars = `--i: ${order}; --from-x: ${gather.x}; --from-y: ${gather.y}`;
 ---
 
 <article class:list={['entry', `entry--${scale}`]} data-entry style={motionVars}>
-  <div class="entry__art">
+  <div class="entry__art motion-settle">
     <ProjectArtifact
       {id}
       href={project.route}
@@ -76,7 +77,7 @@ const motionVars = `--i: ${order}; --from-x: ${gather.x}; --from-y: ${gather.y};
     />
   </div>
 
-  <div class="entry__copy">
+  <div class="entry__copy motion-settle">
     <p class="entry__kicker">
       <span class="entry__n">{String(order).padStart(2, '0')}</span>
       <span>{detail.kind}</span>
@@ -122,20 +123,20 @@ const motionVars = `--i: ${order}; --from-x: ${gather.x}; --from-y: ${gather.y};
     /* Restrained hover feedback: the entry's own edge warms up. It is
        the same cue for the pointer and for keyboard focus, it costs no
        movement, and it is never the only way to find the link. */
-    transition: border-color 220ms var(--ease-standard);
+    transition: border-color var(--duration-base) var(--ease-standard);
   }
   .entry:hover,
   .entry:focus-within {
     border-top-color: var(--color-copper);
   }
 
-  /* The object is opaque from the first frame. It moves into its slot;
-     it does not fade in. Nothing on this page is hidden while an
-     animation runs, so the archive is readable and clickable at once. */
+  /* Entrance comes from the shared vocabulary (styles/motion.css): the
+     object settles as movement only, so it is opaque from the first
+     frame; the copy rises with the same clamped stagger. Nothing on this
+     page is hidden while an animation runs, so the archive is readable
+     and clickable at once. */
   .entry__art {
     min-width: 0;
-    animation: object-settle 460ms var(--ease-emphasized) both;
-    animation-delay: calc(var(--i, 0) * 70ms + 60ms);
   }
 
   .entry__copy {
@@ -143,8 +144,6 @@ const motionVars = `--i: ${order}; --from-x: ${gather.x}; --from-y: ${gather.y};
     gap: 0.7rem;
     align-content: start;
     min-width: 0;
-    animation: copy-arrive 320ms var(--ease-emphasized) both;
-    animation-delay: calc(var(--i, 0) * 70ms + 60ms);
   }
 
   .entry__kicker {
@@ -226,7 +225,7 @@ const motionVars = `--i: ${order}; --from-x: ${gather.x}; --from-y: ${gather.y};
   }
   .entry__arrow {
     display: inline-block;
-    transition: transform 200ms var(--ease-standard);
+    transition: transform var(--duration-base) var(--ease-standard);
   }
   .entry__cta:hover {
     color: var(--color-copper-text);
@@ -283,29 +282,4 @@ const motionVars = `--i: ${order}; --from-x: ${gather.x}; --from-y: ${gather.y};
     }
   }
 
-  /* ---- entrance -------------------------------------------- */
-  /* The old archive threw its cards out from the centre with 4° of
-     rotation. This is the same idea, quieter: the objects arrive
-     gathered and settle flat into the register, top to bottom. Both
-     states are opaque, so a blocked or absent animation still leaves
-     a complete, readable page. */
-  @keyframes object-settle {
-    from {
-      transform: translate3d(var(--from-x, 0px), var(--from-y, -12px), 0)
-        rotate(var(--from-r, 0deg));
-    }
-    to {
-      transform: none;
-    }
-  }
-  @keyframes copy-arrive {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
 </style>

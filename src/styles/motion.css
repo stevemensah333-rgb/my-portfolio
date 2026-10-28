@@ -1,0 +1,112 @@
+/* ====================================================================
+   Motion — one vocabulary for the whole site.
+
+   Three keyframes, one entrance utility each, one press treatment.
+   Nothing else on the site declares its own @keyframes: a component
+   that needs to arrive adds a class from this file, so two components
+   can never disagree about what "settle" means.
+
+     .motion-rise      copy arriving: a short rise and a fade
+     .motion-settle    an object or a control block arriving: movement
+                       only, opaque from the first frame
+
+   The rule that follows from the second line: anything a visitor can
+   click gets .motion-settle, never .motion-rise. A link, button or
+   object is then fully visible in the first frame even while the
+   stagger delay is still running. Text may fade; controls never do.
+     .motion-feedback  one transient pulse confirming a result
+
+   Stagger comes from `--i` on the element, clamped by `--stagger-cap`,
+   so the last item on a page still arrives almost immediately.
+
+   Reduced motion is handled globally (see global.css): the animation
+   is removed, not slowed, so every element is at its final position
+   and full opacity at first paint.
+   ==================================================================== */
+
+/* ---- arriving copy ------------------------------------------------ */
+@keyframes motion-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--rise-from, 12px));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- arriving objects --------------------------------------------- */
+/* Movement only. No opacity, so content under an entrance is legible
+   and reachable at once; no rotation, so an entrance cannot widen the
+   scroll area on a phone. */
+@keyframes motion-settle {
+  from {
+    transform: translate3d(var(--from-x, 0px), var(--from-y, 16px), 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* ---- transient confirmation --------------------------------------- */
+@keyframes motion-feedback {
+  0%,
+  100% {
+    border-color: var(--feedback-rest, rgba(229, 161, 150, 0.35));
+  }
+  35% {
+    border-color: var(--feedback-live, var(--color-signal-fail-bright, #e5a196));
+  }
+}
+
+.motion-rise,
+.motion-settle {
+  animation-timing-function: var(--ease-emphasized);
+  animation-fill-mode: both;
+  animation-delay: calc(
+    min(var(--stagger-first) + var(--i, 0) * var(--stagger-step), var(--stagger-cap))
+  );
+}
+
+.motion-rise {
+  animation-name: motion-rise;
+  animation-duration: var(--duration-reveal);
+}
+
+.motion-settle {
+  animation-name: motion-settle;
+  animation-duration: var(--duration-reveal);
+}
+
+.motion-feedback {
+  animation: motion-feedback var(--duration-settle) var(--ease-emphasized);
+}
+
+/* ---- pressed ------------------------------------------------------
+   One treatment for every link, button, summary and role=button, so a
+   press feels the same in the rail, the archive, the contact block and
+   the lab transport. Layout-neutral: opacity and translate only. */
+:where(a, button, summary, [role='button']):active:not(:disabled):not([aria-disabled='true']) {
+  opacity: var(--press-opacity);
+}
+
+:where(button, [role='button']):active:not(:disabled):not([aria-disabled='true']) {
+  translate: 0 var(--press-shift);
+}
+
+/* ---- selected -----------------------------------------------------
+   The current page is marked with --selected-color and
+   --selected-underline wherever navigation is shown: the rail's dot,
+   the phone menu and the footer. Each surface applies the token in its
+   own scoped style, because a global rule loses to a scoped one on
+   specificity; the token is what keeps them identical. */
+
+/* No motion: the same states, applied instantly. The global reduced
+   motion block already removes the animations; these keep the state
+   changes (press, current page) without an interpolated transition. */
+@media (prefers-reduced-motion: reduce) {
+  :where(a, button, summary, [role='button']):active {
+    transition: none;
+  }
+}

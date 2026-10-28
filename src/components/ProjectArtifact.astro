@@ -213,9 +213,10 @@ const linkLabel = label ?? `Open the ${name} case study`;
      1. A local tilt (max 2.2°) that follows the pointer inside the
         artifact — transforms only, no reflow, reset on leave.
      2. A compact "Open ↗" chip that replaces the native cursor over
-        the artwork on fine pointers, so the whole object reads as one
-        action. Never applied on touch, with reduced motion, or when
-        the element is not a link.
+        the artwork itself — the body, never the rail or the caption —
+        on fine pointers, so the object reads as one action. Never
+        applied on touch, with reduced motion, or when the element is
+        not a link.
      Ordinary links keep their native cursor until (1) is running. */
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -226,6 +227,10 @@ const linkLabel = label ?? `Open the ${name} case study`;
       el.dataset.artifactReady = '1';
       const isLink = el.tagName === 'A';
       const chip = el.querySelector<HTMLElement>('[data-artifact-cursor]');
+      /* The artwork is the body only. The rail and the caption are text:
+         the pointer keeps its native cursor there, so reading, selecting
+         and every ordinary link behaviour stay untouched. */
+      const body = el.querySelector<HTMLElement>('.artifact__body');
       let frame = 0;
       let chipFrame = 0;
       let px = 0;
@@ -246,6 +251,11 @@ const linkLabel = label ?? `Open the ${name} case study`;
         (event) => {
           const pointer = event as PointerEvent;
           if (!isLink || pointer.pointerType !== 'mouse') return;
+          if (body && !body.contains(pointer.target as Node)) {
+            clearTilt();
+            hideChip();
+            return;
+          }
 
           if (!motion.matches) {
             cancelAnimationFrame(frame);
@@ -310,8 +320,8 @@ const linkLabel = label ?? `Open the ${name} case study`;
     text-decoration: none;
     box-shadow: 0 1px 0 rgba(23, 26, 27, 0.04), 0 26px 44px -40px rgba(23, 26, 27, 0.55);
     transform: perspective(1400px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
-    transition: transform 220ms var(--ease-standard), box-shadow 220ms var(--ease-standard),
-      border-color 160ms var(--ease-standard);
+    transition: transform var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard);
     isolation: isolate;
   }
 
@@ -324,7 +334,7 @@ const linkLabel = label ?? `Open the ${name} case study`;
   }
   .artifact--link:active {
     translate: 0 0;
-    transition-duration: 90ms;
+    transition-duration: var(--duration-quick);
   }
   .artifact--link:focus-visible {
     outline: 3px solid var(--color-accent-text);
@@ -467,7 +477,7 @@ const linkLabel = label ?? `Open the ${name} case study`;
     text-transform: uppercase;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 140ms var(--ease-standard);
+    transition: opacity var(--duration-quick) var(--ease-standard);
   }
   .artifact__cursor > span:last-child {
     color: var(--color-copper);

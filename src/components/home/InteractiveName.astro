@@ -107,7 +107,7 @@ const words = ['STEPHEN', 'MENSAH'];
     color: var(--color-ink);
   }
   .identity__word { display: inline-flex; }
-  .identity__letter { display: inline-block; transition: transform 180ms ease-out; }
+  .identity__letter { display: inline-block; transition: transform var(--duration-base) var(--ease-standard); }
   @media (prefers-reduced-motion: reduce) {
     .identity__letter { transform: none !important; transition: none; }
   }

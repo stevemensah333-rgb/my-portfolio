@@ -108,12 +108,12 @@ const evidenceNotes: Record<string, string> = {
 <BaseLayout {title} {description} {structuredData} {image} {imageAlt} ogType="profile">
   <section class="about page-shell" aria-labelledby="profile-title">
     <header class="about__head" id="about">
-      <p class="eyebrow rise" style="--i: 0">The workbench / About</p>
+      <p class="eyebrow motion-rise" style="--i: 0">The workbench / About</p>
       <div class="about__head-grid">
-        <h1 id="profile-title" class="rise" style="--i: 1">
+        <h1 id="profile-title" class="motion-rise" style="--i: 1">
           Thoughtful systems.<br /><em>Human reasons.</em>
         </h1>
-        <div class="about__note rise" style="--i: 2">
+        <div class="about__note motion-rise" style="--i: 2">
           <p class="lead">
             I’m Stephen Mensah, a software engineer and Computer Science student at Ashesi
             University in Ghana.
@@ -1055,27 +1055,6 @@ const evidenceNotes: Record<string, string> = {
     }
   }
 
-  /* The opener's arrival, same language as the archive. Nothing waits
-     on it, and motion-off lands in the same final state. */
-  .rise {
-    animation: about-arrive 420ms var(--ease-emphasized) both;
-    animation-delay: calc(var(--i, 0) * 70ms);
-  }
-
-  @keyframes about-arrive {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .rise {
-      animation: none;
-    }
-  }
+  /* The opener arrives with the site's shared entrance class; motion-off
+     lands in the same final state. */
 </style>

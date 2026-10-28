@@ -11,9 +11,10 @@
  * or the contact block.
  */
 import { SITE, PUBLIC_LINKS, externalLinks } from '../config/site';
-import { navItems } from '../config/workspace';
+import { navItems, currentNavItem } from '../config/workspace';
 
 const routes = navItems.filter((item) => item.id !== 'home' && item.id !== 'resume');
+const current = currentNavItem(Astro.url.pathname);
 const year = new Date().getFullYear();
 ---
 
@@ -31,7 +32,9 @@ const year = new Date().getFullYear();
         {
           routes.map((item) => (
             <li>
-              <a href={item.href}>{item.label}</a>
+              <a href={item.href} aria-current={current === item.id ? 'page' : undefined}>
+                {item.label}
+              </a>
             </li>
           ))
         }
@@ -81,8 +84,9 @@ const year = new Date().getFullYear();
   }
 
   .footer__name {
-    display: inline-block;
-    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-family: var(--font-display);
     font-size: 1.15rem;
     letter-spacing: -0.02em;
@@ -102,7 +106,7 @@ const year = new Date().getFullYear();
   .footer__email {
     display: inline-flex;
     align-items: center;
-    min-height: 40px;
+    min-height: 44px;
     margin-top: 0.35rem;
     font-size: 0.84rem;
     color: var(--color-teal);
@@ -128,7 +132,9 @@ const year = new Date().getFullYear();
   .footer__nav a {
     display: inline-flex;
     align-items: center;
-    min-height: 40px;
+    /* A two-letter label is still a 24px-wide target. */
+    min-width: 24px;
+    min-height: 44px;
     font-size: 0.84rem;
     color: var(--color-ink-muted);
     text-decoration: none;
@@ -138,6 +144,14 @@ const year = new Date().getFullYear();
   .footer__nav a:focus-visible {
     color: var(--color-teal);
     border-bottom-color: currentColor;
+  }
+  /* The current page, marked exactly as the rail marks it (tokens in
+     global.css). */
+  .footer__nav a[aria-current='page'] {
+    color: var(--selected-color);
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--selected-underline);
+    text-underline-offset: 0.4em;
   }
 
   .footer__meta {
@@ -180,7 +194,8 @@ const year = new Date().getFullYear();
       gap: 1.25rem 1rem;
     }
     .footer__nav a {
-      min-height: 38px;
+      /* Target size holds at phone size; only the type tightens. */
+      min-height: 44px;
       font-size: 0.82rem;
     }
     .footer__role {
