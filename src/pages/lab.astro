@@ -1,11 +1,10 @@
 ---
-import ReliabilityLab from '../components/ReliabilityLab.astro';
-import FixtureDemo from '../components/FixtureDemo.astro';
+import ScenarioLab from '../components/ScenarioLab.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const title = 'Reliability Lab — One payload, seven stages | Stephen Mensah';
+const title = 'Reliability Lab — one rewrite, five checks | Stephen Mensah';
 const description =
-  'An interactive engineering demonstration: one Syncareer payload inspected across seven stages — the request contract, validation rules, refusal, diagnosis, intervention, and labelled output fixtures. Before/after shows documented contract shapes and fixtures, not a captured run.';
+  'An illustrative, deterministic demonstration: one CV bullet followed through the context a request carries, an answer that context cannot support, the gate that refuses it, a cited proposal that passes, and the person who still decides. Fixtures and local checks only — no model call, no captured incident, no measured result.';
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -22,28 +21,5 @@ const structuredData = {
 ---
 
 <BaseLayout {title} {description} {structuredData}>
-  <FixtureDemo />
-  <section id="source-inspection" class="source-inspection"><details class="source-inspection__disclosure" open={Astro.url.hash.startsWith('#lab-')}><summary class="page-shell"><span>Source inspection</span><span>Contract, seven-stage pipeline & comparison ↓</span></summary><ReliabilityLab /></details></section>
-  <script>
-    const openDeepLink=()=>{if(location.hash.startsWith('#lab-')){const d=document.querySelector<HTMLDetailsElement>('.source-inspection__disclosure');if(d)d.open=true;}};openDeepLink();document.addEventListener('astro:page-load',openDeepLink);window.addEventListener('hashchange',openDeepLink);
-  </script>
-  <style>
-.source-inspection{
-  background: var(--color-deck);
-  color: var(--color-text-on-canvas);
-}
-.source-inspection__disclosure > summary{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: space-between;
-  padding-block: 2rem;
-  border-top: 1px solid var(--color-rule-on-canvas);
-  font-size: 0.9rem;
-}
-.source-inspection__disclosure > summary span:first-child{
-  font-family: var(--font-display);
-  font-size: 2rem;
-}
-</style>
+  <ScenarioLab />
 </BaseLayout>
