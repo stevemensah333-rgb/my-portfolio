@@ -19,6 +19,8 @@
  * motion disabled. The pointer tilt and the "Open" cursor chip are
  * enhancements layered on a normal link.
  */
+import { nextId } from '../lib/uid';
+
 interface Props {
   id: 'syncareer' | 'sessionbook' | 'koranco';
   /** When present the artifact renders as a real link to the case study. */
@@ -77,15 +79,24 @@ const chrome = {
 
 const Tag = href ? 'a' : 'div';
 const name = id === 'syncareer' ? 'Syncareer' : id === 'sessionbook' ? 'SessionBook' : 'Koranco Farms';
+
+/* The artifact's own content is worth reading — a screenshot alt, the
+   exchange, the module list, the truthfulness caption — but it is not a
+   good link name. Without this, a screen reader announces the whole
+   ticket as the name of "open the case study". `aria-labelledby` keeps
+   the content in the browse order and gives the link one short name. */
+const labelId = nextId('artifact-label');
+const linkLabel = label ?? `Open the ${name} case study`;
 ---
 
 <Tag
   class:list={['artifact', `artifact--${id}`, { 'artifact--link': Boolean(href), 'artifact--dense': dense }]}
   href={href}
+  aria-labelledby={href ? labelId : undefined}
   data-artifact
   transition:name={shared ? `artifact-${id}` : undefined}
 >
-  {href && <span class="visually-hidden">{label ?? `Open the ${name} case study:`}</span>}
+  {href && <span class="visually-hidden" id={labelId}>{linkLabel}</span>}
   {!dense && (
     <span class="artifact__rail">
       <span class="artifact__label">{chrome.label}</span>
@@ -658,6 +669,21 @@ const name = id === 'syncareer' ? 'Syncareer' : id === 'sessionbook' ? 'SessionB
     font-size: clamp(0.65rem, 2.1cqi, 0.78rem);
     line-height: 1.4;
     color: var(--color-ink-muted);
+  }
+
+  /* Three modules side by side stop being readable before the artifact
+     stops being usable. On a 320px phone the map becomes a stack, which
+     is also a truer picture of three records under one root. */
+  @container (max-width: 21rem) {
+    .artifact--dense .map__modules {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .artifact--dense .map__module {
+      grid-template-columns: auto 1fr;
+    }
+    .artifact--dense .map__what {
+      grid-column: 2;
+    }
   }
 
   /* On a very small render the artifact drops its decorative mat but
