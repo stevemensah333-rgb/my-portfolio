@@ -127,13 +127,34 @@ const socialImageURL = new URL(image, Astro.site);
   <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <WorkspaceRail />
-    <div class="shell__field" transition:animate="fade">
+    {/* No container animation: the page-level cross-fade comes from the
+        root view transition, which leaves the named project artifact
+        free to travel between the homepage bench and its case study. */}
+    <div class="shell__field">
       <main id="main-content" class="shell__main" tabindex="-1">
         <slot />
       </main>
       <ContactSection />
       <SiteFooter />
     </div>
+    <script>
+      /* Focus after client-side navigation. Astro swaps the document
+         without moving focus, which would leave a keyboard visitor at
+         the top of the body with no announcement of the new page. On
+         every route change after the first load, focus the main region
+         (it is tabindex="-1", so it is focusable but not a tab stop).
+         A hash destination keeps its own scroll target. */
+      /* `astro:after-swap` only fires for client-side navigations; the
+         initial document load never reaches it. */
+      document.addEventListener('astro:after-swap', () => {
+        if (location.hash) return;
+        const main = document.getElementById('main-content');
+        if (main) {
+          main.focus({ preventScroll: true });
+          window.scrollTo(0, 0);
+        }
+      });
+    </script>
     <script is:inline>
       // Continuity: after a view transition the <html> is swapped — the
       // inline `classList.add('js')` above already ran, but keep it here

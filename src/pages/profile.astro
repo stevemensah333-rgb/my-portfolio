@@ -176,6 +176,12 @@ const structuredData={'@context':'https://schema.org','@type':'ProfilePage',name
   margin-top: 0.75rem;
   font-size: 0.75rem;
 }
+/* Preview links are standalone actions: keep a real tap target. */
+.achievement figcaption a{
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
 .achievement__body > p{
   margin-bottom: 1rem;
 }

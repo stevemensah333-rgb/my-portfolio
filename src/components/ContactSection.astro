@@ -1,73 +1,275 @@
 ---
+/**
+ * ContactSection — the closing composition, shared by every route.
+ *
+ * It is deliberately the largest, quietest block on the site: one
+ * invitation, the address at a readable size, a copy action with
+ * honest success/failure feedback, a real mailto, and the three
+ * professional links. No form (there is no delivery behind it), no
+ * forced compose window.
+ *
+ * The email is a real mailto link in the HTML, so it works with
+ * JavaScript disabled; the copy button is an enhancement.
+ */
 import { PUBLIC_EMAIL, PUBLIC_LINKS } from '../config/site';
+
+const links = [
+  { id: 'github', label: 'GitHub', href: PUBLIC_LINKS.github },
+  { id: 'linkedin', label: 'LinkedIn', href: PUBLIC_LINKS.linkedin },
+  { id: 'resume', label: 'Résumé', href: PUBLIC_LINKS.resume },
+].filter((link) => Boolean(link.href));
 ---
-<section id="contact" class="contact page-shell section" aria-labelledby="contact-title">
-  <span id="contact-section"></span><div class="contact__label"><p class="eyebrow">The next conversation</p><span aria-hidden="true">↗</span></div>
-  <h2 id="contact-title">Good work starts<br />with a conversation.</h2>
-  <div class="contact__bottom">
-    <div><a class="contact__email" href={`mailto:${PUBLIC_EMAIL}`}>{PUBLIC_EMAIL}</a><div class="actions"><a class="button" href={`mailto:${PUBLIC_EMAIL}`}>Email Stephen <span aria-hidden="true">↗</span></a><button class="button button--secondary" data-copy-email={PUBLIC_EMAIL} hidden>Copy email</button><span class="copy-status" role="status" aria-live="polite"></span></div></div>
-    <div class="contact__links">{Object.entries(PUBLIC_LINKS).map(([label,href])=>href&&<a href={href} target="_blank" rel="noopener">{label==='resume'?'Résumé':label==='github'?'GitHub':'LinkedIn'} <span aria-hidden="true">↗</span></a>)}</div>
+
+<section id="contact" class="contact" aria-labelledby="contact-title">
+  <span id="contact-section"></span>
+  <div class="contact__inner page-shell">
+    <div class="contact__label">
+      <p class="eyebrow">The next step</p>
+      <span class="contact__arrow" aria-hidden="true">↗</span>
+    </div>
+
+    <div class="contact__grid">
+      <div class="contact__invite">
+        <h2 id="contact-title">Tell me what<br />you’re building.</h2>
+        <p class="contact__lead">
+          A role, a project, or a hard question about making an AI feature behave — email is the
+          fastest route, and it reaches me directly.
+        </p>
+      </div>
+
+      <div class="contact__panel">
+        <p class="contact__label-sm">Email</p>
+        <a class="contact__email" href={`mailto:${PUBLIC_EMAIL}`}>{PUBLIC_EMAIL}</a>
+
+        <div class="contact__actions">
+          <a class="button contact__mail" href={`mailto:${PUBLIC_EMAIL}`}>
+            Email Stephen <span aria-hidden="true">↗</span>
+          </a>
+          <button class="button button--secondary" data-copy-email={PUBLIC_EMAIL} hidden>
+            Copy email
+          </button>
+          <p class="contact__status" role="status" aria-live="polite"></p>
+        </div>
+
+        <ul class="contact__links">
+          {links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener"
+                class:list={['contact__link', `contact__link--${link.id}`]}
+              >
+                <span>{link.label}</span><span aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
-<script>
-const init=()=>document.querySelectorAll<HTMLButtonElement>('[data-copy-email]').forEach(button=>{if(button.dataset.ready)return;button.dataset.ready='true';button.hidden=false;button.addEventListener('click',async()=>{const status=button.parentElement?.querySelector<HTMLElement>('[role="status"]');try{await navigator.clipboard.writeText(button.dataset.copyEmail||'');if(status)status.textContent='Email copied.';}catch{if(status)status.textContent='Copy unavailable. Select the email above or use Email Stephen.';}})});init();document.addEventListener('astro:page-load',init);
-</script>
-<style>
-.contact{
-  border-top: 1px solid var(--color-rule);
-}
-.contact__label{
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-}
-.contact__label > span{
-  font-size: 4rem;
-  line-height: 1;
-  color: var(--color-copper-text);
-}
-.contact h2{
-  font-size: clamp(2.8rem, 6.7vw, 6.7rem);
-  max-width: 19ch;
-  margin-bottom: 3rem;
-}
-.contact__bottom{
-  display: flex;
-  justify-content: space-between;
-  gap: 2rem;
-  align-items: end;
-}
-.contact__email{
-  font-size: clamp(0.95rem, 2.2vw, 1.7rem);
-  overflow-wrap: anywhere;
-}
-.contact__links{
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-.contact__links a{
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.85rem;
-}
-.copy-status{
-  font-size: 0.8rem;
-  max-width: 28ch;
-}
 
-@media (max-width: 700px) {
-  .contact__bottom{
-    flex-direction: column;
+<script>
+  const init = () =>
+    document.querySelectorAll<HTMLButtonElement>('[data-copy-email]').forEach((button) => {
+      if (button.dataset.ready) return;
+      button.dataset.ready = 'true';
+      button.hidden = false;
+      button.addEventListener('click', async () => {
+        const status = button.parentElement?.querySelector<HTMLElement>('[role="status"]');
+        try {
+          await navigator.clipboard.writeText(button.dataset.copyEmail || '');
+          if (status) status.textContent = 'Email copied to your clipboard.';
+          button.textContent = 'Copied';
+          setTimeout(() => {
+            button.textContent = 'Copy email';
+          }, 2200);
+        } catch {
+          /* No clipboard permission or no secure context. Select the
+             address instead, so the keyboard shortcut still works, and
+             say exactly what happened. */
+          const address = document.querySelector<HTMLElement>('.contact__email');
+          if (address) {
+            const range = document.createRange();
+            range.selectNodeContents(address);
+            const selection = window.getSelection();
+            selection?.removeAllRanges();
+            selection?.addRange(range);
+          }
+          if (status) {
+            status.textContent =
+              'Copy is blocked in this browser. The address is selected — press Ctrl or ⌘ + C, or use Email Stephen.';
+          }
+        }
+      });
+    });
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .contact {
+    border-top: 1px solid var(--color-rule);
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgba(25, 78, 71, 0.055), transparent 60%),
+      var(--color-paper);
+    padding-block: clamp(3.5rem, 7vw, 7rem);
+  }
+
+  .contact__label {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 2px solid var(--color-rule-strong);
+    padding-bottom: 0.9rem;
+  }
+  .contact__label .eyebrow {
+    margin-bottom: 0;
+  }
+  .contact__arrow {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 0.8;
+    color: var(--color-copper-text);
+  }
+
+  .contact__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: clamp(2rem, 5vw, 5rem);
     align-items: start;
+    padding-top: clamp(1.75rem, 3.5vw, 3rem);
   }
-  .contact__label > span{
-    font-size: 3rem;
+
+  .contact h2 {
+    font-size: clamp(2.6rem, 6vw, 5.6rem);
+    line-height: 0.96;
+    letter-spacing: -0.05em;
+    max-width: 15ch;
   }
-  .contact h2{
-    margin-bottom: 2rem;
+  .contact__lead {
+    margin-top: 1.2rem;
+    max-width: 44ch;
+    font-size: clamp(0.98rem, 1.2vw, 1.08rem);
+    line-height: 1.6;
+    color: var(--color-ink-muted);
   }
-}
+
+  .contact__panel {
+    min-width: 0;
+    padding-top: 0.4rem;
+  }
+  .contact__label-sm {
+    font-family: var(--font-instrument);
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+    margin-bottom: 0.45rem;
+  }
+  .contact__email {
+    /* A standalone link, so it keeps a comfortable tap target at the
+       smallest sizes without changing its visual weight. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 2.1vw, 1.65rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--color-teal);
+    text-decoration-color: var(--color-rule-strong);
+    text-underline-offset: 0.22em;
+    overflow-wrap: anywhere;
+  }
+  .contact__email:hover {
+    color: var(--color-copper-text);
+    text-decoration-color: currentColor;
+  }
+
+  .contact__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 0.75rem;
+    margin-top: 1.35rem;
+  }
+  .contact__actions .button {
+    min-height: 48px;
+  }
+  .contact__mail {
+    min-width: 11rem;
+    justify-content: space-between;
+  }
+  .contact__status {
+    flex-basis: 100%;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--color-teal);
+    min-height: 1.2em;
+  }
+
+  .contact__links {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--color-rule);
+  }
+  .contact__links li {
+    border-bottom: 1px solid var(--color-rule);
+    border-right: 1px solid var(--color-rule);
+  }
+  .contact__links li:last-child {
+    border-right: 0;
+  }
+  .contact__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 52px;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.86rem;
+    text-decoration: none;
+    color: var(--color-ink);
+    transition: background 160ms var(--ease-standard), color 160ms var(--ease-standard);
+  }
+  .contact__link > span:last-child {
+    color: var(--color-copper-text);
+  }
+  .contact__link:hover {
+    background: var(--color-paper-high);
+    color: var(--color-teal);
+  }
+
+  @media (max-width: 60rem) {
+    .contact__grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .contact h2 {
+      max-width: 18ch;
+    }
+  }
+
+  @media (max-width: 46rem) {
+    .contact h2 {
+      font-size: clamp(2.3rem, 10.5vw, 3.2rem);
+    }
+    .contact__actions .button {
+      width: 100%;
+    }
+    .contact__mail {
+      min-width: 0;
+    }
+    .contact__links {
+      grid-template-columns: 1fr;
+    }
+    .contact__links li {
+      border-right: 0;
+    }
+  }
 </style>

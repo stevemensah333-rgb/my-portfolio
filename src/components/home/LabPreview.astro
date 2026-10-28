@@ -1,0 +1,461 @@
+---
+/**
+ * LabPreview — a small, honest demonstration of the engineering method.
+ *
+ * Purpose distinct from Selected work: this section is about *how*
+ * Stephen works, not what he shipped. It is a deterministic local
+ * check on an illustrative fixture — no model call, no invented
+ * result. The full payload pipeline lives on /lab/.
+ *
+ * The complete result is in the HTML. JavaScript only replays the
+ * three checks as emphasis; it never gates the answer.
+ */
+---
+
+<section class="lab-preview on-deck" aria-labelledby="lab-title">
+  <div class="page-shell lab-preview__grid">
+    <div class="lab-copy">
+      <p class="eyebrow">03 / Reliability Lab</p>
+      <h2 id="lab-title">Fluent isn’t<br />the same as true.</h2>
+      <p class="lead">
+        A polished sentence can invent experience nobody supplied. Here is an illustrative rewrite,
+        and a check that refuses it because the claim it makes has no footing in the context it
+        was given.
+      </p>
+      <ul class="lab-notes">
+        <li>Illustrative fixture, labelled as such</li>
+        <li>Deterministic checks in the browser</li>
+        <li>No model call, no captured incident</li>
+      </ul>
+      <a class="text-link lab-copy__cta" href="/lab/">
+        Open the Reliability Lab <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <div class="check" data-check>
+      <div class="check__head">
+        <span class="check__title">cv.rewrite_bullet · prebuilt example</span>
+        <span class="check__tag">Illustrative</span>
+      </div>
+
+      <div class="check__body">
+        <div class="check__block">
+          <p class="check__label">Supplied context</p>
+          <ul class="check__context">
+            <li><b>requirement-2</b> Python and SQL</li>
+            <li><b>evidence-1</b> Class project analysing 1,200 sales records</li>
+          </ul>
+        </div>
+
+        <div class="check__block">
+          <p class="check__label">Illustrative model output</p>
+          <p class="check__proposal">
+            “Results-driven engineer with <mark>5 years of Kubernetes experience</mark> who
+            transformed deployments at Acme Corp.”
+          </p>
+        </div>
+
+        <ol class="check__steps" aria-label="Local check steps">
+          <li data-check-step="0"><span class="check__n">01</span> Parse the proposal as JSON</li>
+          <li data-check-step="1"><span class="check__n">02</span> Require a requirement and an evidence citation</li>
+          <li data-check-step="2"><span class="check__n">03</span> Return it to a person for review</li>
+        </ol>
+
+        <p class="check__verdict" data-check-verdict>
+          <span class="check__x" aria-hidden="true">×</span>
+          <span>
+            <strong>Refused.</strong> “Kubernetes” and “Acme Corp” are not in the supplied
+            evidence, and the proposal cites no source ids. Nothing is applied.
+          </span>
+        </p>
+      </div>
+
+      <div class="check__foot">
+        <button class="check__run" data-check-run hidden>Replay the check</button>
+        <p class="check__status" role="status" aria-live="polite" data-check-status>
+          Result shown. The check refuses the claim and stops there.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const init = () => {
+    const root = document.querySelector<HTMLElement>('[data-check]');
+    if (!root || root.dataset.ready === '1') return;
+    root.dataset.ready = '1';
+
+    const button = root.querySelector<HTMLButtonElement>('[data-check-run]');
+    const status = root.querySelector<HTMLElement>('[data-check-status]');
+    const steps = [...root.querySelectorAll<HTMLElement>('[data-check-step]')];
+    const verdict = root.querySelector<HTMLElement>('[data-check-verdict]');
+    if (!button || !status || !steps.length) return;
+
+    button.hidden = false;
+    const labels = [
+      'Checking 01 — parsing the proposal as JSON.',
+      'Checking 02 — the proposal cites no supplied ids.',
+      'Refused. The claim has no footing; a person sees it next.',
+    ];
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let running = false;
+
+    const reset = () => {
+      steps.forEach((step) => step.removeAttribute('data-on'));
+      verdict?.classList.remove('is-hit');
+    };
+
+    const advance = (index: number) => {
+      if (index >= steps.length) {
+        running = false;
+        button.disabled = false;
+        button.textContent = 'Replay the check';
+        verdict?.classList.add('is-hit');
+        status.textContent = labels[labels.length - 1];
+        return;
+      }
+      steps[index].setAttribute('data-on', '');
+      status.textContent = labels[index];
+      timer = setTimeout(() => advance(index + 1), 620);
+    };
+
+    button.addEventListener('click', () => {
+      if (running) return;
+      running = true;
+      clearTimeout(timer);
+      reset();
+      button.disabled = true;
+      button.textContent = 'Running…';
+      if (motion.matches) {
+        steps.forEach((step) => step.setAttribute('data-on', ''));
+        verdict?.classList.add('is-hit');
+        status.textContent = labels[labels.length - 1];
+        running = false;
+        button.disabled = false;
+        button.textContent = 'Replay the check';
+        return;
+      }
+      advance(0);
+    });
+
+    motion.addEventListener('change', () => {
+      clearTimeout(timer);
+      reset();
+      running = false;
+      button.disabled = false;
+      button.textContent = 'Replay the check';
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        clearTimeout(timer);
+        reset();
+        running = false;
+        button.disabled = false;
+        button.textContent = 'Replay the check';
+      }
+    });
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .lab-preview {
+    padding-block: clamp(3rem, 5.5vw, 5rem);
+  }
+  .lab-preview__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    /* The copy is shorter than the instrument; aligning the first line
+       of each keeps the pair reading as one spread. */
+    align-items: start;
+  }
+
+  .lab-copy {
+    min-width: 0;
+  }
+  .lab-copy h2 {
+    font-size: clamp(2.2rem, 4.2vw, 3.7rem);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    margin-bottom: 1.1rem;
+  }
+  .lab-copy .lead {
+    font-size: clamp(0.98rem, 1.2vw, 1.06rem);
+    color: var(--color-text-on-canvas-muted);
+    max-width: 42ch;
+  }
+  .lab-notes {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+    font-family: var(--font-instrument);
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    color: var(--color-text-on-canvas-muted);
+  }
+  .lab-notes li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: baseline;
+  }
+  .lab-notes li::before {
+    content: '·';
+    color: var(--color-accent-bright);
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .lab-copy__cta {
+    margin-top: 1.6rem;
+    color: var(--color-teal-bright);
+  }
+  .lab-copy__cta:hover {
+    color: var(--color-accent-bright);
+  }
+  .lab-copy__cta :global(span) {
+    color: inherit;
+  }
+
+  /* ---- the check ------------------------------------------- */
+  .check {
+    grid-column: 2;
+    grid-row: 1;
+    background: var(--color-deck-soft);
+    border: 1px solid var(--color-rule-on-canvas);
+    min-width: 0;
+    position: relative;
+  }
+  .check::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 2.6rem;
+    height: 2px;
+    background: var(--color-accent-bright);
+  }
+  .check__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--color-rule-on-canvas);
+  }
+  .check__title {
+    font-family: var(--font-instrument);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    color: var(--color-text-on-canvas-muted);
+    overflow-wrap: anywhere;
+  }
+  .check__tag {
+    flex: none;
+    font-family: var(--font-instrument);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent-bright);
+    border: 1px solid rgba(226, 128, 68, 0.45);
+    padding: 0.2rem 0.4rem;
+  }
+  .check__body {
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1rem, 2.4vw, 1.5rem);
+  }
+  .check__label {
+    font-family: var(--font-instrument);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-on-canvas-faint);
+    margin-bottom: 0.5rem;
+  }
+  .check__context {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.82rem;
+    color: var(--color-text-on-canvas-muted);
+  }
+  .check__context b {
+    font-family: var(--font-instrument);
+    font-weight: 500;
+    font-size: 0.72rem;
+    color: var(--color-teal-bright);
+    margin-right: 0.5rem;
+  }
+  .check__proposal {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.7vw, 1.3rem);
+    line-height: 1.32;
+    color: var(--color-text-on-canvas);
+    max-width: 34ch;
+  }
+  .check__proposal mark {
+    background: transparent;
+    color: var(--color-signal-fail-bright, #e5a196);
+    text-decoration: underline;
+    text-decoration-style: wavy;
+    text-underline-offset: 0.24em;
+  }
+
+  .check__steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    border-top: 1px solid var(--color-rule-on-canvas);
+  }
+  .check__steps li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.5rem 0.65rem;
+    border-bottom: 1px solid var(--color-rule-on-canvas-soft, #1e2224);
+    font-size: 0.8rem;
+    color: var(--color-text-on-canvas-muted);
+    border-left: 2px solid transparent;
+    transition: color 160ms var(--ease-standard), border-color 160ms var(--ease-standard),
+      background 160ms var(--ease-standard);
+  }
+  .check__steps li[data-on] {
+    color: var(--color-text-on-canvas);
+    border-left-color: var(--color-accent-bright);
+    background: rgba(226, 128, 68, 0.07);
+  }
+  .check__n {
+    font-family: var(--font-instrument);
+    font-size: 0.66rem;
+    color: var(--color-text-on-canvas-faint);
+  }
+  .check__steps li[data-on] .check__n {
+    color: var(--color-accent-bright);
+  }
+
+  .check__verdict {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--color-text-on-canvas-muted);
+    padding: 0.8rem 0.9rem;
+    border: 1px solid rgba(229, 161, 150, 0.35);
+    background: rgba(149, 50, 60, 0.12);
+  }
+  .check__verdict strong {
+    color: var(--color-signal-fail-bright, #e5a196);
+    font-weight: 600;
+  }
+  .check__x {
+    color: var(--color-signal-fail-bright, #e5a196);
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+  .check__verdict.is-hit {
+    animation: verdict-hit 700ms var(--ease-emphasized);
+  }
+  @keyframes verdict-hit {
+    0% {
+      border-color: rgba(229, 161, 150, 0.35);
+    }
+    35% {
+      border-color: var(--color-signal-fail-bright, #e5a196);
+    }
+    100% {
+      border-color: rgba(229, 161, 150, 0.35);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .check__verdict.is-hit {
+      animation: none;
+    }
+  }
+
+  .check__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.25rem;
+    padding: 0.8rem 1rem;
+    border-top: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck);
+  }
+  .check__run {
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--color-text-on-canvas);
+    border: 1px solid var(--color-rule-on-canvas-strong, #5f6366);
+    font-size: 0.84rem;
+    cursor: pointer;
+    transition: border-color 160ms var(--ease-standard), color 160ms var(--ease-standard),
+      background 160ms var(--ease-standard);
+  }
+  .check__run:hover {
+    border-color: var(--color-teal-bright);
+    color: var(--color-teal-bright);
+  }
+  .check__run:disabled {
+    opacity: 0.72;
+    cursor: default;
+  }
+  .check__status {
+    font-family: var(--font-instrument);
+    font-size: 0.68rem;
+    line-height: 1.5;
+    color: var(--color-text-on-canvas-faint);
+    max-width: 34ch;
+  }
+
+  @media (min-width: 60.01rem) {
+    .lab-copy {
+      grid-column: 1;
+      grid-row: 1;
+    }
+  }
+
+  @media (max-width: 60rem) {
+    .lab-preview__grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .check {
+      grid-column: auto;
+      grid-row: auto;
+    }
+    .lab-copy .lead {
+      max-width: 56ch;
+    }
+  }
+
+  @media (max-width: 46rem) {
+    .check__head {
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .check__foot {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .check__run {
+      width: 100%;
+    }
+    .check__status {
+      max-width: none;
+    }
+  }
+</style>
