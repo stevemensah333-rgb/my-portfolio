@@ -2,7 +2,7 @@
 
 This file is the source of truth for the finalized portfolio direction. The portfolio is **Stephen's Engineering Workspace**: an evidence-led portfolio, not a Windows or macOS clone, fake operating system, dashboard, or generic interactive portfolio.
 
-`ARCHITECTURE.md` describes an earlier workspace concept. Do not carry forward its workspace-rail/app-shell direction or any IA or visual choice that conflicts with this file. `AUDIT.md` is a useful, read-only snapshot of the implementation audited on 2026-09-21; consult it when working in the areas it covers, but treat it as implementation history, not design authority. Verify current code before relying on audit details.
+`DESIGN.md` states the concept, the voice and the type floor this site is now built against; read it before changing copy or adding anything to a page. `AUDIT.md` is a useful, read-only snapshot of the implementation audited on 2026-09-21; consult it when working in the areas it covers, but treat it as implementation history, not design authority. Verify current code before relying on audit details.
 
 ## 1. Purpose and visitor journey
 
