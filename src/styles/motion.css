@@ -85,7 +85,7 @@
 
 /* ---- pressed ------------------------------------------------------
    One treatment for every link, button, summary and role=button, so a
-   press feels the same in the rail, the archive, the contact block and
+   press feels the same in the header, the archive, the contact block and
    the lab transport. Layout-neutral: opacity and translate only. */
 :where(a, button, summary, [role='button']):active:not(:disabled):not([aria-disabled='true']) {
   opacity: var(--press-opacity);
@@ -97,7 +97,7 @@
 
 /* ---- selected -----------------------------------------------------
    The current page is marked with --selected-color and
-   --selected-underline wherever navigation is shown: the rail's dot,
+   --selected-underline wherever navigation is shown: the header's dot,
    the phone menu and the footer. Each surface applies the token in its
    own scoped style, because a global rule loses to a scoped one on
    specificity; the token is what keeps them identical. */
