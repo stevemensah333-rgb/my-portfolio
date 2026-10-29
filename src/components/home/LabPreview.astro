@@ -17,21 +17,23 @@
     <div class="lab-copy">
       <p class="eyebrow">03 / Reliability Lab</p>
       <h2 id="lab-title">Fluent isn’t<br />the same as true.</h2>
+      {/* One idea, once: the claims the check objects to are set inside the
+          sentence that describes them, the way a footnote would be. They are
+          ordinary text, not decoration — a screen reader reads them in place. */}
       <p class="lead">
-        A polished sentence can invent experience nobody supplied. Here is an illustrative rewrite,
-        and a check that refuses it because the claim it makes has no footing in the context it
-        was given.
+        A polished sentence can invent a <span class="claim-tag">5 years</span> of experience and a
+        <span class="claim-tag">40%</span> improvement nobody supplied. Here’s a rewrite that does it,
+        and the check that throws it out.
       </p>
       <p class="lab-notes">
-        Illustrative fixture and deterministic checks in the browser — no model call, no captured
-        incident.
+        Made-up example. The checks run in your browser. No model is called.
       </p>
       <a class="text-link lab-copy__cta" href="/lab/">
         Open the Reliability Lab <span aria-hidden="true">↗</span>
       </a>
     </div>
 
-    <div class="check" data-check>
+    <div class="check">
       <div class="check__head">
         <span class="check__title">cv.rewrite_bullet</span>
         <span class="check__tag">Illustrative</span>
@@ -54,13 +56,13 @@
           </p>
         </div>
 
-        <ol class="check__steps" aria-label="Local check steps">
-          <li data-check-step="0"><span class="check__n">01</span> Parse the proposal as JSON</li>
-          <li data-check-step="1"><span class="check__n">02</span> Require a requirement and an evidence citation</li>
-          <li data-check-step="2"><span class="check__n">03</span> Return it to a person for review</li>
+        <ol class="check__steps" aria-label="What the checks do">
+          <li><span class="check__n">01</span> Parse the proposal as JSON</li>
+          <li><span class="check__n">02</span> Require a requirement and an evidence citation</li>
+          <li><span class="check__n">03</span> Return it to a person for review</li>
         </ol>
 
-        <p class="check__verdict" data-check-verdict>
+        <p class="check__verdict">
           <span class="check__x" aria-hidden="true">×</span>
           <span>
             <strong>Refused.</strong> “Kubernetes” and “Acme Corp” are not in the supplied
@@ -69,99 +71,18 @@
         </p>
       </div>
 
+      <!-- No replay button: a canned animation would be theatre. The
+           worked example stands still, and the real instrument is one
+           link away, where you supply your own text. -->
       <div class="check__foot">
-        <button class="check__run" data-check-run hidden>Replay the check</button>
-        <p class="check__status" role="status" aria-live="polite" data-check-status>
-          Result shown. The check refuses the claim and stops there.
+        <p class="check__status">
+          The check refuses the claim and stops there. Nothing is applied.
         </p>
       </div>
     </div>
   </div>
 </section>
 
-<script>
-  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  const init = () => {
-    const root = document.querySelector<HTMLElement>('[data-check]');
-    if (!root || root.dataset.ready === '1') return;
-    root.dataset.ready = '1';
-
-    const button = root.querySelector<HTMLButtonElement>('[data-check-run]');
-    const status = root.querySelector<HTMLElement>('[data-check-status]');
-    const steps = [...root.querySelectorAll<HTMLElement>('[data-check-step]')];
-    const verdict = root.querySelector<HTMLElement>('[data-check-verdict]');
-    if (!button || !status || !steps.length) return;
-
-    button.hidden = false;
-    const labels = [
-      'Checking 01 — parsing the proposal as JSON.',
-      'Checking 02 — the proposal cites no supplied ids.',
-      'Refused. The claim has no footing; a person sees it next.',
-    ];
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let running = false;
-
-    const reset = () => {
-      steps.forEach((step) => step.removeAttribute('data-on'));
-      verdict?.classList.remove('motion-feedback');
-    };
-
-    const advance = (index: number) => {
-      if (index >= steps.length) {
-        running = false;
-        button.disabled = false;
-        button.textContent = 'Replay the check';
-        verdict?.classList.add('motion-feedback');
-        status.textContent = labels[labels.length - 1];
-        return;
-      }
-      steps[index].setAttribute('data-on', '');
-      status.textContent = labels[index];
-      timer = setTimeout(() => advance(index + 1), 620);
-    };
-
-    button.addEventListener('click', () => {
-      if (running) return;
-      running = true;
-      clearTimeout(timer);
-      reset();
-      button.disabled = true;
-      button.textContent = 'Running…';
-      if (motion.matches) {
-        steps.forEach((step) => step.setAttribute('data-on', ''));
-        verdict?.classList.add('motion-feedback');
-        status.textContent = labels[labels.length - 1];
-        running = false;
-        button.disabled = false;
-        button.textContent = 'Replay the check';
-        return;
-      }
-      advance(0);
-    });
-
-    motion.addEventListener('change', () => {
-      clearTimeout(timer);
-      reset();
-      running = false;
-      button.disabled = false;
-      button.textContent = 'Replay the check';
-    });
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        clearTimeout(timer);
-        reset();
-        running = false;
-        button.disabled = false;
-        button.textContent = 'Replay the check';
-      }
-    });
-  };
-
-  init();
-  document.addEventListener('astro:page-load', init);
-</script>
 
 <style>
   .lab-preview {
@@ -190,6 +111,46 @@
     color: var(--color-text-on-canvas-muted);
     max-width: 42ch;
   }
+  /* ---- the inline claims ------------------------------------------
+     Small objects sitting in the line: a hairline box on the page's own
+     paper, a resting angle, and a shadow shallow enough to stay in the
+     text block. At phone widths the angle goes and they sit flat, so
+     they never collide with the line above. */
+  .claim-tag {
+    display: inline-block;
+    margin-inline: 0.12em;
+    padding: 0.06em 0.42em 0.1em;
+    border: 1px solid var(--color-rule-strong);
+    background: var(--color-sheet-raised);
+    color: var(--color-ink);
+    font-family: var(--font-instrument);
+    font-size: 0.82em;
+    line-height: 1.35;
+    letter-spacing: 0;
+    rotate: -1.4deg;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+    white-space: nowrap;
+  }
+  .claim-tag + .claim-tag {
+    rotate: 1.2deg;
+  }
+  @media (max-width: 46rem) {
+    .claim-tag {
+      rotate: 0deg;
+    }
+    .claim-tag + .claim-tag {
+      rotate: 0deg;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .claim-tag {
+      rotate: 0deg;
+    }
+    .claim-tag + .claim-tag {
+      rotate: 0deg;
+    }
+  }
+
   .lab-notes {
     position: relative;
     margin: 1.4rem 0 0;
@@ -298,7 +259,7 @@
     font-size: clamp(1.05rem, 1.7vw, 1.3rem);
     line-height: 1.32;
     color: var(--color-text-on-canvas);
-    max-width: 34ch;
+    max-width: 46ch;
   }
   .check__proposal mark {
     background: transparent;
@@ -377,25 +338,6 @@
     border-top: 1px solid var(--color-rule-on-canvas);
     background: var(--color-deck);
   }
-  .check__run {
-    min-height: 44px;
-    padding: 0.5rem 1rem;
-    background: transparent;
-    color: var(--color-text-on-canvas);
-    border: 1px solid var(--color-rule-on-canvas-strong, #5f6366);
-    font-size: 0.84rem;
-    cursor: pointer;
-    transition: border-color var(--duration-quick) var(--ease-standard), color var(--duration-quick) var(--ease-standard),
-      background var(--duration-quick) var(--ease-standard);
-  }
-  .check__run:hover {
-    border-color: var(--color-teal-bright);
-    color: var(--color-teal-bright);
-  }
-  .check__run:disabled {
-    opacity: 0.72;
-    cursor: default;
-  }
   .check__status {
     font-family: var(--font-instrument);
     font-size: 0.68rem;
@@ -432,10 +374,6 @@
     }
     .check__foot {
       align-items: flex-start;
-      flex-direction: column;
-    }
-    .check__run {
-      width: 100%;
     }
     .check__status {
       max-width: none;

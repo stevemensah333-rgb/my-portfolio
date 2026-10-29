@@ -1,57 +1,36 @@
 ---
 /**
- * SelectedWork — the substantial part of the homepage.
+ * SelectedWork — the three projects, in one pass.
  *
- * Purpose distinct from the hero: the hero shows that the work exists;
- * this section says what each project is, what Stephen did, and what
- * state it is actually in. All wording comes from the shared registry
- * so the homepage, the archive and the case studies cannot drift apart.
+ * The hero already shows that the objects exist and what state each is
+ * in. This section only has to say what each one is and what Stephen did,
+ * so it stays short: one capture for the flagship, two plain entries
+ * underneath. Everything comes from the shared registry, so the homepage
+ * cannot claim a state the archive or a case study contradicts.
  */
 import ProjectArtifact from '../ProjectArtifact.astro';
-import { projectRecords } from '../../data/portfolio';
-import { projects } from '../../data/registry';
+import { projectRecords, projects } from '../../data/registry';
 
-const record = {
-  syncareer: projectRecords.syncareer,
-  sessionbook: projectRecords.sessionbook,
-  koranco: projectRecords.koranco,
-};
+const record = projectRecords;
 
+/* Stack lines are read from the registry and trimmed: three names are
+   enough to place the work, and the case study carries the rest. */
 const stack = (id: string, count: number) =>
-  (projects.find((project) => project.id === id)?.stack ?? []).slice(0, count).join(' · ');
+  (projects.find((project) => project.id === id)?.stack ?? []).slice(0, count).join(', ');
 
-/* Every fact in these four rows comes from the registry, so the homepage
-   cannot claim a state the archive or the case study contradicts. */
-const facts = {
-  syncareer: [
-    { term: 'My part', value: projectRecords.syncareer.role },
-    { term: 'State', value: projectRecords.syncareer.status },
-    { term: 'Reliability work', value: projectRecords.syncareer.implementation },
-    { term: 'Stack', value: stack('syncareer', 4) },
-  ],
-  sessionbook: [
-    { term: 'My part', value: projectRecords.sessionbook.role },
-    { term: 'State', value: projectRecords.sessionbook.status },
-    { term: 'Live calls', value: projectRecords.sessionbook.deployment },
-    { term: 'Stack', value: stack('sessionbook', 3) },
-  ],
-  koranco: [
-    { term: 'My part', value: projectRecords.koranco.role },
-    { term: 'State', value: projectRecords.koranco.status },
-    { term: 'Deployment', value: projectRecords.koranco.deployment },
-    { term: 'Stack', value: stack('koranco', 3) },
-  ],
-};
+const entries = [
+  { id: 'sessionbook' as const, n: '02' },
+  { id: 'koranco' as const, n: '03' },
+];
 ---
 
 <section class="selected page-shell" id="work" aria-labelledby="selected-title">
   <header class="selected__head">
-    <p class="eyebrow">02 / Selected work</p>
+    <p class="eyebrow">02 / The work</p>
     <div class="selected__head-grid">
-      <h2 id="selected-title">The work, and<br />the evidence for it.</h2>
+      <h2 id="selected-title">Three projects,<br />three honest states.</h2>
       <p class="lead">
-        Three projects at three different stages — the part I did, the state each one is really in,
-        and the evidence you can open.
+        One is live. One has never taken a real call. One has no public build.
       </p>
     </div>
   </header>
@@ -63,116 +42,67 @@ const facts = {
         {record.syncareer.kind} · {record.syncareer.status}
       </p>
       <h3 id="feature-syncareer">Syncareer</h3>
-      <p class="feature__statement">
-        One record from saved opportunity to recorded outcome.
+      <p class="feature__statement">One record, from saved opportunity to recorded outcome.</p>
+      <p>
+        A career platform for African students: a saved opportunity, the tailored CV and the
+        interview prep all sit in one application. I built the product and its application layer.
       </p>
       <p>
-        An AI-powered career platform for African students, built so a saved opportunity, the
-        tailored CV and the interview preparation all sit inside one application record.
+        Then the CV assistant started writing bullets it couldn't back up. So I rebuilt the contract
+        around explicit context and citations.
       </p>
-      <p>
-        I built the product and its application layer. When the CV assistant produced fluent bullets
-        it could not support, I rebuilt the request and response contract around explicit context
-        and citations.
+      <p class="feature__meta">
+        {record.syncareer.role} · {stack('syncareer', 3)}
       </p>
-      <dl class="facts">
-        {facts.syncareer.map((fact) => (
-          <div class="facts__row">
-            <dt>{fact.term}</dt>
-            <dd>{fact.value}</dd>
-          </div>
-        ))}
-      </dl>
-      <p class="result"><strong>Known result.</strong> {record.syncareer.result}</p>
+      <p class="result">
+        The revised contract is in source. The live model's grounding hasn't been measured, and that
+        revision isn't redeployed yet.
+      </p>
       <a class="text-link feature__cta" href="/work/syncareer/">
         Open the Syncareer case study <span aria-hidden="true">↗</span>
       </a>
     </div>
     <div class="feature__art">
-      <!-- Two real captures from the same product, not one screenshot
-           repeated: the application workflow and the dashboard read
-           from it. -->
-      <div class="feature__shot feature__shot--a">
-        <ProjectArtifact
-          id="syncareer"
-          href="/work/syncareer/"
-          shared={false}
-          dense
-          capture="opportunities"
-          label="Syncareer opportunities screen — open the case study"
-        />
-      </div>
-      <div class="feature__shot feature__shot--b">
-        <ProjectArtifact
-          id="syncareer"
-          href="/work/syncareer/"
-          shared={false}
-          dense
-          capture="dashboard"
-          label="Syncareer dashboard — open the case study"
-        />
-      </div>
+      <ProjectArtifact
+        id="syncareer"
+        href="/work/syncareer/"
+        shared={false}
+        capture="dashboard"
+        label="Syncareer dashboard — open the case study"
+      />
     </div>
   </article>
 
-  <div class="pair">
-    <article class="mini" aria-labelledby="mini-sessionbook">
-      <ProjectArtifact id="sessionbook" href="/work/sessionbook/" shared={false} dense />
-      <p class="kicker">
-        <span class="kicker__n">02</span>
-        {record.sessionbook.kind} · {record.sessionbook.status}
-      </p>
-      <h3 id="mini-sessionbook">SessionBook</h3>
-      <p class="mini__statement">The backend decides what is true. The agent only asks.</p>
-      <p class="mini__body">
-        A booking service for a voice agent: availability, a row-locked booking transaction and a
-        confirmation phrase designed to be read aloud.
-      </p>
-      <dl class="facts facts--mini">
-        {facts.sessionbook.map((fact) => (
-          <div class="facts__row">
-            <dt>{fact.term}</dt>
-            <dd>{fact.value}</dd>
-          </div>
-        ))}
-      </dl>
-      <a class="text-link mini__cta" href="/work/sessionbook/">
-        Open the SessionBook case study <span aria-hidden="true">↗</span>
-      </a>
-    </article>
+  <ul class="entries">
+    {entries.map((entry) => (
+      <li class="entry">
+        <p class="kicker">
+          <span class="kicker__n">{entry.n}</span>
+          {record[entry.id].kind} · {record[entry.id].status}
+        </p>
+        <h3 class="entry__name" id={`entry-${entry.id}`}>
+          <a href={`/work/${entry.id}/`}>
+            {entry.id === 'sessionbook' ? 'SessionBook' : 'Koranco Farms'}
+          </a>
+        </h3>
+        <p class="entry__statement">
+          {entry.id === 'sessionbook'
+            ? 'The backend decides what is true. The agent only asks.'
+            : 'Three record types, built for a bad connection.'}
+        </p>
+        <p class="entry__body">{record[entry.id].purpose}</p>
+        <p class="entry__state">{record[entry.id].deployment}</p>
+        <a class="text-link entry__cta" href={`/work/${entry.id}/`}>
+          Read the case study <span aria-hidden="true">↗</span>
+        </a>
+      </li>
+    ))}
+  </ul>
 
-    <article class="mini" aria-labelledby="mini-koranco">
-      <ProjectArtifact id="koranco" href="/work/koranco/" shared={false} dense />
-      <p class="kicker">
-        <span class="kicker__n">03</span>
-        {record.koranco.kind} · {record.koranco.status}
-      </p>
-      <h3 id="mini-koranco">Koranco Farms</h3>
-      <p class="mini__statement">Three record types, built for a bad connection.</p>
-      <p class="mini__body">
-        Attendance, produce and employee records for farm work, built offline-first during a
-        six-week Ashesi Innovation Lab engagement and delivered as a working MVP.
-      </p>
-      <dl class="facts facts--mini">
-        {facts.koranco.map((fact) => (
-          <div class="facts__row">
-            <dt>{fact.term}</dt>
-            <dd>{fact.value}</dd>
-          </div>
-        ))}
-      </dl>
-      <a class="text-link mini__cta" href="/work/koranco/">
-        Open the Koranco case study <span aria-hidden="true">↗</span>
-      </a>
-    </article>
-  </div>
-
-  <div class="selected__archive">
-    <p>Every case study carries its decision record, its sources, and what has not been verified.</p>
-    <a class="button button--secondary" href="/work/">
-      All three projects <span aria-hidden="true">↗</span>
-    </a>
-  </div>
+  <p class="selected__foot">
+    Each case study carries its decision record and what hasn't been verified.
+    <a class="text-link" href="/work/">See all three <span aria-hidden="true">↗</span></a>
+  </p>
 </section>
 
 <style>
@@ -182,7 +112,7 @@ const facts = {
   }
 
   .selected__head {
-    margin-bottom: clamp(2rem, 4vw, 3.5rem);
+    margin-bottom: clamp(2rem, 4vw, 3.25rem);
   }
   .selected__head-grid {
     display: grid;
@@ -198,50 +128,33 @@ const facts = {
   }
   .selected__head .lead {
     font-size: clamp(0.98rem, 1.2vw, 1.08rem);
-    max-width: 44ch;
+    max-width: 40ch;
   }
 
-  /* ---- feature --------------------------------------------- */
+  /* ---- the flagship ---------------------------------------- */
   .feature {
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
     gap: clamp(1.75rem, 4vw, 4rem);
     align-items: start;
-    padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2.5rem, 5vw, 4rem);
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2.25rem, 4vw, 3.5rem);
+    border-top: 1px solid var(--color-rule);
   }
-  /* DOM order follows the reading order — the project is named and
-     explained before its capture appears. The grid puts the capture
-     back on the left where the eye expects it. */
+  /* DOM order follows reading order; the grid puts the capture back on
+     the left, where the eye arrives first. */
   .feature__art {
     grid-column: 1;
     grid-row: 1;
     min-width: 0;
     position: sticky;
     top: 6rem;
-    display: grid;
-    gap: 1rem;
-  }
-  /* A stepped pair: the workflow shot leads, the dashboard it feeds
-     sits behind and below it. */
-  .feature__shot {
-    min-width: 0;
-  }
-  .feature__shot--a {
-    width: 100%;
-    z-index: 2;
-  }
-  .feature__shot--b {
-    width: 88%;
-    margin-left: auto;
-    margin-top: -0.5rem;
-    z-index: 1;
   }
   .feature__copy {
     grid-column: 2;
     grid-row: 1;
     min-width: 0;
     display: grid;
-    gap: 0.9rem;
+    gap: 0.85rem;
     align-content: start;
   }
 
@@ -250,7 +163,7 @@ const facts = {
     align-items: center;
     gap: 0.6rem;
     font-family: var(--font-instrument);
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--color-ink-faint);
@@ -264,7 +177,6 @@ const facts = {
     font-size: clamp(2.1rem, 3.2vw, 2.9rem);
     line-height: 1;
     letter-spacing: -0.03em;
-    margin-top: 0.1rem;
   }
   .feature__statement {
     font-family: var(--font-display);
@@ -273,40 +185,22 @@ const facts = {
     letter-spacing: -0.015em;
     color: var(--color-teal);
     text-wrap: balance;
-    max-width: 26ch;
+    max-width: 28ch;
   }
-  .feature__copy p:not(.kicker):not(.feature__statement):not(.result) {
+  .feature__copy p:not(.kicker):not(.feature__statement):not(.result):not(.feature__meta) {
     color: var(--color-ink-muted);
     font-size: 0.97rem;
-    max-width: 48ch;
+    max-width: 46ch;
   }
-
-  .facts {
-    margin: 0.4rem 0 0.2rem;
-    border-top: 1px solid var(--color-rule);
-    max-width: 32rem;
-  }
-  .facts__row {
-    display: grid;
-    grid-template-columns: minmax(6.5rem, 0.62fr) minmax(0, 1fr);
-    gap: 0.8rem;
-    padding: 0.45rem 0;
-    border-bottom: 1px solid var(--color-rule-soft);
-  }
-  .facts dt {
+  .feature__meta {
     font-family: var(--font-instrument);
-    font-size: 0.66rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    font-size: 0.78rem;
+    line-height: 1.5;
     color: var(--color-ink-faint);
-    padding-top: 0.12rem;
+    border-top: 1px solid var(--color-rule-soft);
+    padding-top: 0.6rem;
+    max-width: 42ch;
   }
-  .facts dd {
-    margin: 0;
-    font-size: 0.87rem;
-    line-height: 1.45;
-  }
-
   .result {
     font-size: 0.87rem;
     line-height: 1.55;
@@ -315,125 +209,103 @@ const facts = {
     padding-left: 0.8rem;
     max-width: 44ch;
   }
-  .result strong {
-    color: var(--color-ink);
-    font-weight: 600;
-  }
   .feature__cta {
-    margin-top: 0.3rem;
-    color: var(--color-teal);
-  }
-  .feature__cta:hover {
-    color: var(--color-copper-text);
-  }
-
-  /* ---- pair ------------------------------------------------- */
-  .pair {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-    gap: clamp(1.5rem, 3.5vw, 3rem);
-    padding-block: clamp(2rem, 4vw, 3rem);
-    border-top: 1px solid var(--color-rule);
-  }
-  .mini {
-    min-width: 0;
-    display: grid;
-    gap: 0.7rem;
-    align-content: start;
-  }
-  /* Each artifact keeps its own natural height — the ticket is a
-     longer object than the module map, and stretching either one would
-     leave a hollow panel. The captions under them do the explaining. */
-  .mini h3 {
-    font-family: var(--font-display);
-    font-size: clamp(1.7rem, 2.4vw, 2.1rem);
-    line-height: 1.05;
-    letter-spacing: -0.025em;
-  }
-  .mini__statement {
-    font-family: var(--font-display);
-    font-size: clamp(1.05rem, 1.4vw, 1.22rem);
-    line-height: 1.3;
-    color: var(--color-teal);
-    max-width: 28ch;
-  }
-  .mini__body {
-    font-size: 0.93rem;
-    line-height: 1.6;
-    color: var(--color-ink-muted);
-    max-width: 44ch;
-  }
-  .facts--mini {
+    justify-self: start;
     margin-top: 0.2rem;
   }
-  .mini__cta {
-    color: var(--color-teal);
-    font-size: 0.9rem;
+
+  /* ---- the two shorter ones -------------------------------- */
+  .entries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 3vw, 3rem);
+    border-top: 1px solid var(--color-rule);
   }
-  .mini__cta:hover {
-    color: var(--color-copper-text);
+  .entry {
+    padding-top: clamp(1rem, 2vw, 1.5rem);
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+    min-width: 0;
+  }
+  .entry__name {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 2.2vw, 2.1rem);
+    line-height: 1;
+    letter-spacing: -0.025em;
+  }
+  .entry__name a {
+    display: inline-block;
+    min-height: 44px;
+    color: inherit;
+    text-decoration: none;
+    padding-block: 0.15rem;
+  }
+  .entry__name a:hover {
+    color: var(--color-teal);
+  }
+  .entry__statement {
+    font-family: var(--font-display);
+    font-size: 1.08rem;
+    line-height: 1.3;
+    color: var(--color-teal);
+    max-width: 30ch;
+  }
+  .entry__body {
+    color: var(--color-ink-muted);
+    font-size: 0.93rem;
+    max-width: 44ch;
+  }
+  .entry__cta {
+    justify-self: start;
+  }
+  .entry__state {
+    font-family: var(--font-instrument);
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-faint);
+    text-transform: uppercase;
   }
 
-  .selected__archive {
+  .selected__foot {
+    margin-top: clamp(2rem, 3.5vw, 3rem);
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-rule-soft);
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    padding-top: clamp(1.5rem, 3vw, 2.5rem);
-    border-top: 2px solid var(--color-rule-strong);
-  }
-  .selected__archive p {
+    gap: 0.75rem 1.5rem;
     font-size: 0.9rem;
     color: var(--color-ink-muted);
-    max-width: 46ch;
   }
 
   @media (max-width: 60rem) {
     .selected__head-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 1rem;
-      align-items: start;
     }
     .feature {
-      grid-template-columns: 1fr;
-    }
-    .feature__art,
-    .feature__copy {
-      grid-column: auto;
-      grid-row: auto;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
     }
     .feature__art {
+      grid-column: 1;
+      grid-row: 2;
       position: static;
     }
-    .feature__shot--b {
-      width: 100%;
-      margin-top: 1rem;
-    }
-    .feature__copy h3 {
-      font-size: clamp(2rem, 6vw, 2.6rem);
+    .feature__copy {
+      grid-column: 1;
+      grid-row: 1;
     }
   }
-
   @media (max-width: 46rem) {
-    .pair {
-      grid-template-columns: 1fr;
-      gap: 2.25rem;
-    }
-    .selected__head h2 {
-      font-size: clamp(1.95rem, 8.4vw, 2.5rem);
-    }
-    .selected__archive {
-      align-items: flex-start;
-      flex-direction: column;
-    }
-    .selected__archive .button {
-      width: 100%;
-    }
-    .facts__row {
-      grid-template-columns: 1fr;
-      gap: 0.15rem;
+    .entries {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.75rem;
     }
   }
 </style>

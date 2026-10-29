@@ -166,6 +166,8 @@ If the chosen option isn't working in a day, ship without it and say so. A bad v
 
 **Done when** it works at 1440/768/390/320, with reduced motion, without JS, and with no layout shift.
 
+**Built (Option A, Lab preview only).** The two invented claims — "5 years", "40%" — are set as small paper chips inside the sentence that describes them, on the page's own sheet colours, at a 1.4° resting angle that goes flat under 46rem and under reduced motion. They are ordinary inline text, so a screen reader reads them in place; no image, no layout shift, `overflow: 0` at 1440 and 390. One place only, as the phase asked: a second use would make it a motif instead of an idea.
+
 ---
 
 ### Phase 4 — Lab: stop presenting, start testing (3 days) · Tier 1.5, 2.7
@@ -213,6 +215,13 @@ Files: `src/components/home/SelectedWork.astro`, `LabPreview.astro`, `PersonSect
 4. **Lab preview:** lead and note rewritten per §1; the working refusal demo stays.
 
 **Done when** homepage ≤ 560 words, all three projects still named with accurate status, nothing factual lost that isn't on its case study, and the first fold still shows identity + actions + the first artifact.
+
+**Built.** Measured at 1440 (`main` innerText, excluding nav and footer): **725 words, 5.7 screens, 14 labels**, down from 1,051 / 7 / 26. Of those 725, **160 are the artifacts' own text** — the ticket lines, the three map entries, the capture captions — so the prose count is **565**. That is five words over the 560 target, and I stopped there on purpose: the remaining edges are the two state lines that stop SessionBook and Koranco reading as shipped products.
+
+What went:
+- `Selected work` lost the four-row facts table on all three projects, the "Known result" paragraph, one of the two Syncareer captures, and the two minis' own artifacts (the bench above already shows them). It is now one flagship with one capture and two short entries — 257 words where there were ~600.
+- `The person` lost the achievements list, the second paragraph, the "still studying" footnote and the closer line: 235 words → 116. Three roles stay, named only, with the dates; the detail is on `/profile/`.
+- `Lab preview` lost its replay button and script entirely. A button that replayed a fixed sequence was the same theatre the Lab rebuild removed, and it was the only script on the page.
 
 ---
 
