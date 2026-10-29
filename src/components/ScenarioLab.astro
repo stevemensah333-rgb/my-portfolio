@@ -1,2081 +1,1041 @@
 ---
 /**
- * ScenarioLab — /lab/, rebuilt around one scenario a reader can follow.
+ * The Reliability Lab.
  *
- * One CV bullet, five steps: the context a revised request carries, an answer
- * that context cannot support, the gate that refuses it, a cited proposal that
- * passes the gate, and the person who still decides. Then the two contract
- * branches side by side, and the code behind both.
+ * One idea: a check reads a CV sentence before a person does, and you get to
+ * write the sentence. The visitor's text and their citation choices go
+ * through `evaluateReply` — the same pure function `npm test` asserts — so
+ * the verdict on screen is computed, never authored.
  *
- * The reading is computed once, on the server, by `runScenario` in
- * src/scripts/labScenario.mjs. That module is pure and deterministic, is
- * asserted by `npm test`, and is the only place the checks live — the browser
- * replays the same reading instead of re-deciding anything. No model is
- * called, no network request is made, and every fixture is labelled where it
- * appears.
- *
- * The fixture texts come from syncareerInvestigation.ts, which stays the
- * single copy on the site.
+ * With JavaScript off the page still shows a worked example and its reading:
+ * that panel is rendered on the server and swapped for the live bench as soon
+ * as the script runs.
  */
-import { syncareer } from '../data/registry';
-import {
-  evidenceBoundary,
-  failureRecord,
-  interventionRecord,
-  investigationStages,
-  type InvestigationArtifact,
-} from '../data/syncareerInvestigation';
-import { GATE_RULES, LIMITS, runScenario } from '../scripts/labScenario.mjs';
+import { LIMITS, PRESETS, SUPPLIED_CONTEXT, evaluateReply } from '../scripts/labScenario.mjs';
+import { investigationStages } from '../data/syncareerInvestigation.ts';
 
-type CodeArtifact = Extract<InvestigationArtifact, { kind: 'code' }>;
-type RefusalArtifact = Extract<InvestigationArtifact, { kind: 'refusal' }>;
+const honest = PRESETS.find((preset) => preset.id === 'honest') ?? PRESETS[PRESETS.length - 1];
+const first = evaluateReply({ text: honest.text, citedIds: honest.citedIds });
 
-const codeOf = (id: string): CodeArtifact | null => {
+const codeOf = (id: string) => {
   const stage = investigationStages.find((item) => item.id === id);
-  return stage && stage.artifact && stage.artifact.kind === 'code' ? stage.artifact : null;
+  return stage && stage.artifact && stage.artifact.kind === 'code' ? stage.artifact.code : '';
 };
 
-const refusalOf = (id: string): RefusalArtifact | null => {
-  const stage = investigationStages.find((item) => item.id === id);
-  return stage && stage.artifact && stage.artifact.kind === 'refusal' ? stage.artifact : null;
-};
+const beforeText = codeOf('model-output').replace(/\s*\n\s*/g, ' ').trim();
+const afterText = 'Built Python and SQL queries to analyse 1,200 sales records.';
+const gateCode = codeOf('output');
 
-const oldArtifact = codeOf('model-output');
-const revisedArtifact = codeOf('output');
-const contractArtifact = codeOf('input');
-const handlerArtifact = codeOf('intervention');
-const refusalArtifact = refusalOf('failure');
-
-const scenario = runScenario({
-  oldText: oldArtifact?.code ?? '',
-  revisedText: revisedArtifact?.code ?? '',
-});
-
-const oldClaims = scenario.oldClaims;
-const revisedClaims = scenario.revisedClaims;
-const unsupportedCount = oldClaims.filter((claim) => !claim.grounded).length;
-const groundedCount = revisedClaims.filter((claim) => claim.grounded).length;
-
-const escapeHtml = (value: string) =>
-  value.replace(
-    /[&<>"']/g,
-    (character) =>
-      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character,
-  );
-
-const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-/** The stored fixtures hard-wrap their prose; a quote reads as one paragraph. */
-const asParagraph = (text: string) => text.replace(/\s*\n\s*/g, ' ').trim();
-
-/** One pass, so a marked phrase is never marked again inside itself. */
-const markClaims = (text: string, claims: { phrase: string }[], className: string) => {
-  const phrases = [...new Set(claims.map((claim) => claim.phrase))]
-    .filter(Boolean)
-    .sort((a, b) => b.length - a.length);
-  const html = escapeHtml(asParagraph(text));
-  if (!phrases.length) return html;
-  const pattern = new RegExp(phrases.map(escapeRegExp).join('|'), 'gi');
-  return html.replace(pattern, (match) => `<mark class="${className}">${match}</mark>`);
-};
-
-const oldReplyHtml = markClaims(scenario.oldText, oldClaims, 'claim claim--unsupported');
-const revisedReplyHtml = markClaims(scenario.revisedReplyText, revisedClaims, 'claim claim--grounded');
-
-const contextById = new Map(scenario.context.map((item) => [item.id, item]));
-
-const stageMeta = [
-  {
-    id: 'lab-input',
-    step: '01',
-    label: 'Supplied context',
-    state: 'Preflight passed',
-    verdict: 'neutral',
-    announce: `Step 01, supplied context: ${scenario.context.length} allowlisted items. The request would stop here if the opportunity, a requirement or the evidence record were missing.`,
-  },
-  {
-    id: 'lab-model-output',
-    step: '02',
-    label: 'Unsupported answer',
-    state: `${unsupportedCount} claims, none in context`,
-    verdict: 'fail',
-    announce: `Step 02, unsupported answer: ${unsupportedCount} claims in the fixture appear nowhere in the supplied context.`,
-  },
-  {
-    id: 'lab-failure',
-    step: '03',
-    label: 'The gate refuses',
-    state: `${scenario.variants.length} refusals, each named`,
-    verdict: 'fail',
-    announce: `Step 03, the gate: ${scenario.variants.length} variants refused. The old prose stops at ${scenario.oldGate.reason}. Nothing is applied and the reservation is released.`,
-  },
-  {
-    id: 'lab-revised',
-    step: '04',
-    label: 'Cited proposal',
-    state: `Gate passes · ${scenario.revisedGate.reason}`,
-    verdict: 'pass',
-    announce: `Step 04, cited proposal: the gate passes shape and citations, ${groundedCount} of ${revisedClaims.length} claims trace to supplied context. A person still has to review it.`,
-  },
-  {
-    id: 'lab-review',
-    step: '05',
-    label: 'Human review',
-    state: 'A person decides',
-    verdict: 'neutral',
-    announce:
-      'Step 05, human review: accept, edit, reject or undo. Nothing is written to a saved CV by this page.',
-  },
-];
-
-const branchA = [
-  { name: 'Request', value: interventionRecord.comparison.items[0]?.before ?? '' },
-  { name: 'Response', value: interventionRecord.comparison.items[1]?.before ?? '' },
-  { name: 'Trust', value: interventionRecord.comparison.items[2]?.before ?? '' },
-  { name: 'Gate', value: `${scenario.oldGate.reason} — the reply is prose, so there is nothing to check.` },
-  { name: 'Outcome', value: '422 no_safe_proposal. Reservation released. Nothing applied, nothing shown as a result.' },
-];
-
-const branchB = [
-  { name: 'Request', value: interventionRecord.comparison.items[0]?.after ?? '' },
-  { name: 'Response', value: interventionRecord.comparison.items[1]?.after ?? '' },
-  { name: 'Trust', value: interventionRecord.comparison.items[2]?.after ?? '' },
-  { name: 'Gate', value: `${scenario.revisedGate.reason} — shape and citations pass these local checks.` },
-  { name: 'Outcome', value: 'Shown to a person as a proposal. Accept, edit, reject or undo; nothing saved automatically.' },
-];
+const materials = SUPPLIED_CONTEXT.map((item) => ({
+  id: item.id,
+  label: item.label,
+  content: item.content,
+  citedByDefault: honest.citedIds.includes(item.id),
+}));
 ---
 
-<section
-  id="reliability-lab"
-  class="lab"
-  data-scenario
-  data-walk="off"
-  data-workspace-section="reliability-lab"
-  aria-labelledby="lab-title"
->
+<section class="lab" id="lab" aria-labelledby="lab-title">
   <div class="page-shell lab__shell">
-    <!-- ---------------------------------------------------------------- -->
-    <!-- Title                                                            -->
-    <!-- ---------------------------------------------------------------- -->
     <header class="lab__head">
-      <div class="lab__head-main">
-        <p class="eyebrow">03 / Reliability Lab · local demonstration</p>
-        <h1 id="lab-title" class="lab__title">
-          The rewrite looked right. <em>Then somebody checked it.</em>
+      <div>
+        <p class="eyebrow">03 / The Reliability Lab</p>
+        <h1 class="lab__title" id="lab-title">
+          The rewrite looked right.<br />
+          <em>Then somebody checked it.</em>
         </h1>
       </div>
       <div class="lab__head-side">
-        <p class="lead lab__lead">
-          One CV bullet, followed through five steps: the context a request carries, an answer that
-          context cannot support, the gate that refuses it, a cited proposal that passes, and the
-          person who still decides.
+        <p class="lab__lead">
+          A CV sentence can invent a company. Write one below, choose what it cites, and watch the
+          check decide.
         </p>
-        <p class="lab__boundary">
-          No model is called and no network request is made. The replies are authored fixtures,
-          labelled where they appear. The checks are deterministic code, tested, and printed in the
-          inspector at the bottom of this page. There is no captured incident and no measured result
-          here.
+        <p class="lab__lead lab__lead--static">
+          A CV sentence can invent a company. Here is one that cites its sources, and the reading
+          the check gives it.
         </p>
+        <p class="lab__fine">No model is called. Everything here runs in your browser.</p>
       </div>
     </header>
 
-    <div class="console">
-      <!-- -------------------------------------------------------------- -->
-      <!-- Runner: rail + controls                                        -->
-      <!-- -------------------------------------------------------------- -->
-      <nav class="rail" aria-label="Scenario steps" data-rail>
-      <ol class="rail__list">
-        {stageMeta.map((stage) => (
-          <li>
-            <a
-              class="rail__item"
-              href={`#${stage.id}`}
-              data-rail-link={stage.id}
-              aria-label={`Step ${stage.step} — ${stage.label}`}
-            >
-              <span class="rail__step" aria-hidden="true">{stage.step}</span>
-              <span class="rail__label">{stage.label}</span>
-            </a>
-          </li>
-        ))}
-        <li>
-          <a
-            class="rail__item rail__item--compare"
-            href="#lab-compare"
-            data-rail-link="lab-compare"
-            aria-label="Before and after comparison"
-          >
-            <span class="rail__step" aria-hidden="true">A/B</span>
-            <span class="rail__label">Before / after</span>
-          </a>
-        </li>
-      </ol>
-    </nav>
-
-    <div class="transport">
-      <div class="transport__controls">
-        <button type="button" class="lab-button lab-button--run" data-run hidden>
-          Run the scenario <span aria-hidden="true">↗</span>
-        </button>
-        <p class="transport__keys" id="lab-keys">
-          Keys: <kbd>R</kbd> run · <kbd>1</kbd>–<kbd>5</kbd> jump to a step · <kbd>C</kbd> comparison
-        </p>
-      </div>
-      <p class="transport__status" role="status" aria-live="polite" aria-atomic="true" data-status>
-        All five steps and their results are below. Running walks through them again; it does not
-        change a single result.
-      </p>
-    </div>
-
-    <!-- ---------------------------------------------------------------- -->
-    <!-- The five steps                                                   -->
-    <!-- ---------------------------------------------------------------- -->
-    <div class="steps">
-      {stageMeta.map((stage) => (
-        <article
-          class:list={['step', `step--${stage.verdict}`]}
-          id={stage.id}
-          data-stage={stage.id}
-          data-verdict={stage.verdict}
-          data-announce={stage.announce}
-          tabindex="-1"
-          aria-labelledby={`${stage.id}-title`}
-        >
-          <header class="step__head">
-            <p class="step__index" aria-hidden="true">{stage.step}</p>
-            <div class="step__heading">
-              <h2 class="step__title" id={`${stage.id}-title`}>
-                <span class="visually-hidden">Step {stage.step}: </span>
-                <span data-step-label>{stage.label}</span>
-              </h2>
-            </div>
-            <p class="step__state">{stage.state}</p>
-            <span class="step__dot" aria-hidden="true"></span>
-          </header>
-
-          {/* ---- 01 · supplied context -------------------------------- */}
-          {stage.id === 'lab-input' && (
-            <div class="step__body">
-              <div class="step__main">
-                <figure class="plate">
-                  <figcaption class="plate__label">
-                    The request · {scenario.task} · version 2 · illustrative context
-                  </figcaption>
-                  <p class="plate__instruction">
-                    <span class="plate__field">instruction</span>
-                    <span>{scenario.instruction}</span>
-                  </p>
-                  <ul class="context">
-                    {scenario.context.map((item) => (
-                      <li class="context__row">
-                        <span class="context__id">{item.id}</span>
-                        <span class="context__prov">{item.provenance}</span>
-                        <span class="context__content">{item.content}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <p class="plate__note">
-                    The server retrieves nothing on its own: no profile, no history, no CV beyond
-                    these items.
-                  </p>
-                </figure>
-              </div>
-              <aside class="step__side">
-                <p class="side__label">Preflight</p>
-                <ul class="checks">
-                  {scenario.requestChecks.map((check) => (
-                    <li class="check" data-pass={check.pass ? 'true' : 'false'}>
-                      <span class="check__mark" aria-hidden="true">{check.pass ? '✓' : '×'}</span>
-                      <span class="check__body">
-                        <span class="check__name">{check.name}</span>
-                        <span class="check__note">{check.note}</span>
-                      </span>
-                      <span class="visually-hidden">{check.pass ? ' — passes' : ' — fails'}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p class="side__note">
-                  <strong>Branch note.</strong> Under the old contract only the selected bullet
-                  crossed this boundary. Everything above is what the revised contract adds.
-                </p>
-                <p class="side__source">
-                  Request shape and preflight from <code>contract.ts</code>. These values are an
-                  illustrative fixture, not captured user data.
-                </p>
-              </aside>
-            </div>
-          )}
-
-          {/* ---- 02 · unsupported answer ------------------------------ */}
-          {stage.id === 'lab-model-output' && (
-            <div class="step__body">
-              <div class="step__main">
-                <figure class="plate plate--fail">
-                  <figcaption class="plate__label">
-                    Illustrative reply · old-contract shape
-                  </figcaption>
-                  <blockquote class="reply" set:html={oldReplyHtml} />
-                  <p class="plate__note">
-                    Written from the bullet alone. The marked phrases are the claims this page can
-                    match against the context above; nothing in that context mentions Kubernetes,
-                    five years, Acme Corp or 40%.
-                  </p>
-                </figure>
-              </div>
-              <aside class="step__side">
-                <p class="side__label">Claims against the supplied context</p>
-                <ul class="claims">
-                  {oldClaims.map((claim) => (
-                    <li class="claim-row" data-grounded={claim.grounded ? 'true' : 'false'}>
-                      <span class="claim-row__phrase">“{claim.phrase}”</span>
-                      <span class="claim-row__verdict">
-                        {claim.grounded ? `Found in ${claim.sourceId}` : 'Not in the supplied context'}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <p class="side__note">
-                  <strong>This is a word match, not fact-checking.</strong> A claim phrased
-                  differently would read as unsupported, and a claim whose words do appear can still
-                  be misused. The production checks are broader; see the inspector.
-                </p>
-                <p class="side__source">
-                  ILLUSTRATIVE — fixture, not a captured output. Shaped after the failure classes in
-                  <code>docs/AI_APPLICATION_GUIDANCE.md</code>.
-                </p>
-              </aside>
-            </div>
-          )}
-
-          {/* ---- 03 · the gate refuses -------------------------------- */}
-          {stage.id === 'lab-failure' && (
-            <div class="step__body">
-              <div class="step__main">
-                <figure class="plate plate--fail">
-                  <figcaption class="plate__label">
-                    The same gate, {scenario.variants.length} times
-                  </figcaption>
-                  <ul class="refusals">
-                    {scenario.variants.map((variant) => (
-                      <li class="refusal" data-verdict={variant.verdict.ok ? 'pass' : 'fail'}>
-                        <span class="refusal__mark" aria-hidden="true">
-                          {variant.verdict.ok ? '✓' : '×'}
-                        </span>
-                        <span class="refusal__body">
-                          <span class="refusal__label">{variant.label}</span>
-                          <span class="refusal__note">{variant.note}</span>
-                          <span class="refusal__reason">
-                            <code>{variant.verdict.reason}</code> — {variant.verdict.message}
-                          </span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  {refusalArtifact && (
-                    <dl class="refusal-record">
-                      {refusalArtifact.items.map((item) => (
-                        <div>
-                          <dt>{item.name}</dt>
-                          <dd>{item.value}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  )}
-                </figure>
-              </div>
-              <aside class="step__side">
-                <div id="lab-validation" class="anchor-target">
-                  <p class="side__label">The rules, in the order they run</p>
-                  <ol class="rules">
-                    {GATE_RULES.map((rule) => (
-                      <li class="rule">
-                        <code class="rule__reason">{rule.reason}</code>
-                        <span class="rule__name">{rule.name}</span>
-                        <span class="rule__note">{rule.note}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-                <p class="side__note">
-                  <strong>Nothing was applied.</strong> A refusal releases the quota reservation,
-                  and the review surface blocks accept until the text is edited or regenerated.
-                </p>
-                <p class="side__source">
-                  Reason codes from <code>contract.ts</code> and <code>handler.ts</code>. The gate
-                  that runs on this page is the local checker in the inspector — a subset of the
-                  production validator, not a copy of it.
-                </p>
-              </aside>
-            </div>
-          )}
-
-          {stage.id === 'lab-revised' && (
-            <span id="lab-output" class="anchor-target" aria-hidden="true"></span>
-          )}
-
-          {/* ---- 04 · cited proposal ---------------------------------- */}
-          {stage.id === 'lab-revised' && (
-            <div class="step__body">
-              <div class="step__main">
-                <figure class="plate plate--pass">
-                  <figcaption class="plate__label">
-                    Illustrative reply · revised-contract shape
-                  </figcaption>
-                  <blockquote class="reply reply--pass" set:html={revisedReplyHtml} />
-                  <ul class="citations" aria-label="Source ids cited by the proposal">
-                    {scenario.revisedProposal?.sourceContextIds?.map((id: string) => (
-                      <li class="citation">
-                        <span class="citation__id">{id}</span>
-                        <span class="citation__label">{contextById.get(id)?.label ?? 'unknown id'}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <details class="raw">
-                    <summary>The fixture exactly as it is checked</summary>
-                    <pre tabindex="0"><code>{scenario.revisedText}</code></pre>
-                  </details>
-                  <p class="plate__note">
-                    The same gate that refused four replies accepts this one. Passing it means the
-                    shape is legal and the citations exist — not that the sentence is true.
-                  </p>
-                </figure>
-              </div>
-              <aside class="step__side">
-                <p class="side__label">Claims against the supplied context</p>
-                <ul class="claims">
-                  {revisedClaims.map((claim) => (
-                    <li class="claim-row" data-grounded={claim.grounded ? 'true' : 'false'}>
-                      <span class="claim-row__phrase">“{claim.phrase}”</span>
-                      <span class="claim-row__verdict">
-                        {claim.grounded ? `Found in ${claim.sourceId}` : 'Not in the supplied context'}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <p class="side__note">
-                  <strong>{groundedCount} of {revisedClaims.length} claims trace back.</strong> A
-                  pass is permission to show a person a proposal, not a verdict on it.
-                </p>
-                <p class="side__source">
-                  ILLUSTRATIVE — fixture in the revised shape, not a live sample. The shape comes
-                  from <code>career-guidance</code>; the example follows the fixed comparison in
-                  <code>docs/AI_APPLICATION_GUIDANCE.md</code>.
-                </p>
-              </aside>
-            </div>
-          )}
-
-          {/* ---- 05 · human review ------------------------------------ */}
-          {stage.id === 'lab-review' && (
-            <div class="step__body">
-              <div class="step__main">
-                <div class="review" data-review hidden>
-                  <fieldset class="review__source">
-                    <legend class="side__label">Proposal under review</legend>
-                    <label class="review__choice">
-                      <input
-                        type="radio"
-                        name="review-source"
-                        value="revised"
-                        checked
-                        data-review-source
-                        data-gate-ok="true"
-                        data-gate-reason={scenario.revisedGate.reason}
-                        data-text={scenario.revisedProposal?.text ?? ''}
-                      />
-                      <span>Cited proposal · gate passed</span>
-                    </label>
-                    <label class="review__choice">
-                      <input
-                        type="radio"
-                        name="review-source"
-                        value="refused"
-                        data-review-source
-                        data-gate-ok="false"
-                        data-gate-reason={scenario.oldGate.reason}
-                        data-text=""
-                      />
-                      <span>Refused fixture · gate refused</span>
-                    </label>
-                  </fieldset>
-
-                  <label class="review__text">
-                    <span class="side__label">Draft text</span>
-                    <textarea data-review-text rows="3" spellcheck="false">{scenario.revisedProposal?.text ?? ''}</textarea>
-                  </label>
-
-                  <div class="review__actions">
-                    <button type="button" class="lab-button" data-review-action="accept">Accept</button>
-                    <button type="button" class="lab-button" data-review-action="edit">Edit</button>
-                    <button type="button" class="lab-button" data-review-action="reject">Reject</button>
-                    <button type="button" class="lab-button lab-button--quiet" data-review-action="undo">
-                      Undo
-                    </button>
-                  </div>
-
-                  <dl class="review__state">
-                    <div>
-                      <dt>Status</dt>
-                      <dd data-review-state>{scenario.reviews.revised.status}</dd>
-                    </div>
-                    <div>
-                      <dt>Draft field</dt>
-                      <dd data-review-draft>—</dd>
-                    </div>
-                    <div>
-                      <dt>Saved CV</dt>
-                      <dd data-review-saved>Unchanged</dd>
-                    </div>
-                  </dl>
-                  <p class="review__message" role="status" aria-live="polite" data-review-message>
-                    {scenario.reviews.revised.message}
-                  </p>
-                </div>
-
-                <div class="review-static" data-review-static>
-                  <p class="plate__label">The last gate is a person</p>
-                  <ul class="review-list">
-                    <li><strong>Accept</strong> moves the proposal into the draft field.</li>
-                    <li><strong>Edit</strong> keeps the person’s wording instead.</li>
-                    <li><strong>Reject</strong> leaves the draft untouched.</li>
-                    <li><strong>Undo</strong> returns the draft to the proposal.</li>
-                  </ul>
-                  <p class="plate__note">
-                    None of these writes to a saved CV here. With JavaScript off this stays a written
-                    rule rather than a control.
-                  </p>
-                </div>
-              </div>
-              <aside class="step__side">
-                <p class="side__label">Why a person is required</p>
-                <ul class="checks">
-                  <li class="check" data-pass="false">
-                    <span class="check__mark" aria-hidden="true">×</span>
-                    <span class="check__body">
-                      <span class="check__name">Accept on a refused reply</span>
-                      <span class="check__note">
-                        Blocked. The product keeps the unsafe text visible with a warning and waits
-                        for an edit or a regeneration.
-                      </span>
-                    </span>
-                  </li>
-                  <li class="check" data-pass="true">
-                    <span class="check__mark" aria-hidden="true">✓</span>
-                    <span class="check__body">
-                      <span class="check__name">Accept on a cited proposal</span>
-                      <span class="check__note">
-                        Allowed — by the person reading it, not by the gate.
-                      </span>
-                    </span>
-                  </li>
-                </ul>
-                <p class="side__note">
-                  <strong>Nothing is saved automatically.</strong> Accept writes the draft only while
-                  its current value still matches the original; the existing CV save persists it.
-                </p>
-                <p class="side__source">
-                  Behaviour from the CV review flow in <code>career-guidance</code>. The control above
-                  is a local model of it, not the product.
-                </p>
-              </aside>
-            </div>
-          )}
-        </article>
-        ))}
-      </div>
-    </div>
-
-    <!-- ---------------------------------------------------------------- -->
-    <!-- Before / after                                                   -->
-    <!-- ---------------------------------------------------------------- -->
-    <section class="compare" id="lab-compare" aria-labelledby="lab-compare-title">
-      <header class="compare__head">
-        <p class="eyebrow">A / B</p>
-        <h2 id="lab-compare-title" class="compare__title">Two branches, kept apart.</h2>
-        <p class="compare__note" id="lab-diagnosis">
-          Same seam, two shapes. The difference is what the server can check. One path never leaves
-          the request it was sent with; the other has something to test the reply against. Neither
-          column below is a captured run.
-        </p>
-      </header>
-
-      <div class="branches">
-        <section class="branch branch--old" aria-labelledby="branch-old-title" data-branch="old">
-          <h3 id="branch-old-title" class="branch__title">
-            <span class="branch__tag">A</span> Old contract
-          </h3>
-          <p class="branch__sub">The branch that produced the fluent lie.</p>
-          <dl class="branch__rows">
-            {branchA.map((row) => (
-              <div class="branch__row">
-                <dt>{row.name}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-
-        <section class="branch branch--new" aria-labelledby="branch-new-title" data-branch="new">
-          <h3 id="branch-new-title" class="branch__title">
-            <span class="branch__tag">B</span> Revised contract
-          </h3>
-          <p class="branch__sub">The branch that gives the server something to check.</p>
-          <dl class="branch__rows">
-            {branchB.map((row) => (
-              <div class="branch__row">
-                <dt>{row.name}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      </div>
-
-      <p class="compare__numbers">
-        <strong>On numbers.</strong> {evidenceBoundary.numbers.body}
-      </p>
-    </section>
-
-    <!-- ---------------------------------------------------------------- -->
-    <!-- Inspector                                                        -->
-    <!-- ---------------------------------------------------------------- -->
-    <section class="inspector" id="lab-code" aria-labelledby="lab-code-title">
-      <details class="inspector__details">
-        <summary class="inspector__summary" aria-labelledby="lab-code-title">
-          <span
-            id="source-inspection"
-            class="anchor-target anchor-target--abs"
-            aria-hidden="true"></span>
-          <span class="inspector__summary-main">
-            <span class="eyebrow">Secondary reading</span>
-            <span id="lab-code-title" class="inspector__title">Code inspector</span>
-          </span>
-          <span class="inspector__summary-side">
-            The rules that run here, the contract they mirror, and the handler order around them ↓
-          </span>
-        </summary>
-
-        <div class="inspector__body">
-          <figure class="plate inspector__figure">
-            <figcaption class="plate__label">
-              This page’s gate · <code>src/scripts/labScenario.mjs</code>
-            </figcaption>
-            <ol class="rules rules--wide">
-              {GATE_RULES.map((rule) => (
-                <li class="rule">
-                  <code class="rule__reason">{rule.reason}</code>
-                  <span class="rule__name">{rule.name}</span>
-                  <span class="rule__note">{rule.note}</span>
+    {/* ------------------------------------------------ the bench ---- */}
+    <div class="desk" data-lab-live hidden>
+      <div class="desk__side">
+        <div class="panel panel--material">
+          <div class="panel__head">
+            <h2 class="panel__title">The material</h2>
+          </div>
+          <ul class="material">
+            {
+              materials.map((item) => (
+                <li class="material__item">
+                  <span class="material__label">
+                    {item.label}
+                    <span class="material__id">{item.id}</span>
+                  </span>
+                  <span class="material__text">{item.content}</span>
                 </li>
-              ))}
-            </ol>
-            <p class="plate__note">
-              A pure function over the fixture text and the supplied ids. It runs in your browser and
-              in <code>npm test</code>, which asserts every reason code above.
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="desk__main">
+        <div class="panel panel--compose">
+          <div class="compose">
+            <label class="compose__label" for="lab-text">Your sentence</label>
+            <textarea
+              id="lab-text"
+              class="compose__field"
+              rows="2"
+              spellcheck="false"
+              data-lab-text>{honest.text}</textarea>
+
+            <div class="presets" role="group" aria-label="Examples">
+              <span class="presets__label" aria-hidden="true">Try</span>
+              {
+                PRESETS.map((preset) => (
+                  <button type="button" class="preset" data-preset={preset.id}>
+                    {preset.label}
+                  </button>
+                ))
+              }
+            </div>
+            <p class="preset-select">
+              <label for="lab-preset">Try</label>
+              <select id="lab-preset" data-preset-select>
+                {PRESETS.map((preset) => (
+                  <option value={preset.id}>{preset.label}</option>
+                ))}
+              </select>
             </p>
-          </figure>
-
-          {contractArtifact && (
-            <figure class="plate inspector__figure">
-              <figcaption class="plate__label">
-                Production contract · <code>career-guidance/contract.ts</code> (excerpt)
-              </figcaption>
-              <pre tabindex="0"><code>{contractArtifact.code}</code></pre>
-              <p class="plate__note">
-                Allowlisted context in, size limits fixed, and a preflight that fails closed before
-                the gateway is called. Limits: {LIMITS.contextItemMax} items,{' '}
-                {LIMITS.contextItemContentMax.toLocaleString('en-GB')} characters each,{' '}
-                {LIMITS.contextTotalMax.toLocaleString('en-GB')} in total.
-              </p>
-            </figure>
-          )}
-
-          {handlerArtifact && (
-            <figure class="plate inspector__figure inspector__figure--anchor">
-              <span
-                id="lab-intervention"
-                class="anchor-target anchor-target--abs"
-                aria-hidden="true"></span>
-              <figcaption class="plate__label">
-                Production handler order · <code>career-guidance/handler.ts</code> (excerpt)
-              </figcaption>
-              <pre tabindex="0"><code>{handlerArtifact.code}</code></pre>
-              <p class="plate__note">
-                Validation, authentication, an idempotent reservation, the gateway, output
-                validation, then exactly one commit. Every failure after the reservation releases it.
-              </p>
-            </figure>
-          )}
-
-          <div class="inspector__boundary">
-            <p class="side__label">What this page does not do</p>
-            <p>
-              The local checker is a subset of the production validator. It does not call a model, it
-              does not run the factual-risk checks, and it proves nothing about output quality. The
-              deployed product and this demonstration are not the same program.
+            <p class="presets__note" data-preset-note aria-live="polite">
+              {honest.note}
             </p>
-            <p>
-              <a class="text-link" href={`${syncareer.route}#investigation`}>
-                Read the seven-stage investigation in the case study
-                <span class="text-link__arrow" aria-hidden="true">→</span>
-              </a>
+
+          </div>
+
+        </div>
+      </div>
+
+      <div class="desk__cites panel panel--cites">
+        <fieldset class="cites">
+          <legend class="cites__legend">What it cites</legend>
+          <div class="cites__row">
+            {
+              materials.map((item) => (
+                <button
+                  type="button"
+                  class="cite"
+                  data-cite={item.id}
+                  aria-pressed={item.citedByDefault ? 'true' : 'false'}
+                >
+                  <span class="cite__tick" aria-hidden="true"></span>
+                  {item.label}
+                </button>
+              ))
+            }
+          </div>
+        </fieldset>
+      </div>
+
+      <aside class="desk__verdict">
+        <div class="verdict" data-verdict data-status={first.status} role="status" aria-live="polite">
+          <p class="verdict__label" data-verdict-label>{first.label}</p>
+          <p class="verdict__reason" data-verdict-reason>{first.reason}</p>
+          <div class="verdict__aside" data-verdict-aside hidden>
+            <p class="verdict__aside-title">Not in the material</p>
+            <ul class="verdict__claims" data-verdict-claims></ul>
+            <p class="verdict__aside-note">
+              A word match, so it misses paraphrases and it can be fooled. A place to start, not a
+              verdict.
             </p>
           </div>
         </div>
-      </details>
+        <ul class="checks" data-checks>
+          {first.checks.map((check) => (
+            <li class="checks__row" data-pass={check.pass ? 'true' : 'false'}>
+              <span class="checks__mark" aria-hidden="true"></span>
+              <span class="checks__name">{check.name}</span>
+            </li>
+          ))}
+        </ul>
+        </aside>
+    </div>
+
+    {/* --------------------------------------- the no-JS reading ---- */}
+    <div class="desk desk--static" data-lab-static>
+      <div class="desk__side">
+        <div class="panel panel--material">
+          <div class="panel__head">
+            <h2 class="panel__title">The material</h2>
+          </div>
+          <ul class="material">
+            {
+              materials.map((item) => (
+                <li class="material__item">
+                  <span class="material__label">
+                    {item.label}
+                    <span class="material__id">{item.id}</span>
+                  </span>
+                  <span class="material__text">{item.content}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+      <div class="desk__main">
+        <div class="panel panel--compose">
+          <p class="compose__label">A sentence that cites both sides</p>
+          <blockquote class="static-quote">“{honest.text}”</blockquote>
+          <p class="static-cites">Cites requirement-2 and evidence-1.</p>
+          <p class="static-note">
+            The bench needs JavaScript. Everything below reads without it.
+          </p>
+        </div>
+      </div>
+      <aside class="desk__verdict">
+        <div class="verdict">
+          <p class="verdict__label">{first.label}</p>
+          <p class="verdict__reason">{first.reason}</p>
+        </div>
+      </aside>
+    </div>
+
+    {/* ----------------------------------------------- the checks ---- */}
+    <section class="lab-block" id="lab-checks" aria-labelledby="lab-checks-title">
+      <h2 class="lab-block__title" id="lab-checks-title">What the check looks at</h2>
+      <p class="lab-block__lead">
+        Four things, in order. The contract in the product refuses two more before any of this runs:
+        a reply that isn’t JSON, and a reply that isn’t a rewrite.
+      </p>
+      <ol class="rules">
+        <li class="rule">
+          <span class="rule__name">Cites something</span>
+          <span class="rule__note">A proposal with no source ids cites nothing, so it stops there.</span>
+        </li>
+        <li class="rule">
+          <span class="rule__name">Only ids it was given</span>
+          <span class="rule__note">Every id has to be one the request actually supplied. No invented ids.</span>
+        </li>
+        <li class="rule">
+          <span class="rule__name">A requirement and evidence</span>
+          <span class="rule__note">At least one requirement-* and one evidence-* id, or the claim has no footing.</span>
+        </li>
+        <li class="rule">
+          <span class="rule__name">Then a person</span>
+          <span class="rule__note">What passes is a proposal for review. Not a verified claim, and not an applied edit.</span>
+        </li>
+      </ol>
+      <p class="lab-block__fine">
+        Request limits: {LIMITS.contextItemMax} items, {LIMITS.contextItemContentMax.toLocaleString('en-GB')}{' '}
+        characters each, {LIMITS.contextTotalMax.toLocaleString('en-GB')} in total.
+      </p>
     </section>
 
-    <!-- ---------------------------------------------------------------- -->
-    <!-- Limits + links                                                   -->
-    <!-- ---------------------------------------------------------------- -->
-    <section class="limits" aria-labelledby="lab-limits-title">
-      <div class="limits__head">
-        <p class="eyebrow">Evidence boundary</p>
-        <h2 id="lab-limits-title" class="limits__title">What this page cannot show.</h2>
-        <p class="limits__statement">{evidenceBoundary.statement}</p>
+    {/* ------------------------------------------------ the story ---- */}
+    <section class="lab-block lab-block--story" id="lab-story" aria-labelledby="lab-story-title">
+      <div>
+        <h2 class="lab-block__title" id="lab-story-title">What actually happened</h2>
+        <p class="lab-story__body">
+          My CV assistant wrote fluent bullets. Some invented employers, years and percentages that
+          were nowhere in the data it had been given.
+        </p>
+        <p class="lab-story__body">
+          A better prompt wasn’t the fix. The request now carries the material explicitly, and the
+          reply has to point at the ids it used before a person ever sees it.
+        </p>
+        <p class="lab-story__body">
+          That revision is in the source. It isn’t redeployed yet, and I haven’t measured whether the
+          live model behaves better. <a href="/work/syncareer/">The Syncareer case study</a> has the rest.
+        </p>
       </div>
-      <ul class="limits__list">
-        {evidenceBoundary.missing.map((item) => (
-          <li>{item.text}</li>
-        ))}
-      </ul>
-      <div class="limits__links">
-        <a class="text-link" href={syncareer.route}>
-          Syncareer case study <span class="text-link__arrow" aria-hidden="true">→</span>
-        </a>
-        <a class="text-link" href="/work/">
-          All work <span class="text-link__arrow" aria-hidden="true">→</span>
-        </a>
+      <div class="compare">
+        <div class="compare__col compare__col--before">
+          <p class="compare__label">Before</p>
+          <p class="compare__text">“{beforeText}”</p>
+          <p class="compare__note">Free text. Nothing to check.</p>
+        </div>
+        <div class="compare__col compare__col--after">
+          <p class="compare__label">After</p>
+          <p class="compare__text">“{afterText}”</p>
+          <p class="compare__note">Cites what it used, and a person still reads it.</p>
+        </div>
       </div>
     </section>
 
-    <p class="lab__foot">
-      The failure this page walks through, in one line:
-      <a href={`${syncareer.route}#problem`}>“{failureRecord.statement}”</a>
-    </p>
+    {/* ------------------------------------------------ limits ------- */}
+    <section class="lab-block" id="lab-limits" aria-labelledby="lab-limits-title">
+      <h2 class="lab-block__title" id="lab-limits-title">What this can’t tell you</h2>
+      <p class="lab-block__lead">
+        Whether the sentence is true. These checks read structure and citations, not meaning, so a
+        line can cite everything and still be wrong — which is why a person still reads it.
+      </p>
+      <p class="lab-block__lead">
+        The checker here is a small subset of the product’s validator, written for this page. Both
+        fixtures are mine, not captured output.
+      </p>
+    </section>
+
+    {/* ------------------------------------------------ code --------- */}
+    <details class="lab-code" id="lab-code">
+      <summary>The contract this imitates</summary>
+      <pre tabindex="0"><code>{gateCode}</code></pre>
+      <p class="lab-code__note">
+        Excerpt from <code>career-guidance/contract.ts</code>. The gate in this page is a subset of it.
+      </p>
+    </details>
   </div>
 </section>
 
 <script>
-  import { createReview, reviewAction } from '../scripts/labScenario.mjs';
+  import { PRESETS, evaluateReply } from '../scripts/labScenario.mjs';
 
-  type ReviewStatus = 'awaiting_review' | 'blocked' | 'accepted' | 'edited' | 'rejected';
+  const root = document.querySelector<HTMLElement>('[data-lab-live]');
+  const staticPanel = document.querySelector<HTMLElement>('[data-lab-static]');
 
-  type ReviewState = {
-    gateOk: boolean;
-    reason: string | null;
-    status: ReviewStatus;
-    text: string;
-    draft: string | null;
-    saved: string | null;
-    message: string;
-  };
+  if (root) {
+    const text = root.querySelector<HTMLTextAreaElement>('[data-lab-text]');
+    const note = root.querySelector<HTMLElement>('[data-preset-note]');
+    const verdict = root.querySelector<HTMLElement>('[data-verdict]');
+    const label = root.querySelector<HTMLElement>('[data-verdict-label]');
+    const reason = root.querySelector<HTMLElement>('[data-verdict-reason]');
+    const aside = root.querySelector<HTMLElement>('[data-verdict-aside]');
+    const claims = root.querySelector<HTMLElement>('[data-verdict-claims]');
+    const cites = [...root.querySelectorAll<HTMLButtonElement>('[data-cite]')];
+    const presets = [...root.querySelectorAll<HTMLButtonElement>('[data-preset]')];
 
-  type ReviewAction = 'accept' | 'edit' | 'reject' | 'undo';
+    const citedIds = () =>
+      cites.filter((chip) => chip.getAttribute('aria-pressed') === 'true').map((chip) => chip.dataset.cite ?? '');
 
-  const init = () => {
-    const root = document.querySelector<HTMLElement>('[data-scenario]');
-    if (!root || root.dataset.ready === '1') return;
-    root.dataset.ready = '1';
+    const checkList = root.querySelector<HTMLElement>('[data-checks]');
 
-    const stages = [...root.querySelectorAll<HTMLElement>('[data-stage]')];
-    const railLinks = [...root.querySelectorAll<HTMLAnchorElement>('[data-rail-link]')];
-    const runButton = root.querySelector<HTMLButtonElement>('[data-run]');
-    const status = root.querySelector<HTMLElement>('[data-status]');
-    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const render = (state: ReturnType<typeof evaluateReply>) => {
+      if (!verdict || !label || !reason) return;
+      verdict.dataset.status = state.status;
+      label.textContent = state.label;
+      reason.textContent = state.reason;
 
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let index = -1;
-
-    const setRail = (target: string | null) => {
-      railLinks.forEach((link) => {
-        if (target && link.dataset.railLink === target) link.setAttribute('aria-current', 'step');
-        else link.removeAttribute('aria-current');
-      });
-    };
-
-    const clearStageStates = () => {
-      stages.forEach((stage) => {
-        delete stage.dataset.reached;
-        delete stage.dataset.current;
-      });
-    };
-
-    const finish = () => {
-      root.dataset.walk = 'done';
-      if (runButton) {
-        runButton.disabled = false;
-        runButton.textContent = 'Replay the scenario ↺';
-      }
-      setRail(stages[stages.length - 1]?.dataset.stage ?? null);
-    };
-
-    const advance = () => {
-      index += 1;
-      if (index >= stages.length) {
-        finish();
-        if (status) {
-          status.textContent =
-            'Complete. Five steps, one person. Nothing was called, fetched or saved — replaying changes nothing.';
-        }
-        return;
-      }
-      const stage = stages[index];
-      if (!stage) return;
-      stage.dataset.reached = 'true';
-      stages.forEach((item, itemIndex) => {
-        if (itemIndex === index) item.dataset.current = 'true';
-        else delete item.dataset.current;
-      });
-      setRail(stage.dataset.stage ?? null);
-      if (status) status.textContent = stage.dataset.announce ?? stage.id;
-      timer = setTimeout(advance, 900);
-    };
-
-    const run = () => {
-      if (!runButton) return;
-      clearTimeout(timer);
-      clearStageStates();
-      runButton.disabled = true;
-      runButton.textContent = 'Running…';
-
-      if (motion.matches) {
-        stages.forEach((stage) => {
-          stage.dataset.reached = 'true';
+      if (checkList) {
+        const rows = [...checkList.querySelectorAll<HTMLElement>('.checks__row')];
+        state.checks.forEach((check, index) => {
+          const row = rows[index];
+          if (!row) return;
+          row.dataset.pass = check.pass ? 'true' : 'false';
         });
-        index = stages.length;
-        finish();
-        if (status) {
-          status.textContent =
-            'Complete — motion reduced, so all five steps are shown at once. The results are unchanged.';
-        }
-        return;
       }
 
-      root.dataset.walk = 'walking';
-      index = -1;
-      advance();
+      if (aside && claims) {
+        const flagged = state.unbacked;
+        aside.hidden = flagged.length === 0;
+        claims.replaceChildren(
+          ...flagged.map((claim) => {
+            const li = document.createElement('li');
+            li.textContent = claim.phrase;
+            return li;
+          }),
+        );
+      }
     };
 
-    if (runButton) {
-      runButton.hidden = false;
-      runButton.addEventListener('click', run);
+    let timer: number | undefined;
+    const read = () => render(evaluateReply({ text: text?.value ?? '', citedIds: citedIds() }));
+    const readSoon = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(read, 120);
+    };
+
+    text?.addEventListener('input', readSoon);
+
+    for (const chip of cites) {
+      chip.addEventListener('click', () => {
+        chip.setAttribute('aria-pressed', chip.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        read();
+      });
     }
 
-    /* Stage selection. The rail is a set of real links, so it works with the
-       keyboard and without JavaScript; this only marks the current reading. */
-    const selectStage = (id: string) => {
-      setRail(id);
-    };
-
-    root.addEventListener('click', (event) => {
-      const link = (event.target as HTMLElement | null)?.closest<HTMLAnchorElement>('[data-rail-link]');
-      if (!link) return;
-      selectStage(link.dataset.railLink ?? '');
-    });
-
-    const hashTarget = () => {
-      const id = location.hash.slice(1);
-      if (!id) return;
-      if (!root.querySelector(`#${CSS.escape(id)}`)) return;
-      selectStage(id);
-    };
-    hashTarget();
-    window.addEventListener('hashchange', hashTarget);
-
-    /* Keyboard: R runs, 1–5 jump, C opens the comparison. Ignored whenever a
-       form control or a modifier is involved, so typing is never hijacked. */
-    const keys = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
-      const target = event.target as HTMLElement | null;
-      if (target && target.closest('input, textarea, select, [contenteditable]')) return;
-      if (target?.isContentEditable) return;
-
-      const key = event.key.toLowerCase();
-      if (key === 'r') {
-        event.preventDefault();
-        run();
-        return;
+    const applyPreset = (id: string, { fromHash = false } = {}) => {
+      const preset = PRESETS.find((item) => item.id === id);
+      if (!preset || !text) return;
+      text.value = preset.text;
+      for (const chip of cites) {
+        chip.setAttribute('aria-pressed', preset.citedIds.includes(chip.dataset.cite ?? '') ? 'true' : 'false');
       }
-      if (key === 'c') {
-        event.preventDefault();
-        location.hash = '#lab-compare';
-        selectStage('lab-compare');
-        return;
-      }
-      if (/^[1-5]$/.test(key)) {
-        const stage = stages[Number(key) - 1];
-        if (!stage) return;
-        event.preventDefault();
-        /* Address the stage the way its rail link does, so a keyboard jump
-           and a click leave the same shareable URL, and `hashchange` does
-           the scrolling and the rail marking. */
-        if (stage.id) location.hash = `#${stage.id}`;
+      if (note) note.textContent = preset.note;
+      if (select) select.value = preset.id;
+      read();
+      /* A preset addresses the bench the way a link would, so the URL can be
+         shared and the back button walks back through the examples. */
+      if (!fromHash && location.hash !== `#lab-${preset.id}`) {
+        history.pushState(null, '', `#lab-${preset.id}`);
       }
     };
 
-    const cleanup = () => {
-      clearTimeout(timer);
-      document.removeEventListener('keydown', keys);
-      window.removeEventListener('hashchange', hashTarget);
-    };
-    const previousCleanup = (window as unknown as Record<string, unknown>).__labCleanup;
-    if (typeof previousCleanup === 'function') (previousCleanup as () => void)();
-    (window as unknown as Record<string, unknown>).__labCleanup = cleanup;
-
-    document.addEventListener('keydown', keys);
-    document.addEventListener('astro:before-swap', cleanup);
-
-    /* ---- the review surface --------------------------------------- */
-    const reviewRoot = root.querySelector<HTMLElement>('[data-review]');
-    const staticPanel = root.querySelector<HTMLElement>('[data-review-static]');
-    if (reviewRoot) {
-      reviewRoot.hidden = false;
-      if (staticPanel) staticPanel.hidden = true;
-
-      const sources = [...reviewRoot.querySelectorAll<HTMLInputElement>('[data-review-source]')];
-      const textarea = reviewRoot.querySelector<HTMLTextAreaElement>('[data-review-text]');
-      const message = reviewRoot.querySelector<HTMLElement>('[data-review-message]');
-      const stateEl = reviewRoot.querySelector<HTMLElement>('[data-review-state]');
-      const draftEl = reviewRoot.querySelector<HTMLElement>('[data-review-draft]');
-      const savedEl = reviewRoot.querySelector<HTMLElement>('[data-review-saved]');
-      const buttons = [...reviewRoot.querySelectorAll<HTMLButtonElement>('[data-review-action]')];
-
-      let review: ReviewState | null = null;
-
-      const sourceOf = (): ReviewState | null => {
-        const radio = sources.find((item) => item.checked);
-        if (!radio) return null;
-        return createReview(
-          { ok: radio.dataset.gateOk === 'true', reason: radio.dataset.gateReason ?? '' },
-          radio.dataset.text ?? '',
-        ) as ReviewState;
-      };
-
-      const render = () => {
-        const current = review;
-        if (!current) return;
-        if (stateEl) stateEl.textContent = current.status.replace('_', ' ');
-        if (draftEl) draftEl.textContent = current.draft ?? '—';
-        if (savedEl) savedEl.textContent = current.saved ? 'Saved' : 'Unchanged';
-        if (message) message.textContent = current.message;
-        if (textarea) {
-          textarea.disabled = !current.gateOk;
-          if (current.draft !== null) textarea.value = current.draft;
-        }
-        const awaiting = current.status === 'awaiting_review';
-        const canUndo = current.status === 'accepted' || current.status === 'edited';
-        buttons.forEach((button) => {
-          const action = button.dataset.reviewAction;
-          if (action === 'undo') button.disabled = !canUndo;
-          else button.disabled = !current.gateOk || !awaiting;
-        });
-      };
-
-      const reset = () => {
-        review = sourceOf();
-        if (textarea && review) textarea.value = review.text;
-        render();
-      };
-
-      sources.forEach((radio) => radio.addEventListener('change', reset));
-
-      buttons.forEach((button) => {
-        button.addEventListener('click', () => {
-          const action = button.dataset.reviewAction as ReviewAction | undefined;
-          const current = review;
-          if (!current || !action) return;
-          const payload = { text: textarea?.value ?? current.text };
-          review = reviewAction(current, action, action === 'accept' || action === 'edit' ? payload : {}) as ReviewState;
-          render();
-        });
-      });
-
-      reset();
+    for (const button of presets) {
+      button.addEventListener('click', () => applyPreset(button.dataset.preset ?? ''));
     }
-  };
 
-  init();
-  document.addEventListener('astro:page-load', init);
+    const select = root.querySelector<HTMLSelectElement>('[data-preset-select]');
+    select?.addEventListener('change', () => applyPreset(select.value));
+
+    const fromHash = () => {
+      const id = location.hash.replace('#lab-', '');
+      if (!location.hash.startsWith('#lab-') || !PRESETS.some((preset) => preset.id === id)) return false;
+      applyPreset(id, { fromHash: true });
+      return true;
+    };
+
+    window.addEventListener('hashchange', fromHash);
+    window.addEventListener('popstate', fromHash);
+
+    /* Show the bench, drop the server-rendered example, then honour a link. */
+    staticPanel?.setAttribute('hidden', '');
+    root.removeAttribute('hidden');
+    if (!fromHash()) read();
+  }
 </script>
 
 <style>
   /* ------------------------------------------------------------------
-     The lab is an instrument, so it is dark: one reading surface, one
-     vertical path. Type roles do the explaining — display for the two
-     replies and the headings, content for the prose, instrument for ids,
-     codes and state. Orange is attention: a refusal. Teal is a pass.
+     A bench, not a terminal. The dark register says "machine", but the
+     reading order is the same as every other page: what the material is,
+     what you write, what the check decided. Mono is for ids only.
      ------------------------------------------------------------------ */
   .lab {
-    padding-block: clamp(2.5rem, 5vw, 5rem) clamp(3rem, 6vw, 6rem);
+    padding-block: clamp(1.75rem, 3vw, 3rem) clamp(3rem, 6vw, 6rem);
   }
   .lab__shell {
     display: grid;
-    gap: clamp(2rem, 4vw, 3.5rem);
+    gap: clamp(1.25rem, 2.5vw, 2rem);
   }
 
-  /* ---- title ------------------------------------------------------ */
   .lab__head {
     display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     gap: clamp(1.5rem, 4vw, 4rem);
     align-items: end;
-    padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    padding-bottom: clamp(1rem, 2vw, 1.5rem);
     border-bottom: 1px solid var(--color-rule-on-canvas);
   }
-  .lab__head-main,
-  .lab__head-side {
-    min-width: 0;
-  }
   .lab__title {
-    font-size: clamp(2.3rem, 4.7vw, 4.4rem);
+    font-size: clamp(2rem, 3.6vw, 3.2rem);
     line-height: var(--leading-display);
-    letter-spacing: -0.045em;
-    margin-top: 0.6rem;
+    letter-spacing: -0.04em;
+    margin-top: 0.5rem;
     text-wrap: balance;
-    max-width: 22ch;
+    max-width: 26ch;
   }
   .lab__title em {
     font-style: normal;
     color: var(--color-teal-bright);
   }
   .lab__lead {
-    color: var(--color-text-on-canvas);
     font-size: clamp(1rem, 1.3vw, 1.12rem);
-    max-width: 46ch;
-  }
-  .lab__boundary {
-    margin-top: 1rem;
-    font-size: 0.85rem;
     line-height: 1.6;
-    color: var(--color-text-on-canvas-muted);
-    max-width: 52ch;
-    border-left: 2px solid var(--color-rule-on-canvas-strong);
-    padding-left: 0.9rem;
+    max-width: 44ch;
   }
-
-  /* ---- rail ------------------------------------------------------- */
-  .console {
-    display: grid;
-    gap: 1.1rem;
-  }
-  .rail {
-    border-top: 1px solid var(--color-rule-on-canvas);
-    border-bottom: 1px solid var(--color-rule-on-canvas);
-  }
-  .rail__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0;
-  }
-  .rail__list > li {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-  .rail__item {
-    display: flex;
-    gap: 0.55rem;
-    align-items: baseline;
-    padding: 0.85rem 0.9rem;
-    min-height: 48px;
-    text-decoration: none;
-    border-right: 1px solid var(--color-rule-on-canvas-soft);
-    font-size: 0.85rem;
-    color: var(--color-text-on-canvas-muted);
-  }
-  .rail__item:hover {
-    color: var(--color-text-on-canvas);
-    background: var(--color-deck-soft);
-  }
-  .rail__item[aria-current='step'] {
-    color: var(--color-text-on-canvas);
-    box-shadow: inset 0 -2px 0 var(--color-accent-bright);
-  }
-  .rail__item:focus-visible {
-    outline-offset: -3px;
-  }
-  .rail__step {
-    font-family: var(--font-instrument);
-    font-size: 0.7rem;
-    letter-spacing: 0.05em;
-    color: var(--color-text-on-canvas-faint);
-  }
-  .rail__item[aria-current='step'] .rail__step {
-    color: var(--color-accent-bright);
-  }
-  .rail__label {
-    min-width: 0;
-  }
-
-  /* ---- transport -------------------------------------------------- */
-  .transport {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem 2rem;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .transport__controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem 1.25rem;
-    align-items: center;
-  }
-  .lab-button {
-    min-height: 48px;
-    padding: 0.65rem 1.1rem;
-    background: transparent;
-    color: var(--color-text-on-canvas);
-    border: 1px solid var(--color-rule-on-canvas-strong);
-    font-size: 0.88rem;
-    transition:
-      border-color var(--duration-quick) var(--ease-standard),
-      color var(--duration-quick) var(--ease-standard),
-      background var(--duration-quick) var(--ease-standard);
-  }
-  .lab-button:hover:not(:disabled) {
-    border-color: var(--color-teal-bright);
-    color: var(--color-teal-bright);
-  }
-  .lab-button:disabled {
-    opacity: 0.55;
-  }
-  .lab-button--run {
-    background: var(--color-teal-bright);
-    border-color: var(--color-teal-bright);
-    color: var(--color-deck);
-    font-weight: 500;
-  }
-  .lab-button--run:hover:not(:disabled) {
-    background: var(--color-text-on-canvas);
-    border-color: var(--color-text-on-canvas);
-    color: var(--color-deck);
-  }
-  .lab-button--quiet {
-    border-color: var(--color-rule-on-canvas);
-    color: var(--color-text-on-canvas-muted);
-  }
-  .transport__keys {
-    font-family: var(--font-instrument);
-    font-size: 0.72rem;
-    color: var(--color-text-on-canvas-faint);
-    margin: 0;
-  }
-  kbd {
-    font-family: var(--font-instrument);
-    font-size: 0.72rem;
-    border: 1px solid var(--color-rule-on-canvas-strong);
-    padding: 0.05rem 0.3rem;
-  }
-  .transport__status {
-    font-size: 0.85rem;
-    color: var(--color-text-on-canvas-muted);
-    max-width: 48ch;
-    margin: 0 0 0 auto;
-  }
-
-  /* ---- the steps -------------------------------------------------- */
-  .steps {
-    display: grid;
-    gap: clamp(1.25rem, 2.5vw, 2rem);
-  }
-  .step {
-    border: 1px solid var(--color-rule-on-canvas);
-    border-left-width: 3px;
-    background: var(--color-deck-soft);
-    transition:
-      opacity var(--duration-base) var(--ease-standard),
-      border-color var(--duration-base) var(--ease-standard);
-  }
-  .step--fail {
-    border-left-color: var(--color-signal-fail-text, #f1a7a6);
-  }
-  .step--pass {
-    border-left-color: var(--color-teal-bright);
-  }
-  .step--neutral {
-    border-left-color: var(--color-rule-on-canvas-strong);
-  }
-  .lab[data-walk='walking'] .step:not([data-reached]) {
-    opacity: 0.5;
-  }
-  .step[data-current] {
-    border-color: var(--color-accent-bright);
-    border-left-color: var(--color-accent-bright);
-    background: var(--color-deck-inset);
-  }
-
-  .step__head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.5rem 1rem;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--color-rule-on-canvas);
-  }
-  .step__index {
-    font-family: var(--font-instrument);
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    color: var(--color-accent-bright);
-    margin: 0;
-  }
-  .step--pass .step__index {
-    color: var(--color-teal-bright);
-  }
-  .step__heading {
-    min-width: 0;
-    flex: 1 1 auto;
-  }
-  .step__title {
-    font-size: clamp(1.35rem, 2.6vw, 1.9rem);
-    letter-spacing: -0.03em;
-    margin: 0;
-  }
-  .step__state {
-    margin: 0;
-    font-family: var(--font-instrument);
-    font-size: 0.72rem;
-    letter-spacing: 0.03em;
-    color: var(--color-text-on-canvas-muted);
-    border: 1px solid var(--color-rule-on-canvas);
-    padding: 0.25rem 0.5rem;
-  }
-  .step__dot {
+  .lab__lead--static {
     display: none;
   }
-
-  .step__body {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-    gap: clamp(1.25rem, 3vw, 2.5rem);
-    padding: clamp(1.1rem, 2.5vw, 1.75rem);
+  /* Without JavaScript nobody can write in the field, so the invitation is
+     swapped for a description of the worked example that is there. */
+  :global(html:not(.js)) .lab__lead {
+    display: none;
   }
-  .step__main,
-  .step__side {
-    min-width: 0;
+  :global(html:not(.js)) .lab__lead--static {
+    display: block;
   }
-  .step__side {
-    display: grid;
-    gap: 0.9rem;
-    align-content: start;
-    padding-left: clamp(0rem, 2vw, 1.75rem);
-    border-left: 1px solid var(--color-rule-on-canvas);
-  }
-
-  .side__label {
-    font-family: var(--font-instrument);
-    font-size: 0.68rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-text-on-canvas-faint);
-    margin: 0;
-  }
-  .side__note {
-    margin: 0;
+  .lab__fine {
+    margin-top: 0.85rem;
     font-size: 0.85rem;
     line-height: 1.6;
     color: var(--color-text-on-canvas-muted);
-    border-left: 2px solid var(--color-rule-on-canvas-strong);
-    padding-left: 0.85rem;
-  }
-  .side__note strong {
-    color: var(--color-text-on-canvas);
-    font-weight: 600;
-  }
-  .side__source {
-    margin: 0;
-    font-size: 0.78rem;
-    line-height: 1.55;
-    color: var(--color-text-on-canvas-faint);
-  }
-  .side__source code {
-    color: var(--color-text-on-canvas-muted);
+    max-width: 44ch;
   }
 
-  /* ---- plates: artifacts ------------------------------------------ */
-  .plate {
-    margin: 0;
-    background: var(--color-deck);
-    border: 1px solid var(--color-rule-on-canvas);
-    padding: clamp(0.9rem, 2vw, 1.25rem);
+  /* ---- the desk --------------------------------------------------- */
+  .desk {
     display: grid;
-    gap: 1rem;
-    min-width: 0;
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.1fr) minmax(0, 0.88fr);
+    grid-template-areas:
+      'material compose verdict'
+      'material cites   verdict';
+    grid-template-rows: auto 1fr;
+    gap: clamp(0.6rem, 1.2vw, 1rem) clamp(0.9rem, 1.6vw, 1.5rem);
+    align-items: start;
   }
-  .plate--fail {
-    border-top: 2px solid rgba(241, 167, 166, 0.7);
+  .desk__side {
+    grid-area: material;
   }
-  .plate--pass {
-    border-top: 2px solid var(--color-teal-bright);
+  .desk__main {
+    grid-area: compose;
   }
-  .plate__label {
+  .desk__cites {
+    grid-area: cites;
+    align-self: stretch;
+  }
+  .desk__verdict {
+    grid-area: verdict;
+  }
+  .panel--cites {
+    padding-block: clamp(0.7rem, 1.4vw, 0.95rem);
+  }
+  /* The reading sits in its own column, level with the sentence being
+     written rather than stacked under it. Write on the left, verdict on the
+     right: the eye travels one way only. */
+  .desk__verdict {
+    display: grid;
+    gap: 0.6rem;
+    padding: clamp(1rem, 2vw, 1.4rem);
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck-soft);
+    align-content: start;
+  }
+  .checks {
+    list-style: none;
+    margin: 0.35rem 0 0;
+    padding: 0.85rem 0 0;
+    border-top: 1px solid var(--color-rule-on-canvas-soft);
+    display: grid;
+    gap: 0.4rem;
+  }
+  .checks__row {
+    display: grid;
+    grid-template-columns: 0.9rem minmax(0, 1fr);
+    gap: 0.55rem;
+    align-items: baseline;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--color-text-on-canvas-muted);
+  }
+  .checks__mark {
+    position: relative;
+    top: 0.28rem;
+    width: 0.6rem;
+    height: 0.6rem;
+    border: 1px solid var(--color-rule-on-canvas-strong);
+  }
+  .checks__row[data-pass='true'] .checks__mark {
+    border-color: var(--color-signal-pass-bright);
+    background: var(--color-signal-pass-bright);
+  }
+  .checks__row[data-pass='false'] .checks__mark {
+    border-color: var(--color-signal-fail-bright);
+  }
+  .checks__row[data-pass='false'] .checks__name {
+    color: var(--color-signal-fail-bright);
+  }
+  .desk__hint {
+    margin: 0;
     font-family: var(--font-instrument);
-    font-size: 0.7rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--color-text-on-canvas-faint);
-    margin: 0;
   }
-  .plate__label code {
-    text-transform: none;
-    letter-spacing: 0;
-    color: var(--color-text-on-canvas-muted);
+  .desk[hidden] {
+    display: none;
   }
-  .plate__note {
-    margin: 0;
-    font-size: 0.85rem;
-    line-height: 1.6;
-    color: var(--color-text-on-canvas-muted);
-    /* The inspector is the widest text column on the site; without a
-       measure the notes under the code sat at ~160 characters a line. */
-    max-width: 62ch;
+
+  .panel {
+    border: 1px solid var(--color-rule-on-canvas);
+    background: var(--color-deck-soft);
+    padding: clamp(1rem, 2vw, 1.5rem);
   }
-  .plate__instruction {
+  .panel--material {
+    padding-bottom: 0.5rem;
+  }
+  .panel__head {
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem 0.75rem;
     align-items: baseline;
-    margin: 0;
-    font-size: 0.9rem;
-    max-width: none;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
   }
-  .plate__field {
+  .panel__title {
     font-family: var(--font-instrument);
-    font-size: 0.68rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-on-canvas-faint);
+    font-weight: 500;
+    margin: 0;
+  }
+  .panel__note {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--color-text-on-canvas-muted);
+  }
+
+  .material {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .material__item {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--color-rule-on-canvas-soft);
+  }
+  .material__label {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    font-family: var(--font-instrument);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-on-canvas-muted);
+  }
+  .material__id {
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--color-text-on-canvas-faint);
+    opacity: 0.85;
+  }
+  .material__text {
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--color-text-on-canvas);
+  }
+
+  /* ---- composing -------------------------------------------------- */
+  .compose {
+    display: grid;
+    gap: 0.85rem;
+  }
+  .compose__label {
+    font-family: var(--font-instrument);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-on-canvas-faint);
+    margin: 0;
+  }
+  .compose__field {
+    width: 100%;
+    min-height: 4.75rem;
+    resize: vertical;
+    padding: 0.85rem 0.95rem;
+    border: 1px solid var(--color-rule-on-canvas-strong);
+    background: var(--color-deck-inset);
+    color: var(--color-text-on-canvas);
+    font-family: inherit;
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+  .compose__field:focus-visible {
+    outline: 2px solid var(--color-teal-bright);
+    outline-offset: 2px;
+  }
+
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+  }
+  .presets__label {
+    font-family: var(--font-instrument);
+    font-size: 0.6875rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--color-text-on-canvas-faint);
+    margin-right: 0.25rem;
   }
-
-  /* ---- 01 context ------------------------------------------------- */
-  .context {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    border-top: 1px solid var(--color-rule-on-canvas);
-  }
-  .context__row {
-    display: grid;
-    grid-template-columns: minmax(0, 9.5rem) minmax(0, 8rem) minmax(0, 1fr);
-    gap: 0.35rem 1rem;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid var(--color-rule-on-canvas-soft);
-    font-size: 0.85rem;
-    align-items: baseline;
-  }
-  .context__id {
-    font-family: var(--font-instrument);
-    font-size: 0.78rem;
-    color: var(--color-teal-bright);
-    overflow-wrap: anywhere;
-  }
-  .context__prov {
-    font-family: var(--font-instrument);
-    font-size: 0.7rem;
-    color: var(--color-text-on-canvas-faint);
-  }
-  .context__content {
-    color: var(--color-text-on-canvas);
-    min-width: 0;
-  }
-
-  /* ---- checks ----------------------------------------------------- */
-  .checks {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 0.55rem;
-  }
-  .check {
-    display: grid;
-    grid-template-columns: 1.1rem minmax(0, 1fr);
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    line-height: 1.5;
-  }
-  .check__mark {
-    font-family: var(--font-instrument);
-    color: var(--color-teal-bright);
-    line-height: 1.5;
-  }
-  .check[data-pass='false'] .check__mark {
-    color: var(--color-signal-fail-text, #f1a7a6);
-  }
-  .check__body {
-    min-width: 0;
-    display: grid;
-    gap: 0.1rem;
-  }
-  .check__name {
-    color: var(--color-text-on-canvas);
-  }
-  .check__note {
-    color: var(--color-text-on-canvas-muted);
-    font-size: 0.8rem;
-  }
-
-  /* ---- 02/04 replies + claims ------------------------------------- */
-  .reply {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.25rem, 2.4vw, 1.7rem);
-    line-height: 1.4;
-    letter-spacing: -0.02em;
-    color: var(--color-text-on-canvas);
-    white-space: pre-line;
-    max-width: none;
-  }
-  .reply--pass {
-    color: var(--color-text-on-canvas);
-  }
-  /* The reply is injected with set:html, so these marks carry no Astro scope
-     attribute and have to be targeted globally. */
-  .reply :global(mark) {
+  .preset {
+    min-height: 44px;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--color-rule-on-canvas-strong);
     background: transparent;
-    color: inherit;
-  }
-  .reply :global(mark.claim--unsupported) {
-    color: var(--color-signal-fail-text, #f1a7a6);
-    text-decoration: underline wavy;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.25em;
-  }
-  .reply :global(mark.claim--grounded) {
-    color: var(--color-teal-bright);
-    text-decoration: underline solid;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.25em;
-  }
-
-  .claims {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    border-top: 1px solid var(--color-rule-on-canvas);
-  }
-  .claim-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.2rem 0.75rem;
-    justify-content: space-between;
-    padding: 0.45rem 0;
-    border-bottom: 1px solid var(--color-rule-on-canvas-soft);
-    font-size: 0.8rem;
-  }
-  .claim-row__phrase {
-    font-family: var(--font-instrument);
     color: var(--color-text-on-canvas);
-  }
-  .claim-row__verdict {
-    color: var(--color-text-on-canvas-muted);
-  }
-  .claim-row[data-grounded='false'] .claim-row__verdict {
-    color: var(--color-signal-fail-text, #f1a7a6);
-  }
-  .claim-row[data-grounded='true'] .claim-row__verdict {
-    color: var(--color-teal-bright);
-  }
-
-  .citations {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .citation {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    align-items: baseline;
-    border: 1px solid var(--color-teal-bright);
-    padding: 0.25rem 0.5rem;
-    font-size: 0.78rem;
-  }
-  .citation__id {
-    font-family: var(--font-instrument);
-    color: var(--color-teal-bright);
-  }
-  .citation__label {
-    color: var(--color-text-on-canvas-muted);
-  }
-
-  .raw {
-    border-top: 1px solid var(--color-rule-on-canvas);
-    padding-top: 0.75rem;
+    font: inherit;
     font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color var(--duration-quick) var(--ease-standard),
+      background var(--duration-quick) var(--ease-standard);
   }
-  .raw summary {
-    color: var(--color-text-on-canvas-muted);
-    font-size: 0.82rem;
-  }
-  .raw pre {
-    margin: 0.75rem 0 0;
+  .preset:hover {
+    border-color: var(--color-teal-bright);
     background: var(--color-deck-inset);
-    border: 1px solid var(--color-rule-on-canvas);
-    padding: 0.85rem;
-    font-size: 0.78rem;
   }
-
-  /* ---- 03 refusals ------------------------------------------------ */
-  .refusals {
-    list-style: none;
+  .preset-select {
+    display: none;
     margin: 0;
-    padding: 0;
-    display: grid;
-    border-top: 1px solid var(--color-rule-on-canvas);
-  }
-  .refusal {
-    display: grid;
-    grid-template-columns: 1.1rem minmax(0, 1fr);
-    gap: 0.6rem;
-    padding: 0.7rem 0;
-    border-bottom: 1px solid var(--color-rule-on-canvas-soft);
-  }
-  .refusal__mark {
-    font-family: var(--font-instrument);
-    color: var(--color-signal-fail-text, #f1a7a6);
-    line-height: 1.4;
-  }
-  .refusal[data-verdict='pass'] .refusal__mark {
-    color: var(--color-teal-bright);
-  }
-  .refusal__body {
-    display: grid;
-    gap: 0.15rem;
-    min-width: 0;
-  }
-  .refusal__label {
-    font-size: 0.9rem;
-    color: var(--color-text-on-canvas);
-  }
-  .refusal__note {
-    font-size: 0.8rem;
-    color: var(--color-text-on-canvas-muted);
-  }
-  .refusal__reason {
-    font-size: 0.82rem;
-    line-height: 1.55;
-    color: var(--color-text-on-canvas-muted);
-  }
-  .refusal__reason code {
-    color: var(--color-signal-fail-text, #f1a7a6);
-  }
-  .refusal[data-verdict='pass'] .refusal__reason code {
-    color: var(--color-teal-bright);
-  }
-  .refusal-record {
-    display: grid;
-    gap: 0.4rem;
-    margin: 0;
-    font-size: 0.82rem;
-  }
-  .refusal-record > div {
-    display: grid;
-    grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
-    gap: 0.5rem 1rem;
-    border-top: 1px solid var(--color-rule-on-canvas-soft);
-    padding-top: 0.4rem;
-  }
-  .refusal-record dt {
-    font-family: var(--font-instrument);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-on-canvas-faint);
-  }
-  .refusal-record dd {
-    margin: 0;
-    color: var(--color-text-on-canvas-muted);
-  }
-
-  .rules {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 0.6rem;
-    counter-reset: rule;
-  }
-  .rule {
-    display: grid;
-    gap: 0.15rem;
-    font-size: 0.82rem;
-    border-left: 2px solid var(--color-rule-on-canvas);
-    padding-left: 0.7rem;
-  }
-  .rule__reason {
-    font-family: var(--font-instrument);
-    font-size: 0.72rem;
-    color: var(--color-accent-bright);
-  }
-  .rule__name {
-    color: var(--color-text-on-canvas);
-  }
-  .rule__note {
-    color: var(--color-text-on-canvas-muted);
-    font-size: 0.8rem;
-  }
-  .rules--wide {
-    gap: 0.85rem;
-  }
-
-  /* ---- 05 review -------------------------------------------------- */
-  .review {
-    display: grid;
-    gap: 1rem;
-    background: var(--color-deck);
-    border: 1px solid var(--color-teal-bright);
-    padding: clamp(0.9rem, 2vw, 1.25rem);
-  }
-  .review__source {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.25rem;
-    border: 0;
-    margin: 0;
-    padding: 0;
-  }
-  .review__source legend {
-    padding: 0;
-    margin-bottom: 0.5rem;
-    float: left;
-    width: 100%;
-  }
-  .review__choice {
-    display: inline-flex;
     gap: 0.5rem;
     align-items: center;
-    font-size: 0.85rem;
+  }
+  .preset-select label {
+    font-family: var(--font-instrument);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-on-canvas-faint);
+    flex: none;
+  }
+  .preset-select select {
+    flex: 1 1 auto;
     min-height: 44px;
-    color: var(--color-text-on-canvas-muted);
-  }
-  .review__choice input {
-    accent-color: var(--color-teal-bright);
-    width: 1.1rem;
-    height: 1.1rem;
-  }
-  .review__text {
-    display: grid;
-    gap: 0.4rem;
-  }
-  .review__text textarea {
-    width: 100%;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--color-rule-on-canvas-strong);
     background: var(--color-deck-inset);
     color: var(--color-text-on-canvas);
-    border: 1px solid var(--color-rule-on-canvas-strong);
-    padding: 0.7rem;
-    font-family: var(--font-content);
-    font-size: 0.95rem;
-    line-height: 1.55;
-    resize: vertical;
+    font: inherit;
+    font-size: 0.9rem;
   }
-  .review__text textarea:disabled {
-    color: var(--color-text-on-canvas-faint);
-    border-style: dashed;
-  }
-  .review__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .review__state {
-    display: grid;
-    gap: 0.35rem;
+  .presets__note {
     margin: 0;
+    min-height: 1.4em;
     font-size: 0.82rem;
-  }
-  .review__state > div {
-    display: grid;
-    grid-template-columns: minmax(0, 8rem) minmax(0, 1fr);
-    gap: 1rem;
-    border-top: 1px solid var(--color-rule-on-canvas-soft);
-    padding-top: 0.35rem;
-  }
-  .review__state dt {
-    font-family: var(--font-instrument);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-on-canvas-faint);
-  }
-  .review__state dd {
-    margin: 0;
-    color: var(--color-text-on-canvas);
-    font-family: var(--font-instrument);
-    font-size: 0.78rem;
-  }
-  .review__message {
-    margin: 0;
-    font-size: 0.85rem;
-    line-height: 1.55;
+    line-height: 1.5;
     color: var(--color-text-on-canvas-muted);
-    border-left: 2px solid var(--color-teal-bright);
-    padding-left: 0.85rem;
-    max-width: none;
-  }
-  .review-static {
-    display: grid;
-    gap: 0.75rem;
-    background: var(--color-deck);
-    border: 1px solid var(--color-rule-on-canvas);
-    padding: clamp(0.9rem, 2vw, 1.25rem);
-  }
-  .review-list {
-    margin: 0;
-    padding-left: 1.1rem;
-    display: grid;
-    gap: 0.35rem;
-    font-size: 0.88rem;
-    color: var(--color-text-on-canvas-muted);
-  }
-  .review-list strong {
-    color: var(--color-text-on-canvas);
-    font-weight: 600;
   }
 
-  /* ---- compare ---------------------------------------------------- */
-  .compare {
-    border-top: 1px solid var(--color-rule-on-canvas);
-    padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  .cites {
+    border: 0;
+    padding: 0;
+    margin: 0.15rem 0 0;
     display: grid;
-    gap: clamp(1.25rem, 3vw, 2rem);
+    gap: 0.5rem;
   }
-  .compare__head {
-    display: grid;
-    gap: 0.6rem;
-    max-width: 70ch;
-  }
-  .compare__title {
-    font-size: clamp(1.8rem, 3.4vw, 2.8rem);
-  }
-  .compare__note {
-    margin: 0;
-    font-size: 0.95rem;
-    color: var(--color-text-on-canvas-muted);
-    max-width: 62ch;
-  }
-  .branches {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(1rem, 2vw, 1.5rem);
-  }
-  .branch {
-    border: 1px solid var(--color-rule-on-canvas);
-    border-top-width: 3px;
-    background: var(--color-deck-soft);
-    padding: clamp(1rem, 2vw, 1.4rem);
-    display: grid;
-    gap: 0.9rem;
-    align-content: start;
-    min-width: 0;
-  }
-  .branch--old {
-    border-top-color: var(--color-signal-fail-text, #f1a7a6);
-  }
-  .branch--new {
-    border-top-color: var(--color-teal-bright);
-  }
-  .branch__title {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    font-size: 1.35rem;
-    margin: 0;
-  }
-  .branch__tag {
+  .cites__legend {
     font-family: var(--font-instrument);
-    font-size: 0.72rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.08em;
-    border: 1px solid currentColor;
-    padding: 0.1rem 0.4rem;
+    text-transform: uppercase;
+    color: var(--color-text-on-canvas-faint);
+    padding: 0;
   }
-  .branch--old .branch__tag {
-    color: var(--color-signal-fail-text, #f1a7a6);
+  .cites__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
   }
-  .branch--new .branch__tag {
-    color: var(--color-teal-bright);
-  }
-  .branch__sub {
-    margin: 0;
-    font-size: 0.85rem;
+  .cite {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.35rem 0.75rem 0.35rem 0.6rem;
+    border: 1px solid var(--color-rule-on-canvas-strong);
+    background: transparent;
     color: var(--color-text-on-canvas-muted);
-    max-width: none;
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color var(--duration-quick) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard);
   }
-  .branch__rows {
-    display: grid;
-    gap: 0.6rem;
+  .cite__tick {
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 1px solid var(--color-rule-on-canvas-strong);
+    position: relative;
+    flex: none;
+  }
+  .cite[aria-pressed='true'] {
+    color: var(--color-text-on-canvas);
+    border-color: var(--color-signal-pass-bright);
+  }
+  .cite[aria-pressed='true'] .cite__tick {
+    border-color: var(--color-signal-pass-bright);
+    background: var(--color-signal-pass-bright);
+  }
+  .cite[aria-pressed='true'] .cite__tick::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--color-deck);
+    clip-path: polygon(18% 52%, 40% 72%, 84% 22%, 92% 34%, 42% 86%, 10% 60%);
+  }
+  .cite:hover {
+    color: var(--color-text-on-canvas);
+  }
+
+  /* ---- the verdict ------------------------------------------------ */
+  .verdict {
+    border-left: 3px solid var(--color-rule-on-canvas-strong);
+    padding: 0.2rem 0 0.2rem clamp(0.75rem, 1.6vw, 1rem);
+  }
+  .verdict[data-status='passed'] {
+    border-left-color: var(--color-signal-pass-bright);
+  }
+  .verdict[data-status='refused'] {
+    border-left-color: var(--color-signal-fail-bright);
+  }
+  .verdict__label {
     margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-on-canvas);
   }
-  .branch__row {
-    display: grid;
-    gap: 0.15rem;
+  .verdict[data-status='passed'] .verdict__label {
+    color: var(--color-signal-pass-bright);
+  }
+  .verdict[data-status='refused'] .verdict__label {
+    color: var(--color-signal-fail-bright);
+  }
+  .verdict__reason {
+    margin: 0.4rem 0 0;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: var(--color-text-on-canvas-muted);
+    max-width: 46ch;
+  }
+  .verdict__aside {
+    margin-top: 0.9rem;
+    padding-top: 0.8rem;
     border-top: 1px solid var(--color-rule-on-canvas-soft);
-    padding-top: 0.5rem;
   }
-  .branch__row dt {
+  .verdict__aside[hidden] {
+    display: none;
+  }
+  .verdict__aside-title {
+    margin: 0 0 0.45rem;
     font-family: var(--font-instrument);
-    font-size: 0.68rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--color-text-on-canvas-faint);
   }
-  .branch__row dd {
-    margin: 0;
-    font-size: 0.88rem;
-    line-height: 1.55;
-    color: var(--color-text-on-canvas);
-  }
-  .compare__numbers {
-    margin: 0;
-    font-size: 0.82rem;
-    line-height: 1.6;
-    color: var(--color-text-on-canvas-muted);
-    border-left: 2px solid var(--color-rule-on-canvas-strong);
-    padding-left: 0.9rem;
-    max-width: 72ch;
-  }
-  .compare__numbers strong {
-    color: var(--color-text-on-canvas);
-  }
-
-  /* ---- inspector -------------------------------------------------- */
-  .inspector__details {
-    position: relative;
-  }
-  .inspector {
-    border-top: 1px solid var(--color-rule-on-canvas);
-    border-bottom: 1px solid var(--color-rule-on-canvas);
-  }
-  .inspector__summary {
+  .verdict__claims {
+    list-style: none;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.5rem 2rem;
-    padding-block: 1.25rem;
-    min-height: 48px;
+    gap: 0.35rem;
+    margin: 0 0 0.55rem;
+    padding: 0;
   }
-  .inspector__summary-main {
-    display: grid;
-    gap: 0.25rem;
+  .verdict__claims li {
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--color-signal-fail-bright);
+    color: var(--color-signal-fail-bright);
+    font-size: 0.82rem;
+    line-height: 1.35;
   }
-  .inspector__summary .eyebrow {
+  .verdict__aside-note {
     margin: 0;
-  }
-  .inspector__title {
-    font-family: var(--font-display);
-    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
-    letter-spacing: -0.03em;
-  }
-  .inspector__summary-side {
-    font-size: 0.85rem;
-    color: var(--color-text-on-canvas-muted);
-    max-width: 44ch;
-  }
-  .inspector__body {
-    display: grid;
-    gap: 1.25rem;
-    padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
-  }
-  .inspector__figure pre {
-    margin: 0;
-    background: var(--color-deck-inset);
-    border: 1px solid var(--color-rule-on-canvas);
-    padding: 0.9rem;
-    font-size: 0.78rem;
-    max-height: 22rem;
-    overflow: auto;
-  }
-  .inspector__boundary {
-    display: grid;
-    gap: 0.6rem;
-    border-left: 3px solid var(--color-accent-bright);
-    background: var(--color-deck-soft);
-    padding: 1rem 1.25rem;
-    max-width: 80ch;
-  }
-  .inspector__boundary p {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--color-text-on-canvas-muted);
-    line-height: 1.6;
-    max-width: none;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--color-text-on-canvas-faint);
+    max-width: 48ch;
   }
 
-  /* ---- limits ----------------------------------------------------- */
-  .limits {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(1.5rem, 3vw, 2.5rem);
-    align-items: start;
+  /* ---- the static reading (no JS) --------------------------------- */
+  .static-quote {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--color-text-on-canvas);
   }
-  .limits__head {
+  .static-cites {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text-on-canvas-muted);
+  }
+  .static-note {
+    margin: 1rem 0 0;
+    font-size: 0.8rem;
+    color: var(--color-text-on-canvas-faint);
+  }
+
+  /* ---- blocks below the bench ------------------------------------- */
+  .lab-block {
     display: grid;
     gap: 0.75rem;
-    min-width: 0;
-  }
-  .limits__title {
-    font-size: clamp(1.7rem, 3vw, 2.4rem);
-  }
-  .limits__statement {
-    margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: var(--color-text-on-canvas-muted);
-    max-width: 52ch;
-  }
-  .limits__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 0.6rem;
-    font-size: 0.85rem;
-    line-height: 1.55;
-    color: var(--color-text-on-canvas-muted);
-  }
-  .limits__list li {
-    border-top: 1px solid var(--color-rule-on-canvas-soft);
-    padding-top: 0.6rem;
-    display: grid;
-    grid-template-columns: 1.1rem minmax(0, 1fr);
-    gap: 0.5rem;
-  }
-  .limits__list li::before {
-    content: '—';
-    font-family: var(--font-instrument);
-    color: var(--color-accent-bright);
-  }
-  .limits__links {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem 2rem;
-    padding-top: 1rem;
+    padding-top: clamp(1.5rem, 3vw, 2.5rem);
     border-top: 1px solid var(--color-rule-on-canvas);
   }
-  .limits__links .text-link {
-    color: var(--color-teal-bright);
+  .lab-block__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin: 0;
   }
-  .limits__links .text-link:hover {
-    color: var(--color-accent-bright);
+  .lab-block__lead {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-text-on-canvas-muted);
+    max-width: 62ch;
+  }
+  .lab-block__fine {
+    margin: 0.25rem 0 0;
+    font-size: 0.8rem;
+    color: var(--color-text-on-canvas-faint);
   }
 
-  .lab__foot {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--color-text-on-canvas-muted);
-    max-width: 60ch;
+  .rules {
+    list-style: none;
+    counter-reset: rule;
+    margin: 0.35rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
   }
-  .lab__foot a {
+  .rule {
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    gap: 0.35rem 1.5rem;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--color-rule-on-canvas-soft);
+    align-items: baseline;
+  }
+  .rule__name {
+    font-size: 0.95rem;
     color: var(--color-text-on-canvas);
   }
-  .anchor-target {
-    display: block;
-  }
-  .inspector__figure {
-    position: relative;
-  }
-  .anchor-target--abs {
-    position: absolute;
-    inset: 0 auto auto 0;
-    width: 0;
-    height: 0;
-    overflow: hidden;
+  .rule__note {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--color-text-on-canvas-muted);
+    max-width: 58ch;
   }
 
-  /* The global sheet gives every section[id] a 7rem scroll margin; on this
-     page the scroll padding already clears the sticky masthead, and the two
-     together would drop a deep link 208px down. */
-  .step[id],
-  .compare[id],
-  .inspector[id] {
-    scroll-margin-top: 0;
+  .lab-block--story {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: start;
+  }
+  .lab-block--story > div:first-child {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .lab-story__body {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 46ch;
+  }
+  .lab-story__body + .lab-story__body {
+    margin-top: 0;
+  }
+  .lab-story__body a {
+    color: var(--color-teal-bright);
   }
 
-  /* ---- responsive ------------------------------------------------ */
-  @media (max-width: 62rem) {
+  .compare {
+    display: grid;
+    gap: 0.85rem;
+  }
+  .compare__col {
+    border-left: 2px solid var(--color-rule-on-canvas-strong);
+    padding-left: 1rem;
+  }
+  .compare__col--before {
+    border-left-color: var(--color-signal-fail-bright);
+  }
+  .compare__col--after {
+    border-left-color: var(--color-signal-pass-bright);
+  }
+  .compare__label {
+    margin: 0 0 0.3rem;
+    font-family: var(--font-instrument);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-on-canvas-faint);
+  }
+  .compare__text {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.7vw, 1.3rem);
+    line-height: 1.35;
+    color: var(--color-text-on-canvas);
+  }
+  .compare__note {
+    margin: 0.35rem 0 0;
+    font-size: 0.82rem;
+    color: var(--color-text-on-canvas-faint);
+  }
+
+  .lab-code {
+    border-top: 1px solid var(--color-rule-on-canvas);
+    padding-top: clamp(1.25rem, 2.5vw, 2rem);
+  }
+  .lab-code summary {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--color-text-on-canvas-muted);
+    padding: 0.6rem 0;
+  }
+  .lab-code summary:hover {
+    color: var(--color-text-on-canvas);
+  }
+  .lab-code pre {
+    margin: 0.5rem 0 0;
+    padding: 1rem;
+    background: var(--color-deck-inset);
+    border: 1px solid var(--color-rule-on-canvas);
+    font-size: 0.8rem;
+  }
+  .lab-code__note {
+    margin: 0.6rem 0 0;
+    font-size: 0.8rem;
+    color: var(--color-text-on-canvas-faint);
+  }
+
+  /* ---- narrow ----------------------------------------------------- */
+  @media (max-width: 64rem) {
     .lab__head,
-    .limits {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-    .lab__head {
-      align-items: start;
-    }
-    .step__body {
-      grid-template-columns: 1fr;
-      gap: 1.25rem;
-    }
-    .step__side {
-      border-left: 0;
-      border-top: 1px solid var(--color-rule-on-canvas);
-      padding-left: 0;
-      padding-top: 1.1rem;
-    }
-    .transport__status {
-      margin-left: 0;
-      max-width: none;
-    }
-  }
-
-  @media (max-width: 46rem) {
-    .rail__list {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-    .rail__list > li:last-child {
-      grid-column: 1 / -1;
-    }
-    .rail__item {
-      border-bottom: 1px solid var(--color-rule-on-canvas-soft);
-      font-size: 0.82rem;
-    }
-    .branches {
-      grid-template-columns: 1fr;
-    }
-    .context__row {
-      grid-template-columns: 1fr;
-      gap: 0.1rem;
-      padding-block: 0.55rem;
-    }
-    .refusal-record > div,
-    .review__state > div {
-      grid-template-columns: 1fr;
-      gap: 0.1rem;
-    }
-    .step__head {
-      padding: 0.9rem 1rem;
-    }
-    .step__state {
-      font-size: 0.68rem;
-    }
-    .transport__controls {
-      width: 100%;
-    }
-    .lab-button--run {
-      width: 100%;
+    .lab-block--story {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
     }
     .lab__title {
-      font-size: clamp(2.1rem, 9vw, 3rem);
+      font-size: clamp(1.9rem, 5.6vw, 2.6rem);
+      max-width: 24ch;
+    }
+    /* Stacked reads in DOM order: the sentence, its reading, what it cites,
+       then the material. Nothing floats over anything at these widths. */
+    .desk {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'compose'
+        'verdict'
+        'cites'
+        'material';
+      grid-template-rows: auto;
+    }
+    .desk {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .desk {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    .step {
-      transition: none;
+  @media (max-width: 46rem) {
+    .presets {
+      display: none;
     }
-    .lab[data-walk='walking'] .step:not([data-reached]) {
-      opacity: 1;
+    .preset-select {
+      display: flex;
+    }
+    .rule {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+    .cite {
+      flex: 1 1 calc(50% - 0.4rem);
+    }
+    .preset,
+    .cite {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .preset,
+    .cite {
+      transition: none;
     }
   }
 </style>
