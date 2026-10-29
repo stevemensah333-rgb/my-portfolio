@@ -38,3 +38,17 @@ Banned: leverage, robust, seamless, elevate, curate, delve, unlock, empower, jou
 ## What this site never does
 
 No fake terminals, logs or diagnostics. No particles. No custom cursor over text, selection or controls. No scroll hijacking, no horizontal tunnels, no mandatory loaders. No claim of a measurement that wasn't taken. No invented client, quote, metric, date or deployment. Nothing that only works with a mouse, and nothing that stops working without JavaScript.
+
+## Decisions that are settled, so they stop coming back
+
+Four things were raised as "should we build it" in the audit. Three are answered here and stay answered until something on the page changes enough to reopen them.
+
+- **No scroll-spy on the case-study contents.** The nav at the top of each case study is a set of anchors; it does not highlight where you are. Highlighting means an observer per section and a second reading of the same information the eyebrow already gives you (each section states its own coordinate, "03 / Contribution"). The page is long, but it is not a document you navigate by position — you read it. Dropped for good.
+- **Shared-element transitions degrade to a plain page load** in browsers that don't support them (Firefox, Safari today). That is the accepted outcome. No fallback animation, no polyfill, no second transition to maintain.
+- **The image dialog shows one line, never a spinner.** "Loading the full-size capture…" appears while the full-size image is actually incomplete; if it fails, the line says so and the caption still stands. An indefinite spinner claims progress it doesn't have.
+- **No personal object, no site search, no testimonials** until the content for them exists. Each of those needs something real behind it — a photograph with a story, an index worth searching, a third party willing to be quoted. A placeholder for any of them is worse than their absence.
+
+## Two numbers
+
+- **35+ learners** supported through the DataCamp Donates programme: confirmed, stated with the number.
+- **Library patrons:** no confirmed count, so the page states no number. It describes the work instead.

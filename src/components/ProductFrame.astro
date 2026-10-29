@@ -101,6 +101,10 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
         <p class="mono-label">{label} · {width}×{height} · real artifact</p>
         <button type="button" class="frame-dialog__close" data-frame-close>Close · Esc</button>
       </div>
+      {/* One line instead of a spinner: the full-size capture is a real
+          image that may take a moment on a slow connection, and an
+          indefinite spinner would be a lie about how much is left. */}
+      <p class="frame-dialog__loading" data-frame-loading hidden>Loading the full-size capture…</p>
       <picture>
         <source
           type="image/webp"
@@ -144,6 +148,19 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
       inner.classList.add('motion-rise');
     };
 
+    const image = dialog.querySelector<HTMLImageElement>('img');
+    const loadingNote = dialog.querySelector<HTMLElement>('[data-frame-loading]');
+    if (image && loadingNote) {
+      const settle = () => {
+        loadingNote.hidden = image.complete;
+      };
+      image.addEventListener('load', settle);
+      image.addEventListener('error', () => {
+        loadingNote.textContent = 'The full-size capture didn’t load. The caption below still applies.';
+        loadingNote.hidden = false;
+      });
+    }
+
     const open = () => {
       lastFocus = document.activeElement as HTMLElement;
       if (typeof dialog.showModal === 'function') {
@@ -153,6 +170,7 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
         dialog.hidden = false;
       }
       replayEntrance();
+      if (loadingNote && image) loadingNote.hidden = image.complete;
       closeBtn?.focus();
       document.documentElement.style.overflow = 'hidden';
     };
@@ -484,6 +502,14 @@ const id = `pf-${Math.random().toString(36).slice(2, 8)}`;
     color: var(--color-text-on-paper-muted);
     font-size: var(--text-small);
     line-height: 1.5;
+  }
+
+  .frame-dialog__loading {
+    margin: 0 0 var(--space-2);
+    font-family: var(--font-instrument);
+    font-size: var(--size-label);
+    letter-spacing: 0.04em;
+    color: var(--color-text-on-paper-faint);
   }
 
   .frame-dialog__evidence {

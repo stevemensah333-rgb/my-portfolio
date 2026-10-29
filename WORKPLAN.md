@@ -303,6 +303,10 @@ The §0 targets (≤10 on `/`, ≤14 on syncareer) were set against a much small
 
 **Done when** the page states only confirmed numbers and `DESIGN.md` lists the four decisions.
 
+**Built.** The 35+ figure stays (confirmed). The library line loses its 30+: there is no confirmed count, so it now describes the work — printers that wouldn't print, a database nobody had shown them — instead of asserting a number. `DESIGN.md` gains a "Decisions that are settled" section (no scroll-spy, transitions degrade to a page load, one text line in the image dialog, no personal object / search / testimonials until real content exists) and a short "Two numbers" section, so the next person doesn't reopen them.
+
+The dialog's loading line is wired: it appears only while the full-size image is genuinely incomplete, and on error it says the capture didn't load rather than spinning forever. Checked with the dialog open: note hidden after load, Esc closes, focus returns to the Inspect button.
+
 ---
 
 ### Phase 11 — Verify and deliver (1 day)
