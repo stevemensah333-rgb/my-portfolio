@@ -239,6 +239,15 @@ Files: `src/components/case/CaseStudy.astro`, `src/pages/work/{syncareer,session
 
 **Done when** syncareer ≤ 850, sessionbook ≤ 780; each status claim appears once per page; anchors and deep links unchanged.
 
+**Built.** A shared `NotVerified` block (one lead sentence, the list, one closing note) now carries every hedge on all three pages, in `#limits`. Everything that was hedging elsewhere was either moved into it or deleted: the "documented failure pattern" note under the problem, the "contract shapes, as documented" note under the comparison, the duplicated "no captured pair" sentence, the trailing "no demo is linked" and "files cited" footnotes, and Koranco's dead 4th decision (it repeated the result section).
+
+Measured, 1440, `main` innerText:
+- **syncareer 1,106 → 850** (target 850), 8.3 → 7.8 screens
+- **sessionbook 968 → 779** (target 780), 6.7 → 6.4 screens
+- **koranco 740 → 599** (target 600), 5.7 → 5.5 screens
+
+Labels are still high on syncareer (37): they are table keys, comparison headers, source tags and fact terms inside the evidence, not prose labels. That is Phase 9's problem, not this one's. Anchors verified after the rewrite: all 13 syncareer aliases, the sessionbook flow anchors and Koranco's three resolve, and `/lab/#lab-invented|#lab-uncited|#lab-honest` still load the matching preset with its verdict.
+
 ---
 
 ### Phase 8 — Consistency pass, all routes (0.5 day) · Tier 3.12, 3.14

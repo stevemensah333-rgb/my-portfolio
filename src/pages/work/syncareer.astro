@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseStudy from '../../components/case/CaseStudy.astro';
+import NotVerified from '../../components/case/NotVerified.astro';
 import ProductFrame from '../../components/ProductFrame.astro';
 import {
   failureRecord,
@@ -111,7 +112,7 @@ const structuredData = {
         <p class="case-shape__foot">{failureRecord.oldContract.source}</p>
       </div>
 
-      <p class="case-note"><strong>Documented failure pattern.</strong> {failureRecord.known}</p>
+
     </Fragment>
 
     <Fragment slot="contribution">
@@ -119,16 +120,16 @@ const structuredData = {
 
       <ul class="role-list">
         <li>
-          <strong>The contract</strong> — what a request is allowed to carry, and what a reply must
-          cite before the interface can use it.
+          <strong>The contract</strong> — what a request may carry, and what a reply must cite
+          before the interface can use it.
         </li>
         <li>
-          <strong>The checks</strong> — validation and grounding sitting between the model and the
+          <strong>The checks</strong> — validation and grounding between the model and the
           interface, not inside a prompt.
         </li>
         <li>
-          <strong>The review surface</strong> — request, regenerate, edit, accept, reject or undo
-          stays with the person; nothing is written to the saved CV automatically.
+          <strong>The review surface</strong> — accept, edit, reject or undo stays with the person.
+          Nothing reaches the saved CV on its own.
         </li>
       </ul>
     </Fragment>
@@ -153,11 +154,6 @@ const structuredData = {
         ))}
       </div>
 
-      <p class="case-note">
-        <strong>Contract shapes, as documented.</strong> No captured before/after output exists; the
-        two replies in the Lab are labelled fixtures, not a recorded pair.
-      </p>
-
       <details class="case-deeper">
         <summary>Four engineering decisions</summary>
         <div class="case-deeper__body">
@@ -173,17 +169,13 @@ const structuredData = {
 
       <div class="case-lab">
         <p>
-          <strong>The Lab lets you try the gate.</strong> Write a bullet, choose what it cites, and
+          <strong>The gate is on the Lab page.</strong> Write a bullet, choose what it cites, and
           watch the check decide. One example passes with four invented claims in it, which is the
-          whole point.
+          point.
         </p>
         <ul class="case-lab__links">
           <li><a href="/lab/">Open the Reliability Lab ↗</a></li>
           <li><a href="/lab/#lab-invented">A passing sentence that is entirely made up</a></li>
-          <li><a href="/lab/#lab-checks">What the check looks at</a></li>
-          <li><a href="/lab/#lab-story">What actually happened</a></li>
-          <li><a href="/lab/#lab-limits">What it can’t tell you</a></li>
-          <li><a href="/lab/#lab-code">The contract</a></li>
         </ul>
       </div>
     </Fragment>
@@ -207,24 +199,20 @@ const structuredData = {
         </div>
       </dl>
 
-      <p class="case-sub">Present in source</p>
+      <p class="case-sub">In source</p>
       <ul class="case-evidence case-evidence--known">
-        {evidenceBoundary.known.map((item) => (
+        {evidenceBoundary.known.slice(0, 4).map((item) => (
           <li>{item.text} <small>{item.cite}</small></li>
         ))}
       </ul>
     </Fragment>
 
     <Fragment slot="limits">
-      <p>{evidenceBoundary.statement}</p>
-
-      <ul class="case-evidence case-evidence--missing">
-        {evidenceBoundary.missing.map((item) => <li>{item.text}</li>)}
-      </ul>
-
-      <aside class="boundary">
-        <p><strong>{evidenceBoundary.numbers.label}.</strong> {evidenceBoundary.numbers.body}</p>
-      </aside>
+      <NotVerified
+        lead="The repository shows a repaired contract. It doesn’t show that the model got better."
+        items={evidenceBoundary.missing.map((item) => item.text)}
+        closing={`The project’s own notes score five fixed examples against a six-part rubric: 8/30 for the old contract, 29/30 for the revised one. Those are marks on fixtures that compare two contract versions, not live-model scores.`}
+      />
     </Fragment>
 
     <Fragment slot="sources">
@@ -259,8 +247,7 @@ const structuredData = {
 
       <p class="case-note">
         Files cited: <code>contract.ts</code>, <code>handler.ts</code>,
-        <code>parseModelProposal</code>, <code>index.test.ts</code>. The failure record is read from
-        the project’s guidance notes and the previous request shape; no incident log exists.
+        <code>parseModelProposal</code>, <code>index.test.ts</code>.
       </p>
     </Fragment>
   </CaseStudy>

@@ -54,7 +54,7 @@ export const caseCopy: Record<ProjectId, Record<Exclude<CasePartKey, 'overview'>
   syncareer: {
     visual: {
       title: 'The product, as it runs.',
-      note: 'Three real captures from the live platform. The grounding revision described below is not in them — it is still waiting for a deployment.',
+      note: 'Three real captures from the live platform. The grounding revision isn’t in them yet.',
       aliases: ['product', 'product-surfaces'],
     },
     problem: {
@@ -66,7 +66,7 @@ export const caseCopy: Record<ProjectId, Record<Exclude<CasePartKey, 'overview'>
     },
     decisions: {
       title: 'Fix the contract, not the model.',
-      note: 'The whole seven-stage investigation condenses to this comparison. The Lab runs one reply through the gate and the review.',
+      note: 'This comparison is the whole investigation. The Lab runs one reply through the gate.',
       aliases: [
         'investigation',
         'intervention',
@@ -95,7 +95,7 @@ export const caseCopy: Record<ProjectId, Record<Exclude<CasePartKey, 'overview'>
   sessionbook: {
     visual: {
       title: 'One exchange, one path.',
-      note: 'There is no product screenshot: the repository contains no captured call and no deployed URL. The exchange is illustrative; the path below is written in source.',
+      note: 'No product screenshot exists: the repository has no captured call and no deployed URL. The exchange is illustrative; the path below is in source.',
       aliases: ['architecture', 'trace', 'call-path'],
     },
     problem: {

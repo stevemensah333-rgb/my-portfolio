@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseStudy from '../../components/case/CaseStudy.astro';
+import NotVerified from '../../components/case/NotVerified.astro';
 import BookingFlow from '../../components/case/BookingFlow.astro';
 import { projectRecords } from '../../data/portfolio';
 import { sessionbook as sessionbookProject } from '../../data/registry';
@@ -42,14 +43,9 @@ const structuredData = {
 
     <Fragment slot="problem">
       <p>
-        A voice agent can ask a caller what time works. It shouldn’t decide whether a slot exists,
-        whether someone else just booked it, or whether a confirmation is valid.
+        A voice agent can ask what time works. It shouldn’t decide whether a slot exists, or
+        whether someone just took it.
       </p>
-      <p>
-        That is the design problem in one line: the conversation is open, the booking is a
-        transaction. Everything in this service follows from keeping those two things apart.
-      </p>
-
       <div class="compare-grid">
         <div class="compare-sheet">
           <h3>The agent owns</h3>
@@ -72,9 +68,8 @@ const structuredData = {
 
     <Fragment slot="contribution">
       <p>
-        I built the FastAPI service behind that boundary: the HTTP tools the agent calls,
-        availability queries, the transaction around booking, and the responses designed to be read
-        aloud.
+        I built the FastAPI service behind that boundary: the tools the agent calls, availability
+        queries, the booking transaction, the spoken responses.
       </p>
 
       <ul class="role-list">
@@ -88,18 +83,15 @@ const structuredData = {
           availability, the locked booking transaction, confirmation codes and spoken labels.
         </li>
         <li>
-          <strong>The contracts</strong> — <code>schemas.py</code>: availability and booking
-          requests with length-bounded fields and service-level phone validation.
-        </li>
-        <li>
-          <strong>The agent configuration</strong> — <code>voice_agent/agent.json</code>: four tool
-          definitions pointing at those routes.
+          <strong>The contracts and agent document</strong> — <code>schemas.py</code> bounds the
+          request fields and validates phone numbers; <code>voice_agent/agent.json</code> points
+          four tool definitions at the routes.
         </li>
       </ul>
 
       <p class="case-note">
-        AssemblyAI owns the conversation. SessionBook owns the agent document and the backend the
-        agent calls — nothing here has to stream or persist a WebSocket.
+        AssemblyAI owns the conversation. SessionBook owns the agent document and the backend behind
+        it. Nothing here streams or persists a socket.
       </p>
     </Fragment>
 
@@ -108,39 +100,29 @@ const structuredData = {
         <div>
           <dt>Lock the slot before checking it</dt>
           <dd>
-            <code>book_slot</code> takes <code>SELECT … FOR UPDATE</code> inside a transaction, and
-            only then checks that the slot exists and is still free. The existence check happens
-            after the lock is held, so two concurrent callers cannot both pass the gate.
-          </dd>
-        </div>
-        <div>
-          <dt>Let the database be the final arbiter</dt>
-          <dd>
-            A unique slot constraint plus an <code>IntegrityError</code> fallback means the second
-            writer fails loudly instead of double-booking; the service raises
-            <code>SlotAlreadyBookedError</code>.
+            <code>book_slot</code> takes <code>SELECT … FOR UPDATE</code> first, then checks the
+            slot is still free. A unique constraint is the second line: the loser fails loudly.
           </dd>
         </div>
         <div>
           <dt>Keep the clock provider-local</dt>
           <dd>
-            Datetimes are timezone-aware and rendered for speech in Africa/Accra through
-            <code>ZoneInfo</code> — the provider’s clock, not the caller’s.
+            Times are timezone-aware and spoken in Africa/Accra — the provider’s clock, not the
+            caller’s.
           </dd>
         </div>
         <div>
           <dt>Make the confirmation sayable</dt>
           <dd>
-            Confirmation codes run six to ten characters with no 0/O or 1/I, and arrive with a
-            <code>spoken_confirmation</code> sentence so a caller can read the code back.
+            Codes run six to ten characters with no 0/O or 1/I, and come with a spoken sentence so
+            a caller can read them back.
           </dd>
         </div>
         <div>
           <dt>Give failures something to say</dt>
           <dd>
-            The tool routes return speakable sentences — 409 “That slot was just taken, would you
-            like another time?” and 404 for a slot that does not exist — so the agent can ask the
-            next question instead of apologising.
+            Failures come back as whole sentences — 409 “That slot was just taken, would you like
+            another time?” — so the agent can ask again.
           </dd>
         </div>
       </dl>
@@ -153,39 +135,33 @@ const structuredData = {
         <div>
           <dt>Implementation</dt>
           <dd>
-            <strong>In source at commit 1264d9e.</strong> Four mounted tool routes, a row-locking
-            booking service, the Pydantic contracts and the agent configuration.
+            <strong>In source at commit 1264d9e.</strong> Four tool routes, a row-locking booking
+            service, the contracts and the agent document.
           </dd>
         </div>
         <div>
           <dt>Live calls</dt>
           <dd>
-            <strong>Unverified.</strong> No call was made, retained or replayed, and no deployment
-            is verified.
+            <strong>Unverified.</strong> No call was made or replayed, and no deployment exists.
           </dd>
         </div>
       </dl>
 
-      <p class="case-sub">Present in source</p>
+      <p class="case-sub">In source</p>
       <ul class="case-evidence case-evidence--known">
-        {sessionbookBoundary.known.slice(0, 6).map((item) => <li>{item}</li>)}
+        {sessionbookBoundary.known.slice(0, 3).map((item) => <li>{item}</li>)}
       </ul>
     </Fragment>
 
     <Fragment slot="limits">
-      <p>
-        The repository verifies written implementation, not a working phone call.
-      </p>
-
-      <ul class="case-evidence case-evidence--missing">
-        {sessionbookBoundary.missing.map((item) => <li>{item}</li>)}
-      </ul>
-
-      <p class="case-note">
-        <strong>Corrected here:</strong> an earlier version of this page said short phone numbers
-        passed validation; the service normalises and requires 7–15 digits. Tool authentication has
-        not been reviewed, the test file is empty, and no migration version has been generated.
-      </p>
+      <NotVerified
+        lead="The repository verifies written implementation, not a working phone call."
+        items={[
+          ...sessionbookBoundary.missing,
+          'Tool authentication has not been reviewed',
+        ]}
+        closing="Corrected here: an earlier version said short phone numbers passed validation. The service requires 7–15 digits."
+      />
     </Fragment>
 
     <Fragment slot="sources">
@@ -207,16 +183,12 @@ const structuredData = {
             AssemblyAI HTTP tools tutorial
           </a>
           <span class="case-sources__tag">Reference</span>
-          <span>
-            Conceptual reference for the shape of the integration. Nothing here is claimed as an
-            implemented SessionBook feature.
-          </span>
+          <span>Reference for the integration shape, not a SessionBook feature.</span>
         </li>
       </ul>
 
       <p class="case-note">
-        No demo is linked: setup instructions and an agent ID file do not establish a deployment,
-        and no call recording or transcript exists.
+        No demo is linked. Setup instructions and an agent ID file don’t establish a deployment.
       </p>
     </Fragment>
   </CaseStudy>

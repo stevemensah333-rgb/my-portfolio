@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseStudy from '../../components/case/CaseStudy.astro';
+import NotVerified from '../../components/case/NotVerified.astro';
 import ModuleMap from '../../components/case/ModuleMap.astro';
 import { projectRecords } from '../../data/portfolio';
 import { koranco as korancoProject } from '../../data/registry';
@@ -42,43 +43,39 @@ const structuredData = {
 
     <Fragment slot="problem">
       <p>
-        Farm records were being kept for the office, not for the field. The engagement’s job was to
-        find out how production data was actually captured, organised and used — and then to build
-        something that survived the conditions it was used in.
+        Farm records were kept for the office, not the field. The job was to find out how
+        production data actually got captured, then build something that survived the conditions on
+        the farm.
       </p>
       <p>
         Three record types came out of that: who was present, what was produced, and who worked
-        there. They are the whole scope of the MVP; nothing else is claimed.
+        there. That is the whole scope of the MVP.
       </p>
     </Fragment>
 
     <Fragment slot="contribution">
       <p>
-        I did the software engineering for the three-module MVP during the six-week Ashesi
-        Innovation Lab engagement, working alongside the farm-operations side of the project.
+        I built the three-module MVP in a six-week Ashesi Innovation Lab engagement, with the
+        farm-operations side.
       </p>
 
       <ul class="role-list">
         <li>
-          <strong>Offline-first field work</strong> — the modules were built so attendance, produce
-          and employee records can be entered where connectivity is poor, rather than only where
-          the office is.
+          <strong>Offline-first field work</strong> — records are entered where connectivity is
+          poor, not only at the office.
         </li>
         <li>
-          <strong>Authentication and authorization</strong> — custom authentication with
-          role-based access, on FastAPI and PostgreSQL, so a farmhand and a manager do not see the
-          same records.
+          <strong>Authentication and authorization</strong> — custom auth and role-based access on
+          FastAPI and PostgreSQL, so a farmhand and a manager don’t see the same records.
         </li>
         <li>
-          <strong>A public face for the farm</strong> — a website built for the business, to make it
-          findable and reachable. It is described, not linked: its address is not in the supplied
-          record.
+          <strong>A public face for the farm</strong> — a website for the business. Its address
+          isn’t in the record, so it is described, not linked.
         </li>
       </ul>
 
       <p class="case-note">
-        Beyond the stack, the code is not public, so no schema, endpoint or permission rule is
-        described here — those would be guesses.
+        The code isn’t public, so no schema or endpoint is described here. It would be a guess.
       </p>
     </Fragment>
 
@@ -87,30 +84,23 @@ const structuredData = {
         <div>
           <dt>Follow the records, not a feature list</dt>
           <dd>
-            The engagement’s output was three record types — attendance, produce and employees — so
-            the MVP is organised around them rather than around a generic suite of farm features.
+            The engagement produced three record types, so the MVP is organised around them, not
+            around a generic suite of farm features.
           </dd>
         </div>
         <div>
           <dt>Build for the connection the farm has</dt>
           <dd>
-            Offline-first was the shape of the product, not a later optimisation: records are
-            captured in the field and reconciled afterwards, so a dropped connection does not stop
-            the day’s work.
+            Offline-first was the shape of the product, not a later optimisation. Records are
+            captured in the field and reconciled after, so a dropped connection doesn’t stop the
+            day’s work.
           </dd>
         </div>
         <div>
           <dt>Decide access in the service</dt>
           <dd>
-            Custom authentication and role-based authorization live on the backend, next to the
-            records they protect, rather than in the interface.
-          </dd>
-        </div>
-        <div>
-          <dt>Deliver a working MVP within the engagement</dt>
-          <dd>
-            Six weeks, through the Ashesi Innovation Lab, delivered as a working MVP rather than a
-            design document or a proposal.
+            Custom auth and role-based authorization live on the backend, next to the records they
+            protect, not in the interface.
           </dd>
         </div>
       </dl>
@@ -122,30 +112,25 @@ const structuredData = {
       <dl class="case-states">
         <div>
           <dt>Delivered</dt>
-          <dd>
-            <strong>Three modules, working.</strong> Attendance, produce and employees, built through
-            the six-week Innovation Lab engagement.
-          </dd>
+          <dd><strong>Three modules, working.</strong> Attendance, produce and employees.</dd>
         </div>
         <div>
           <dt>Deployment</dt>
-          <dd>
-            <strong>None evidenced.</strong> No production deployment, farm-side rollout or usage
-            figure appears in the record.
-          </dd>
+          <dd><strong>None evidenced.</strong> No production deployment or rollout in the record.</dd>
         </div>
       </dl>
     </Fragment>
 
     <Fragment slot="limits">
-      <p>{projectRecords.koranco.boundary}</p>
-
-      <ul class="case-evidence case-evidence--missing">
-        <li>No public repository, source excerpt or product screenshot</li>
-        <li>No production deployment or farm-side adoption reported</li>
-        <li>No measured operational outcome — no time saved, error rate or usage figure</li>
-        <li>The farm’s website is described but not linked — its address is not in the record</li>
-      </ul>
+      <NotVerified
+        lead="This account is built from the written record, not from a public build."
+        items={[
+          'No public repository, source excerpt or product screenshot',
+          'No production deployment or farm-side adoption reported',
+          'No measured operational outcome — no time saved, error rate or usage figure',
+          'The farm’s website is described but not linked',
+        ]}
+      />
     </Fragment>
 
     <Fragment slot="sources">
@@ -153,7 +138,7 @@ const structuredData = {
         <li>
           <a href="/profile/">Profile and experience record</a>
           <span class="case-sources__tag">This site</span>
-          <span>The Jul–Sep 2026 Innovation Lab role this six-week engagement sits inside.</span>
+          <span>The Jul–Sep 2026 Innovation Lab role around it.</span>
         </li>
         <li>
           <a href={PUBLIC_LINKS.resume}>Résumé (PDF)</a>
@@ -163,7 +148,7 @@ const structuredData = {
         <li>
           <span class="case-sources__plain">Innovation Lab brief</span>
           <span class="case-sources__tag">Not public</span>
-          <span>The written project scope. There is no public link to it.</span>
+          <span>The written project scope. No public link exists.</span>
         </li>
       </ul>
 
