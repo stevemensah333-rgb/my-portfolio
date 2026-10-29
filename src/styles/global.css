@@ -388,6 +388,11 @@
   --page-gutter: clamp(1.25rem, 5vw, 5rem);
   
   /* Typography overrides */
+  /* The label floor. Nothing readable in this design is set below 11px
+     (`--size-label`), and the one drawn object that has to shrink to fit
+     a phone — the SessionBook ticket — stops at 10.5px. */
+  --size-label: 0.6875rem;
+  --size-label-sm: 0.65625rem;
   --text-micro: 0.75rem;
   --text-meta: 0.75rem;
   --tracking-instrument: 0.06em;

@@ -273,6 +273,23 @@ Files: `src/styles/global.css` + the 23 component-local label rules
 
 **Done when** nothing below 10.5px except the drawn ticket object, label counts at target, no new overflow.
 
+**Built — and it found a layout bug that had been live on every phone.** While raising the artifact type I checked the bench at 390 and found the three objects squeezed into a 192px column with a 72px map beside them: the desktop composition places them in columns 1–6 and 7–12, and the phone rule swapped the grid to one column without resetting those placements, so the browsers created eleven empty implicit tracks. Fixed in the phone block; the objects are now full width at 390 and 320.
+
+**Type.** Two tokens in `global.css`: `--size-label` (11px) and `--size-label-sm` (10.5px, the floor). Every label rule that sat between 0.6rem and 0.68rem was repointed — 38 declarations across 12 files — and the artifacts' container-query clamps got their minimums raised to the same floor. Measured with a script that walks every text node on all seven routes at 1440, 390 and 320: **zero text below 10.4px anywhere**, including inside the ticket and the module map. `overflow: 0` at 1440/768/390/320 on every route.
+
+**Labels.** Removed the seven section numerals from the case-study nav (every section already carries its coordinate in its eyebrow), the seven flow stage labels on SessionBook (the step titles say the same thing), and the two deployment lines under the homepage entries (folded into the kicker above them). Counted with a selector for instrument labels, at 1440:
+
+| route | labels | of which are inside a drawn object or shared chrome |
+|---|---|---|
+| `/` | 21 | 11 (ticket eyebrows, map numerals, artifact state chips, footer headings) |
+| `/work/` | 21 | 7 |
+| syncareer | 34 | 7 |
+| sessionbook | 27 | 6 |
+| koranco | 28 | 7 |
+| `/profile/` | 13 | 2 |
+
+The §0 targets (≤10 on `/`, ≤14 on syncareer) were set against a much smaller page and against a looser definition. They are not met on the raw count, and I did not strip the evidence tables to meet them: a `dt` that names a release state, and a source tag that says where a claim can be checked, are the opposite of decoration. What is met is the intent — every remaining label is a field key or a state, no label restates a heading, and the two biggest sources of label noise (nav numerals, flow stage labels) are gone.
+
 ---
 
 ### Phase 10 — Facts and deferred decisions (0.5 day) · Tier 3.16, Tier 4

@@ -78,7 +78,7 @@ const entries = [
       <li class="entry">
         <p class="kicker">
           <span class="kicker__n">{entry.n}</span>
-          {record[entry.id].kind} · {record[entry.id].status}
+          {record[entry.id].kind} · {record[entry.id].status} · {record[entry.id].deployment}
         </p>
         <h3 class="entry__name" id={`entry-${entry.id}`}>
           <a href={`/work/${entry.id}/`}>
@@ -91,7 +91,6 @@ const entries = [
             : 'Three record types, built for a bad connection.'}
         </p>
         <p class="entry__body">{record[entry.id].purpose}</p>
-        <p class="entry__state">{record[entry.id].deployment}</p>
         <a class="text-link entry__cta" href={`/work/${entry.id}/`}>
           Read the case study <span aria-hidden="true">↗</span>
         </a>
@@ -100,7 +99,7 @@ const entries = [
   </ul>
 
   <p class="selected__foot">
-    Each case study carries its decision record and what hasn't been verified.
+    Each case study carries its decision record and what hasn’t been verified.
     <a class="text-link" href="/work/">See all three <span aria-hidden="true">↗</span></a>
   </p>
 </section>
@@ -261,13 +260,6 @@ const entries = [
   }
   .entry__cta {
     justify-self: start;
-  }
-  .entry__state {
-    font-family: var(--font-instrument);
-    font-size: 0.76rem;
-    letter-spacing: 0.04em;
-    color: var(--color-ink-faint);
-    text-transform: uppercase;
   }
 
   .selected__foot {

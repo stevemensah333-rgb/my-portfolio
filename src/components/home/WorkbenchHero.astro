@@ -273,7 +273,7 @@ import { projectRecords } from '../../data/registry';
     border-bottom: 2px solid var(--color-rule-strong);
     margin-bottom: clamp(1rem, 2vw, 1.5rem);
     font-family: var(--font-instrument);
-    font-size: 0.65rem;
+    font-size: var(--size-label);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--color-ink-faint);
@@ -507,7 +507,7 @@ import { projectRecords } from '../../data/registry';
       min-width: 0;
     }
     .hero__rail {
-      font-size: 0.62rem;
+      font-size: var(--size-label);
       gap: 0.5rem;
       margin-bottom: 1.1rem;
     }
@@ -523,6 +523,18 @@ import { projectRecords } from '../../data/registry';
     }
     .bench__objects::before {
       display: none;
+    }
+    /* The desktop composition places the three objects in columns 1–6
+       and 7–12; on one column those placements would create empty
+       implicit tracks and squeeze every object into the first. Reset
+       them to the single column, full width, same reading order. */
+    .bench__item--syncareer,
+    .bench__item--sessionbook,
+    .bench__item--koranco {
+      grid-column: 1;
+      grid-row: auto;
+      width: 100%;
+      margin-top: 0;
     }
     .bench__item {
       rotate: 0deg;
