@@ -203,6 +203,8 @@ Files: `src/components/ContactSection.astro`
 
 **Done when** the section ends flush with a decisive element at 1440 and 390, the copy action still announces success and failure, and no interaction is required to read the email.
 
+**Built.** The address is now a slip of paper — typed in the instrument face, a dashed tear line across its top, one notch cut out of the corner, sitting above the sheet on `--shadow-object` and lifting 3px on hover. The copy button moved inside the slip, so both ways of taking the address sit on the same object; the redundant "Email Stephen" button underneath it is gone, because the address was already the `mailto:`. The lead moved to the left column, which is what stopped the section leaving 250px of paper under the headline. Verified: copy succeeds and announces it, blocked clipboard falls back to selecting the address and says so, no JS leaves the slip intact and the button hidden, `overflow: 0` at 1440/1024/390, tilt removed under 46rem and under reduced motion.
+
 ---
 
 ### Phase 6 — Homepage trim (1 day) · Tier 2.8, 2.11

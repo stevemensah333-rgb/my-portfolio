@@ -31,33 +31,28 @@ const mailto = `mailto:${SITE.email}`;
     <div class="contact__head">
       <p class="eyebrow">Contact / The next step</p>
       <h2 id="contact-title">Tell me what<br />you’re building.</h2>
-    </div>
-
-    <div class="contact__panel">
       <p class="contact__lead">
         A role, a project, or a hard question about making an AI feature behave. Email reaches me
         directly — no form, no queue.
       </p>
+    </div>
 
-      <a class="contact__email" href={mailto}>
-        <span class="contact__email-text">{SITE.email}</span>
-        <span class="contact__email-icon" aria-hidden="true">↗</span>
-      </a>
-
-      <div class="contact__actions">
-        <a class="button contact__mail" href={mailto}>
-          Email Stephen <span aria-hidden="true">↗</span>
+    <div class="contact__panel">
+      {/* The address as a slip of paper: typed, torn off along a dashed
+          line, and lifted off the sheet. It is one object you can act on —
+          the link is the whole address, the copy action sits inside the
+          slip so both live in the same place. */}
+      <div class="contact__slip">
+        <span class="contact__slip-label">Write to</span>
+        <a class="contact__email" href={mailto}>
+          <span class="contact__email-text">{SITE.email}</span>
+          <span class="contact__email-icon" aria-hidden="true">↗</span>
         </a>
-        <button
-          class="button button--secondary contact__copy"
-          type="button"
-          data-copy-email={SITE.email}
-          hidden
-        >
-          Copy email
+        <button class="contact__copy" type="button" data-copy-email={SITE.email} hidden>
+          Copy
         </button>
-        <p class="contact__status" role="status" aria-live="polite" data-copy-status></p>
       </div>
+      <p class="contact__status" role="status" aria-live="polite" data-copy-status></p>
 
       <ul class="contact__links" aria-label="Elsewhere">
         {
@@ -88,7 +83,7 @@ const mailto = `mailto:${SITE.email}`;
      what happened, and the status region is the thing that gets announced
      — the label change on the button is only a visual echo. */
   const reset = (button: HTMLButtonElement) => {
-    button.textContent = 'Copy email';
+    button.textContent = 'Copy';
     delete button.dataset.state;
   };
 
@@ -115,7 +110,7 @@ const mailto = `mailto:${SITE.email}`;
         if (status) {
           status.dataset.state = 'error';
           status.textContent =
-            'Copying is blocked in this browser. The address is selected — press Ctrl or ⌘ + C, or use Email Stephen.';
+            'Copying is blocked in this browser. The address is selected — press Ctrl or ⌘ + C.';
         }
         button.textContent = 'Copy failed';
         window.setTimeout(() => reset(button), 3200);
@@ -169,68 +164,141 @@ const mailto = `mailto:${SITE.email}`;
     max-width: 13ch;
   }
 
-  .contact__panel {
-    min-width: 0;
-    padding-top: clamp(0.5rem, 2vw, 1.5rem);
-  }
-
   .contact__lead {
+    margin-top: clamp(1rem, 2vw, 1.6rem);
     font-size: clamp(0.98rem, 1.2vw, 1.08rem);
     line-height: 1.6;
     color: var(--color-ink-muted);
-    max-width: 42ch;
+    max-width: 34ch;
   }
 
-  /* The address is the largest thing in the panel after the heading: it
-     is the action, so it should read like one. */
+  .contact__panel {
+    min-width: 0;
+  }
+
+  /* ---- the slip ------------------------------------------------
+     A piece of paper, not a button: typed address, a dashed tear line
+     along the top, and enough shadow to sit above the sheet. It lifts a
+     little when you reach for it, and the copy action lives inside it so
+     both ways of taking the address are in the same place. */
+  .contact__slip {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.9rem;
+    padding: clamp(1.1rem, 2.4vw, 1.6rem) clamp(1.1rem, 2.4vw, 1.75rem);
+    padding-top: clamp(1.6rem, 3vw, 2.2rem);
+    background: var(--color-sheet-raised);
+    border: 1px solid var(--color-rule-on-paper-strong);
+    box-shadow: var(--shadow-object);
+    rotate: -0.4deg;
+    transition:
+      box-shadow var(--duration-quick) var(--ease-standard),
+      translate var(--duration-quick) var(--ease-standard);
+  }
+  /* the tear line, with the little notches a torn edge leaves */
+  .contact__slip::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0.55rem;
+    top: 0.72rem;
+    border-top: 1px dashed var(--color-rule-on-paper-strong);
+  }
+  .contact__slip::after {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 0.62rem;
+    height: 0.62rem;
+    background: var(--color-paper);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+  .contact__slip:hover {
+    translate: 0 -3px;
+    box-shadow: var(--shadow-object-lifted);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .contact__slip,
+    .contact__slip:hover {
+      translate: 0 0;
+      rotate: 0deg;
+    }
+  }
+
+  .contact__slip-label {
+    flex-basis: 100%;
+    font-family: var(--font-instrument);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+
   .contact__email {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: clamp(1rem, 2vw, 1.5rem);
-    min-height: 52px;
-    font-family: var(--font-display);
-    font-size: clamp(1.25rem, 2.8vw, 2.15rem);
-    line-height: 1.15;
-    letter-spacing: -0.028em;
-    color: var(--color-teal);
+    gap: 0.45rem;
+    flex: 1 1 auto;
+    min-height: 44px;
+    font-family: var(--font-instrument);
+    font-size: clamp(1rem, 1.9vw, 1.42rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
     text-decoration: none;
-    border-bottom: 2px solid currentColor;
-    padding-bottom: 0.18rem;
     overflow-wrap: anywhere;
-    transition: color var(--duration-quick) var(--ease-standard);
+    padding-block: 0.1rem;
+    border-bottom: 2px solid transparent;
+    transition:
+      color var(--duration-quick) var(--ease-standard),
+      border-color var(--duration-quick) var(--ease-standard);
   }
   .contact__email:hover,
   .contact__email:focus-visible {
-    color: var(--color-copper-text);
+    color: var(--color-teal);
+    border-bottom-color: currentColor;
   }
   .contact__email-icon {
-    font-family: var(--font-instrument);
-    font-size: 0.62em;
+    font-size: 0.72em;
     color: var(--color-copper-text);
   }
   .contact__email:hover .contact__email-icon {
     color: currentColor;
   }
 
-  .contact__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.6rem 0.75rem;
-    margin-top: 1.5rem;
+  /* The copy action stays quiet until it is needed — but it is always in
+     the tab order and always 44px. */
+  .contact__copy {
+    flex: none;
+    min-height: 44px;
+    padding: 0.35rem 0.85rem;
+    background: transparent;
+    border: 1px solid var(--color-rule-on-paper-strong);
+    color: var(--color-ink-muted);
+    font-family: var(--font-instrument);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      border-color var(--duration-quick) var(--ease-standard),
+      color var(--duration-quick) var(--ease-standard);
   }
-  .contact__actions .button {
-    min-height: 48px;
+  .contact__copy:hover,
+  .contact__copy:focus-visible {
+    border-color: var(--color-teal);
+    color: var(--color-teal);
   }
-  .contact__mail {
-    min-width: 12rem;
-    justify-content: space-between;
+  .contact__copy[data-state='success'] {
+    border-color: var(--color-signal-pass);
+    color: var(--color-signal-pass);
   }
 
   .contact__status {
-    flex-basis: 100%;
-    margin: 0;
+    margin-top: 0.9rem;
     min-height: 1.4em;
     font-size: 0.78rem;
     line-height: 1.5;
@@ -250,7 +318,7 @@ const mailto = `mailto:${SITE.email}`;
 
   .contact__links {
     list-style: none;
-    margin: clamp(1.5rem, 3vw, 2rem) 0 0;
+    margin: clamp(1.75rem, 3vw, 2.5rem) 0 0;
     padding: 0;
     display: grid;
     border-top: 1px solid var(--color-rule-on-paper-strong);
@@ -312,11 +380,21 @@ const mailto = `mailto:${SITE.email}`;
     .contact h2 {
       font-size: clamp(2.2rem, 10vw, 3.2rem);
     }
-    .contact__actions .button {
-      width: 100%;
+    .contact__lead {
+      max-width: none;
     }
-    .contact__mail {
-      min-width: 0;
+    /* The slip stops tilting on a phone: the address needs the full width
+       and a rotated card just crowds the margin. */
+    .contact__slip {
+      rotate: 0deg;
+      padding-inline: 1rem;
+      row-gap: 0.75rem;
+    }
+    .contact__email {
+      flex-basis: 100%;
+    }
+    .contact__copy {
+      flex-basis: 100%;
     }
     .contact__link {
       grid-template-columns: minmax(0, 1fr) auto;
