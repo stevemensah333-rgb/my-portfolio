@@ -118,7 +118,7 @@ const year = new Date().getFullYear();
 
   .footer__label {
     font-family: var(--font-instrument);
-    font-size: 0.62rem;
+    font-size: var(--size-label);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-ink-faint);
@@ -145,7 +145,7 @@ const year = new Date().getFullYear();
     color: var(--color-teal);
     border-bottom-color: currentColor;
   }
-  /* The current page, marked exactly as the rail marks it (tokens in
+  /* The current page, marked exactly as the header marks it (tokens in
      global.css). */
   .footer__nav a[aria-current='page'] {
     color: var(--selected-color);

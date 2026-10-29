@@ -73,7 +73,7 @@ export const experiences: Experience[] = [
     dates: 'Feb — May 2026',
     summary: 'Front-line technical help with printing, scanning and database navigation.',
     detail:
-      'Assisted 30+ patrons, translating technical processes into plain language — the same job as writing an error message someone can act on.',
+      'Patrons arrived with a printer that would not print or a database nobody had shown them, and left with something that worked. Translating a technical process into plain language is the same job as writing an error message somebody can act on.',
   },
 ];
 

@@ -124,8 +124,8 @@ const evidenceNotes: Record<string, string> = {
             when something fails.
           </p>
           <p class="about__body">
-            This is a practice I’m developing through real projects — the evidence for each claim
-            below sits on <a href="/work/">the work</a>, not here.
+            I’m early in this, and I’d rather show <a href="/work/">the work</a> than describe it.
+            Each project says what’s proven and what isn’t.
           </p>
         </div>
       </div>
@@ -172,7 +172,7 @@ const evidenceNotes: Record<string, string> = {
           <dt>Documents</dt>
           <dd>
             <a href={PUBLIC_LINKS.resume} target="_blank" rel="noopener">Résumé (PDF) ↗</a> — the
-            document the workspace rail serves, supplied as-is.
+            supplied document, as-is.
           </dd>
         </div>
       </dl>
@@ -186,8 +186,7 @@ const evidenceNotes: Record<string, string> = {
         <h2 id="experience-title">Work with other people.</h2>
       </div>
       <p class="record__note">
-        Role, dates and contribution are in the row. Open a record for what the work actually
-        involved.
+        Every role here was collaborative work with a team, not solo contracting.
       </p>
     </div>
 
@@ -242,8 +241,7 @@ const evidenceNotes: Record<string, string> = {
         <h2 id="capabilities-title">What the work shows.</h2>
       </div>
       <p class="record__note">
-        One capability, one project. Open a row for the decisions and the limits; the release state
-        is the same one the archive shows.
+        One capability, one project, and the same release state the archive shows.
       </p>
     </div>
 
@@ -273,9 +271,7 @@ const evidenceNotes: Record<string, string> = {
       }
     </ul>
 
-    <p class="record__foot">
-      Each row opens the decisions, the sources and what has not been verified.
-    </p>
+
   </section>
 
   <section class="record page-shell" id="evidence" aria-labelledby="evidence-title">
@@ -285,8 +281,7 @@ const evidenceNotes: Record<string, string> = {
         <h2 id="evidence-title">Selected, and kept in proportion.</h2>
       </div>
       <p class="record__note">
-        Result, issuer and date are in the row. Each preview is a public copy of the supplied
-        document, opened deliberately.
+        Each preview is a public copy of the supplied document.
       </p>
     </div>
 
@@ -331,8 +326,8 @@ const evidenceNotes: Record<string, string> = {
     </ul>
 
     <p class="record__foot">
-      Every result listed has a supplied document behind it. The originals are kept unaltered;
-      these previews are cropped copies made for publication.
+      Every result here has a supplied document behind it. The originals are unaltered; these
+      previews are cropped for publication.
     </p>
   </section>
 
@@ -417,7 +412,7 @@ const evidenceNotes: Record<string, string> = {
     align-items: center;
     min-height: 44px;
     font-family: var(--font-instrument);
-    font-size: 0.66rem;
+    font-size: var(--size-label);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--color-text-on-paper-faint);
@@ -476,7 +471,7 @@ const evidenceNotes: Record<string, string> = {
 
   .portrait__role {
     font-family: var(--font-instrument);
-    font-size: 0.62rem;
+    font-size: var(--size-label);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--color-text-on-paper-faint);
@@ -498,7 +493,7 @@ const evidenceNotes: Record<string, string> = {
 
   .register dt {
     font-family: var(--font-instrument);
-    font-size: 0.62rem;
+    font-size: var(--size-label);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--color-text-on-paper-faint);
@@ -518,7 +513,7 @@ const evidenceNotes: Record<string, string> = {
 
   /* ---- records --------------------------------------------- */
   .record {
-    /* html carries scroll-padding-top for the rail; a second scroll
+    /* html carries scroll-padding-top for the header; a second scroll
        margin here would stack and leave ~200px of dead space above an
        anchor destination. */
     scroll-margin-top: 0;
@@ -599,7 +594,7 @@ const evidenceNotes: Record<string, string> = {
   .entry__n,
   .cap__n {
     font-family: var(--font-instrument);
-    font-size: 0.64rem;
+    font-size: var(--size-label);
     letter-spacing: 0.07em;
     color: var(--color-text-on-paper-faint);
     padding-top: 0.3rem;
@@ -625,7 +620,7 @@ const evidenceNotes: Record<string, string> = {
 
   .entry__span {
     font-family: var(--font-instrument);
-    font-size: 0.66rem;
+    font-size: var(--size-label);
     letter-spacing: 0.04em;
     color: var(--color-text-on-paper-faint);
     white-space: nowrap;
@@ -720,7 +715,7 @@ const evidenceNotes: Record<string, string> = {
   .cap__kicker {
     margin: 0;
     font-family: var(--font-instrument);
-    font-size: 0.62rem;
+    font-size: var(--size-label);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--color-text-on-paper-faint);
@@ -768,7 +763,7 @@ const evidenceNotes: Record<string, string> = {
   .cap__release {
     margin: 0.15rem 0 0;
     font-family: var(--font-instrument);
-    font-size: 0.66rem;
+    font-size: var(--size-label);
     line-height: 1.5;
     letter-spacing: 0.03em;
     color: var(--color-accent-text);
@@ -828,7 +823,7 @@ const evidenceNotes: Record<string, string> = {
 
   .award__issuer {
     font-family: var(--font-instrument);
-    font-size: 0.62rem;
+    font-size: var(--size-label);
     letter-spacing: 0.05em;
     text-transform: uppercase;
     line-height: 1.5;
@@ -919,7 +914,7 @@ const evidenceNotes: Record<string, string> = {
     display: inline-block;
     margin-right: 0.55rem;
     font-family: var(--font-instrument);
-    font-size: 0.62rem;
+    font-size: var(--size-label);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--color-copper-text);

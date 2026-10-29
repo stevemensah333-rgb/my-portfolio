@@ -299,6 +299,10 @@
   --duration-reveal: 460ms;
   --duration-settle: 520ms;
 
+  /* Object depth. Two levels only: resting on the bench, and lifted. */
+  --shadow-object: 0 1px 0 rgba(23, 26, 27, 0.05), 0 18px 32px -26px rgba(23, 26, 27, 0.45);
+  --shadow-object-lifted: 0 1px 0 rgba(23, 26, 27, 0.06), 0 30px 54px -30px rgba(23, 26, 27, 0.6);
+
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -384,6 +388,11 @@
   --page-gutter: clamp(1.25rem, 5vw, 5rem);
   
   /* Typography overrides */
+  /* The label floor. Nothing readable in this design is set below 11px
+     (`--size-label`), and the one drawn object that has to shrink to fit
+     a phone — the SessionBook ticket — stops at 10.5px. */
+  --size-label: 0.6875rem;
+  --size-label-sm: 0.65625rem;
   --text-micro: 0.75rem;
   --text-meta: 0.75rem;
   --tracking-instrument: 0.06em;

@@ -51,10 +51,7 @@ const stages = path
 <div class="flow" style="view-transition-name: artifact-sessionbook">
   <div class="case-sim">
     <span class="case-sim__label">Simulation</span>
-    <span>
-      A walk through the path written in source. Nothing is sent, no backend is called, and no
-      live call exists to replay.
-    </span>
+    <span>A walk through the path written in source. Nothing is sent.</span>
   </div>
 
   <div class="flow__diagram">
@@ -68,7 +65,7 @@ const stages = path
     </p>
     <p class="flow__legend">
       <span class="flow__legend-key" aria-hidden="true" />
-      Tinted steps run in the backend, not in the agent.
+      Tinted steps run in the backend.
     </p>
   </div>
 
@@ -80,7 +77,6 @@ const stages = path
           <details class="flow__item">
             <summary>
               <span class="flow__n">{String(index + 1).padStart(2, '0')}</span>
-              <span class="flow__label">{stage.label}</span>
               <span class="flow__text">
                 <strong>{stage.title}</strong>
                 <span class="flow__summary">{stage.summary}</span>
@@ -208,7 +204,9 @@ const stages = path
 
   .flow__item > summary {
     display: grid;
-    grid-template-columns: 2rem 6.5rem minmax(0, 1fr) auto;
+    /* number · title and summary · the disclosure marker. The narrow
+       stage-label column is gone with the labels themselves. */
+    grid-template-columns: 2rem minmax(0, 1fr) auto;
     align-items: baseline;
     gap: 0.5rem 1rem;
     padding: 0.95rem 0;
@@ -227,14 +225,6 @@ const stages = path
     font-family: var(--font-instrument);
     font-size: 0.72rem;
     color: var(--color-accent-text);
-  }
-
-  .flow__label {
-    font-family: var(--font-instrument);
-    font-size: 0.6rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-text-on-paper-faint);
   }
 
   .flow__text {
@@ -284,7 +274,7 @@ const stages = path
   }
   .flow__code figcaption {
     font-family: var(--font-instrument);
-    font-size: 0.62rem;
+    font-size: var(--size-label);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--color-accent-text);
@@ -312,10 +302,6 @@ const stages = path
     .flow__item > summary {
       grid-template-columns: auto minmax(0, 1fr) auto;
       gap: 0.3rem 0.75rem;
-    }
-    .flow__label {
-      grid-column: 2;
-      grid-row: 1;
     }
     .flow__text {
       grid-column: 1 / -1;

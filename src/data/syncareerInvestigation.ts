@@ -43,7 +43,7 @@ export const syncareerProduct = {
   ],
   /** §01 — the one path this case study examines. */
   scope:
-    'This case study examines one path inside the product: the CV assistant that rewrites a selected bullet for a selected job requirement. The project exposed practical problems around model output, context, validation and consistency; I worked on the application layer around those failure modes rather than treating the model as the whole system. What I learned is where most of the work sits: not calling the model, but getting its output to behave consistently enough for the product around it.',
+    'One path inside the product: the CV assistant that rewrites a selected bullet for a selected job requirement. The problems lived around the model — context, validation, consistency — so I worked on the application layer that surrounds it.',
   /** §01 — the workflow the two supporting screenshots show. */
   surfaces: [
     {
@@ -73,7 +73,7 @@ export const syncareerProduct = {
 export const failureRecord = {
   statement: 'The assistant saw a bullet. It could not see the evidence.',
   explanation:
-    'Before the change, the CV assistant sent only the selected bullet. The server could polish the wording; it could not know the job requirement the bullet was meant to answer, and it could not tell a job keyword from candidate evidence. The reply carried text and broad source ids, the interface wrote its own rationale for it, and newly introduced claims were never checked.',
+    'Before the change, the assistant received the selected bullet and nothing else. It could polish the wording. It couldn’t know the requirement the bullet was meant to answer, or tell a job keyword from candidate evidence. Replies came back as text plus broad source ids, and new claims were never checked.',
   impact:
     'What reached the user: a fluent, confident bullet that reads like evidence and traces back to nothing.',
   classes: [
@@ -101,8 +101,7 @@ export const failureRecord = {
    */
   oldContract: {
     label: 'Old contract · cv.rewrite_bullet',
-    source:
-      'As documented in the project’s AI-application guidance notes — no captured log exists.',
+    source: 'As documented in the project’s own guidance notes.',
     request: 'The selected bullet — one string, nothing else.',
     gaps: [
       { field: 'requirement', note: 'not sent' },
@@ -343,32 +342,32 @@ export const interventionRecord = {
   comparison: {
     label: 'The contract, before → after',
     items: [
-      { name: 'Request', before: 'One selected bullet', after: 'Allowlisted context items with provenance, size limits, and a required requirement/evidence pair' },
-      { name: 'Response', before: 'Text plus broad source ids', after: 'kind, text, and sourceContextIds drawn from the ids actually supplied' },
-      { name: 'Trust', before: 'Remote JSON cast to a type', after: 'Runtime validation, a citation subset check, and factual-risk checks' },
+      { name: 'Request', before: 'One selected bullet', after: 'Allowlisted context with provenance, size limits, a required requirement/evidence pair' },
+      { name: 'Response', before: 'Text plus broad source ids', after: 'kind, text and sourceContextIds from the ids actually supplied' },
+      { name: 'Trust', before: 'Remote JSON cast to a type', after: 'Runtime validation, a citation subset check, factual-risk checks' },
     ],
   },
   responses: [
     {
       name: 'Bounded, task-family server prompts',
-      note: 'Ten tasks, each with its own server-side prompt built only from the supplied context. Job text, CV text, labels and the user instruction are treated as untrusted data.',
+      note: 'Ten tasks, each with its own server-side prompt built only from the supplied context. Job text, CV text and the instruction are treated as untrusted data.',
     },
     {
       name: 'Allowlisted context with size limits',
-      note: 'Context may enter only as allowlisted items with a fixed provenance list. Limits: 12 items, 8,000 characters each, 24,000 in total, and 2,000 for the instruction.',
+      note: 'Context enters only as allowlisted items with fixed provenance: 12 items, 8,000 characters each, 24,000 in total, 2,000 for the instruction.',
     },
     {
       name: 'Citation enforcement',
-      note: 'Missing grounding is a refusal, not a warning — the request is checked before the model is called, and the reply is checked against the ids the request supplied.',
+      note: 'Missing grounding is a refusal, not a warning. The request is checked before the model is called, the reply against the ids that request supplied.',
     },
     {
       name: 'Factual-risk checks and explicit review',
-      note: 'New numbers, unsupported job skills, employers presented as experience, coursework presented as employment, participation presented as leadership or a win, and generic filler are flagged. Accept, edit, reject and undo stay with the user, and nothing is written to the saved CV automatically.',
+      note: 'New numbers, unsupported skills, employers presented as experience, coursework presented as employment, participation presented as a win, and generic filler all get flagged. A person decides what happens next.',
     },
   ],
   /** Where the change lives — stated once, here. */
   stack:
-    'The repair stayed in the existing career-guidance seam: React + Vite on Supabase (Auth, Postgres with row-level security, database functions, edge functions), hosted on Lovable Cloud, with no custom API server. Authorization is enforced server-side; the router’s guards are UX only.',
+    'The repair stayed in the existing career-guidance seam: React + Vite on Supabase, hosted on Lovable Cloud, no custom API server. Authorization is enforced server-side; the router’s guards are UX only.',
 } as const;
 
 /**

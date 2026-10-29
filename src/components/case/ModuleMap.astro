@@ -17,19 +17,16 @@ const modules = [
     n: '01',
     name: 'Attendance',
     purpose: 'Capture worker presence.',
-    holds: 'Who was present',
   },
   {
     n: '02',
     name: 'Produce',
     purpose: 'Organise production records.',
-    holds: 'What the farm produced',
   },
   {
     n: '03',
     name: 'Employees',
     purpose: 'Maintain worker information.',
-    holds: 'Who works there',
   },
 ] as const;
 ---
@@ -49,7 +46,6 @@ const modules = [
           <span class="module-map__n">{module.n}</span>
           <span class="module-map__name">{module.name}</span>
           <span class="module-map__purpose">{module.purpose}</span>
-          <span class="module-map__holds">{module.holds}</span>
         </div>
       ))
     }
@@ -83,7 +79,7 @@ const modules = [
     border-bottom: 1px solid var(--color-rule);
     background: var(--color-paper-raised);
     font-family: var(--font-instrument);
-    font-size: 0.6rem;
+    font-size: var(--size-label-sm);
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-accent-text);
@@ -104,7 +100,7 @@ const modules = [
   }
   .module-map__root-note {
     font-family: var(--font-instrument);
-    font-size: 0.66rem;
+    font-size: var(--size-label);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--color-accent-text);
@@ -140,7 +136,7 @@ const modules = [
   }
   .module-map__n {
     font-family: var(--font-instrument);
-    font-size: 0.6rem;
+    font-size: var(--size-label-sm);
     letter-spacing: 0.06em;
     color: var(--color-accent-text);
   }
@@ -155,17 +151,6 @@ const modules = [
     line-height: 1.45;
     color: var(--color-ink-muted);
   }
-  .module-map__holds {
-    margin-top: 0.35rem;
-    padding-top: 0.45rem;
-    border-top: 1px solid var(--color-rule-soft);
-    font-family: var(--font-instrument);
-    font-size: 0.62rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--color-text-on-paper-faint);
-  }
-
   .module-map__caption {
     display: grid;
     gap: 0.15rem;
@@ -178,7 +163,7 @@ const modules = [
   }
   .module-map__caption span {
     font-family: var(--font-instrument);
-    font-size: 0.62rem;
+    font-size: var(--size-label);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-accent-text);

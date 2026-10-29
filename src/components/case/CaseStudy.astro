@@ -87,17 +87,11 @@ const facts = [
 
     <p class="case-stack"><strong>Stack</strong> {project.stack.join(' / ')}</p>
 
+    {/* No numerals in the nav: every section already carries its own
+        coordinate in the eyebrow, and repeating it seven times was the
+        single biggest source of label noise on these pages. */}
     <nav class="case-nav" aria-label="Case study sections">
-      {
-        caseParts.map((part, index) => (
-          <a href={`#${part.key}`}>
-            <span class="case-nav__n" aria-hidden="true">
-              {String(index + 1).padStart(2, '0')}
-            </span>
-            {part.label}
-          </a>
-        ))
-      }
+      {caseParts.map((part) => <a href={`#${part.key}`}>{part.label}</a>)}
     </nav>
   </header>
 
@@ -180,12 +174,6 @@ const facts = [
   .case-nav a:hover {
     color: var(--color-accent-text);
   }
-  .case-nav__n {
-    font-family: var(--font-instrument);
-    font-size: 0.62rem;
-    letter-spacing: 0.06em;
-    color: var(--color-accent-text);
-  }
 
   .handover {
     padding-block: 0 0;
@@ -226,7 +214,7 @@ const facts = [
   .next-project__state {
     margin-top: 0.25rem;
     font-family: var(--font-instrument);
-    font-size: 0.64rem;
+    font-size: var(--size-label);
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--color-accent-text);

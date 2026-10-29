@@ -252,221 +252,154 @@ export function groundClaims(claims, context = SUPPLIED_CONTEXT) {
 }
 
 /**
- * Build the whole reading once. Everything the page shows — and everything
- * the test asserts — comes from here.
+ * Try a sentence against the gate.
+ *
+ * The bench on /lab/ lets a visitor write their own line and choose which
+ * supplied items it cites, so the gate has to be callable with a stranger's
+ * text. It is the same `inspectProposal` the product's contract excerpt
+ * describes: shape, the kind allowlist, citations drawn from the ids actually
+ * supplied, and both sides of the claim. The word match from `groundClaims`
+ * rides along as advice, never as a pass or a fail.
+ *
+ * @param {{text?: string, citedIds?: string[], context?: {id: string, content: string, label?: string}[]}} input
  */
-export function runScenario({ oldText = '', revisedText = '', context = SUPPLIED_CONTEXT } = {}) {
+export function evaluateReply({ text = '', citedIds = [], context = SUPPLIED_CONTEXT } = {}) {
   const items = Array.isArray(context) ? context : [];
-  const suppliedIds = items.map((item) => item.id);
-  const contextText = items.map((item) => item.content).join(' ');
+  const ids = items.map((item) => item.id);
+  const body = typeof text === 'string' ? text : '';
+  const cited = Array.isArray(citedIds) ? citedIds.filter((id) => typeof id === 'string') : [];
 
-  const oldGate = inspectProposal(oldText, suppliedIds);
-  const revisedGate = inspectProposal(revisedText, suppliedIds);
+  const raw = JSON.stringify({ kind: 'rewrite', text: body, sourceContextIds: cited });
+  const gate = inspectProposal(raw, ids);
+  const claims = groundClaims(claimsIn(body), items);
+  const unbacked = claims.filter((claim) => !claim.grounded);
 
-  let revisedProposal = null;
-  try {
-    revisedProposal = JSON.parse(revisedText);
-  } catch {
-    revisedProposal = null;
-  }
+  const empty = !body.trim();
+  const hasRequirement = cited.some((id) => id.startsWith('requirement-'));
+  const hasEvidence = cited.some((id) => id.startsWith('evidence-'));
+  const unknown = cited.filter((id) => !ids.includes(id));
 
-  /* Claims are read from the reply a person would actually see: the prose of
-     the old fixture, and the proposal's own text — never the JSON envelope,
-     whose keys and ids are not claims about the candidate. */
-  const oldClaims = groundClaims(claimsIn(oldText), items);
-  const revisedReplyText =
-    typeof revisedProposal?.text === 'string' ? revisedProposal.text : revisedText;
-  const revisedClaims = groundClaims(claimsIn(revisedReplyText), items);
-
-  const hasOpportunity = items.some((item) => item.id.startsWith('opportunity-'));
-  const hasRequirement = items.some(
-    (item) => item.id.startsWith('requirement-') && item.provenance === 'job_description',
-  );
-  const hasEvidence = items.some(
-    (item) => item.id.startsWith('evidence-') && item.provenance === 'selected_cv_text',
-  );
-  const totalChars = items.reduce(
-    (sum, item) => sum + (typeof item.content === 'string' ? item.content.length : 0),
-    0,
-  );
-  const provenanceKnown = items.every((item) => PROVENANCE.includes(item.provenance));
-
-  const requestChecks = [
+  /* One row per rule the page actually runs, so a refusal can point at the
+     line that failed instead of only naming the first one. */
+  const checks = [
     {
-      name: 'A version 2 request',
-      pass: true,
-      note: `${TASK} · version 2 · requestId, instruction and typed context items.`,
+      id: 'cites-something',
+      name: 'Cites something',
+      pass: cited.length > 0,
+      note: 'No ids at all.',
     },
     {
-      name: 'Allowlisted provenance',
-      pass: provenanceKnown,
-      note: items.every((item) => PROVENANCE.includes(item.provenance))
-        ? `Every item carries one of ${PROVENANCE.length} known provenances.`
-        : 'An item carries a provenance the contract does not allow.',
+      id: 'known-ids',
+      name: 'Only ids it was given',
+      pass: unknown.length === 0,
+      note: unknown.length ? `Unknown: ${unknown.join(', ')}.` : 'Every id belongs to the material.',
     },
     {
-      name: 'Opportunity, requirement and evidence present',
-      pass: hasOpportunity && hasRequirement && hasEvidence,
-      note: 'The documented preflight. Fail this and the request stops before the model is called.',
+      id: 'both-sides',
+      name: 'A requirement and evidence',
+      pass: hasRequirement && hasEvidence,
+      note:
+        hasRequirement && hasEvidence
+          ? 'Both sides are cited.'
+          : !hasRequirement && !hasEvidence
+            ? 'Neither side is cited.'
+            : hasRequirement
+              ? 'The job ad is cited, the work is not.'
+              : 'The work is cited, the job ad is not.',
     },
     {
-      name: 'Within the size limits',
-      pass: items.length <= LIMITS.contextItemMax && totalChars <= LIMITS.contextTotalMax,
-      note: `${items.length} of ${LIMITS.contextItemMax} items · ${totalChars.toLocaleString('en-GB')} of ${LIMITS.contextTotalMax.toLocaleString('en-GB')} characters.`,
+      id: 'has-text',
+      name: 'Something to read',
+      pass: Boolean(body.trim()),
+      note: 'The proposal has text in it.',
     },
   ];
 
-  const variants = [];
-  if (revisedProposal && typeof revisedProposal === 'object') {
-    const shape = (sourceContextIds) =>
-      JSON.stringify({ ...revisedProposal, sourceContextIds }, null, 2);
-    variants.push(
-      {
-        id: 'prose',
-        label: 'Old-contract prose',
-        note: 'The recorded failure shape: free text, no citations, nothing to check.',
-        raw: oldText,
-        verdict: oldGate,
-      },
-      {
-        id: 'uncited',
-        label: 'Cited shape, no citations',
-        note: 'Coordinates stripped out of an otherwise valid rewrite.',
-        raw: shape([]),
-        verdict: inspectProposal(shape([]), suppliedIds),
-      },
-      {
-        id: 'unknown',
-        label: 'Cited shape, unknown id',
-        note: 'One invented id beside one real one.',
-        raw: shape(['requirement-2', 'evidence-99']),
-        verdict: inspectProposal(shape(['requirement-2', 'evidence-99']), suppliedIds),
-      },
-      {
-        id: 'partial',
-        label: 'Cited shape, requirement only',
-        note: 'A real citation, but only one side of the claim.',
-        raw: shape(['requirement-2']),
-        verdict: inspectProposal(shape(['requirement-2']), suppliedIds),
-      },
-    );
-  }
-
   return {
-    task: TASK,
-    instruction: INSTRUCTION,
-    context: items,
-    suppliedIds,
-    contextText,
-    requestChecks,
-    oldText,
-    revisedText,
-    revisedReplyText,
-    revisedProposal,
-    oldClaims,
-    revisedClaims,
-    oldGate,
-    revisedGate,
-    variants,
-    reviews: {
-      revised: createReview(revisedGate, revisedProposal?.text ?? ''),
-      refused: createReview(oldGate, ''),
-    },
+    checks,
+    text: body,
+    citedIds: cited,
+    gate,
+    claims,
+    unbacked,
+    empty,
+    status: empty ? 'empty' : gate.ok ? 'passed' : 'refused',
+    label: empty ? 'Nothing to check yet' : gate.ok ? 'Passed the checks' : 'Refused',
+    reason: empty ? 'Write a sentence, or start from one of the examples.' : plainReason(gate, cited, items),
   };
 }
 
 /**
- * The review surface as a small state machine. Nothing is persisted: `saved`
- * stays null because the saved CV is written by the product's existing save,
- * which this local demonstration does not run.
- * @param {{ok: boolean, reason?: string, message?: string}} gate
- * @param {string} text
+ * The gate's reason code, in words a person would use. Kept beside
+ * `inspectProposal` so a new reason code cannot ship without a sentence.
+ * @param {{ok: boolean, reason?: string}} gate
+ * @param {string[]} cited
+ * @param {{id: string}[]} items
  */
-export function createReview(gate, text = '') {
-  const gateOk = Boolean(gate?.ok);
-  return {
-    gateOk,
-    reason: gate?.reason ?? null,
-    status: gateOk ? 'awaiting_review' : 'blocked',
-    text,
-    draft: null,
-    saved: null,
-    message: gateOk
-      ? 'Accept, edit, reject or undo. The saved CV changes only when the existing save runs.'
-      : `Accept is blocked: the gate refused this reply (${gate?.reason ?? 'unknown'}). It must be edited or regenerated first.`,
-  };
+export function plainReason(gate, cited = [], items = SUPPLIED_CONTEXT) {
+  if (gate?.ok) return 'A person still has to read the claim. Passing this check is not the same as being true.';
+
+  const ids = items.map((item) => item.id);
+  const known = (Array.isArray(cited) ? cited : []).filter((id) => ids.includes(id));
+
+  if (gate?.reason === 'model_unknown_source_id') {
+    return 'It cites something that was never in the material.';
+  }
+  if (gate?.reason === 'model_missing_grounding') {
+    if (!known.length) return 'It doesn’t say where the sentence came from.';
+    const requirement = known.some((id) => id.startsWith('requirement-'));
+    const evidence = known.some((id) => id.startsWith('evidence-'));
+    if (requirement && !evidence) return 'It points at what the job asked for, but not at anything you’ve done.';
+    if (evidence && !requirement) return 'It points at your evidence, but not at what the job asked for.';
+    return 'It needs at least one requirement and one piece of evidence.';
+  }
+  if (gate?.reason === 'model_kind') {
+    return 'The reply has to be a rewrite proposal with some text in it.';
+  }
+  if (gate?.reason === 'model_not_json') {
+    return 'The reply isn’t in the shape the contract expects.';
+  }
+  return 'The check refused this one.';
 }
 
 /**
- * One review action. Returns the next state; never mutates the previous one.
- * @param {{gateOk: boolean, reason: string|null, status: string, text: string, draft: string|null, saved: string|null, message: string}} review
- * @param {'accept'|'edit'|'reject'|'undo'} action
- * @param {{text?: string}} [payload]
+ * The four lines the bench offers. Three of them are things that went wrong
+ * in the real product, or a plausible version of them; the fourth is the
+ * fixture that passes. Same sentence, different citations, in the middle two:
+ * the point is that the words are identical and only the sourcing differs.
  */
-export function reviewAction(review, action, payload = {}) {
-  if (!review || typeof review !== 'object') return review;
-  const nextText = typeof payload.text === 'string' ? payload.text : review.text;
-
-  if (action === 'undo') {
-    if (review.status !== 'accepted' && review.status !== 'edited') return review;
-    return {
-      ...review,
-      status: 'awaiting_review',
-      draft: null,
-      message: 'Undone. The draft is back to the proposal; nothing was saved.',
-    };
-  }
-
-  if (!REVIEW_ACTIONS.includes(action)) return review;
-
-  if (!review.gateOk) {
-    return {
-      ...review,
-      message: `Blocked: the gate refused this reply (${review.reason ?? 'unknown'}). A person can edit or regenerate, but not accept it.`,
-    };
-  }
-
-  if (review.status !== 'awaiting_review') return review;
-
-  if (action === 'accept') {
-    return {
-      ...review,
-      status: 'accepted',
-      draft: nextText,
-      saved: null,
-      message:
-        'Accepted into the draft field. The saved CV is unchanged — the existing save is what persists it.',
-    };
-  }
-
-  if (action === 'edit') {
-    return {
-      ...review,
-      status: 'edited',
-      draft: nextText,
-      saved: null,
-      message: 'Edited. The person’s wording is now the draft; still nothing written to the saved CV.',
-    };
-  }
-
-  if (action === 'reject') {
-    return {
-      ...review,
-      status: 'rejected',
-      draft: null,
-      saved: null,
-      message: 'Rejected. The draft is untouched and nothing was written.',
-    };
-  }
-
-  return review;
-}
-
-/** The stage ids the page exposes as deep links, in order. */
-export const STAGE_IDS = Object.freeze([
-  'lab-input',
-  'lab-model-output',
-  'lab-failure',
-  'lab-revised',
-  'lab-review',
+export const PRESETS = Object.freeze([
+  {
+    id: 'invented',
+    label: 'Invent a company',
+    text: 'Results-driven engineer with 5 years of Kubernetes experience who transformed deployments at Acme Corp, improving speed by 40%.',
+    citedIds: ['requirement-2', 'evidence-1'],
+    note: 'Passes the checks, and every claim in it is made up.',
+  },
+  {
+    id: 'uncited',
+    label: 'Cite nothing',
+    text: 'Built Python and SQL queries to analyse 1,200 sales records.',
+    citedIds: [],
+    note: 'True, and unaccounted for. Nothing says where it came from.',
+  },
+  {
+    id: 'one-sided',
+    label: 'Half the sources',
+    text: 'Built Python and SQL queries to analyse 1,200 sales records.',
+    citedIds: ['requirement-2'],
+    note: 'It cites the job ad but not the work.',
+  },
+  {
+    id: 'honest',
+    label: 'Make it honest',
+    text: 'Built Python and SQL queries to analyse 1,200 sales records.',
+    citedIds: ['requirement-2', 'evidence-1'],
+    note: 'Both sides cited. The claim is still a person’s to check.',
+  },
 ]);
+
+/** Anchors the page exposes, and the hash a preset writes. */
+export const PRESET_HASH = Object.freeze(
+  Object.fromEntries(PRESETS.map((preset) => [preset.id, `#lab-${preset.id}`])),
+);
